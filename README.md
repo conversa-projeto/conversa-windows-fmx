@@ -9,6 +9,12 @@ Este **não** é um aplicativo autônomo, este é apenas um frontend, um cliente
 - <img src="https://cdn-icons-png.flaticon.com/512/270/270780.png" width="20" height="20" style="float:left;"> [Cliente - Android - FMX](https://github.com/conversa-projeto/conversa-android-fmx)
 - <img src="https://cdn-icons-png.flaticon.com/512/906/906308.png" width="20" height="20" style="float:left;"> [Cliente - Windows - FMX](https://github.com/conversa-projeto/conversa-windows-fmx)
 
+## 💻 Code Contributors
+
+<a href="https://github.com/conversa-projeto/conversa/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=conversa-projeto/conversa" />
+</a>
+
 ## ⚠️ License
 
 `Conversa` é um software gratuito e de código aberto licenciado sob a [MIT License](./LICENSE). 
