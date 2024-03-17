@@ -1,0 +1,17 @@
+﻿[Dados.cdsConversas]
+Coordinates=301,20,136,36
+Visible=False
+
+[]
+Coordinates=164,175,91,36
+
+[lwConversas]
+Coordinates=210,20,135,212
+Visible=True
+
+[blsDados]
+Coordinates=154,1,91,36
+
+[bsrConversas]
+Coordinates=40,20,124,146
+
