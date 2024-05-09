@@ -277,13 +277,12 @@ begin
   FAguardandoAnexo := True;
 
   FAnexo.SelecionarAnexo(
-    procedure(Selecionados: TSelecaoAnexo)
+    procedure(Selecionados: TArray<TMensagemConteudo>)
     var
       Mensagem: TMensagem;
     begin
       Mensagem := Default(TMensagem);
-      Mensagem.Texto := Selecionados.Legenda;
-      Mensagem.Anexo := Selecionados;
+      Mensagem.Conteudos := Selecionados;
       FAdicionar(Mensagem);
     end
   );
@@ -303,6 +302,7 @@ end;
 
 procedure TEditor.lytEnviarClick(Sender: TObject);
 var
+  Conteudo: TMensagemConteudo;
   Mensagem: TMensagem;
   sMensagem: String;
 begin
@@ -310,7 +310,10 @@ begin
   if sMensagem.IsEmpty then
     Exit;
   Mensagem := Default(TMensagem);
-  Mensagem.Texto := sMensagem;
+  Conteudo := Default(TMensagemConteudo);
+  Conteudo.Tipo := 1; // texto
+  Conteudo.Dados := sMensagem;
+  Mensagem.Conteudos := [Conteudo];
   mmMensagem.Lines.Clear;
   FAdicionar(Mensagem);
 end;

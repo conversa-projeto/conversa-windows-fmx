@@ -11,9 +11,9 @@ uses
 type
   TLado = (Direito, Esquerdo);
 
-  TSelecaoAnexo = record
-    Legenda: String;
-    Arquivos: TArray<String>;
+  TMensagemConteudo = record
+    Tipo: Integer;
+    Dados: String;
   end;
 
   TMensagem = record
@@ -21,8 +21,7 @@ type
     EnviadaEm: TDateTime;
     Lado: TLado;
     Remetente: String;
-    Texto: String;
-    Anexo: TSelecaoAnexo;
+    Conteudos: TArray<TMensagemConteudo>;
   end;
 
 implementation

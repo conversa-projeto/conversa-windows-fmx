@@ -208,38 +208,42 @@ begin
   lbHora.TextSettings.HorzAlign := TTextAlign.Trailing;
   lbHora.Text := FormatDateTime('hh:nn', Mensagem.EnviadaEm);
 
-  if not Mensagem.Texto.Trim.IsEmpty then
+  for I := 0 to Pred(Length(Mensagem.Conteudos)) do
   begin
-    txtTexto := TText.Create(lytConteudo);
-    NomearComponente(txtTexto);
-    txtTexto.Align := TAlignLayout.Top;
-    txtTexto.Size.Width := 276;
-    txtTexto.Size.Height := 17;
-    txtTexto.Size.PlatformDefault := False;
-    txtTexto.Text := Mensagem.Texto;
-    txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
-    txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
-    lytConteudoMensagem.AddObject(txtTexto);
-  end;
-
-  for I := 0 to Pred(Length(Mensagem.Anexo.Arquivos)) do
-  begin
-    imgImagem := TImage.Create(lytConteudo);
-    NomearComponente(imgImagem);
-    bmp := TBitmap.Create;
-    try
-      bmp.LoadFromFile(Mensagem.Anexo.Arquivos[I]);
-      imgImagem.MultiResBitmap.Add.Bitmap.Assign(bmp);
-    finally
-      FreeAndNil(bmp);
+    case Mensagem.Conteudos[I].Tipo of
+      1: // texto
+      begin
+        txtTexto := TText.Create(lytConteudo);
+        NomearComponente(txtTexto);
+        txtTexto.Align := TAlignLayout.Top;
+        txtTexto.Size.Width := 276;
+        txtTexto.Size.Height := 17;
+        txtTexto.Size.PlatformDefault := False;
+        txtTexto.Text := Mensagem.Conteudos[I].Dados;
+        txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
+        txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
+        lytConteudoMensagem.AddObject(txtTexto);
+      end;
+      2: // imagem
+      begin
+        imgImagem := TImage.Create(lytConteudo);
+        NomearComponente(imgImagem);
+        bmp := TBitmap.Create;
+        try
+          bmp.LoadFromFile(Mensagem.Conteudos[I].Dados);
+          imgImagem.MultiResBitmap.Add.Bitmap.Assign(bmp);
+        finally
+          FreeAndNil(bmp);
+        end;
+        imgImagem.Align := TAlignLayout.Top;
+        if (Length(Mensagem.Conteudos) > 1) and (I >= 1) then
+          imgImagem.Margins.Top := 5;
+        imgImagem.Size.Width := 353;
+        imgImagem.Size.Height := 217;
+        imgImagem.Size.PlatformDefault := False;
+        lytConteudoMensagem.AddObject(imgImagem);
+      end;
     end;
-    imgImagem.Align := TAlignLayout.Top;
-    if (Length(Mensagem.Anexo.Arquivos) > 1) and (I >= 1) then
-      imgImagem.Margins.Top := 5;
-    imgImagem.Size.Width := 353;
-    imgImagem.Size.Height := 217;
-    imgImagem.Size.PlatformDefault := False;
-    lytConteudoMensagem.AddObject(imgImagem);
   end;
 
   rtgFundo.AddObject(lytConteudoMensagem);

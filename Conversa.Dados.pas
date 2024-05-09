@@ -37,9 +37,11 @@ type
     Ftelefone: String;
   public
     property ID: Integer read Fid;
+    property Nome: String read Fnome;
     procedure Login(sLogin, sSenha: String);
     procedure Conversas;
     procedure Mensagens(iConversa: Integer);
+    function Anexo(sIdentificador: String): String;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -51,13 +53,15 @@ type
 var
   Dados: TDados;
 
-const
-  SERVIDOR = 'http://localhost:90';
-
 implementation
 
 uses
+  System.IOUtils,
   System.DateUtils;
+
+const
+  SERVIDOR = 'http://localhost:90';
+  PASTA_ANEXO = 'anexos';
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
@@ -168,6 +172,34 @@ begin
       cdsConversas.FieldByName('descricao').AsString := Item.GetValue<String>('descricao');
       cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
     end;
+  finally
+    Free;
+  end;
+end;
+
+function TDados.Anexo(sIdentificador: String): String;
+var
+  sLocal: String;
+begin
+  if TFile.Exists(PASTA_ANEXO + PathDelim + sIdentificador) then
+    Exit(PASTA_ANEXO + PathDelim + sIdentificador);
+
+  with TAPIConversa.Create do
+  try
+    Host(SERVIDOR);
+    Route('anexo');
+    Headers(TJSONObject.Create.AddPair('uid', Fid));
+    Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
+    GET;
+
+    sLocal := ExtractFilePath(ParamStr(0)) + PASTA_ANEXO;
+
+    if not TDirectory.Exists(sLocal) then
+      TDirectory.CreateDirectory(sLocal);
+
+    Result := sLocal + PathDelim + sIdentificador;
+
+    Response.ToStream.SaveToFile(Result);
   finally
     Free;
   end;

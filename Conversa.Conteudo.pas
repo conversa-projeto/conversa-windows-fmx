@@ -15,6 +15,7 @@ type
   TConteudo = class
   private
     FID: Integer;
+    FUsuario: String;
     Visualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
@@ -24,6 +25,7 @@ type
     constructor Create(AOwner: TFmxObject);
     destructor Destroy; override;
     property ID: Integer read FID write FID;
+    property Usuario: String read FUsuario write FUsuario;
     property Visible: Boolean read FVisible write SetVisible;
     procedure AdicionarMensagem(Mensagem: TMensagem);
   end;
@@ -43,7 +45,7 @@ begin
     begin
       Mensagem.EnviadaEm := Now;
       Mensagem.Lado := TLado.Direito;
-      Mensagem.Remetente := 'Eduardo';
+      Mensagem.Remetente := Usuario;
       Visualizador.AdicionaMensagem(Mensagem);
     end
   );

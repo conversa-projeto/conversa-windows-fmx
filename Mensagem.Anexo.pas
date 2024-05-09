@@ -33,13 +33,10 @@ type
     StyleBook: TStyleBook;
     lytEditorAnexo: TLayout;
     rtgEditor: TRectangle;
-    lbLegenda: TLabel;
     lytBotoes: TLayout;
     sbtCancelar: TSpeedButton;
     sbtEnviar: TSpeedButton;
     sbtAdicionar: TSpeedButton;
-    mmLegenda: TMemo;
-    lnLegenda: TLine;
     lbTitulo: TLabel;
     lbxAnexos: TListBox;
     procedure sbtAdicionarClick(Sender: TObject);
@@ -50,7 +47,7 @@ type
     QUANTIDADE_VISIVEL = 5;
   private
     FImagens: TArray<TBitmap>;
-    FAoSelecionar: TProc<TSelecaoAnexo>;
+    FAoSelecionar: TProc<TArray<TMensagemConteudo>>;
     FAoCancelar: TProc;
     procedure CriarEstilo;
     procedure ItemOnApplyStyleLookup(Sender: TObject);
@@ -58,7 +55,7 @@ type
   public
     constructor Create(AOwner: TFmxObject);
     destructor Destroy; override;
-    procedure SelecionarAnexo(AoSelecionar: TProc<TSelecaoAnexo>);
+    procedure SelecionarAnexo(AoSelecionar: TProc<TArray<TMensagemConteudo>>);
     procedure CancelarAnexo(AoCancelar: TProc);
     property Layout: TLayout read lytEditorAnexo;
   end;
@@ -90,16 +87,6 @@ begin
   rtgEditor.Size.PlatformDefault := False;
   rtgEditor.XRadius := 10;
   rtgEditor.YRadius := 10;
-
-  lbLegenda := TLabel.Create(rtgEditor);
-  lbLegenda.Align := TAlignLayout.Bottom;
-  lbLegenda.Margins.Bottom := 3;
-  lbLegenda.Position.X := 15;
-  lbLegenda.Position.Y := 151;
-  lbLegenda.Size.Width := 266;
-  lbLegenda.Size.Height := 17;
-  lbLegenda.Size.PlatformDefault := False;
-  lbLegenda.Text := 'Legenda';
 
   lytBotoes := TLayout.Create(rtgEditor);
   lytBotoes.Align := TAlignLayout.Bottom;
@@ -135,25 +122,6 @@ begin
   sbtAdicionar.Text := 'Adicionar';
   sbtAdicionar.OnClick := sbtAdicionarClick;
 
-  mmLegenda := TMemo.Create(rtgEditor);
-  mmLegenda.Touch.InteractiveGestures := [TInteractiveGesture.Pan, TInteractiveGesture.LongTap, TInteractiveGesture.DoubleTap];
-  mmLegenda.DataDetectorTypes := [];
-  mmLegenda.Align := TAlignLayout.Bottom;
-  mmLegenda.Position.X := 15;
-  mmLegenda.Position.Y := 171;
-  mmLegenda.Size.Width := 266;
-  mmLegenda.Size.Height := 20;
-  mmLegenda.Size.PlatformDefault := False;
-
-  lnLegenda := TLine.Create(rtgEditor);
-  lnLegenda.Align := TAlignLayout.Bottom;
-  lnLegenda.LineType := TLineType.Top;
-  lnLegenda.Position.X := 15;
-  lnLegenda.Position.Y := 191;
-  lnLegenda.Size.Width := 266;
-  lnLegenda.Size.Height := 5;
-  lnLegenda.Size.PlatformDefault := False;
-
   lbTitulo := TLabel.Create(rtgEditor);
   lbTitulo.Align := TAlignLayout.Top;
   lbTitulo.StyledSettings := [TStyledSetting.Family, TStyledSetting.Size, TStyledSetting.FontColor];
@@ -181,18 +149,11 @@ begin
   lytEditorAnexo.AddObject(rtgEditor);
   rtgEditor.AddObject(lbTitulo);
   rtgEditor.AddObject(lbxAnexos);
-  rtgEditor.AddObject(lbLegenda);
-  rtgEditor.AddObject(mmLegenda);
-  rtgEditor.AddObject(lnLegenda);
   rtgEditor.AddObject(lytBotoes);
   lytBotoes.AddObject(sbtAdicionar);
   lytBotoes.AddObject(sbtCancelar);
   lytBotoes.AddObject(sbtEnviar);
   AOwner.AddObject(lytEditorAnexo);
-
-  mmLegenda.NeedStyleLookup;
-  mmLegenda.ApplyStyleLookup;
-  mmLegenda.StylesData['background.Source'] := nil;
 
   lbxAnexos.NeedStyleLookup;
   lbxAnexos.ApplyStyleLookup;
@@ -214,11 +175,11 @@ begin
   inherited;
 end;
 
-procedure TAnexo.SelecionarAnexo(AoSelecionar: TProc<TSelecaoAnexo>);
+procedure TAnexo.SelecionarAnexo(AoSelecionar: TProc<TArray<TMensagemConteudo>>);
 begin
   FAoSelecionar := AoSelecionar;
   lytEditorAnexo.Visible := True;
-  rtgEditor.Height := 115;
+  rtgEditor.Height := 70;
 end;
 
 procedure TAnexo.CancelarAnexo(AoCancelar: TProc);
@@ -443,14 +404,18 @@ end;
 
 procedure TAnexo.sbtEnviarClick(Sender: TObject);
 var
-  Selecionados: TSelecaoAnexo;
+  Item: TMensagemConteudo;
+  Selecionados: TArray<TMensagemConteudo>;
   I: Integer;
 begin
-  Selecionados := Default(TSelecaoAnexo);
-  Selecionados.Legenda := mmLegenda.Text;
-
+  Selecionados := [];
   for I := 0 to Pred(lbxAnexos.Items.Count) do
-    Selecionados.Arquivos := Selecionados.Arquivos + [TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text];
+  begin
+    Item := Default(TMensagemConteudo);
+    Item.Tipo := 2; // imagem
+    Item.Dados := TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text;
+    Selecionados := Selecionados + [Item];
+  end;
 
   RemoverItens;
 
@@ -464,11 +429,8 @@ var
   bmp: TBitmap;
 begin
   lbxAnexos.Clear;
-  mmLegenda.Lines.Clear;
-
   for bmp in FImagens do
     bmp.Free;
-
   FImagens := [];
 end;
 

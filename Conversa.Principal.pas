@@ -99,6 +99,7 @@ var
   Conteudo: TConteudo;
   bJaCriado: Boolean;
   Mensagem: TMensagem;
+  Item: TMensagemConteudo;
 begin
   bJaCriado := False;
   for Conteudo in FConteudos do
@@ -117,6 +118,7 @@ begin
 
   Conteudo := TConteudo.Create(lytConteudo);
   Conteudo.ID := lwConversas.ItemIndex;
+  Conteudo.Usuario := Dados.Nome;
   FConteudos := FConteudos + [Conteudo];
 
   // Preencher dados
@@ -134,12 +136,24 @@ begin
       Mensagem.Lado := TLado.Esquerdo;
     Mensagem.Remetente := Dados.cdsMensagens.FieldByName('remetente').AsString;
 
+    Mensagem.Conteudos := [];
+
     Dados.cdsConteudos.First;
     while not Dados.cdsConteudos.Eof do
     begin
-      case Dados.cdsConteudos.FieldByName('tipo').AsInteger of
-        1: Mensagem.Texto := Trim(Mensagem.Texto + sLineBreak + DecodeHex(Dados.cdsConteudos.FieldByName('conteudo').AsString));
+      Item := Default(TMensagemConteudo);
+      Item.Tipo := Dados.cdsConteudos.FieldByName('tipo').AsInteger;
+      case Item.Tipo of
+        1: // texto
+        begin
+          Item.Dados := DecodeHex(Dados.cdsConteudos.FieldByName('conteudo').AsString);
+        end;
+        2: // imagem
+        begin
+          Item.Dados := Dados.Anexo(DecodeHex(Dados.cdsConteudos.FieldByName('conteudo').AsString));
+        end;
       end;
+      Mensagem.Conteudos := Mensagem.Conteudos + [Item];
       Dados.cdsConteudos.Next;
     end;
 
