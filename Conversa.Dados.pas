@@ -9,7 +9,8 @@ uses
   System.JSON,
   Data.DB,
   Datasnap.DBClient,
-  REST.API;
+  REST.API,
+  Mensagem.Tipos;
 
 type
   TDados = class(TDataModule)
@@ -17,18 +18,6 @@ type
     cdsConversasid: TIntegerField;
     cdsConversasdescricao: TStringField;
     cdsConversasultima_mensagem: TDateTimeField;
-    cdsMensagens: TClientDataSet;
-    cdsMensagensid: TIntegerField;
-    cdsMensagensinserida: TDateTimeField;
-    cdsMensagensalterada: TDateTimeField;
-    cdsMensagensremetente: TStringField;
-    cdsMensagensremetente_id: TIntegerField;
-    cdsConteudos: TClientDataSet;
-    cdsMensagensconteudos: TDataSetField;
-    cdsConteudosid: TIntegerField;
-    cdsConteudosordem: TIntegerField;
-    cdsConteudostipo: TIntegerField;
-    cdsConteudosconteudo: TBlobField;
     procedure DataModuleCreate(Sender: TObject);
   private
     Fid: Integer;
@@ -40,8 +29,9 @@ type
     property Nome: String read Fnome;
     procedure Login(sLogin, sSenha: String);
     procedure Conversas;
-    procedure Mensagens(iConversa: Integer);
-    function Anexo(sIdentificador: String): String;
+    function Mensagens(iConversa: Integer): TArray<TMensagem>;
+    procedure EnviarMensagem(Mensagem: TMensagem);
+    function DownloadAnexo(sIdentificador: String): String;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -95,7 +85,6 @@ end;
 procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   cdsConversas.CreateDataSet;
-  cdsMensagens.CreateDataSet;
 end;
 
 procedure TDados.Login(sLogin, sSenha: String);
@@ -119,7 +108,10 @@ begin
   end;
 end;
 
-procedure TDados.Mensagens(iConversa: Integer);
+function TDados.Mensagens(iConversa: Integer): TArray<TMensagem>;
+var
+  Mensagem: TMensagem;
+  MensagemConteudo: TMensagemConteudo;
 begin
   with TAPIConversa.Create do
   try
@@ -129,26 +121,36 @@ begin
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
-    cdsMensagens.EmptyDataSet;
+    Result := [];
     for var Item in Response.ToJSONArray do
     begin
-      cdsMensagens.Append;
-      cdsMensagens.FieldByName('id').AsInteger := Item.GetValue<Integer>('id');
-      cdsMensagens.FieldByName('remetente_id').AsString := Item.GetValue<String>('remetente_id');
-      cdsMensagens.FieldByName('remetente').AsString := Item.GetValue<String>('remetente');
+      Mensagem := Default(TMensagem);
+      Mensagem.id := Item.GetValue<Integer>('id');
+      Mensagem.remetente_id := Item.GetValue<Integer>('remetente_id');
+      Mensagem.remetente := Item.GetValue<String>('remetente');
+      if Mensagem.remetente_id = Dados.ID then
+        Mensagem.lado := TLado.Direito
+      else
+        Mensagem.lado := TLado.Esquerdo;
       if not (Item.FindValue('inserida') is TJSONNull) then
-        cdsMensagens.FieldByName('inserida').AsDateTime := ISO8601ToDate(Item.GetValue<String>('inserida'));
+        Mensagem.inserida := ISO8601ToDate(Item.GetValue<String>('inserida'));
       if not (Item.FindValue('alterada') is TJSONNull) then
-        cdsMensagens.FieldByName('alterada').AsDateTime := ISO8601ToDate(Item.GetValue<String>('alterada'));
+        Mensagem.alterada := ISO8601ToDate(Item.GetValue<String>('alterada'));
 
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
-        cdsConteudos.Append;
-        cdsConteudos.FieldByName('id').AsInteger      := Conteudo.GetValue<Integer>('id');
-        cdsConteudos.FieldByName('ordem').AsInteger   := Conteudo.GetValue<Integer>('ordem');
-        cdsConteudos.FieldByName('tipo').AsInteger    := Conteudo.GetValue<Integer>('tipo');
-        cdsConteudos.FieldByName('conteudo').AsString := Conteudo.GetValue<String>('conteudo');
+        MensagemConteudo := Default(TMensagemConteudo);
+        MensagemConteudo.id := Conteudo.GetValue<Integer>('id');
+        MensagemConteudo.ordem := Conteudo.GetValue<Integer>('ordem');
+        MensagemConteudo.tipo := Conteudo.GetValue<Integer>('tipo');
+        case MensagemConteudo.Tipo of
+          1: MensagemConteudo.conteudo := Conteudo.GetValue<String>('conteudo');                // 1-Texto
+          2: MensagemConteudo.conteudo := DownloadAnexo(Conteudo.GetValue<String>('conteudo')); // 2-Imagem
+        end;
+        Mensagem.conteudos := Mensagem.conteudos + [MensagemConteudo];
       end;
+
+      Result := Result + [Mensagem];
     end;
   finally
     Free;
@@ -177,7 +179,7 @@ begin
   end;
 end;
 
-function TDados.Anexo(sIdentificador: String): String;
+function TDados.DownloadAnexo(sIdentificador: String): String;
 var
   sLocal: String;
 begin
@@ -203,6 +205,13 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TDados.EnviarMensagem(Mensagem: TMensagem);
+begin
+  // gerar o id do anexo
+  // enviar o anexo (em segundo plano.. talvez v2)
+  // enviar a mensagem
 end;
 
 end.

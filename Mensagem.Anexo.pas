@@ -412,8 +412,8 @@ begin
   for I := 0 to Pred(lbxAnexos.Items.Count) do
   begin
     Item := Default(TMensagemConteudo);
-    Item.Tipo := 2; // imagem
-    Item.Dados := TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text;
+    Item.tipo := 2; // 2-Imagem
+    Item.conteudo := TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text;
     Selecionados := Selecionados + [Item];
   end;
 

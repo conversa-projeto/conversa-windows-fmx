@@ -206,7 +206,7 @@ begin
   lbHora.Size.Height := 22;
   lbHora.Size.PlatformDefault := False;
   lbHora.TextSettings.HorzAlign := TTextAlign.Trailing;
-  lbHora.Text := FormatDateTime('hh:nn', Mensagem.EnviadaEm);
+  lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida);
 
   for I := 0 to Pred(Length(Mensagem.Conteudos)) do
   begin
@@ -219,7 +219,7 @@ begin
         txtTexto.Size.Width := 276;
         txtTexto.Size.Height := 17;
         txtTexto.Size.PlatformDefault := False;
-        txtTexto.Text := Mensagem.Conteudos[I].Dados;
+        txtTexto.Text := Mensagem.Conteudos[I].conteudo;
         txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
         lytConteudoMensagem.AddObject(txtTexto);
@@ -230,7 +230,7 @@ begin
         NomearComponente(imgImagem);
         bmp := TBitmap.Create;
         try
-          bmp.LoadFromFile(Mensagem.Conteudos[I].Dados);
+          bmp.LoadFromFile(Mensagem.Conteudos[I].conteudo);
           imgImagem.MultiResBitmap.Add.Bitmap.Assign(bmp);
         finally
           FreeAndNil(bmp);

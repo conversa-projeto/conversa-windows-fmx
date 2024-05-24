@@ -14,7 +14,8 @@ uses
 type
   TConteudo = class
   private
-    FID: Integer;
+    FItemIndex: Integer;
+    FConversa: Integer;
     FUsuario: String;
     Visualizador: TVisualizador;
     Editor: TEditor;
@@ -22,12 +23,15 @@ type
     FVisible: Boolean;
     procedure SetVisible(const Value: Boolean);
   public
+    AoEnviarMensagem: TProc<TConteudo, TMensagem>;
     constructor Create(AOwner: TFmxObject);
     destructor Destroy; override;
-    property ID: Integer read FID write FID;
+    property ItemIndex: Integer read FItemIndex write FItemIndex;
+    property Conversa: Integer read FConversa write FConversa;
     property Usuario: String read FUsuario write FUsuario;
     property Visible: Boolean read FVisible write SetVisible;
     procedure AdicionarMensagem(Mensagem: TMensagem);
+    procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
   end;
 
 implementation
@@ -43,10 +47,13 @@ begin
   Editor.AdicionaMensagem(
     procedure(Mensagem: TMensagem)
     begin
-      Mensagem.EnviadaEm := Now;
-      Mensagem.Lado := TLado.Direito;
-      Mensagem.Remetente := Usuario;
+      Mensagem.inserida := Now;
+      Mensagem.lado := TLado.Direito;
+      Mensagem.remetente := Usuario;
       Visualizador.AdicionaMensagem(Mensagem);
+
+      if Assigned(AoEnviarMensagem) then
+        AoEnviarMensagem(Self, Mensagem);
     end
   );
 end;
@@ -68,6 +75,14 @@ end;
 procedure TConteudo.AdicionarMensagem(Mensagem: TMensagem);
 begin
   Visualizador.AdicionaMensagem(Mensagem);
+end;
+
+procedure TConteudo.AdicionarMensagens(aMensagem: TArray<TMensagem>);
+var
+  Mensagem: TMensagem;
+begin
+  for Mensagem in aMensagem do
+    AdicionarMensagem(Mensagem);
 end;
 
 end.

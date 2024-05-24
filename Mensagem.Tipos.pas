@@ -9,19 +9,24 @@ uses
 {$SCOPEDENUMS ON}
 
 type
-  TLado = (Direito, Esquerdo);
+  TLado = (Esquerdo, Direito);
 
   TMensagemConteudo = record
-    Tipo: Integer;
-    Dados: String;
+    id: Integer;
+    tipo: Integer;
+    ordem: Integer;
+    conteudo: String
   end;
 
   TMensagem = record
-    ID: Integer;
-    EnviadaEm: TDateTime;
-    Lado: TLado;
-    Remetente: String;
-    Conteudos: TArray<TMensagemConteudo>;
+    id: Integer;
+    remetente_id: Integer;
+    remetente: String;
+    lado: TLado;
+    conversa_id: Integer;
+    alterada: TDateTime;
+    inserida: TDateTime;
+    conteudos: TArray<TMensagemConteudo>;
   end;
 
 implementation

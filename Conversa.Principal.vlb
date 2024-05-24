@@ -10,8 +10,15 @@ Coordinates=210,20,135,212
 Visible=True
 
 [blsDados]
-Coordinates=154,1,91,36
+Coordinates=154,1,68,36
 
 [bsrConversas]
 Coordinates=40,20,124,146
+
+[lytConteudo]
+Coordinates=95,185,83,36
+Visible=True
+
+[Dados.]
+Coordinates=0,0,137,146
 

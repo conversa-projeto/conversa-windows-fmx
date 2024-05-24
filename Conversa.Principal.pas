@@ -27,7 +27,8 @@ uses
   Data.Bind.DBScope,
   FMX.Objects,
   FMX.Layouts,
-  Conversa.Conteudo;
+  Conversa.Conteudo,
+  Mensagem.Tipos;
 
 type
   TPrincipal = class(TForm)
@@ -41,6 +42,7 @@ type
     procedure lwConversasChange(Sender: TObject);
   private
     FConteudos: TArray<TConteudo>;
+    procedure EnviarMensagem(Conteudo: TConteudo; Mensagem: TMensagem);
   end;
 
 var
@@ -51,7 +53,6 @@ implementation
 uses
   Conversa.Dados,
   Conversa.Login,
-  Mensagem.Tipos,
   System.NetEncoding;
 
 {$R *.fmx}
@@ -69,42 +70,20 @@ begin
   TLogin.New(Self, Dados.Conversas);
 end;
 
-function HexToBytes(const Hex: string): TBytes;
-var
-  I: Integer;
+procedure TPrincipal.EnviarMensagem(Conteudo: TConteudo; Mensagem: TMensagem);
 begin
-  SetLength(Result, Length(Hex) div 2);
-  for I := 1 to Length(Hex) div 2 do
-    Result[I - 1] := StrToInt('$'+ Copy(Hex, 2 * I - 1, 2));
-end;
-
-function DecodeHex(const HexStr: string): string;
-var
-  DecodedBytes: TBytes;
-  AnsiStr: AnsiString;
-begin
-  // Remova o prefixo '\\x' se estiver presente
-  if HexStr.StartsWith('\x') then
-    DecodedBytes := HexToBytes(Copy(HexStr, 3, Length(HexStr) - 2))
-  else
-    DecodedBytes := HexToBytes(HexStr);
-
-  // Decodifique os bytes em uma string Ansi
-  SetString(AnsiStr, PAnsiChar(@DecodedBytes[0]), Length(DecodedBytes));
-  Result := String(AnsiStr);
+  // Enviar mensagem
 end;
 
 procedure TPrincipal.lwConversasChange(Sender: TObject);
 var
   Conteudo: TConteudo;
   bJaCriado: Boolean;
-  Mensagem: TMensagem;
-  Item: TMensagemConteudo;
 begin
   bJaCriado := False;
   for Conteudo in FConteudos do
   begin
-    if lwConversas.ItemIndex <> Conteudo.ID then
+    if lwConversas.ItemIndex <> Conteudo.ItemIndex then
       Conteudo.Visible := False
     else
     begin
@@ -117,49 +96,13 @@ begin
     Exit;
 
   Conteudo := TConteudo.Create(lytConteudo);
-  Conteudo.ID := lwConversas.ItemIndex;
+  Conteudo.ItemIndex := lwConversas.ItemIndex;
+  Conteudo.Conversa := Dados.cdsConversas.FieldByName('id').AsInteger;
   Conteudo.Usuario := Dados.Nome;
+  Conteudo.AoEnviarMensagem := EnviarMensagem;
   FConteudos := FConteudos + [Conteudo];
 
-  // Preencher dados
-  Dados.Mensagens(Dados.cdsConversas.FieldByName('id').AsInteger);
-
-  Dados.cdsMensagens.First;
-  while not Dados.cdsMensagens.Eof do
-  begin
-    Mensagem := Default(TMensagem);
-    Mensagem.ID := Dados.cdsMensagens.FieldByName('id').AsInteger;
-    Mensagem.EnviadaEm := Dados.cdsMensagens.FieldByName('inserida').AsDateTime;
-    if Dados.cdsMensagens.FieldByName('remetente_id').AsInteger = Dados.ID then
-      Mensagem.Lado := TLado.Direito
-    else
-      Mensagem.Lado := TLado.Esquerdo;
-    Mensagem.Remetente := Dados.cdsMensagens.FieldByName('remetente').AsString;
-
-    Mensagem.Conteudos := [];
-
-    Dados.cdsConteudos.First;
-    while not Dados.cdsConteudos.Eof do
-    begin
-      Item := Default(TMensagemConteudo);
-      Item.Tipo := Dados.cdsConteudos.FieldByName('tipo').AsInteger;
-      case Item.Tipo of
-        1: // texto
-        begin
-          Item.Dados := DecodeHex(Dados.cdsConteudos.FieldByName('conteudo').AsString);
-        end;
-        2: // imagem
-        begin
-          Item.Dados := Dados.Anexo(DecodeHex(Dados.cdsConteudos.FieldByName('conteudo').AsString));
-        end;
-      end;
-      Mensagem.Conteudos := Mensagem.Conteudos + [Item];
-      Dados.cdsConteudos.Next;
-    end;
-
-    Conteudo.AdicionarMensagem(Mensagem);
-    Dados.cdsMensagens.Next;
-  end;
+  Conteudo.AdicionarMensagens(Dados.Mensagens(Dados.cdsConversas.FieldByName('id').AsInteger));
 end;
 
 end.

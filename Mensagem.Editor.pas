@@ -311,8 +311,8 @@ begin
     Exit;
   Mensagem := Default(TMensagem);
   Conteudo := Default(TMensagemConteudo);
-  Conteudo.Tipo := 1; // texto
-  Conteudo.Dados := sMensagem;
+  Conteudo.tipo := 1; // 1-Texto
+  Conteudo.conteudo := sMensagem;
   Mensagem.Conteudos := [Conteudo];
   mmMensagem.Lines.Clear;
   FAdicionar(Mensagem);
