@@ -17,6 +17,7 @@ type
     FItemIndex: Integer;
     FConversa: Integer;
     FUsuario: String;
+    FUsuarioID: Integer;
     Visualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
@@ -29,6 +30,7 @@ type
     property ItemIndex: Integer read FItemIndex write FItemIndex;
     property Conversa: Integer read FConversa write FConversa;
     property Usuario: String read FUsuario write FUsuario;
+    property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property Visible: Boolean read FVisible write SetVisible;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
@@ -50,6 +52,8 @@ begin
       Mensagem.inserida := Now;
       Mensagem.lado := TLado.Direito;
       Mensagem.remetente := Usuario;
+      Mensagem.conversa_id := Conversa;
+      Mensagem.remetente_id := FUsuarioID;
       Visualizador.AdicionaMensagem(Mensagem);
 
       if Assigned(AoEnviarMensagem) then

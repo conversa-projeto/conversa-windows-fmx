@@ -128,6 +128,7 @@ begin
       Mensagem.id := Item.GetValue<Integer>('id');
       Mensagem.remetente_id := Item.GetValue<Integer>('remetente_id');
       Mensagem.remetente := Item.GetValue<String>('remetente');
+      Mensagem.conversa_id := Item.GetValue<Integer>('conversa_id');
       if Mensagem.remetente_id = Dados.ID then
         Mensagem.lado := TLado.Direito
       else
@@ -208,10 +209,40 @@ begin
 end;
 
 procedure TDados.EnviarMensagem(Mensagem: TMensagem);
+var
+  oJSON: TJSONObject;
+  aConteudos: TJSONArray;
+  oConteudo: TJSONObject;
+  Item: TMensagemConteudo;
 begin
   // gerar o id do anexo
   // enviar o anexo (em segundo plano.. talvez v2)
+
   // enviar a mensagem
+  oJSON := TJSONObject.Create;
+  oJSON.AddPair('conversa_id', Mensagem.conversa_id);
+  aConteudos := TJSONArray.Create;
+  oJSON.AddPair('conteudos', aConteudos);
+
+  for Item in Mensagem.conteudos do
+  begin
+    oConteudo := TJSONObject.Create;
+    oConteudo.AddPair('ordem', Item.ordem);
+    oConteudo.AddPair('tipo', Item.tipo);
+    oConteudo.AddPair('conteudo', Item.conteudo);
+    aConteudos.Add(oConteudo);
+  end;
+
+  with TAPIConversa.Create do
+  try
+    Host(SERVIDOR);
+    Route('mensagem');
+    Headers(TJSONObject.Create.AddPair('uid', Fid));
+    Body(oJSON);
+    PUT;
+  finally
+    Free;
+  end;
 end;
 
 end.

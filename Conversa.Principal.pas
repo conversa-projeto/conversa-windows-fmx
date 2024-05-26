@@ -67,12 +67,19 @@ end;
 
 procedure TPrincipal.FormShow(Sender: TObject);
 begin
-  TLogin.New(Self, Dados.Conversas);
+  TLogin.New(
+    Self,
+    procedure
+    begin
+      Dados.Conversas;
+      lwConversasChange(lwConversas);
+    end
+  );
 end;
 
 procedure TPrincipal.EnviarMensagem(Conteudo: TConteudo; Mensagem: TMensagem);
 begin
-  // Enviar mensagem
+  Dados.EnviarMensagem(Mensagem);
 end;
 
 procedure TPrincipal.lwConversasChange(Sender: TObject);
@@ -99,6 +106,7 @@ begin
   Conteudo.ItemIndex := lwConversas.ItemIndex;
   Conteudo.Conversa := Dados.cdsConversas.FieldByName('id').AsInteger;
   Conteudo.Usuario := Dados.Nome;
+  Conteudo.UsuarioID := Dados.ID;
   Conteudo.AoEnviarMensagem := EnviarMensagem;
   FConteudos := FConteudos + [Conteudo];
 
