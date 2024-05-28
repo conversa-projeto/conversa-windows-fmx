@@ -23,8 +23,8 @@ uses
   System.TypInfo,
   System.UIConsts,
   System.UITypes,
-  FMX.Forms,
   FMX.Ani,
+  FMX.Graphics,
   FMX.Objects,
   FMX.Types;
 
@@ -193,7 +193,7 @@ begin
     Exit;
 
   try
-    if Obj.InheritsFrom(FMX.Objects.TRectangle) and not Trim(Obj.Name).IsEmpty then
+    if Obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Obj.Name).IsEmpty then
     begin
       id := Classe +'.'+ String(Obj.Name);
       PropValue := EmptyStr;
@@ -229,6 +229,43 @@ begin
         Exit;
 
       TAnimator.AnimateColor(Obj, 'fill.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
+    end;
+    if Obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Obj.Name).IsEmpty and (TShape(Obj).Stroke.Kind <> TBrushKind.None) then
+    begin
+      id := Classe +'.'+ String(Obj.Name);
+      PropValue := EmptyStr;
+      if not FDefault.TryGetItem(id, Item) then
+      begin
+        Item.id := id;
+        Item.valor := EmptyStr;
+        Item.estado := 0;
+
+        FDefault.SetItem(id, Item);
+      end;
+
+      if not Item.TryGetPropriedade('stroke.color', PropValue) then
+      begin
+        sDefault := GetDefaultColor(TRectangle(Obj).stroke.Color);
+        if sDefault.Trim.IsEmpty then
+          sDefault := AlphaColorToString(TRectangle(Obj).stroke.Color)
+        else
+          sDefault := '@cores.'+ sDefault;
+
+        Item.SetPropriedade('stroke.color', sDefault);
+        FDefault.SetItem(id, Item);
+      end;
+
+      FData.TryGetItem(id, Item);
+
+      Item.TryGetPropriedade('stroke.color', PropValue);
+
+      if PropValue.StartsWith('@cores.') then
+        PropValue := FData.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
+
+      if PropValue.Trim.IsEmpty then
+        Exit;
+
+      TAnimator.AnimateColor(Obj, 'stroke.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
     end;
   finally
     if Assigned(Obj.Children) then
