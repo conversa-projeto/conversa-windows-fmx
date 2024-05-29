@@ -19,6 +19,7 @@ uses
   System.JSON.Serializers,
   System.JSON.Writers,
   System.Rtti,
+  System.StrUtils,
   System.SysUtils,
   System.TypInfo,
   System.UIConsts,
@@ -85,10 +86,16 @@ type
       function GetItem(const id: String): TSchemaItem;
       procedure SetItem(const id: String; Value: TSchemaItem);
     end;
+
+    TPSSObject = record
+      id: string;
+      obj: TFmxObject;
+      recursive: Boolean;
+    end;
   private
     FDefault: TPSSData;
     FData: TPSSData;
-    FClassInstance: TDictionary<String, TArray<TFmxObject>>;
+    FObjects: TList<TPSSObject>;
     constructor Create;
     procedure InternalLoad(const Data: TPSSData);
     procedure InternalApply;
@@ -96,16 +103,17 @@ type
     function LoadData(const FileName: String): TPSSData;
     procedure SaveData(const Data: TPSSData; const FileName: String);
     function GetDefaultColor(const Value: TAlphaColor): String;
-    procedure Apply(const Classe: String; const Obj: TFmxObject);
+    procedure Apply(Inst: TPSSObject);
 //    function GetProp(Obj: TFmxObject; AName: String): TRttiObject;
     function Next(Obj: TFmxObject): Boolean;
   public
     class function Instance: TPascalStyleScript;
     class function New: TPascalStyleScript;
+
     destructor Destroy; override;
     procedure LoadFromFile(sFile: String);
 
-    function RegisterInstance(const Value: TFmxObject; ClassName: String = ''): TPascalStyleScript;
+    function RegisterObject(const Value: TFmxObject; ID: String = ''; Recursive: Boolean = True): TPascalStyleScript;
   end;
 
 implementation
@@ -130,25 +138,23 @@ end;
 
 function TPascalStyleScript.Next(Obj: TFmxObject): Boolean;
 var
-  Value: TArray<TFmxObject>;
-  ObjA: TFmxObject;
+  Value: TPSSObject;
 begin
   Result := True;
-  for Value in FClassInstance.Values.ToArray do
-    for ObjA in Value do
-      if Assigned(ObjA) and (Pointer(ObjA) = Pointer(Obj)) then
-        Exit(False);
+  for Value in FObjects do
+    if Assigned(Value.Obj) and (Pointer(Value.Obj) = Pointer(Obj)) then
+      Exit(False);
 end;
 
 constructor TPascalStyleScript.Create;
 begin
   LoadDefault;
-  FClassInstance := TDictionary<String, TArray<TFmxObject>>.Create;
+  FObjects := TList<TPSSObject>.Create;
 end;
 
 destructor TPascalStyleScript.Destroy;
 begin
-  FreeAndNil(FClassInstance);
+  FreeAndNil(FObjects);
   inherited;
 end;
 
@@ -180,111 +186,126 @@ end;
 ////  end;
 //end;
 
-procedure TPascalStyleScript.Apply(const Classe: String; const Obj: TFmxObject);
+procedure TPascalStyleScript.Apply(Inst: TPSSObject);
 var
   Item: TSchemaItem;
-  id: string;
+//  id: string;
   sDefault: String;
   PropValue: String;
   ObjAux: TFmxObject;
+  InstAux: TPSSObject;
 //  P: TRttiProperty;
 begin
-  if not Assigned(Obj) then
+  if not Assigned(Inst.Obj) then
     Exit;
 
   try
-    if Obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Obj.Name).IsEmpty then
+    if Inst.obj.InheritsFrom(FMX.Objects.TShape) then
     begin
-      id := Classe +'.'+ String(Obj.Name);
+//      id := Inst.id +'.'+ String(Inst.obj.Name);
       PropValue := EmptyStr;
-      if not FDefault.TryGetItem(id, Item) then
+      if not FDefault.TryGetItem(Inst.id, Item) then
       begin
-        Item.id := id;
+        Item.id := Inst.id;
         Item.valor := EmptyStr;
         Item.estado := 0;
 
-        FDefault.SetItem(id, Item);
+        FDefault.SetItem(Inst.id, Item);
       end;
 
       if not Item.TryGetPropriedade('fill.color', PropValue) then
       begin
-        sDefault := GetDefaultColor(TRectangle(Obj).Fill.Color);
+        sDefault := GetDefaultColor(TRectangle(Inst.obj).Fill.Color);
         if sDefault.Trim.IsEmpty then
-          sDefault := AlphaColorToString(TRectangle(Obj).Fill.Color)
+          sDefault := AlphaColorToString(TRectangle(Inst.obj).Fill.Color)
         else
           sDefault := '@cores.'+ sDefault;
 
         Item.SetPropriedade('fill.color', sDefault);
-        FDefault.SetItem(id, Item);
+        FDefault.SetItem(Inst.id, Item);
       end;
 
-      FData.TryGetItem(id, Item);
+      if Length(FData.schema) > 0 then
+        FData.TryGetItem(Inst.id, Item);
 
       Item.TryGetPropriedade('fill.color', PropValue);
 
+      if Length(FData.tema.cores) > 0 then
+      begin
+        if PropValue.StartsWith('@cores.') then
+          PropValue := FData.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
+      end
+      else
       if PropValue.StartsWith('@cores.') then
-        PropValue := FData.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
+        PropValue := FDefault.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
 
       if PropValue.Trim.IsEmpty then
         Exit;
 
-      TAnimator.AnimateColor(Obj, 'fill.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
+      TAnimator.AnimateColor(Inst.obj, 'fill.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
     end;
-    if Obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Obj.Name).IsEmpty and (TShape(Obj).Stroke.Kind <> TBrushKind.None) then
-    begin
-      id := Classe +'.'+ String(Obj.Name);
-      PropValue := EmptyStr;
-      if not FDefault.TryGetItem(id, Item) then
-      begin
-        Item.id := id;
-        Item.valor := EmptyStr;
-        Item.estado := 0;
-
-        FDefault.SetItem(id, Item);
-      end;
-
-      if not Item.TryGetPropriedade('stroke.color', PropValue) then
-      begin
-        sDefault := GetDefaultColor(TRectangle(Obj).stroke.Color);
-        if sDefault.Trim.IsEmpty then
-          sDefault := AlphaColorToString(TRectangle(Obj).stroke.Color)
-        else
-          sDefault := '@cores.'+ sDefault;
-
-        Item.SetPropriedade('stroke.color', sDefault);
-        FDefault.SetItem(id, Item);
-      end;
-
-      FData.TryGetItem(id, Item);
-
-      Item.TryGetPropriedade('stroke.color', PropValue);
-
-      if PropValue.StartsWith('@cores.') then
-        PropValue := FData.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
-
-      if PropValue.Trim.IsEmpty then
-        Exit;
-
-      TAnimator.AnimateColor(Obj, 'stroke.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
-    end;
+//    if Inst.obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Inst.obj.Name).IsEmpty and (TShape(Inst.obj).Stroke.Kind <> TBrushKind.None) then
+//    begin
+//      id := Inst.id;
+//      PropValue := EmptyStr;
+//      if not FDefault.TryGetItem(id, Item) then
+//      begin
+//        Item.id := id;
+//        Item.valor := EmptyStr;
+//        Item.estado := 0;
+//
+//        FDefault.SetItem(id, Item);
+//      end;
+//
+//      if not Item.TryGetPropriedade('stroke.color', PropValue) then
+//      begin
+//        sDefault := GetDefaultColor(TRectangle(Obj).stroke.Color);
+//        if sDefault.Trim.IsEmpty then
+//          sDefault := AlphaColorToString(TRectangle(Obj).stroke.Color)
+//        else
+//          sDefault := '@cores.'+ sDefault;
+//
+//        Item.SetPropriedade('stroke.color', sDefault);
+//        FDefault.SetItem(id, Item);
+//      end;
+//
+//      FData.TryGetItem(id, Item);
+//
+//      Item.TryGetPropriedade('stroke.color', PropValue);
+//
+//      if PropValue.StartsWith('@cores.') then
+//        PropValue := FData.tema.cores.GetColor(PropValue.Replace('@cores.', ''));
+//
+//      if PropValue.Trim.IsEmpty then
+//        Exit;
+//
+//      TAnimator.AnimateColor(Obj, 'stroke.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
+//    end;
   finally
-    if Assigned(Obj.Children) then
-      for ObjAux in Obj.Children.ToArray do
-        if Next(ObjAux) then
-          Apply(Classe, ObjAux);
+    if Inst.recursive and Assigned(Inst.obj.Children) then
+    begin
+      for ObjAux in Inst.obj.Children.ToArray do
+      begin
+        if Next(ObjAux) and not String(ObjAux.Name).Trim.IsEmpty then
+        begin
+          InstAux := Inst;
+          InstAux.id := InstAux.id +'.'+ ObjAux.Name;
+          InstAux.obj := ObjAux;
+          Apply(InstAux);
+        end;
+      end;
+    end;
   end;
 end;
 
 procedure TPascalStyleScript.InternalApply;
 var
-  Classes: TPair<String, TArray<TFmxObject>>;
-  Obj: TFmxObject;
+  Inst: TPSSObject;
 begin
   try
     // Percorre a Lista de Classe
-    for Classes in FClassInstance do
-      for Obj in Classes.Value do
-        Apply(Classes.Key, Obj);
+    for Inst in FObjects do
+      Apply(Inst);
   finally
     SaveData(FDefault, DefaultFile);
   end;
@@ -303,20 +324,16 @@ begin
   end;
 end;
 
-function TPascalStyleScript.RegisterInstance(const Value: TFmxObject; ClassName: String = ''): TPascalStyleScript;
+function TPascalStyleScript.RegisterObject(const Value: TFmxObject; ID: String = ''; Recursive: Boolean = True): TPascalStyleScript;
 var
-  arObjects: TArray<TFmxObject>;
+  obj: TPSSObject;
 begin
   Result := Self;
-
-  if ClassName.Trim.IsEmpty then
-    ClassName := Value.Name;
-
-  FClassInstance.TryGetValue(ClassName, arObjects);
-
-  arObjects := arObjects + [Value];
-
-  FClassInstance.AddOrSetValue(ClassName, arObjects);
+  obj.id := IfThen(ID.Trim.IsEmpty, String(Value.Name), ID);
+  obj.Obj := Value;
+  obj.Recursive := Recursive;
+  FObjects.Add(obj);
+  Apply(obj);
 end;
 
 function TPascalStyleScript.GetDefaultColor(const Value: TAlphaColor): String;
@@ -407,6 +424,8 @@ end;
 
 function TPascalStyleScript.TPSSData.GetItem(const id: String): TSchemaItem;
 begin
+  if not TryGetItem(id, Result) then
+    raise Exception.Create('Item não encontrado!');
 end;
 
 function TPascalStyleScript.TPSSData.TryGetItem(const id: String; var Value: TSchemaItem): Boolean;
