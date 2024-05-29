@@ -18,5 +18,9 @@ object Dados: TDados
     object cdsConversasultima_mensagem: TDateTimeField
       FieldName = 'ultima_mensagem'
     end
+    object cdsConversasultima_mensagem_texto: TStringField
+      FieldName = 'ultima_mensagem_texto'
+      Size = 100
+    end
   end
 end

@@ -5,15 +5,23 @@ uses
   MidasLib,
   System.StartUpCopy,
   FMX.Forms,
-  Conversa.Principal in 'Conversa.Principal.pas' {Principal},
   Conversa.Login in 'Conversa.Login.pas' {Login: TFrame},
   Conversa.Dados in 'Conversa.Dados.pas' {Dados: TDataModule},
   REST.API in 'REST.API.pas',
-  Mensagem.Anexo in 'Mensagem.Anexo.pas',
-  Mensagem.Editor in 'Mensagem.Editor.pas',
-  Mensagem.Tipos in 'Mensagem.Tipos.pas',
-  Mensagem.Visualizador in 'Mensagem.Visualizador.pas',
-  Conversa.Conteudo in 'Conversa.Conteudo.pas';
+  Conversa.Tela.Inicial.view in 'Conversa.Tela.Inicial.view.pas' {TelaInicial},
+  Conversa.Principal in 'src\principal\Conversa.Principal.pas' {PrincipalView: TFrame},
+  Conversa.FormularioBase in 'src\base\Conversa.FormularioBase.pas' {FormularioBase},
+  FMX.Platform.Win in 'src\fmx\FMX.Platform.Win.pas',
+  PascalStyleScript in 'src\pss\PascalStyleScript.pas',
+  Conversa.Configuracoes in 'src\configuracoes\Conversa.Configuracoes.pas',
+  Conversa.FrameBase in 'src\base\Conversa.FrameBase.pas' {FrameBase: TFrame},
+  Conversa.Chat in 'src\chat\Conversa.Chat.pas' {Chat: TFrame},
+  Conversa.Chat.Listagem in 'src\chat\Conversa.Chat.Listagem.pas' {ChatListagem: TFrame},
+  Conversa.Chat.Listagem.Item in 'src\chat\Conversa.Chat.Listagem.Item.pas' {ConversasItemFrame: TFrame},
+  Mensagem.Anexo in 'src\chat\mensagem\Mensagem.Anexo.pas',
+  Mensagem.Editor in 'src\chat\mensagem\Mensagem.Editor.pas',
+  Mensagem.Tipos in 'src\chat\mensagem\Mensagem.Tipos.pas',
+  Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas';
 
 {$R *.res}
 
@@ -21,6 +29,6 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.CreateForm(TDados, Dados);
-  Application.CreateForm(TPrincipal, Principal);
+  Application.CreateForm(TTelaInicial, TelaInicial);
   Application.Run;
 end.

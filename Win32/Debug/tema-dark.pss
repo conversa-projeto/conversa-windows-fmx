@@ -1,0 +1,17 @@
+{
+    "versao": "1.0",
+    "tema": {
+        "corPrimaria": "#FF1E1E1E",
+        "corPrimariaTeste": "#FF232323"
+    },
+    "classes": {
+        "Principal": {
+            "rctFundo.fill.Color": "corPrimaria",
+            "rctClose.Fill.Color": null,
+            "rctMinimize.Fill.Color": null,
+            "rctMaximize.Fill.Color": null,
+            "rctMazimize2.Fill.Color": null,
+            "rctMaximize1.Fill.Color": "corPrimaria"
+        }
+    }
+}

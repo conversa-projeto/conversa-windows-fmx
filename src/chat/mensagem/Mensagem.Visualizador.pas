@@ -16,6 +16,7 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Graphics,
+  PascalStyleScript,
   Mensagem.Tipos;
 
 type
@@ -100,6 +101,7 @@ begin
   rtgUltima.XRadius := 10;
   rtgUltima.YRadius := 10;
   rtgUltima.OnClick := rtgUltimaClick;
+  TPascalStyleScript.Instance.RegisterObject(rtgUltima, 'Chat.UltimaMensagem.Fundo');
 
   pthUltima := TPath.Create(lytConteudo);
   NomearComponente(pthUltima);
@@ -115,12 +117,13 @@ begin
     'L5.36688852310181,2.19098901748657 '+
     'C3.97913837432861,1.45006895065308 2.49788856506348,3.00162887573242 3.16495847702026,4.49746894836426 '+
     'Z ';
-  pthUltima.Fill.Color := TAlphaColors.Silver;
+  pthUltima.Fill.Color := TAlphaColors.Gainsboro;
   pthUltima.Size.Width := 20;
   pthUltima.Size.Height := 20;
   pthUltima.Size.PlatformDefault := False;
   pthUltima.WrapMode := TPathWrapMode.Fit;
   pthUltima.OnClick := rtgUltimaClick;
+  TPascalStyleScript.Instance.RegisterObject(rtgUltima, 'Chat.UltimaMensagem.Icone');
 
   lytConteudo.AddObject(sbxCentro);
   lytConteudo.AddObject(scroll);
@@ -175,6 +178,9 @@ begin
   rtgFundo.Size.PlatformDefault := False;
   rtgFundo.XRadius := 5;
   rtgFundo.YRadius := 5;
+  rtgFundo.Fill.Color := TAlphaColors.White;
+  rtgFundo.Stroke.Kind := TBrushKind.None;
+  TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
 
   lbNome := TLabel.Create(lytConteudo);
   NomearComponente(lbNome);
@@ -187,6 +193,7 @@ begin
   lbNome.Text := Mensagem.Remetente;
   if Mensagem.Remetente.IsEmpty then
     lbNome.Size.Height := 5;
+  TPascalStyleScript.Instance.RegisterObject(lbNome, 'Mensagem.NomeUsuario');
 
   lytConteudoMensagem := TLayout.Create(lytConteudo);
   NomearComponente(lytConteudoMensagem);
@@ -207,6 +214,7 @@ begin
   lbHora.Size.PlatformDefault := False;
   lbHora.TextSettings.HorzAlign := TTextAlign.Trailing;
   lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida);
+  TPascalStyleScript.Instance.RegisterObject(lbHora, 'Mensagem.DataHora');
 
   for I := 0 to Pred(Length(Mensagem.Conteudos)) do
   begin
@@ -223,6 +231,7 @@ begin
         txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
         lytConteudoMensagem.AddObject(txtTexto);
+        TPascalStyleScript.Instance.RegisterObject(txtTexto, 'Mensagem.Conteudo.Texto');
       end;
       2: // imagem
       begin

@@ -1,5 +1,5 @@
 ﻿// Eduardo - 03/03/2024
-unit Conversa.Principal;
+unit Conversa.Principal.OLD;
 
 interface
 
@@ -31,7 +31,7 @@ uses
   Mensagem.Tipos;
 
 type
-  TPrincipal = class(TForm)
+  TPrincipalOLD = class(TForm)
     blsDados: TBindingsList;
     bsrConversas: TBindSourceDB;
     lwConversas: TListView;
@@ -46,7 +46,7 @@ type
   end;
 
 var
-  Principal: TPrincipal;
+  PrincipalOLD: TPrincipalOLD;
 
 implementation
 
@@ -57,7 +57,7 @@ uses
 
 {$R *.fmx}
 
-procedure TPrincipal.FormDestroy(Sender: TObject);
+procedure TPrincipalOLD.FormDestroy(Sender: TObject);
 var
   Conteudo: TConteudo;
 begin
@@ -65,7 +65,7 @@ begin
     Conteudo.Free;
 end;
 
-procedure TPrincipal.FormShow(Sender: TObject);
+procedure TPrincipalOLD.FormShow(Sender: TObject);
 begin
   TLogin.New(
     Self,
@@ -77,12 +77,12 @@ begin
   );
 end;
 
-procedure TPrincipal.EnviarMensagem(Conteudo: TConteudo; Mensagem: TMensagem);
+procedure TPrincipalOLD.EnviarMensagem(Conteudo: TConteudo; Mensagem: TMensagem);
 begin
   Dados.EnviarMensagem(Mensagem);
 end;
 
-procedure TPrincipal.lwConversasChange(Sender: TObject);
+procedure TPrincipalOLD.lwConversasChange(Sender: TObject);
 var
   Conteudo: TConteudo;
   bJaCriado: Boolean;

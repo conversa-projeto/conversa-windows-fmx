@@ -1,0 +1,141 @@
+inherited Chat: TChat
+  Size.Width = 622.000000000000000000
+  Size.Height = 698.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Size.Width = 622.000000000000000000
+    Size.Height = 698.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    object rctTitulo: TRectangle
+      Align = Top
+      Fill.Color = claWhite
+      Size.Width = 622.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      object lytTituloClient: TLayout
+        Align = Client
+        Margins.Left = 3.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Right = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 616.000000000000000000
+        Size.Height = 34.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lytFoto: TLayout
+          Align = Left
+          Size.Width = 34.000000000000000000
+          Size.Height = 34.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object crclFoto: TCircle
+            Align = Client
+            Fill.Color = claWhitesmoke
+            HitTest = False
+            Size.Width = 34.000000000000000000
+            Size.Height = 34.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Kind = None
+            object pthFotoDefault: TPath
+              Align = Client
+              Data.Path = {
+                43000000000000000000F04300C0FFC3020000005555E14300C0FFC302000000
+                00E0D443007002C40200000000A0CA43009007C4020000000060C04300B00CC4
+                020000000040BB43ABEA12C4020000000040BB4300401AC4020000000040BB43
+                559521C4020000000060C04300D027C40200000000A0CA4300F02CC402000000
+                00E0D443001032C4020000005555E14300A034C4020000000000F04300A034C4
+                02000000ABAAFE4300A034C40200000000900544001032C40200000000B00A44
+                00F02CC40200000000D00F4400D027C40200000000601244559521C402000000
+                0060124400401AC40200000000601244ABEA12C40200000000D00F4400B00CC4
+                0200000000B00A44009007C40200000000900544007002C402000000ABAAFE43
+                00C0FFC3020000000000F04300C0FFC3030000000000F04300C0FFC300000000
+                00805843000085C3010000000080584385CB8FC302000000008058434EFB96C3
+                020000007BD45C4333B39DC302000000717D654333F3A3C30200000067266E43
+                3333AAC302000000B91E7A43251FAFC30200000033B384430AB7B2C302000000
+                E1FA96439939BBC302000000EF0EA94366A6C1C3020000005CEFBA4370FDC5C3
+                02000000C9CFCC437B54CAC302000000DA80DE430080CCC3020000008F02F043
+                0080CCC302000000B4C100440080CCC3020000005F9C09445555CAC302000000
+                489112440000C6C302000000C3851B44ABAAC1C3020000005C8F24444B3EBBC3
+                0200000015AE2D44E1BAB2C302000000717D3144FC22AFC3020000009A793444
+                0A37AAC30200000090A236440AF7A3C30200000086CB38442FB69DC302000000
+                01E0394470FD96C30200000001E03944CCCC8FC30100000001E03944FFFF84C3
+                0200000001E039448E0281C3020000003E3A39447C717BC302000000B9EE3744
+                1D4576C302000000A1A33644081771C302000000B9FE3444FE7F6EC302000000
+                01003344FE7F6EC30100000000007443FE7F6EC3020000001F056C43FE7F6EC3
+                020000007E716543081771C3020000001F4560431D4576C3020000000A175B43
+                7C717BC302000000008058438E0281C30200000000805843FFFF84C303000000
+                00805843000085C3}
+              Enabled = True
+              Fill.Color = claWhite
+              Margins.Left = 5.000000000000000000
+              Margins.Top = 4.000000000000000000
+              Margins.Right = 5.000000000000000000
+              Margins.Bottom = 6.000000000000000000
+              Size.Width = 24.000000000000000000
+              Size.Height = 24.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Kind = None
+            end
+            object imgFoto: TImage
+              MultiResBitmap.Height = 50
+              MultiResBitmap.Width = 50
+              MultiResBitmap = <
+                item
+                end>
+              Align = Client
+              Enabled = True
+              Size.Width = 34.000000000000000000
+              Size.Height = 34.000000000000000000
+              Size.PlatformDefault = False
+              WrapMode = Stretch
+            end
+          end
+        end
+        object lytInformacoes: TLayout
+          Align = Client
+          Margins.Left = 5.000000000000000000
+          Margins.Top = 3.000000000000000000
+          Margins.Bottom = 3.000000000000000000
+          Size.Width = 577.000000000000000000
+          Size.Height = 28.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          object lblNome: TLabel
+            Align = Client
+            AutoSize = True
+            StyledSettings = [Family, Size]
+            Size.Width = 577.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.Font.StyleExt = {00070000000000000004000000}
+            TextSettings.FontColor = claDimgray
+            Text = '[Nome]'
+            TabOrder = 0
+          end
+          object lblInformacao1: TLabel
+            Align = Bottom
+            AutoSize = True
+            StyledSettings = [Family, Style]
+            Position.Y = 12.000000000000000000
+            Size.Width = 577.000000000000000000
+            Size.Height = 16.000000000000000000
+            Size.PlatformDefault = False
+            TextSettings.FontColor = claGray
+            Text = '[Informa'#231#227'o]'
+            TabOrder = 1
+          end
+        end
+      end
+    end
+    object lytClient: TLayout
+      Align = Client
+      Size.Width = 622.000000000000000000
+      Size.Height = 658.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+    end
+  end
+end

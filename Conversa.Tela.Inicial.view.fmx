@@ -1,0 +1,31 @@
+inherited TelaInicial: TTelaInicial
+  DesignerMasterStyle = 0
+  inherited rctFundo: TRectangle
+    ClipChildren = True
+    inherited lytClient: TLayout
+      ClipChildren = True
+      Size.Height = 478.000000000000000000
+      inherited lytClientForm: TLayout
+        ClipChildren = True
+        Size.Height = 438.000000000000000000
+      end
+      inherited rctTitleBar: TRectangle
+        inherited lytLogo: TLayout
+          inherited imgLogo: TImage
+            MultiResBitmap.Height = 400
+            MultiResBitmap.Width = 500
+          end
+        end
+      end
+    end
+    object Button1: TButton
+      Align = Top
+      Size.Width = 500.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Text = 'Button1'
+      OnClick = Button1Click
+    end
+  end
+end

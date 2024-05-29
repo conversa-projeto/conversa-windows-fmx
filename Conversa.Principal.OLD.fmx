@@ -1,4 +1,4 @@
-object Principal: TPrincipal
+object PrincipalOLD: TPrincipalOLD
   Left = 0
   Top = 0
   Caption = 'Conversa'

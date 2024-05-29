@@ -1,0 +1,70 @@
+inherited ChatListagem: TChatListagem
+  Size.Width = 818.000000000000000000
+  Size.Height = 624.000000000000000000
+  object lytClient: TLayout
+    Align = Client
+    Size.Width = 818.000000000000000000
+    Size.Height = 624.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object rctFundo: TRectangle
+      Align = Client
+      Corners = [BottomLeft, BottomRight]
+      Fill.Color = claWhitesmoke
+      Size.Width = 818.000000000000000000
+      Size.Height = 624.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      XRadius = 10.000000000000000000
+      YRadius = 10.000000000000000000
+      object rctListaConversas: TRectangle
+        Align = Left
+        Corners = [BottomLeft]
+        Fill.Color = claWhite
+        Size.Width = 250.000000000000000000
+        Size.Height = 624.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 10.000000000000000000
+        YRadius = 10.000000000000000000
+        object lstConversas: TListBox
+          Align = Client
+          Size.Width = 250.000000000000000000
+          Size.Height = 624.000000000000000000
+          Size.PlatformDefault = False
+          StyleLookup = 'transparentlistboxstyle'
+          TabOrder = 0
+          DisableFocusEffect = True
+          DefaultItemStyles.ItemStyle = ''
+          DefaultItemStyles.GroupHeaderStyle = ''
+          DefaultItemStyles.GroupFooterStyle = ''
+          Viewport.Width = 250.000000000000000000
+          Viewport.Height = 624.000000000000000000
+        end
+      end
+      object lytViewClient: TLayout
+        Align = Client
+        Size.Width = 568.000000000000000000
+        Size.Height = 624.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object lblAvisoConversa: TLabel
+          Align = Center
+          AutoSize = True
+          Size.Width = 120.000000000000000000
+          Size.Height = 32.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.HorzAlign = Center
+          Text = 'Selecione um Chat para conversar'
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object Timer1: TTimer
+    Interval = 500
+    OnTimer = Timer1Timer
+    Left = 280
+    Top = 256
+  end
+end

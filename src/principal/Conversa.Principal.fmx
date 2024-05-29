@@ -1,0 +1,24 @@
+object PrincipalView: TPrincipalView
+  ClipChildren = True
+  Size.Width = 1020.000000000000000000
+  Size.Height = 702.000000000000000000
+  Size.PlatformDefault = False
+  object lytClient: TLayout
+    Align = Client
+    ClipChildren = True
+    Size.Width = 1020.000000000000000000
+    Size.Height = 702.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+  end
+  object mvwMenu: TMultiView
+    Mode = Drawer
+    DragMode = dmAutomatic
+    Size.Width = 250.000000000000000000
+    Size.Height = 702.000000000000000000
+    Size.PlatformDefault = False
+    StyleLookup = 'multiviewstyle'
+    Visible = False
+    TabOrder = 0
+  end
+end

@@ -17,15 +17,16 @@ uses
   FMX.StdCtrls,
   FMX.Controls.Presentation,
   FMX.Edit,
-  FMX.Objects;
+  FMX.Objects,
+  Conversa.FrameBase;
 
 type
-  TLogin = class(TFrame)
+  TLogin = class(TFrameBase)
     rtgCentro: TRectangle;
     edtSenha: TEdit;
     edtLogin: TEdit;
     btnLogin: TButton;
-    rtgFundo: TRectangle;
+    rctFundo: TRectangle;
     Image1: TImage;
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure btnLoginClick(Sender: TObject);
@@ -51,13 +52,15 @@ class procedure TLogin.New(AParent: TFmxObject; pClose: TProc);
 begin
   if not Assigned(Login) then
   begin
-    Login := TLogin.Create(Application);
-    Login.Parent := AParent;
+    with TLogin.Create(TComponent(AParent)) do
+    begin
+      Parent := AParent;
+      FClose := pClose;
+      Visible := True;
+      Align := TAlignLayout.Client;
+      edtLogin.SetFocus;
+    end;
   end;
-
-  Login.FClose := pClose;
-  Login.Visible := True;
-  Login.edtLogin.SetFocus;
 end;
 
 procedure TLogin.edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);

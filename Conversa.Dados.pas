@@ -173,6 +173,7 @@ begin
       cdsConversas.Append;
       cdsConversas.FieldByName('id').AsInteger := Item.GetValue<Integer>('id');
       cdsConversas.FieldByName('descricao').AsString := Item.GetValue<String>('descricao');
+      cdsConversas.FieldByName('ultima_mensagem_texto').AsString := Item.GetValue<String>('ultima_mensagem_texto');
       cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
     end;
   finally
