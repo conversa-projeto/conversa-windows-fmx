@@ -540,6 +540,7 @@ begin
     FStream := TStringStream.Create;
     FStream.CopyFrom(vContent, 0, vContent.Size);
     FStream.SetSize(vContent.Size);
+    FStream.Position := 0;
   finally
     FreeAndNil(vContent);
   end;

@@ -47,7 +47,8 @@ implementation
 
 uses
   System.IOUtils,
-  System.DateUtils;
+  System.DateUtils,
+  System.Hash;
 
 const
   SERVIDOR = 'http://localhost:90';
@@ -215,9 +216,11 @@ var
   aConteudos: TJSONArray;
   oConteudo: TJSONObject;
   Item: TMensagemConteudo;
+  ss: TStringStream;
+  sIdentificador: String;
+  bEnviar: Boolean;
 begin
-  // gerar o id do anexo
-  // enviar o anexo (em segundo plano.. talvez v2)
+  bEnviar := True;
 
   // enviar a mensagem
   oJSON := TJSONObject.Create;
@@ -230,7 +233,57 @@ begin
     oConteudo := TJSONObject.Create;
     oConteudo.AddPair('ordem', Item.ordem);
     oConteudo.AddPair('tipo', Item.tipo);
-    oConteudo.AddPair('conteudo', Item.conteudo);
+
+    case Item.tipo of
+      1: // texto
+      begin
+        oConteudo.AddPair('conteudo', Item.conteudo);
+      end;
+      2: // imagem
+      begin
+        ss := TStringStream.Create;
+        try
+          ss.LoadFromFile(Item.conteudo);
+
+          sIdentificador := THashSHA2.GetHashString(ss);
+          oConteudo.AddPair('conteudo', sIdentificador);
+
+          // verifica se já não existe no servidor
+          with TAPIConversa.Create do
+          try
+            Host(SERVIDOR);
+            Route('anexo/existe');
+            Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
+            GET;
+            bEnviar := not Response.ToJSON.GetValue<Boolean>('existe');
+          finally
+            Free;
+          end;
+
+          // faz o envio
+          if bEnviar then
+          begin
+            with TAPIConversa.Create do
+            try
+              Host(SERVIDOR);
+              Route('anexo');
+              Headers(
+                TJSONObject.Create
+                  .AddPair('uid', Fid)
+                  .AddPair('Content-Type', 'application/octet-stream')
+              );
+              Body(ss);
+              PUT;
+            finally
+              Free;
+            end;
+          end;
+        finally
+          if not bEnviar then
+            FreeAndNil(ss);
+        end;
+      end;
+    end;
     aConteudos.Add(oConteudo);
   end;
 
