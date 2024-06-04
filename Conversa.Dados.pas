@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.JSON,
+  Vcl.ExtCtrls,
   Data.DB,
   Datasnap.DBClient,
   REST.API,
@@ -18,7 +19,9 @@ type
     cdsConversasid: TIntegerField;
     cdsConversasdescricao: TStringField;
     cdsConversasultima_mensagem: TDateTimeField;
+    tmrAtualizarMensagens: TTimer;
     procedure DataModuleCreate(Sender: TObject);
+    procedure tmrAtualizarMensagensTimer(Sender: TObject);
   private
     Fid: Integer;
     Fnome: String;
@@ -64,6 +67,8 @@ constructor TAPIConversa.Create;
 begin
   inherited;
   Host(SERVIDOR);
+  if Dados.ID <> 0 then
+    Headers(TJSONObject.Create.AddPair('uid', Dados.ID));
 end;
 
 function TAPIConversa.InternalExecute: TRESTAPI;
@@ -118,7 +123,7 @@ begin
   try
     Host(SERVIDOR);
     Route('mensagens');
-    Headers(TJSONObject.Create.AddPair('uid', Fid));
+    Query(TJSONObject.Create.AddPair('ultima', 0)); // implementar depois o controle de ultima mensagem de cada conversa
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
@@ -164,7 +169,6 @@ begin
   with TAPIConversa.Create do
   try
     Host(SERVIDOR);
-    Headers(TJSONObject.Create.AddPair('uid', Fid));
     Route('conversas');
     GET;
 
@@ -193,7 +197,6 @@ begin
   try
     Host(SERVIDOR);
     Route('anexo');
-    Headers(TJSONObject.Create.AddPair('uid', Fid));
     Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
     GET;
 
@@ -269,7 +272,6 @@ begin
               Route('anexo');
               Headers(
                 TJSONObject.Create
-                  .AddPair('uid', Fid)
                   .AddPair('Content-Type', 'application/octet-stream')
               );
               Body(ss);
@@ -291,11 +293,30 @@ begin
   try
     Host(SERVIDOR);
     Route('mensagem');
-    Headers(TJSONObject.Create.AddPair('uid', Fid));
     Body(oJSON);
     PUT;
   finally
     Free;
+  end;
+end;
+
+procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
+begin
+  Dados.tmrAtualizarMensagens.Enabled := False;
+  try
+    with TAPIConversa.Create do
+    try
+      Host(SERVIDOR);
+      Route('mensagens/novas');
+      Query(TJSONObject.Create.AddPair('ultima', 0)); // obter a ultima mensagem de todas as conversas
+      GET;
+      // retorna a lista das converas que tiveram mensagens adicionadas
+      // se tiver alguma coisa, exibir na lista de conversas um icone para informar
+    finally
+      Free;
+    end;
+  finally
+    Dados.tmrAtualizarMensagens.Enabled := True;
   end;
 end;
 

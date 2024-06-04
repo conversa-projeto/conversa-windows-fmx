@@ -63,6 +63,7 @@ procedure TTelaInicial.Iniciar;
 begin
   TPrincipalView.New(lytClientForm);
   Dados.Conversas;
+  Dados.tmrAtualizarMensagens.Enabled := True;
 end;
 
 end.

@@ -23,4 +23,11 @@ object Dados: TDados
       Size = 100
     end
   end
+  object tmrAtualizarMensagens: TTimer
+    Enabled = False
+    Interval = 5000
+    OnTimer = tmrAtualizarMensagensTimer
+    Left = 232
+    Top = 24
+  end
 end
