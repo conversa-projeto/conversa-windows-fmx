@@ -8,12 +8,6 @@ inherited TelaInicial: TTelaInicial
       inherited lytClientForm: TLayout
         ClipChildren = True
         Size.Height = 438.000000000000000000
-        object Button2: TButton
-          Position.X = 232.000000000000000000
-          Position.Y = 176.000000000000000000
-          TabOrder = 0
-          Text = 'Button2'
-        end
       end
       inherited rctTitleBar: TRectangle
         inherited lytLogo: TLayout

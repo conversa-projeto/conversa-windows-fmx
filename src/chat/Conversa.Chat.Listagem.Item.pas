@@ -11,7 +11,7 @@ uses
   System.StrUtils,
   System.DateUtils,
 
-  Conversa.FrameBase;
+  Conversa.FrameBase, FMX.Ani;
 
 type
   TConversasItemFrame = class(TFrameBase)
@@ -25,6 +25,7 @@ type
     lytB: TLayout;
     lblInformacao1: TLabel;
     lblUltimaMensagem: TLabel;
+    ColorAnimation1: TColorAnimation;
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
   private
@@ -111,6 +112,9 @@ function TConversasItemFrame.ConversaFormatDateTime(Value: TDateTime): String;
 var
   Between: Int64;
 begin
+  if Value = 0 then
+    Exit(EmptyStr);
+
   Between := SecondsBetween(Value, Now);
   if Between = 0 then
     Exit('agora');

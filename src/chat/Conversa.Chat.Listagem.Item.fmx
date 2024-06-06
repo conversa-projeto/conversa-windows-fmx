@@ -2,6 +2,7 @@ inherited ConversasItemFrame: TConversasItemFrame
   Size.Height = 60.000000000000000000
   object rctFundo: TRectangle
     Align = Client
+    Cursor = crHandPoint
     Fill.Color = claWhite
     Size.Width = 320.000000000000000000
     Size.Height = 60.000000000000000000
@@ -97,6 +98,16 @@ inherited ConversasItemFrame: TConversasItemFrame
           end
         end
       end
+    end
+    object ColorAnimation1: TColorAnimation
+      AnimationType = InOut
+      Duration = 0.200000002980232200
+      Interpolation = Cubic
+      PropertyName = 'Fill.Color'
+      StartValue = claWhite
+      StopValue = xFFE6E6E6
+      Trigger = 'IsMouseOver=true'
+      TriggerInverse = 'IsMouseOver=false'
     end
   end
 end

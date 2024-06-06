@@ -30,7 +30,6 @@ uses
 type
   TTelaInicial = class(TFormularioBase)
     Button1: TButton;
-    Button2: TButton;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private

@@ -1,6 +1,5 @@
 inherited Login: TLogin
   Size.Height = 334.000000000000000000
-  OnKeyDown = FrameKeyDown
   object rctFundo: TRectangle
     Align = Client
     Corners = [BottomLeft, BottomRight]
@@ -92,6 +91,7 @@ inherited Login: TLogin
           OnClick = rctBotaoEntrarClick
           object txtBotaoEntrar: TText
             Align = Client
+            HitTest = False
             Size.Width = 150.000000000000000000
             Size.Height = 30.000000000000000000
             Size.PlatformDefault = False

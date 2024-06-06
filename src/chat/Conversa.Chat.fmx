@@ -109,7 +109,7 @@ inherited Chat: TChat
             Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.StyleExt = {00070000000000000004000000}
-            TextSettings.FontColor = claDimgray
+            TextSettings.FontColor = xFF141414
             Text = '[Nome]'
             TabOrder = 0
           end

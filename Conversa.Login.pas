@@ -35,8 +35,6 @@ type
     procedure rctBotaoEntrarClick(Sender: TObject);
     procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
-    procedure FrameKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-      Shift: TShiftState);
   private
     FClose: TProc;
   public
@@ -66,29 +64,6 @@ begin
       Visible := True;
       Align := TAlignLayout.Client;
       edtUsuario.SetFocus;
-
-    rctFundo.CanFocus := True;
-    rctFundo.TabStop := False;
-    lytCenter.CanFocus := True;
-    lytCenter.TabStop := False;
-    rctUsuario.CanFocus := True;
-    rctUsuario.TabStop := False;
-    rctSenha.CanFocus := True;
-    rctSenha.TabStop := False;
-    lytBotaoEntrar.CanFocus := True;
-    lytBotaoEntrar.TabStop := False;
-    rctBotaoEntrar.CanFocus := True;
-    rctBotaoEntrar.TabStop := False;
-    txtBotaoEntrar.CanFocus := True;
-    txtBotaoEntrar.TabStop := False;
-
-
-
-    edtUsuario.CanFocus := True;
-    edtUsuario.TabStop := True;
-    edtSenha.CanFocus := True;
-    edtSenha.TabStop := True;
-
     end;
   end;
 end;
@@ -110,26 +85,10 @@ begin
   end;
 end;
 
-procedure TLogin.FrameKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-  Shift: TShiftState);
-begin
-  if Key in [vkReturn, vkTab] then
-  begin
-    if edtUsuario.IsFocused then
-      edtSenha.SetFocus
-    else
-    if edtSenha.IsFocused and (Key = vkReturn) then
-      rctBotaoEntrar.OnClick(rctBotaoEntrar);
-
-    Key := vkNone;
-  end;
-  inherited;
-end;
-
 procedure TLogin.edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
-//  if Key = vkReturn then
-//    rctBotaoEntrar.OnClick(rctBotaoEntrar);
+  if Key = vkReturn then
+    rctBotaoEntrar.OnClick(rctBotaoEntrar);
 end;
 
 end.
