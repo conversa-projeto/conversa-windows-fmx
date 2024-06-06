@@ -30,6 +30,7 @@ uses
 type
   TTelaInicial = class(TFormularioBase)
     Button1: TButton;
+    Button2: TButton;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
   private
@@ -49,12 +50,15 @@ implementation
 procedure TTelaInicial.Button1Click(Sender: TObject);
 begin
   inherited;
+  Exit;
   TPascalStyleScript.Instance.LoadFromFile('tema/escuro.pss');
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
+  Width := 1000;
+  Button1.Visible := False;
   TLogin.New(lytClientForm, Iniciar);
 //  rctFundo.Stroke.Kind := TBrushKind.Solid;
 end;

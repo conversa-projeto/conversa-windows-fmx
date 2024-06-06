@@ -16,11 +16,9 @@ uses
 type
   TConversasItemFrame = class(TFrameBase)
     rctFundo: TRectangle;
-    lhSeparador: TLine;
     lytClient: TLayout;
     lytFoto: TLayout;
     crclFoto: TCircle;
-    imgFoto: TImage;
     Text1: TText;
     lytInformacoes: TLayout;
     lblNome: TLabel;
@@ -33,7 +31,7 @@ type
     { Private declarations }
     FID: Integer;
     FUltimaMensagem: TDateTime;
-    FOnClick: TProc<Integer>;
+    FOnClick: TProc<Integer, String>;
 //    FNextUpdateDateTime: TDateTime;
     function ConversaFormatDateTime(Value: TDateTime): String;
   public
@@ -43,7 +41,7 @@ type
     function Descricao(Value: string): TConversasItemFrame;
     function Mensagem(Value: string): TConversasItemFrame;
     function UltimaMensagem(Value: TDateTime): TConversasItemFrame;
-    function OnClick(Value: TProc<Integer>): TConversasItemFrame;
+    function OnClick(Value: TProc<Integer, String>): TConversasItemFrame;
   end;
 
 implementation
@@ -59,7 +57,7 @@ begin
   //Result.ID := AID;
 end;
 
-function TConversasItemFrame.OnClick(Value: TProc<Integer>): TConversasItemFrame;
+function TConversasItemFrame.OnClick(Value: TProc<Integer, String>): TConversasItemFrame;
 begin
   Result := Self;
   FOnClick := Value;
@@ -67,13 +65,14 @@ end;
 
 procedure TConversasItemFrame.rctFundoClick(Sender: TObject);
 begin
-  FOnClick(FID);
+  FOnClick(FID, lblNome.Text);
 end;
 
 function TConversasItemFrame.Descricao(Value: string): TConversasItemFrame;
 begin
   Result := Self;
   lblNome.Text := Value;
+  Text1.Text := Value[1];
 end;
 
 function TConversasItemFrame.ID: Integer;

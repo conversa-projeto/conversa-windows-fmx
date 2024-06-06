@@ -155,6 +155,7 @@ begin
   pthAnexo.Size.PlatformDefault := False;
   pthAnexo.Stroke.Kind := TBrushKind.None;
   pthAnexo.WrapMode := TPathWrapMode.Fit;
+  pthAnexo.Fill.Color := TAlphaColorF.Create(TAlphaColorF.Create(0 / 255, 127 / 255, 255 / 255).ToAlphaColor).ToAlphaColor;
   TPascalStyleScript.Instance.RegisterObject(pthAnexo, 'Mensagem.Editor.Anexo');
 
   lytCarinha := TLayout.Create(rtgMensagem);
@@ -215,6 +216,8 @@ begin
   pthCarinha.Size.PlatformDefault := False;
   pthCarinha.Stroke.Kind := TBrushKind.None;
   pthCarinha.WrapMode := TPathWrapMode.Fit;
+
+  pthCarinha.Fill.Color := TAlphaColorF.Create(TAlphaColorF.Create(0 / 255, 127 / 255, 255 / 255).ToAlphaColor).ToAlphaColor;
   TPascalStyleScript.Instance.RegisterObject(pthCarinha, 'Mensagem.Editor.Emoji');
 
   lytEnviar := TLayout.Create(rtgMensagem);
@@ -241,7 +244,6 @@ begin
     'C2.77982997894287,21.2226009368896 1.99597001075745,20.7371997833252 2.00002002716064,20.0293006896973 '+
     'C2.00038003921509,19.965799331665 2.01454997062683,19.9032001495361 2.03295993804932,19.8425006866455 '+
     'L3.5,15 ';
-  pthEnviar.Fill.Color := TAlphaColors.Gainsboro;
   pthEnviar.HitTest := False;
   pthEnviar.Margins.Left := 8;
   pthEnviar.Margins.Top := 5;
@@ -252,6 +254,9 @@ begin
   pthEnviar.Size.PlatformDefault := False;
   pthEnviar.Stroke.Kind := TBrushKind.None;
   pthEnviar.WrapMode := TPathWrapMode.Fit;
+
+
+  pthEnviar.Fill.Color := TAlphaColorF.Create(TAlphaColorF.Create(0 / 255, 127 / 255, 255 / 255).ToAlphaColor).ToAlphaColor;
   TPascalStyleScript.Instance.RegisterObject(pthEnviar, 'Mensagem.Editor.Enviar');
 
   lytMensagem.AddObject(rtgMensagem);

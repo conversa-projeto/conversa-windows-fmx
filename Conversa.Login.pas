@@ -18,18 +18,25 @@ uses
   FMX.Controls.Presentation,
   FMX.Edit,
   FMX.Objects,
-  Conversa.FrameBase;
+  Conversa.FrameBase, FMX.Layouts;
 
 type
   TLogin = class(TFrameBase)
-    rtgCentro: TRectangle;
-    edtSenha: TEdit;
-    edtLogin: TEdit;
-    btnLogin: TButton;
+    edtUsuario: TEdit;
     rctFundo: TRectangle;
-    Image1: TImage;
+    lytCenter: TLayout;
+    rctUsuario: TRectangle;
+    rctSenha: TRectangle;
+    edtSenha: TEdit;
+    lytBotaoEntrar: TLayout;
+    rctBotaoEntrar: TRectangle;
+    txtBotaoEntrar: TText;
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
-    procedure btnLoginClick(Sender: TObject);
+    procedure rctBotaoEntrarClick(Sender: TObject);
+    procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
+    procedure FrameKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+      Shift: TShiftState);
   private
     FClose: TProc;
   public
@@ -58,22 +65,71 @@ begin
       FClose := pClose;
       Visible := True;
       Align := TAlignLayout.Client;
-      edtLogin.SetFocus;
+      edtUsuario.SetFocus;
+
+    rctFundo.CanFocus := True;
+    rctFundo.TabStop := False;
+    lytCenter.CanFocus := True;
+    lytCenter.TabStop := False;
+    rctUsuario.CanFocus := True;
+    rctUsuario.TabStop := False;
+    rctSenha.CanFocus := True;
+    rctSenha.TabStop := False;
+    lytBotaoEntrar.CanFocus := True;
+    lytBotaoEntrar.TabStop := False;
+    rctBotaoEntrar.CanFocus := True;
+    rctBotaoEntrar.TabStop := False;
+    txtBotaoEntrar.CanFocus := True;
+    txtBotaoEntrar.TabStop := False;
+
+
+
+    edtUsuario.CanFocus := True;
+    edtUsuario.TabStop := True;
+    edtSenha.CanFocus := True;
+    edtSenha.TabStop := True;
+
     end;
   end;
 end;
 
-procedure TLogin.edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+procedure TLogin.rctBotaoEntrarClick(Sender: TObject);
 begin
-  if Key = vkReturn then
-    btnLogin.OnClick(btnLogin);
-end;
-
-procedure TLogin.btnLoginClick(Sender: TObject);
-begin
-  Dados.Login(edtLogin.Text, edtSenha.Text);
+  Dados.Login(edtUsuario.Text, edtSenha.Text);
   FClose;
   Visible := False;
+end;
+
+procedure TLogin.edtUsuarioKeyDown(Sender: TObject; var Key: Word;
+  var KeyChar: Char; Shift: TShiftState);
+begin
+  if Key in [vkReturn, vkTab] then
+  begin
+    edtSenha.SetFocus;
+    Key := vkNone;
+  end;
+end;
+
+procedure TLogin.FrameKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
+  Shift: TShiftState);
+begin
+  if Key in [vkReturn, vkTab] then
+  begin
+    if edtUsuario.IsFocused then
+      edtSenha.SetFocus
+    else
+    if edtSenha.IsFocused and (Key = vkReturn) then
+      rctBotaoEntrar.OnClick(rctBotaoEntrar);
+
+    Key := vkNone;
+  end;
+  inherited;
+end;
+
+procedure TLogin.edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+begin
+//  if Key = vkReturn then
+//    rctBotaoEntrar.OnClick(rctBotaoEntrar);
 end;
 
 end.

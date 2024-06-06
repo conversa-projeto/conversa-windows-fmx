@@ -36,7 +36,6 @@ type
     imgFoto: TImage;
     lytInformacoes: TLayout;
     lblNome: TLabel;
-    lblInformacao1: TLabel;
     lytClient: TLayout;
     pthFotoDefault: TPath;
   private
@@ -47,6 +46,7 @@ type
     Visualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
+    procedure SetUsuario(const Value: String);
   public
     { Public declarations }
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -54,7 +54,7 @@ type
     destructor Destroy; override;
 
     property ID: Integer read FID write FID;
-    property Usuario: String read FUsuario write FUsuario;
+    property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
 
     procedure AdicionarMensagem(Mensagem: TMensagem);
@@ -86,9 +86,12 @@ end;
 constructor TChat.Create(AOwner: TComponent);
 begin
   inherited;
+  Sleep(1);
+  Name := 'chat_'+ FormatDateTime('yyyymmddHHnnsszzz', Now);
   Parent := TFmxObject(AOwner);
   Align := TAlignLayout.Client;
   Visible := True;
+  lytFoto.Visible := False;
   Visualizador := TVisualizador.Create(lytClient);
   Anexo := TAnexo.Create(Self);
   Editor := TEditor.Create(Self);
@@ -115,6 +118,11 @@ begin
   Editor.Free;
   Anexo.Free;
   inherited;
+end;
+
+procedure TChat.SetUsuario(const Value: String);
+begin
+  FUsuario := Value;
 end;
 
 end.

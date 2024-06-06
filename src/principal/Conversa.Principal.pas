@@ -11,9 +11,8 @@ uses
   Conversa.Chat.Listagem;
 
 type
-  TPrincipalView = class(TFrame)
+  TPrincipalView = class(TFrameBase)
     lytClient: TLayout;
-    mvwMenu: TMultiView;
     procedure Layout2Click(Sender: TObject);
   private
     { Private declarations }
@@ -36,9 +35,9 @@ begin
   Result := TPrincipalView.Create(AOwner);
   Result.Parent := AOwner;
   Result.Align := TAlignLayout.Client;
-  Result.lytClient.Visible := True;
+//  Result.lytClient.Visible := True;
   Result.Visible := True;
-  Result.lytClient.Align := TAlignLayout.Client;
+//  Result.lytClient.Align := TAlignLayout.Client;
   Result.Criar;
 end;
 

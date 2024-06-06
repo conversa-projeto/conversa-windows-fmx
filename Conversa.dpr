@@ -1,6 +1,5 @@
 ﻿// Eduardo - 03/03/2024
 program Conversa;
-
 uses
   MidasLib,
   System.StartUpCopy,
@@ -24,7 +23,6 @@ uses
   Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas';
 
 {$R *.res}
-
 begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;

@@ -4643,4 +4643,5 @@ initialization
   OleInitialize(nil);
   CapturedGestureControl := nil;
   LastMousePos := ImpossibleMousePosition;
+
 end.

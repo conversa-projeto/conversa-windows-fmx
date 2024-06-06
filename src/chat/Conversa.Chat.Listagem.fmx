@@ -19,17 +19,15 @@ inherited ChatListagem: TChatListagem
       YRadius = 10.000000000000000000
       object rctListaConversas: TRectangle
         Align = Left
-        Corners = [BottomLeft]
         Fill.Color = claWhite
         Size.Width = 250.000000000000000000
         Size.Height = 624.000000000000000000
         Size.PlatformDefault = False
-        Stroke.Kind = None
-        XRadius = 10.000000000000000000
-        YRadius = 10.000000000000000000
+        Stroke.Color = x32000000
         object lstConversas: TListBox
           Align = Client
-          Size.Width = 250.000000000000000000
+          Margins.Right = 1.000000000000000000
+          Size.Width = 249.000000000000000000
           Size.Height = 624.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'transparentlistboxstyle'
@@ -38,7 +36,7 @@ inherited ChatListagem: TChatListagem
           DefaultItemStyles.ItemStyle = ''
           DefaultItemStyles.GroupHeaderStyle = ''
           DefaultItemStyles.GroupFooterStyle = ''
-          Viewport.Width = 250.000000000000000000
+          Viewport.Width = 249.000000000000000000
           Viewport.Height = 624.000000000000000000
         end
       end

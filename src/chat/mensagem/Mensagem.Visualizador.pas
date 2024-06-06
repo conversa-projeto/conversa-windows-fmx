@@ -178,9 +178,22 @@ begin
   rtgFundo.Size.PlatformDefault := False;
   rtgFundo.XRadius := 5;
   rtgFundo.YRadius := 5;
-  rtgFundo.Fill.Color := TAlphaColors.White;
-  rtgFundo.Stroke.Kind := TBrushKind.None;
-  TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
+
+
+//  if Mensagem.Lado = TLado.Esquerdo then
+//  begin
+    rtgFundo.Fill.Color := TAlphaColorF.Create(225 / 255, 225 / 255, 225 / 255).ToAlphaColor;// TAlphaColors.White;
+  //  rtgFundo.Fill.Color := TAlphaColors.White;
+    rtgFundo.Stroke.Kind := TBrushKind.None;
+    TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
+//  end
+//  else
+//  begin
+//    rtgFundo.Fill.Color := TAlphaColorF.Create(228 / 255, 232 / 255, 255 / 255).ToAlphaColor;// TAlphaColors.White;
+//  //  rtgFundo.Fill.Color := TAlphaColors.White;
+//    rtgFundo.Stroke.Kind := TBrushKind.None;
+//    TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
+//  end;
 
   lbNome := TLabel.Create(lytConteudo);
   NomearComponente(lbNome);

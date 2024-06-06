@@ -32,7 +32,7 @@ type
   private
     { Private declarations }
     FChats: TArray<TChat>;
-    procedure btnAbrirChat(ChatID: Integer);
+    procedure btnAbrirChat(ChatID: Integer; sNome: String);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
   public
     { Public declarations }
@@ -96,7 +96,7 @@ begin
   Dados.EnviarMensagem(Mensagem);
 end;
 
-procedure TChatListagem.btnAbrirChat(ChatID: Integer);
+procedure TChatListagem.btnAbrirChat(ChatID: Integer; sNome: String);
 var
   Chat: TChat;
   bJaCriado: Boolean;
@@ -117,11 +117,12 @@ begin
     Exit;
 
   Chat := TChat.Create(lytViewClient);
+  Chat.lblNome.Text := sNome;
   Chat.ID := ChatID;
   Chat.Usuario := Dados.Nome;
   Chat.UsuarioID := Dados.ID;
   Chat.AoEnviarMensagem := EnviarMensagem;
-  Chat.AdicionarMensagens(Dados.Mensagens(Dados.cdsConversas.FieldByName('id').AsInteger));
+  Chat.AdicionarMensagens(Dados.Mensagens(ChatID));
 end;
 
 end.

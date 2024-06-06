@@ -10,7 +10,7 @@ inherited Chat: TChat
     Stroke.Kind = None
     object rctTitulo: TRectangle
       Align = Top
-      Fill.Color = claWhite
+      Fill.Color = xFFF0F0F0
       Size.Width = 622.000000000000000000
       Size.Height = 40.000000000000000000
       Size.PlatformDefault = False
@@ -68,7 +68,6 @@ inherited Chat: TChat
                 020000007E716543081771C3020000001F4560431D4576C3020000000A175B43
                 7C717BC302000000008058438E0281C30200000000805843FFFF84C303000000
                 00805843000085C3}
-              Enabled = True
               Fill.Color = claWhite
               Margins.Left = 5.000000000000000000
               Margins.Top = 4.000000000000000000
@@ -86,7 +85,6 @@ inherited Chat: TChat
                 item
                 end>
               Align = Client
-              Enabled = True
               Size.Width = 34.000000000000000000
               Size.Height = 34.000000000000000000
               Size.PlatformDefault = False
@@ -108,24 +106,12 @@ inherited Chat: TChat
             AutoSize = True
             StyledSettings = [Family, Size]
             Size.Width = 577.000000000000000000
-            Size.Height = 12.000000000000000000
+            Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
             TextSettings.Font.StyleExt = {00070000000000000004000000}
             TextSettings.FontColor = claDimgray
             Text = '[Nome]'
             TabOrder = 0
-          end
-          object lblInformacao1: TLabel
-            Align = Bottom
-            AutoSize = True
-            StyledSettings = [Family, Style]
-            Position.Y = 12.000000000000000000
-            Size.Width = 577.000000000000000000
-            Size.Height = 16.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.FontColor = claGray
-            Text = '[Informa'#231#227'o]'
-            TabOrder = 1
           end
         end
       end
