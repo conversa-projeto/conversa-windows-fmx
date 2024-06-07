@@ -44,7 +44,9 @@ type
 implementation
 
 uses
-  Conversa.Dados;
+  Conversa.Configuracoes,
+  Conversa.Dados,
+  Conversa.AES;
 
 var
   Login: TLogin;
@@ -63,7 +65,12 @@ begin
       FClose := pClose;
       Visible := True;
       Align := TAlignLayout.Client;
+      edtUsuario.Text := Configuracoes.Usuario;
+      edtSenha.Text := Decrypt(Configuracoes.Senha);
       edtUsuario.SetFocus;
+
+      if not edtUsuario.Text.Trim.IsEmpty and not edtSenha.Text.Trim.IsEmpty then
+        rctBotaoEntrarClick(rctBotaoEntrar);
     end;
   end;
 end;
@@ -71,6 +78,9 @@ end;
 procedure TLogin.rctBotaoEntrarClick(Sender: TObject);
 begin
   Dados.Login(edtUsuario.Text, edtSenha.Text);
+  Configuracoes.Usuario := edtUsuario.Text;
+  Configuracoes.Senha := Encrypt(edtSenha.Text);
+  Configuracoes.Save;
   FClose;
   Visible := False;
 end;

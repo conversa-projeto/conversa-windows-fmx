@@ -6,36 +6,65 @@ uses
   System.SysUtils;
 
 type
-
-  TConversaConfiguracoes = class
-  private
-    constructor Create;
-  public
-    Tema: String;
-    class function Instance: TConversaConfiguracoes;
+  TConfiguracoes = record
+    Host: String;
+    Usuario: String;
+    Senha: String;
+    class procedure Load; static;
+    class procedure Save; static;
   end;
+
+var
+  Configuracoes: TConfiguracoes;
 
 implementation
 
-var
-  FInstance: TConversaConfiguracoes;
+uses
+  System.Classes,
+  System.JSON,
+  System.IOUtils,
+  System.JSON.Serializers;
 
-{ TConversaConfiguracoes }
+{ TConfiguracoes }
 
-constructor TConversaConfiguracoes.Create;
+class procedure TConfiguracoes.Load;
 begin
-  Tema := '';
+  if not TFile.Exists('.\conversa.json') then
+    Exit;
+
+  with TStringStream.Create do
+  try
+    LoadFromFile('.\conversa.json');
+    with TJsonSerializer.Create do
+    try
+      Populate<TConfiguracoes>(DataString, Configuracoes);
+    finally
+      Free;
+    end;
+  finally
+    Free;
+  end;
 end;
 
-class function TConversaConfiguracoes.Instance: TConversaConfiguracoes;
+class procedure TConfiguracoes.Save;
 begin
-  Result := FInstance;
+  with TJsonSerializer.Create do
+  try
+    with TStringStream.Create(Serialize<TConfiguracoes>(Configuracoes)) do
+    try
+      SaveToFile('.\conversa.json');
+    finally
+      Free;
+    end;
+  finally
+    Free;
+  end;
 end;
 
 initialization
-  FInstance := TConversaConfiguracoes.Create;
+  TConfiguracoes.Load;
 
 finalization
-  FreeAndNil(FInstance);
+  TConfiguracoes.Save;
 
 end.

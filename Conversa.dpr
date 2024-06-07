@@ -20,7 +20,8 @@ uses
   Mensagem.Anexo in 'src\chat\mensagem\Mensagem.Anexo.pas',
   Mensagem.Editor in 'src\chat\mensagem\Mensagem.Editor.pas',
   Mensagem.Tipos in 'src\chat\mensagem\Mensagem.Tipos.pas',
-  Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas';
+  Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas',
+  Conversa.AES in 'lib\AES\Conversa.AES.pas';
 
 {$R *.res}
 begin
