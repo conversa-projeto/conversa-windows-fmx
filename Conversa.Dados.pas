@@ -51,10 +51,11 @@ implementation
 uses
   System.IOUtils,
   System.DateUtils,
-  System.Hash;
+  System.Hash,
+  Conversa.Configuracoes;
 
 const
-  SERVIDOR = 'http://localhost:90';
+//  SERVIDOR = 'http://localhost:90';
   PASTA_ANEXO = 'anexos';
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
@@ -66,7 +67,7 @@ const
 constructor TAPIConversa.Create;
 begin
   inherited;
-  Host(SERVIDOR);
+  Host(Configuracoes.Host);
   if Dados.ID <> 0 then
     Headers(TJSONObject.Create.AddPair('uid', Dados.ID));
 end;
@@ -97,7 +98,6 @@ procedure TDados.Login(sLogin, sSenha: String);
 begin
   with TAPIConversa.Create do
   try
-    Host(SERVIDOR);
     Route('login');
     Body(
       TJSONObject.Create
@@ -121,7 +121,6 @@ var
 begin
   with TAPIConversa.Create do
   try
-    Host(SERVIDOR);
     Route('mensagens');
     Query(TJSONObject.Create.AddPair('ultima', 0)); // implementar depois o controle de ultima mensagem de cada conversa
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
@@ -168,7 +167,6 @@ procedure TDados.Conversas;
 begin
   with TAPIConversa.Create do
   try
-    Host(SERVIDOR);
     Route('conversas');
     GET;
 
@@ -197,7 +195,6 @@ begin
 
   with TAPIConversa.Create do
   try
-    Host(SERVIDOR);
     Route('anexo');
     Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
     GET;
@@ -256,7 +253,6 @@ begin
           // verifica se já não existe no servidor
           with TAPIConversa.Create do
           try
-            Host(SERVIDOR);
             Route('anexo/existe');
             Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
             GET;
@@ -270,7 +266,6 @@ begin
           begin
             with TAPIConversa.Create do
             try
-              Host(SERVIDOR);
               Route('anexo');
               Headers(
                 TJSONObject.Create
@@ -293,7 +288,6 @@ begin
 
   with TAPIConversa.Create do
   try
-    Host(SERVIDOR);
     Route('mensagem');
     Body(oJSON);
     PUT;
@@ -308,7 +302,6 @@ begin
   try
     with TAPIConversa.Create do
     try
-      Host(SERVIDOR);
       Route('mensagens/novas');
       Query(TJSONObject.Create.AddPair('ultima', 0)); // obter a ultima mensagem de todas as conversas
       GET;

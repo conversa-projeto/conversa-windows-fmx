@@ -23,6 +23,7 @@ uses
   FMX.Controls.Presentation,
   FMX.StdCtrls,
 
+  Conversa.Configuracoes,
   Conversa.Principal,
 
   PascalStyleScript;
@@ -30,8 +31,10 @@ uses
 type
   TTelaInicial = class(TFormularioBase)
     Button1: TButton;
+    tmrShow: TTimer;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure tmrShowTimer(Sender: TObject);
   private
     { Private declarations }
   public
@@ -43,6 +46,9 @@ var
   TelaInicial: TTelaInicial;
 
 implementation
+
+uses
+  Conversa.Configurar.Conexao;
 
 {$R *.fmx}
 
@@ -56,10 +62,8 @@ end;
 procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
-  Width := 1000;
   Button1.Visible := False;
-  TLogin.New(lytClientForm, Iniciar);
-//  rctFundo.Stroke.Kind := TBrushKind.Solid;
+  tmrShow.Enabled := True;
 end;
 
 procedure TTelaInicial.Iniciar;
@@ -67,6 +71,24 @@ begin
   TPrincipalView.New(lytClientForm);
   Dados.Conversas;
   Dados.tmrAtualizarMensagens.Enabled := True;
+end;
+
+procedure TTelaInicial.tmrShowTimer(Sender: TObject);
+begin
+  inherited;
+  tmrShow.Enabled := False;
+  if Configuracoes.Host.Trim.IsEmpty then
+  begin
+    TConfigurarConexao.ConfiguracaoInicial(
+      lytClientForm,
+      procedure
+      begin
+        TLogin.New(lytClientForm, Iniciar);
+      end
+    );
+  end
+  else
+    TLogin.New(lytClientForm, Iniciar);
 end;
 
 end.

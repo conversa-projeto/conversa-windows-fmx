@@ -21,7 +21,8 @@ uses
   Mensagem.Editor in 'src\chat\mensagem\Mensagem.Editor.pas',
   Mensagem.Tipos in 'src\chat\mensagem\Mensagem.Tipos.pas',
   Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas',
-  Conversa.AES in 'lib\AES\Conversa.AES.pas';
+  Conversa.AES in 'lib\AES\Conversa.AES.pas',
+  Conversa.Configurar.Conexao in 'src\configuracoes\Conversa.Configurar.Conexao.pas' {ConfigurarConexao: TFrame};
 
 {$R *.res}
 begin
