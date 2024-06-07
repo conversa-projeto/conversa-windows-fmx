@@ -196,7 +196,6 @@ var
   InstAux: TPSSObject;
 //  P: TRttiProperty;
 begin
-  Exit;
   if not Assigned(Inst.Obj) then
     Exit;
 

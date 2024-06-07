@@ -55,14 +55,13 @@ uses
 procedure TTelaInicial.Button1Click(Sender: TObject);
 begin
   inherited;
-  Exit;
   TPascalStyleScript.Instance.LoadFromFile('tema/escuro.pss');
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
-  Button1.Visible := False;
+//  Button1.Visible := False;
   tmrShow.Enabled := True;
 end;
 

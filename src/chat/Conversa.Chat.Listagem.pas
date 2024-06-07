@@ -28,6 +28,7 @@ type
     rctFundo: TRectangle;
     Timer1: TTimer;
     lblAvisoConversa: TLabel;
+    lnSeparador: TLine;
     procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }

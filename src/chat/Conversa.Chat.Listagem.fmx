@@ -23,11 +23,10 @@ inherited ChatListagem: TChatListagem
         Size.Width = 250.000000000000000000
         Size.Height = 624.000000000000000000
         Size.PlatformDefault = False
-        Stroke.Color = x32000000
+        Stroke.Kind = None
         object lstConversas: TListBox
           Align = Client
-          Margins.Right = 1.000000000000000000
-          Size.Width = 249.000000000000000000
+          Size.Width = 250.000000000000000000
           Size.Height = 624.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = 'transparentlistboxstyle'
@@ -36,13 +35,13 @@ inherited ChatListagem: TChatListagem
           DefaultItemStyles.ItemStyle = ''
           DefaultItemStyles.GroupHeaderStyle = ''
           DefaultItemStyles.GroupFooterStyle = ''
-          Viewport.Width = 249.000000000000000000
+          Viewport.Width = 250.000000000000000000
           Viewport.Height = 624.000000000000000000
         end
       end
       object lytViewClient: TLayout
         Align = Client
-        Size.Width = 568.000000000000000000
+        Size.Width = 567.000000000000000000
         Size.Height = 624.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
@@ -56,6 +55,15 @@ inherited ChatListagem: TChatListagem
           Text = 'Selecione um Chat para conversar'
           TabOrder = 0
         end
+      end
+      object lnSeparador: TLine
+        Align = Left
+        LineType = Left
+        Position.X = 250.000000000000000000
+        Size.Width = 1.000000000000000000
+        Size.Height = 624.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Color = x32000000
       end
     end
   end
