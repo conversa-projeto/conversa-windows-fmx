@@ -27,7 +27,7 @@ uses
   FMX.Ani,
   FMX.Graphics,
   FMX.Objects,
-  FMX.Types;
+  FMX.Types, FMX.Controls;
 
 type
 
@@ -244,6 +244,8 @@ begin
 
       TAnimator.AnimateColor(Inst.obj, 'fill.color', TPSSCor(PropValue), 0.25, TAnimationType.InOut, TInterpolationType.Quadratic);
     end;
+
+
 //    if Inst.obj.InheritsFrom(FMX.Objects.TShape) and not Trim(Inst.obj.Name).IsEmpty and (TShape(Inst.obj).Stroke.Kind <> TBrushKind.None) then
 //    begin
 //      id := Inst.id;

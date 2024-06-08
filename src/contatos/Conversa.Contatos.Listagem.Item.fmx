@@ -1,0 +1,80 @@
+inherited ConversaContatoItem: TConversaContatoItem
+  Size.Height = 60.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Cursor = crHandPoint
+    Fill.Color = claWhitesmoke
+    Size.Width = 320.000000000000000000
+    Size.Height = 60.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    object lytClient: TLayout
+      Align = Client
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 5.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 5.000000000000000000
+      Size.Width = 320.000000000000000000
+      Size.Height = 60.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lytFoto: TLayout
+        Align = Left
+        Position.X = 8.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclFoto: TCircle
+          Align = Client
+          Fill.Color = claWhitesmoke
+          HitTest = False
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object Text1: TText
+            Align = Center
+            Text = 'D'
+            TextSettings.Font.Family = 'Consolas'
+            TextSettings.Font.Size = 30.000000000000000000
+            TextSettings.FontColor = xFF007DFF
+            TextSettings.WordWrap = False
+          end
+        end
+      end
+      object lytInformacoes: TLayout
+        Align = Client
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 249.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object lblNome: TLabel
+          Align = Client
+          StyledSettings = [Family, Size]
+          Size.Width = 249.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.FontColor = xFF141414
+          Text = '[Nome]'
+          TabOrder = 0
+        end
+      end
+    end
+    object ColorAnimation1: TColorAnimation
+      AnimationType = InOut
+      Duration = 0.200000002980232200
+      Interpolation = Cubic
+      PropertyName = 'Fill.Color'
+      StartValue = claWhitesmoke
+      StopValue = claWhite
+      Trigger = 'IsMouseOver=true'
+      TriggerInverse = 'IsMouseOver=false'
+    end
+  end
+end

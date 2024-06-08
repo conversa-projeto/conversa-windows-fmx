@@ -25,6 +25,7 @@ uses
 
   Conversa.Configuracoes,
   Conversa.Principal,
+  Conversa.ModalView,
 
   PascalStyleScript;
 
@@ -32,14 +33,18 @@ type
   TTelaInicial = class(TFormularioBase)
     Button1: TButton;
     tmrShow: TTimer;
+    lytProfileView: TLayout;
+    Circle1: TCircle;
+    Line1: TLine;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
   private
     { Private declarations }
+    procedure Iniciar;
   public
     { Public declarations }
-    procedure Iniciar;
+    ModalView: TModalView;
   end;
 
 var
@@ -61,6 +66,9 @@ end;
 procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
+  ModalView := TModalView.Create(lytClientForm);
+
+
 //  Button1.Visible := False;
   tmrShow.Enabled := True;
 end;

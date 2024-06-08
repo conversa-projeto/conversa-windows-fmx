@@ -136,6 +136,11 @@ procedure TFormularioBase.FormResize(Sender: TObject);
 begin
   if not FMaximized then
     FOldBounds := Self.GetBoundsF;
+
+  if WindowState = TWindowState.wsMaximized then
+    Padding.Top := 7
+  else
+    Padding.Top := 1;
 //  UpdateResizeState;
 end;
 

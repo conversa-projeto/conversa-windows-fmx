@@ -35,6 +35,7 @@ type
     function Mensagens(iConversa: Integer): TArray<TMensagem>;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
+    procedure Contatos(Proc: TProc<TJSONArray>);
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -312,6 +313,18 @@ begin
     end;
   finally
     Dados.tmrAtualizarMensagens.Enabled := True;
+  end;
+end;
+
+procedure TDados.Contatos(Proc: TProc<TJSONArray>);
+begin
+  with TAPIConversa.Create do
+  try
+    Route('usuario/contatos');
+    GET;
+    Proc(Response.ToJSONArray);
+  finally
+    Free;
   end;
 end;
 

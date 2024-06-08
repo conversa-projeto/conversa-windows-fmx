@@ -6,7 +6,6 @@ interface
 uses
   System.SysUtils,
   System.Classes,
-  System.UITypes,
   System.Types,
   System.Math,
   FMX.Memo,
@@ -53,6 +52,9 @@ type
   end;
 
 implementation
+
+uses
+  System.UITypes;
 
 { TPrevia }
 
@@ -115,6 +117,7 @@ begin
   lytAnexo.Size.Height := 40;
   lytAnexo.Size.PlatformDefault := False;
   lytAnexo.OnClick := lytAnexoClick;
+  lytAnexo.Cursor := crHandPoint;
 
   pthAnexo := TPath.Create(lytAnexo);
   pthAnexo.Align := TAlignLayout.Client;
@@ -167,6 +170,7 @@ begin
   lytCarinha.Size.PlatformDefault := False;
   lytCarinha.TabOrder := 2;
   lytCarinha.OnClick := lytCarinhaClick;
+  lytCarinha.Cursor := crHandPoint;
 
   pthCarinha := TPath.Create(lytCarinha);
   pthCarinha.Align := TAlignLayout.Client;
@@ -229,6 +233,7 @@ begin
   lytEnviar.Size.PlatformDefault := False;
   lytEnviar.TabOrder := 1;
   lytEnviar.OnClick := lytEnviarClick;
+  lytEnviar.Cursor := crHandPoint;
 
   pthEnviar := TPath.Create(lytEnviar);
   pthEnviar.Align := TAlignLayout.Client;

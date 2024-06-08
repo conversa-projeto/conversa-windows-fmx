@@ -22,7 +22,10 @@ uses
   Mensagem.Tipos in 'src\chat\mensagem\Mensagem.Tipos.pas',
   Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas',
   Conversa.AES in 'lib\AES\Conversa.AES.pas',
-  Conversa.Configurar.Conexao in 'src\configuracoes\Conversa.Configurar.Conexao.pas' {ConfigurarConexao: TFrame};
+  Conversa.Configurar.Conexao in 'src\configuracoes\Conversa.Configurar.Conexao.pas' {ConfigurarConexao: TFrame},
+  Conversa.Contatos in 'src\contatos\Conversa.Contatos.pas' {ConversaContatos: TFrame},
+  Conversa.Contatos.Listagem.Item in 'src\contatos\Conversa.Contatos.Listagem.Item.pas' {ConversaContatoItem: TFrame},
+  Conversa.ModalView in 'src\principal\Conversa.ModalView.pas' {ModalView: TFrame};
 
 {$R *.res}
 begin

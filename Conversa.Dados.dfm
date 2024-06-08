@@ -1,6 +1,6 @@
 object Dados: TDados
   OnCreate = DataModuleCreate
-  Height = 577
+  Height = 578
   Width = 729
   PixelsPerInch = 144
   object cdsConversas: TClientDataSet
@@ -27,7 +27,7 @@ object Dados: TDados
     Enabled = False
     Interval = 5000
     OnTimer = tmrAtualizarMensagensTimer
-    Left = 232
+    Left = 233
     Top = 24
   end
 end

@@ -1,0 +1,49 @@
+inherited ConversaContatos: TConversaContatos
+  Size.Height = 500.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Top = 8.000000000000000000
+    Padding.Bottom = 8.000000000000000000
+    Size.Width = 320.000000000000000000
+    Size.Height = 500.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object txtTitle: TText
+      Align = Top
+      Margins.Left = 8.000000000000000000
+      Margins.Right = 8.000000000000000000
+      Position.X = 8.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 304.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Contatos'
+      TextSettings.Font.Size = 15.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Leading
+    end
+    object lstContatos: TListBox
+      Align = Client
+      Size.Width = 320.000000000000000000
+      Size.Height = 454.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'transparentlistboxstyle'
+      TabOrder = 0
+      DisableFocusEffect = True
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 320.000000000000000000
+      Viewport.Height = 454.000000000000000000
+    end
+  end
+  object tmrCarregar: TTimer
+    Interval = 100
+    OnTimer = tmrCarregarTimer
+    Left = 136
+    Top = 8
+  end
+end

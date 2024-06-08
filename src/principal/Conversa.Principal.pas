@@ -13,7 +13,12 @@ uses
 type
   TPrincipalView = class(TFrameBase)
     lytClient: TLayout;
+    rctMenuLateral: TRectangle;
+    rctBotaoContatos: TRectangle;
+    txtBotaoContatos: TText;
+    pthContatos: TPath;
     procedure Layout2Click(Sender: TObject);
+    procedure rctBotaoContatosClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -28,7 +33,9 @@ implementation
 
 {$R *.fmx}
 
-uses Conversa.Tela.Inicial.view;
+uses
+  Conversa.Tela.Inicial.view,
+  Conversa.Contatos;
 
 class function TPrincipalView.New(AOwner: TFmxObject): TPrincipalView;
 begin
@@ -39,6 +46,11 @@ begin
   Result.Visible := True;
 //  Result.lytClient.Align := TAlignLayout.Client;
   Result.Criar;
+end;
+
+procedure TPrincipalView.rctBotaoContatosClick(Sender: TObject);
+begin
+  TConversaContatos.ExibirContatos;
 end;
 
 procedure TPrincipalView.Criar;
