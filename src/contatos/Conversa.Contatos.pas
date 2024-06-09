@@ -35,7 +35,8 @@ implementation
 {$R *.fmx}
 
 uses
-  Conversa.Tela.Inicial.view;
+  Conversa.Tela.Inicial.view,
+  Conversa.Chat.Listagem;
 
 { TConversaContatos }
 
@@ -60,10 +61,18 @@ begin
           Item.Text := '';
           Item.Height := 60;
           Item.Selectable := False;
-          Item.ContatoItem := TConversaContatoItem.Create(Item);
+          Item.ContatoItem := TConversaContatoItem.Create(Item, joContato.GetValue<Integer>('id'));
           Item.ContatoItem.lblNome.Text := joContato.GetValue<String>('nome');
           Item.ContatoItem.Text1.Text := joContato.GetValue<String>('nome')[1];
           lstContatos.AddObject(Item);
+
+          Item.ContatoItem.OnAbrirChat(
+            procedure(DestinatarioId: Integer; NomeDestinaratio: String)
+            begin
+              Chats.AbrirChat(DestinatarioId, NomeDestinaratio);
+              TelaInicial.ModalView.Ocultar;
+            end
+          );
         end;
       end;
     end

@@ -46,7 +46,9 @@ type
     Visualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
+    FDestinatarioID: Integer;
     procedure SetUsuario(const Value: String);
+    procedure SetDestinatarioID(const Value: Integer);
   public
     { Public declarations }
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -56,6 +58,7 @@ type
     property ID: Integer read FID write FID;
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
+    property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
 
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
@@ -118,6 +121,11 @@ begin
   Editor.Free;
   Anexo.Free;
   inherited;
+end;
+
+procedure TChat.SetDestinatarioID(const Value: Integer);
+begin
+  FDestinatarioID := Value;
 end;
 
 procedure TChat.SetUsuario(const Value: String);

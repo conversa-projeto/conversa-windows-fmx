@@ -29,8 +29,6 @@ type
 
 implementation
 
-
-
 {$R *.fmx}
 
 uses

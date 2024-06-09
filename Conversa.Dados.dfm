@@ -22,6 +22,9 @@ object Dados: TDados
       FieldName = 'ultima_mensagem_texto'
       Size = 100
     end
+    object cdsConversasdestinatario_id: TIntegerField
+      FieldName = 'destinatario_id'
+    end
   end
   object tmrAtualizarMensagens: TTimer
     Enabled = False

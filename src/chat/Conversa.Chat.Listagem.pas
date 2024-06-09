@@ -39,7 +39,12 @@ type
     { Public declarations }
     class function New(AOwner: TFmxObject): TChatListagem; static;
     destructor Destroy; override;
+
+    procedure AbrirChat(DestinatarioId: Integer; NomeDestinatario: String);
   end;
+
+var
+  Chats: TChatListagem;
 
 implementation
 
@@ -56,12 +61,13 @@ end;
 
 class function TChatListagem.New(AOwner: TFmxObject): TChatListagem;
 begin
-  Result := TChatListagem.Create(AOwner);
-  Result.Align := TAlignLayout.Client;
-  Result.Parent := AOwner;
-  Result.lytClient.Visible := True;
-  Result.Visible := True;
-  Result.lytClient.Align := TAlignLayout.Client;
+  Chats := TChatListagem.Create(AOwner);
+  Chats.Align := TAlignLayout.Client;
+  Chats.Parent := AOwner;
+  Chats.lytClient.Visible := True;
+  Chats.Visible := True;
+  Chats.lytClient.Align := TAlignLayout.Client;
+  Result := Chats;
 end;
 
 procedure TChatListagem.Timer1Timer(Sender: TObject);
@@ -124,6 +130,40 @@ begin
   Chat.UsuarioID := Dados.ID;
   Chat.AoEnviarMensagem := EnviarMensagem;
   Chat.AdicionarMensagens(Dados.Mensagens(ChatID));
+  FChats := FChats + [Chat];
+end;
+
+procedure TChatListagem.AbrirChat(DestinatarioId: Integer; NomeDestinatario: String);
+var
+  Chat: TChat;
+  bLocalizou: Boolean;
+begin
+  bLocalizou := False;
+  Chat := nil;
+  for Chat in FChats do
+  begin
+    if Chat.DestinatarioID = DestinatarioId then
+    begin
+      bLocalizou :=  True;
+      Break;
+    end;
+  end;
+
+  if bLocalizou then
+  begin
+    Chat.Visible := True;
+    Chat.BringToFront;
+    Exit;
+  end;
+
+  Chat := TChat.Create(lytViewClient);
+  Chat.lblNome.Text := NomeDestinatario;
+  Chat.ID := 0;
+  Chat.Usuario := Dados.Nome;
+  Chat.UsuarioID := Dados.ID;
+  Chat.AoEnviarMensagem := EnviarMensagem;
+//  Chat.AdicionarMensagens(Dados.Mensagens(0));
+  FChats := FChats + [Chat];
 end;
 
 end.

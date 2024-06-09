@@ -20,6 +20,7 @@ type
     cdsConversasdescricao: TStringField;
     cdsConversasultima_mensagem: TDateTimeField;
     tmrAtualizarMensagens: TTimer;
+    cdsConversasdestinatario_id: TIntegerField;
     procedure DataModuleCreate(Sender: TObject);
     procedure tmrAtualizarMensagensTimer(Sender: TObject);
   private
@@ -178,6 +179,7 @@ begin
       cdsConversas.FieldByName('id').AsInteger := Item.GetValue<Integer>('id');
       cdsConversas.FieldByName('descricao').AsString := Item.GetValue<String>('descricao');
       cdsConversas.FieldByName('ultima_mensagem_texto').AsString := Item.GetValue<String>('ultima_mensagem_texto');
+      cdsConversas.FieldByName('destinatario_id').AsInteger := Item.GetValue<Integer>('destinatario_id');
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
 
       cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));

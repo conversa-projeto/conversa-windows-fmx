@@ -8,6 +8,7 @@ inherited ConversaContatoItem: TConversaContatoItem
     Size.Height = 60.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
+    OnClick = rctFundoClick
     object lytClient: TLayout
       Align = Client
       Padding.Left = 8.000000000000000000
@@ -36,6 +37,7 @@ inherited ConversaContatoItem: TConversaContatoItem
           Stroke.Kind = None
           object Text1: TText
             Align = Center
+            HitTest = False
             Text = 'D'
             TextSettings.Font.Family = 'Consolas'
             TextSettings.Font.Size = 30.000000000000000000

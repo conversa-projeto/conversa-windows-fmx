@@ -18,15 +18,16 @@ type
     lytInformacoes: TLayout;
     lblNome: TLabel;
     ColorAnimation1: TColorAnimation;
+    procedure rctFundoClick(Sender: TObject);
   private
     { Private declarations }
+    FUsuarioId: Integer;
+    FOnAbrirChat: TProc<Integer, String>;
   public
     { Public declarations }
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; AUsuarioId: Integer); reintroduce; overload;
+    function OnAbrirChat(Value: TProc<Integer, String>): TConversaContatoItem;
   end;
-
-var
-  ConversaContatoItem: TConversaContatoItem;
 
 implementation
 
@@ -34,11 +35,24 @@ implementation
 
 { TConversaContatoItem }
 
-constructor TConversaContatoItem.Create(AOwner: TComponent);
+constructor TConversaContatoItem.Create(AOwner: TComponent; AUsuarioId: Integer);
 begin
-  inherited;
+  inherited Create(AOwner);
   Parent := TFmxObject(AOwner);
   Align := TAlignLayout.Client;
+  FUsuarioId := AUsuarioId;
+end;
+
+function TConversaContatoItem.OnAbrirChat(Value: TProc<Integer, String>): TConversaContatoItem;
+begin
+  Result := Self;
+  FOnAbrirChat := Value;
+end;
+
+procedure TConversaContatoItem.rctFundoClick(Sender: TObject);
+begin
+  if Assigned(FOnAbrirChat) then
+    FOnAbrirChat(FUsuarioId, lblNome.Text);
 end;
 
 end.
