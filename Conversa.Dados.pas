@@ -37,6 +37,7 @@ type
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
+    function NovoChat(remetente_id, destinatario_id: Integer): Integer;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -325,6 +326,37 @@ begin
     Route('usuario/contatos');
     GET;
     Proc(Response.ToJSONArray);
+  finally
+    Free;
+  end;
+end;
+
+function TDados.NovoChat(remetente_id, destinatario_id: Integer): Integer;
+begin
+  with TAPIConversa.Create do
+  try
+    Route('conversa');
+    Body(TJSONObject.Create.AddPair('descricao', TJSONNull.Create));
+    PUT;
+
+    if Response.Status <> TResponseStatus.Sucess then
+      raise Exception.Create('Falha ao inserir nova conversa');
+
+    Result := Response.ToJSON.GetValue<Integer>('id');
+
+    Route('conversa/usuario');
+    Body(TJSONObject.Create.AddPair('conversa_id', Result).AddPair('usuario_id', remetente_id));
+    PUT;
+
+    if Response.Status <> TResponseStatus.Sucess then
+      raise Exception.Create('Falha ao inserir nova conversa');
+
+    Route('conversa/usuario');
+    Body(TJSONObject.Create.AddPair('conversa_id', Result).AddPair('usuario_id', destinatario_id));
+    PUT;
+
+    if Response.Status <> TResponseStatus.Sucess then
+      raise Exception.Create('Falha ao inserir nova conversa');
   finally
     Free;
   end;

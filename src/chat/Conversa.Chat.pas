@@ -24,7 +24,8 @@ uses
   Mensagem.Visualizador,
   Mensagem.Editor,
   Mensagem.Tipos,
-  Mensagem.Anexo;
+  Mensagem.Anexo,
+  Conversa.Chat.Listagem.Item;
 
 type
   TChat = class(TFrameBase)
@@ -40,6 +41,7 @@ type
     pthFotoDefault: TPath;
   private
     { Private declarations }
+    FListagemItem: TConversasItemFrame;
     FID: Integer;
     FUsuario: String;
     FUsuarioID: Integer;
@@ -55,6 +57,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
+    property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
     property ID: Integer read FID write FID;
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
@@ -102,6 +105,12 @@ begin
   Editor.AdicionaMensagem(
     procedure(Mensagem: TMensagem)
     begin
+      if FID = 0 then
+      begin
+        FID := Dados.NovoChat(FUsuarioID, FDestinatarioID);
+        FListagemItem.ID := FID;
+      end;
+
       Mensagem.inserida := Now;
       Mensagem.lado := TLado.Direito;
       Mensagem.remetente := Usuario;

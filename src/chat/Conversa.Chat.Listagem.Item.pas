@@ -31,34 +31,37 @@ type
   private
     { Private declarations }
     FID: Integer;
+    FDestinatarioID: Integer;
     FUltimaMensagem: TDateTime;
-    FOnClick: TProc<Integer, String>;
+    FOnClick: TProc<TConversasItemFrame>;
 //    FNextUpdateDateTime: TDateTime;
     function ConversaFormatDateTime(Value: TDateTime): String;
   public
     { Public declarations }
-    class function New(AOwner: TComponent; AID: Integer): TConversasItemFrame; static;
-    function ID: Integer;
+    class function New(AOwner: TComponent; AID: Integer; ADestinatarioID: Integer): TConversasItemFrame; static;
+    property ID: Integer read FID write FID;
+    property DestinatarioId: Integer read FDestinatarioID write FDestinatarioID;
     function Descricao(Value: string): TConversasItemFrame;
     function Mensagem(Value: string): TConversasItemFrame;
     function UltimaMensagem(Value: TDateTime): TConversasItemFrame;
-    function OnClick(Value: TProc<Integer, String>): TConversasItemFrame;
+    function OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
   end;
 
 implementation
 
 {$R *.fmx}
 
-class function TConversasItemFrame.New(AOwner: TComponent; AID: Integer): TConversasItemFrame;
+class function TConversasItemFrame.New(AOwner: TComponent; AID: Integer; ADestinatarioID: Integer): TConversasItemFrame;
 begin
   Result := TConversasItemFrame.Create(AOwner);
   Result.Parent := TFmxObject(AOwner);
   Result.Align := TAlignLayout.Client;
   Result.FID := AID;
+  Result.FDestinatarioID := ADestinatarioID;
   //Result.ID := AID;
 end;
 
-function TConversasItemFrame.OnClick(Value: TProc<Integer, String>): TConversasItemFrame;
+function TConversasItemFrame.OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
 begin
   Result := Self;
   FOnClick := Value;
@@ -66,7 +69,7 @@ end;
 
 procedure TConversasItemFrame.rctFundoClick(Sender: TObject);
 begin
-  FOnClick(FID, lblNome.Text);
+  FOnClick(Self);
 end;
 
 function TConversasItemFrame.Descricao(Value: string): TConversasItemFrame;
@@ -74,11 +77,6 @@ begin
   Result := Self;
   lblNome.Text := Value;
   Text1.Text := Value[1];
-end;
-
-function TConversasItemFrame.ID: Integer;
-begin
-  Result := FID;
 end;
 
 procedure TConversasItemFrame.lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
