@@ -1,0 +1,28 @@
+{
+  "tema": {
+      "cores": [
+          {
+              "nome": "fundo",
+              "valor": "#FFF0F0F0"
+          },
+          {
+              "nome": "fundo_claro_1",
+              "valor": "#FFFAFAFA"
+          },
+          {
+              "nome": "fundo_escuro",
+              "valor": "#FFF0F0F0"
+          },
+          {
+              "nome": "primaria",
+              "valor": "#FF007FFF"
+          },
+          {
+              "nome": "primaria_clara",
+              "valor": "#50007FFF"
+          }
+      ]
+  },
+  "schema": [
+  ]
+}
