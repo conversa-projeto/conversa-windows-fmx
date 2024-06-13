@@ -162,6 +162,7 @@ begin
   end;
 
   ChatId := 0;
+  Item := nil;
   for ChatItem := 0 to Pred(lstConversas.Items.Count) do
   begin
     if TListBoxItem(lstConversas.ListItems[ChatItem]).ContatoItem.DestinatarioID = DestinatarioId then

@@ -25,7 +25,8 @@ uses
   Conversa.Configurar.Conexao in 'src\configuracoes\Conversa.Configurar.Conexao.pas' {ConfigurarConexao: TFrame},
   Conversa.Contatos in 'src\contatos\Conversa.Contatos.pas' {ConversaContatos: TFrame},
   Conversa.Contatos.Listagem.Item in 'src\contatos\Conversa.Contatos.Listagem.Item.pas' {ConversaContatoItem: TFrame},
-  Conversa.ModalView in 'src\principal\Conversa.ModalView.pas' {ModalView: TFrame};
+  Conversa.ModalView in 'src\principal\Conversa.ModalView.pas' {ModalView: TFrame},
+  Conversa.WMI in 'Conversa.WMI.pas';
 
 {$R *.res}
 begin

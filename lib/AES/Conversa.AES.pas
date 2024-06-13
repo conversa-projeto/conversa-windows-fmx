@@ -10,45 +10,12 @@ implementation
 uses
   System.SysUtils,
   System.NetEncoding,
-//  System.Classes,
-//  System.JSON,
-//  System.IOUtils,
-//  System.JSON.Serializers,
-  System.Variants,
-  Winapi.ActiveX,
-  System.Win.ComObj,
-  Prism.Crypto.AES;
+  Prism.Crypto.AES,
+  Conversa.WMI;
+
 var
   IV: TBytes;
   MotherBoardSerial: String;
-
-function GetMotherBoardSerial:String;
-var
-  objWMIService : OLEVariant;
-  colItems      : OLEVariant;
-  colItem       : OLEVariant;
-  oEnum         : IEnumvariant;
-  iValue        : LongWord;
-
-  function GetWMIObject(const objectName: String): IDispatch;
-  var
-    chEaten: Integer;
-    BindCtx: IBindCtx;
-    Moniker: IMoniker;
-  begin
-    OleCheck(CreateBindCtx(0, bindCtx));
-    OleCheck(MkParseDisplayName(BindCtx, StringToOleStr(objectName), chEaten, Moniker));
-    OleCheck(Moniker.BindToObject(BindCtx, nil, IDispatch, Result));
-  end;
-
-begin
-  Result:='';
-  objWMIService := GetWMIObject('winmgmts:\\localhost\root\cimv2');
-  colItems      := objWMIService.ExecQuery('SELECT SerialNumber FROM Win32_BaseBoard','WQL',0);
-  oEnum         := IUnknown(colItems._NewEnum) as IEnumVariant;
-  if oEnum.Next(1, colItem, iValue) = 0 then
-  Result:=VarToStr(colItem.SerialNumber);
-end;
 
 function Encrypt(const Value: String): String;
 var
@@ -81,6 +48,6 @@ end;
 
 initialization
   IV := TEncoding.UTF8.GetBytes('1234567890123456'); // 16 bytes
-  MotherBoardSerial := GetMotherBoardSerial;
+  MotherBoardSerial := GetWin32_BaseBoardInfo;
 
 end.
