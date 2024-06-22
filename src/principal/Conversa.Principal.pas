@@ -19,10 +19,7 @@ type
     pthContatos: TPath;
     procedure Layout2Click(Sender: TObject);
     procedure rctBotaoContatosClick(Sender: TObject);
-  private
-    { Private declarations }
   public
-    { Public declarations }
     class function New(AOwner: TFmxObject): TPrincipalView;
     procedure Criar;
   end;

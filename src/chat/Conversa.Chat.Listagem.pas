@@ -31,15 +31,12 @@ type
     lnSeparador: TLine;
     procedure Timer1Timer(Sender: TObject);
   private
-    { Private declarations }
     FChats: TArray<TChat>;
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
   public
-    { Public declarations }
     class function New(AOwner: TFmxObject): TChatListagem; static;
     destructor Destroy; override;
-
     procedure AbrirChat(DestinatarioId: Integer; NomeDestinatario: String);
   end;
 
@@ -149,7 +146,7 @@ begin
   begin
     if Chat.DestinatarioID = DestinatarioId then
     begin
-      bLocalizou :=  True;
+      bLocalizou := True;
       Break;
     end;
   end;

@@ -20,10 +20,7 @@ type
     lstContatos: TListBox;
     tmrCarregar: TTimer;
     procedure tmrCarregarTimer(Sender: TObject);
-  private
-    { Private declarations }
   public
-    { Public declarations }
     class procedure ExibirContatos;
   end;
 

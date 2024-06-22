@@ -40,10 +40,8 @@ type
     procedure Button1Click(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
   private
-    { Private declarations }
     procedure Iniciar;
   public
-    { Public declarations }
     ModalView: TModalView;
   end;
 

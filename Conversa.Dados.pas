@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.JSON,
+  System.Generics.Collections,
   Vcl.ExtCtrls,
   Data.DB,
   Datasnap.DBClient,
@@ -28,6 +29,7 @@ type
     Fnome: String;
     Femail: String;
     Ftelefone: String;
+    FEventosNovasMensagens: TArray<TPair<Integer, TProc>>;
   public
     property ID: Integer read Fid;
     property Nome: String read Fnome;
@@ -38,6 +40,7 @@ type
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
+    procedure ReceberNovasMensagens(iConversa: Integer; Evento: TProc);
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -58,7 +61,6 @@ uses
   Conversa.Configuracoes;
 
 const
-//  SERVIDOR = 'http://localhost:90';
   PASTA_ANEXO = 'anexos';
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
@@ -300,7 +302,14 @@ begin
   end;
 end;
 
+procedure TDados.ReceberNovasMensagens(iConversa: Integer; Evento: TProc);
+begin
+  FEventosNovasMensagens := FEventosNovasMensagens + [TPair<Integer, TProc>.Create(iConversa, Evento)];
+end;
+
 procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
+var
+  I: Integer;
 begin
   Dados.tmrAtualizarMensagens.Enabled := False;
   try
@@ -310,7 +319,11 @@ begin
       Query(TJSONObject.Create.AddPair('ultima', 0)); // obter a ultima mensagem de todas as conversas
       GET;
       // retorna a lista das converas que tiveram mensagens adicionadas
-      // se tiver alguma coisa, exibir na lista de conversas um icone para informar
+      // percorre os eventos registrados, e localiza a conversa que deve ser notificada
+      for var Item in Response.ToJSONArray do
+        for I := 0 to Pred(Length(FEventosNovasMensagens)) do
+          if FEventosNovasMensagens[I].Key = Item.GetValue<Integer>('conversa_id') then
+            FEventosNovasMensagens[I].Value();
     finally
       Free;
     end;

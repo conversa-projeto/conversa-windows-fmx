@@ -52,17 +52,14 @@ type
     procedure SetUsuario(const Value: String);
     procedure SetDestinatarioID(const Value: Integer);
   public
-    { Public declarations }
     AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-
     property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
     property ID: Integer read FID write FID;
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
-
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
   end;
