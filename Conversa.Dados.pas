@@ -7,7 +7,6 @@ uses
   System.SysUtils,
   System.Classes,
   System.JSON,
-  System.Generics.Collections,
   Vcl.ExtCtrls,
   Data.DB,
   Datasnap.DBClient,
@@ -29,18 +28,18 @@ type
     Fnome: String;
     Femail: String;
     Ftelefone: String;
-    FEventosNovasMensagens: TArray<TPair<Integer, TProc>>;
+    FEventosNovasMensagens: TArray<TProc<Integer>>;
   public
     property ID: Integer read Fid;
     property Nome: String read Fnome;
     procedure Login(sLogin, sSenha: String);
     procedure Conversas;
-    function Mensagens(iConversa: Integer): TArray<TMensagem>;
+    function Mensagens(iConversa, iUltima: Integer): TArray<TMensagem>;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
-    procedure ReceberNovasMensagens(iConversa: Integer; Evento: TProc);
+    procedure ReceberNovasMensagens(Evento: TProc<Integer>);
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -119,7 +118,7 @@ begin
   end;
 end;
 
-function TDados.Mensagens(iConversa: Integer): TArray<TMensagem>;
+function TDados.Mensagens(iConversa, iUltima: Integer): TArray<TMensagem>;
 var
   Mensagem: TMensagem;
   MensagemConteudo: TMensagemConteudo;
@@ -127,7 +126,7 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
-    Query(TJSONObject.Create.AddPair('ultima', 0)); // implementar depois o controle de ultima mensagem de cada conversa
+    Query(TJSONObject.Create.AddPair('ultima', iUltima)); // implementar depois o controle de ultima mensagem de cada conversa
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
@@ -302,9 +301,9 @@ begin
   end;
 end;
 
-procedure TDados.ReceberNovasMensagens(iConversa: Integer; Evento: TProc);
+procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
 begin
-  FEventosNovasMensagens := FEventosNovasMensagens + [TPair<Integer, TProc>.Create(iConversa, Evento)];
+  FEventosNovasMensagens := FEventosNovasMensagens + [Evento];
 end;
 
 procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
@@ -318,12 +317,9 @@ begin
       Route('mensagens/novas');
       Query(TJSONObject.Create.AddPair('ultima', 0)); // obter a ultima mensagem de todas as conversas
       GET;
-      // retorna a lista das converas que tiveram mensagens adicionadas
-      // percorre os eventos registrados, e localiza a conversa que deve ser notificada
       for var Item in Response.ToJSONArray do
         for I := 0 to Pred(Length(FEventosNovasMensagens)) do
-          if FEventosNovasMensagens[I].Key = Item.GetValue<Integer>('conversa_id') then
-            FEventosNovasMensagens[I].Value();
+          FEventosNovasMensagens[I](Item.GetValue<Integer>('conversa_id'));
     finally
       Free;
     end;

@@ -32,6 +32,7 @@ type
     procedure Timer1Timer(Sender: TObject);
   private
     FChats: TArray<TChat>;
+    procedure AoReceberMensagem(Conversa: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
   public
@@ -47,15 +48,6 @@ implementation
 
 {$R *.fmx}
 
-destructor TChatListagem.Destroy;
-var
-  Chat: TChat;
-begin
-  for Chat in FChats do
-    Chat.Free;
-  inherited;
-end;
-
 class function TChatListagem.New(AOwner: TFmxObject): TChatListagem;
 begin
   Chats := TChatListagem.Create(AOwner);
@@ -64,7 +56,17 @@ begin
   Chats.lytClient.Visible := True;
   Chats.Visible := True;
   Chats.lytClient.Align := TAlignLayout.Client;
+  Dados.ReceberNovasMensagens(Chats.AoReceberMensagem);
   Result := Chats;
+end;
+
+destructor TChatListagem.Destroy;
+var
+  Chat: TChat;
+begin
+  for Chat in FChats do
+    Chat.Free;
+  inherited;
 end;
 
 procedure TChatListagem.Timer1Timer(Sender: TObject);
@@ -100,6 +102,15 @@ begin
   Dados.EnviarMensagem(Mensagem);
 end;
 
+procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
+var
+  Chat: TChat;
+begin
+  for Chat in FChats do
+    if Chat.ID = Conversa then
+      Chat.AdicionarMensagens(Dados.Mensagens(Conversa, Chat.Ultima));
+end;
+
 procedure TChatListagem.btnAbrirChat(Item: TConversasItemFrame);
 var
   Chat: TChat;
@@ -127,7 +138,7 @@ begin
   Chat.Usuario := Dados.Nome;
   Chat.UsuarioID := Dados.ID;
   Chat.AoEnviarMensagem := EnviarMensagem;
-  Chat.AdicionarMensagens(Dados.Mensagens(Item.ID));
+  Chat.AdicionarMensagens(Dados.Mensagens(Item.ID, 0));
   Chat.ListagemItem := Item;
   FChats := FChats + [Chat];
 end;
@@ -193,7 +204,7 @@ begin
   Chat.Usuario := Dados.Nome;
   Chat.UsuarioID := Dados.ID;
   Chat.AoEnviarMensagem := EnviarMensagem;
-  Chat.AdicionarMensagens(Dados.Mensagens(ChatId));
+  Chat.AdicionarMensagens(Dados.Mensagens(ChatId, 0));
   Chat.ListagemItem := Item.ContatoItem;
   FChats := FChats + [Chat];
 end;

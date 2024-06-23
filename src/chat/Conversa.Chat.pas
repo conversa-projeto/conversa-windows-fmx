@@ -8,6 +8,7 @@ uses
   System.Types,
   System.UITypes,
   System.Variants,
+  System.Math,
   FMX.Controls,
   FMX.Controls.Presentation,
   FMX.Dialogs,
@@ -17,10 +18,8 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Types,
-  //Conversa.Conteudo,
   Conversa.Dados,
   Conversa.FrameBase,
-
   Mensagem.Visualizador,
   Mensagem.Editor,
   Mensagem.Tipos,
@@ -40,7 +39,6 @@ type
     lytClient: TLayout;
     pthFotoDefault: TPath;
   private
-    { Private declarations }
     FListagemItem: TConversasItemFrame;
     FID: Integer;
     FUsuario: String;
@@ -49,6 +47,7 @@ type
     Editor: TEditor;
     Anexo: TAnexo;
     FDestinatarioID: Integer;
+    FUltima: Integer;
     procedure SetUsuario(const Value: String);
     procedure SetDestinatarioID(const Value: Integer);
   public
@@ -60,6 +59,7 @@ type
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
+    property Ultima: Integer read FUltima;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
   end;
@@ -75,6 +75,7 @@ implementation
 
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
 begin
+  FUltima := Max(Mensagem.id, FUltima);
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
