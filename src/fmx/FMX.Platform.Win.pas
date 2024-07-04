@@ -1,4 +1,4 @@
-{*******************************************************}
+﻿{*******************************************************}
 {                                                       }
 {              Delphi FireMonkey Platform               }
 {                                                       }
@@ -29,7 +29,7 @@ interface
 uses
   System.Messaging, Winapi.CommCtrl, Winapi.Windows, Winapi.ActiveX, System.Types, Winapi.Messages, System.Classes,
   System.UITypes, System.UIConsts, System.Generics.Collections, FMX.Forms, FMX.Platform, FMX.Types, FMX.Graphics,
-  FMX.ZOrder.Win, Winapi.DwmApi;
+  FMX.ZOrder.Win;
 
 type
   TWinDropTarget = class;
@@ -2057,7 +2057,7 @@ const
   ImpossibleMousePosition: TPoint = (X: Low(FixedInt); Y: Low(FixedInt));
 
 type
-  TFormularioBaseHook = class(TFormularioBase);
+  TFormularioBaseHack = class(TFormularioBase);
 
 function WndProc(hwnd: HWND; uMsg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
 var
@@ -2192,7 +2192,7 @@ var
   WindowPoint: TPoint;
   FormPoint: TPointF;
   ScreenPoint: TPointF;
-//  m: TMargins;
+  ClientPoint: TPointF;
 begin
   Result := 0;
   LForm := FindWindow(hwnd);
@@ -2224,33 +2224,49 @@ begin
           begin
             if uMsg in [WM_NCHITTEST, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP] then
             begin
-              if LForm.InheritsFrom(TFormularioBase) then
-                Result := TFormularioBaseHook(LForm).WndProc_NCHITTEST(Message);
-
-              if Result <> 0 then
-                Exit;
-
-//              WindowPoint := TWMNCHitTest(Message).Pos; // Form point in px
-//              FormPoint := FormPxToDp(LForm, WindowPoint); // dp
-//              //ScreenPoint := LForm.ClientToScreen(FormPoint); // dp
-//              if (WindowPoint.Y - LForm.Top) <= 5 then
-//              begin
-//                TWMNCHitTest(Message).Result := HTTOP;
-//                Result := HTTOP;
-//              end
-//              else
-              Result := WMNCMessages(LForm, uMsg, wParam, lParam);
+              WindowPoint := TWMNCHitTest(Message).Pos; // Form point in px
+              FormPoint := FormPxToDp(LForm, WindowPoint); // dp
+              ClientPoint := LForm.ScreenToClient(FormPoint);
+              // Se não está maximizado, está identificando o local da interface, e está nas dimensões das bordas
+              if not IsZoomed(Wnd) and (uMsg = WM_NCHITTEST) and (Abs(ClientPoint.Y) <= GetSystemMetrics(SM_CYFRAME)) then
+              begin
+                TWMNCHitTest(Message).Result := HTTOP;
+                TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
+                Exit(HTTOP);
+              end
+              else
+              if PtInRect(TFormularioBase(LForm).lytMaximizeButton.AbsoluteRect.Round, ClientPoint.Round) then
+              begin
+                case Message.Msg of
+                  WM_NCLBUTTONDOWN: TFormularioBaseHack(LForm).DoConversaMaximize; // Adicionar evento do botão aqui
+                  WM_NCLBUTTONUP: Exit(0);
+                else
+                  begin
+                    TFormularioBase(LForm).lytMaximizeButtonMouseEnter(TFormularioBase(LForm).lytMaximizeButton);
+                    Exit(HTMAXBUTTON);
+                  end
+                end;
+              end
+              else
+              begin
+                TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
+                Result := WMNCMessages(LForm, uMsg, wParam, lParam);
+              end;
             end
             else
             if uMsg = WM_NCCALCSIZE then
             begin
               with TWMNCCalcSize(Message).CalcSize_Params.rgrc[0] do
               begin
-                Dec(Top, GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER));
+                Dec(Top, GetSystemMetrics(SM_CYCAPTION));
+                Dec(Top, GetSystemMetrics(SM_CYFRAME));
+                Dec(Top, GetSystemMetrics(SM_CXPADDEDBORDER));
+                if IsZoomed(Wnd) then
+                  Inc(Top, 8)
+                else
+                  Inc(Top, 1);
               end;
               Result := WMNCMessages(LForm, uMsg, wParam, lParam);
-//              LForm.Invalidate;
-//              Result := 0;
             end
             else
               Result := WMNCMessages(LForm, uMsg, wParam, lParam);
@@ -2284,19 +2300,6 @@ begin
                   ClosePopupList;
                 end;
               end;
-
-//              m.cxLeftWidth := -1;
-//              m.cxRightWidth := -1;
-//              m.cyTopHeight := -1;
-//              m.cyBottomHeight := -1;
-//
-//              m.cxLeftWidth := 0;
-//              m.cxRightWidth := 0;
-//              m.cyTopHeight := 0;
-//              m.cyBottomHeight := 0;
-//
-//              DwmExtendFrameIntoClientArea(hWnd, m);
-
               Result := 0;
             end;
           WM_MOUSEACTIVATE:
@@ -2326,10 +2329,6 @@ begin
             end;
           WM_PAINT:
             begin
-//              Wnd := FormToHWND(LForm);
-//              GetUpdateRect(Wnd, R, False);
-
-              //ExcludeClipRect
               Result := WMPaint(hwnd, uMsg, wParam, lParam);
             end;
           WM_DPICHANGED:
@@ -2746,24 +2745,11 @@ begin
         Application.HandleException(E);
     end;
   end
-//  else
-//  if uMsg = WM_CREATE then
-//  begin
-//            var R: TRect;
-//            R := Rect(0, 0, 0, 0);
-//            GetWindowRect(hwnd, R);
-//    //        R := Rect(0, 0, 100, 100);
-//            SetWindowPos(hwnd, 0, R.Left, R.Top, R.Width, R.Height, SWP_FRAMECHANGED);
-//            result := 0;
-//  end
   else { if LForm = nil }
   begin
     if (PlatformWin <> nil) and (hwnd = PlatformWin.FApplicationHWND) then
     begin
       case uMsg of
-//          WM_CREATE:
-//          begin
-//          end;
         WM_QUERYENDSESSION:
           Result := 1;
         WM_ENDSESSION:
@@ -4643,5 +4629,4 @@ initialization
   OleInitialize(nil);
   CapturedGestureControl := nil;
   LastMousePos := ImpossibleMousePosition;
-
 end.

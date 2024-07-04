@@ -35,7 +35,7 @@ type
     tmrShow: TTimer;
     lytProfileView: TLayout;
     Circle1: TCircle;
-    Line1: TLine;
+    txtUserLetra: TText;
     procedure FormShow(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);

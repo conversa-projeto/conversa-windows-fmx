@@ -7,9 +7,9 @@ uses
   System.SysUtils,
   System.Classes,
   System.JSON,
-  Vcl.ExtCtrls,
   Data.DB,
   Datasnap.DBClient,
+  FMX.Types,
   REST.API,
   Mensagem.Tipos;
 
@@ -19,8 +19,8 @@ type
     cdsConversasid: TIntegerField;
     cdsConversasdescricao: TStringField;
     cdsConversasultima_mensagem: TDateTimeField;
-    tmrAtualizarMensagens: TTimer;
     cdsConversasdestinatario_id: TIntegerField;
+    tmrAtualizarMensagens: TTimer;
     procedure DataModuleCreate(Sender: TObject);
     procedure tmrAtualizarMensagensTimer(Sender: TObject);
   private
@@ -52,6 +52,8 @@ var
   Dados: TDados;
 
 implementation
+
+{%CLASSGROUP 'FMX.Controls.TControl'}
 
 uses
   System.IOUtils,
