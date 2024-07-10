@@ -26,7 +26,8 @@ uses
   Conversa.Contatos in 'src\contatos\Conversa.Contatos.pas' {ConversaContatos: TFrame},
   Conversa.Contatos.Listagem.Item in 'src\contatos\Conversa.Contatos.Listagem.Item.pas' {ConversaContatoItem: TFrame},
   Conversa.ModalView in 'src\principal\Conversa.ModalView.pas' {ModalView: TFrame},
-  Conversa.WMI in 'Conversa.WMI.pas';
+  Conversa.WMI in 'Conversa.WMI.pas',
+  Conversa.Conexao.AvisoInicioSistema in 'src\conexao\Conversa.Conexao.AvisoInicioSistema.pas' {ConexaoFalhaInicio: TFrame};
 
 {$R *.res}
 begin

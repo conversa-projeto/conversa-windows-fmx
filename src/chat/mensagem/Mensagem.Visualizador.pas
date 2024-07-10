@@ -180,20 +180,20 @@ begin
   rtgFundo.YRadius := 5;
 
 
-//  if Mensagem.Lado = TLado.Esquerdo then
-//  begin
-    rtgFundo.Fill.Color := TAlphaColorF.Create(225 / 255, 225 / 255, 225 / 255).ToAlphaColor;// TAlphaColors.White;
+  if Mensagem.Lado = TLado.Esquerdo then
+  begin
+    rtgFundo.Fill.Color := $FFEDEDED;//TAlphaColorF.Create(225 / 255, 225 / 255, 225 / 255).ToAlphaColor;// TAlphaColors.White;
   //  rtgFundo.Fill.Color := TAlphaColors.White;
     rtgFundo.Stroke.Kind := TBrushKind.None;
     TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
-//  end
-//  else
-//  begin
-//    rtgFundo.Fill.Color := TAlphaColorF.Create(228 / 255, 232 / 255, 255 / 255).ToAlphaColor;// TAlphaColors.White;
-//  //  rtgFundo.Fill.Color := TAlphaColors.White;
-//    rtgFundo.Stroke.Kind := TBrushKind.None;
-//    TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
-//  end;
+  end
+  else
+  begin
+    rtgFundo.Fill.Color := $FFE7F3FF;// TAlphaColorF.Create(228 / 255, 232 / 255, 255 / 255).ToAlphaColor;// TAlphaColors.White;
+  //  rtgFundo.Fill.Color := TAlphaColors.White;
+    rtgFundo.Stroke.Kind := TBrushKind.None;
+    TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo.Usuario');
+  end;
 
   lbNome := TLabel.Create(lytConteudo);
   NomearComponente(lbNome);

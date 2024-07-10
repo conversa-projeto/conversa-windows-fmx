@@ -17,6 +17,10 @@ type
     rctBotaoContatos: TRectangle;
     txtBotaoContatos: TText;
     pthContatos: TPath;
+    lytTitleBarClient: TLayout;
+    lytProfileView: TLayout;
+    Circle1: TCircle;
+    txtUserLetra: TText;
     procedure Layout2Click(Sender: TObject);
     procedure rctBotaoContatosClick(Sender: TObject);
   public

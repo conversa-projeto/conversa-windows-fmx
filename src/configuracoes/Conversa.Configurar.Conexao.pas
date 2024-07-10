@@ -11,15 +11,16 @@ uses
 type
   TConfigurarConexao = class(TFrameBase)
     rctFundo: TRectangle;
+    rctCenter: TRectangle;
     txtTitulo: TText;
-    Rectangle1: TRectangle;
+    rctHost: TRectangle;
     Text1: TText;
     edtHost: TEdit;
     lytgBotoes: TGridPanelLayout;
     rctBotaoCancelar: TRectangle;
+    txtBotaoCancelar: TText;
     rctBotaoSalvar: TRectangle;
     txtBotaoSalvar: TText;
-    txtBotaoCancelar: TText;
     procedure rctBotaoSalvarClick(Sender: TObject);
     procedure rctBotaoSalvarMouseEnter(Sender: TObject);
     procedure rctBotaoSalvarMouseLeave(Sender: TObject);
@@ -30,6 +31,7 @@ type
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     class procedure ConfiguracaoInicial(AOwner: TFmxObject; AOnClose: TProc);
+    class function PrecisaConfigurar(Proc: TProc): Boolean;
   end;
 
 implementation
@@ -37,9 +39,20 @@ implementation
 {$R *.fmx}
 
 uses
-  Conversa.Configuracoes, System.UIConsts;
+  Conversa.Configuracoes,
+  Conversa.Tela.Inicial.view,
+  System.UIConsts;
 
 { TConfigurarConexao }
+
+class function TConfigurarConexao.PrecisaConfigurar(Proc: TProc): Boolean;
+begin
+  if not Configuracoes.Host.Trim.IsEmpty then
+    Exit(False);
+
+  Result := True;
+  ConfiguracaoInicial(TelaInicial.lytClientForm, Proc);
+end;
 
 class procedure TConfigurarConexao.ConfiguracaoInicial(AOwner: TFmxObject; AOnClose: TProc);
 begin

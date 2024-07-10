@@ -5,14 +5,14 @@ inherited PrincipalView: TPrincipalView
   object lytClient: TLayout
     Align = Client
     Size.Width = 1020.000000000000000000
-    Size.Height = 702.000000000000000000
+    Size.Height = 662.000000000000000000
     Size.PlatformDefault = False
     TabOrder = 0
     object rctMenuLateral: TRectangle
       Align = Left
       Fill.Color = xFFC8C8C8
       Size.Width = 45.000000000000000000
-      Size.Height = 702.000000000000000000
+      Size.Height = 662.000000000000000000
       Size.PlatformDefault = False
       Stroke.Kind = None
       object rctBotaoContatos: TRectangle
@@ -64,6 +64,47 @@ inherited PrincipalView: TPrincipalView
           Size.Height = 16.000000000000000000
           Size.PlatformDefault = False
           WrapMode = Fit
+        end
+      end
+    end
+  end
+  object lytTitleBarClient: TLayout
+    Align = Top
+    Size.Width = 1020.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object lytProfileView: TLayout
+      Align = Right
+      Padding.Left = 3.000000000000000000
+      Padding.Top = 3.000000000000000000
+      Padding.Right = 3.000000000000000000
+      Padding.Bottom = 3.000000000000000000
+      Position.X = 980.000000000000000000
+      Size.Width = 40.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object Circle1: TCircle
+        Align = Client
+        Margins.Left = 2.000000000000000000
+        Margins.Top = 2.000000000000000000
+        Margins.Right = 2.000000000000000000
+        Margins.Bottom = 2.000000000000000000
+        Size.Width = 30.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        object txtUserLetra: TText
+          Align = Center
+          Size.Width = 30.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'D'
+          TextSettings.Font.Family = 'Consolas'
+          TextSettings.Font.Size = 30.000000000000000000
+          TextSettings.FontColor = xFF007DFF
+          TextSettings.WordWrap = False
         end
       end
     end

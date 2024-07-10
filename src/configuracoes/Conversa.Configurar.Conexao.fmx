@@ -1,138 +1,147 @@
 inherited ConfigurarConexao: TConfigurarConexao
-  Size.Width = 300.000000000000000000
-  Size.Height = 128.000000000000000000
+  Size.Width = 500.000000000000000000
+  Size.Height = 534.000000000000000000
   object rctFundo: TRectangle
     Align = Client
-    Fill.Color = claWhite
-    Padding.Left = 8.000000000000000000
-    Padding.Top = 8.000000000000000000
-    Padding.Right = 8.000000000000000000
-    Padding.Bottom = 8.000000000000000000
-    Size.Width = 300.000000000000000000
-    Size.Height = 128.000000000000000000
+    Enabled = True
+    Fill.Color = claWhitesmoke
+    Size.Width = 500.000000000000000000
+    Size.Height = 534.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
-    XRadius = 10.000000000000000000
-    YRadius = 10.000000000000000000
-    object txtTitulo: TText
-      Align = Top
-      Position.X = 8.000000000000000000
-      Position.Y = 8.000000000000000000
-      Size.Width = 284.000000000000000000
-      Size.Height = 33.000000000000000000
-      Size.PlatformDefault = False
-      Text = 'Conex'#227'o'
-      TextSettings.Font.Size = 15.000000000000000000
-      TextSettings.Font.StyleExt = {00070000000000000004000000}
-    end
-    object Rectangle1: TRectangle
-      Align = Top
-      Fill.Color = claWhitesmoke
+    object rctCenter: TRectangle
+      Align = Center
+      Fill.Color = claWhite
       Padding.Left = 8.000000000000000000
+      Padding.Top = 8.000000000000000000
       Padding.Right = 8.000000000000000000
-      Position.X = 8.000000000000000000
-      Position.Y = 41.000000000000000000
-      Size.Width = 284.000000000000000000
-      Size.Height = 45.000000000000000000
+      Padding.Bottom = 8.000000000000000000
+      Size.Width = 300.000000000000000000
+      Size.Height = 130.000000000000000000
       Size.PlatformDefault = False
       Stroke.Kind = None
       XRadius = 10.000000000000000000
       YRadius = 10.000000000000000000
-      object Text1: TText
+      object txtTitulo: TText
         Align = Top
         Position.X = 8.000000000000000000
-        Size.Width = 268.000000000000000000
-        Size.Height = 20.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 284.000000000000000000
+        Size.Height = 33.000000000000000000
         Size.PlatformDefault = False
-        Text = 'Host'
-        TextSettings.Font.Family = 'Segoe UI Variable Small'
+        Text = 'Conex'#227'o'
+        TextSettings.Font.Size = 15.000000000000000000
         TextSettings.Font.StyleExt = {00070000000000000004000000}
-        TextSettings.HorzAlign = Leading
       end
-      object edtHost: TEdit
-        Touch.InteractiveGestures = [LongTap, DoubleTap]
-        Align = Client
-        StyleLookup = 'transparentedit'
-        TabOrder = 1
-        Size.Width = 268.000000000000000000
-        Size.Height = 25.000000000000000000
-        Size.PlatformDefault = False
-        TextPrompt = 'Endere'#231'o do Servidor'
-      end
-    end
-    object lytgBotoes: TGridPanelLayout
-      Align = Bottom
-      Position.X = 8.000000000000000000
-      Position.Y = 90.000000000000000000
-      Size.Width = 284.000000000000000000
-      Size.Height = 30.000000000000000000
-      Size.PlatformDefault = False
-      TabOrder = 2
-      ColumnCollection = <
-        item
-          Value = 50.000000000000000000
-        end
-        item
-          Value = 50.000000000000000000
-        end>
-      ControlCollection = <
-        item
-          Column = 0
-          Control = rctBotaoCancelar
-          Row = 0
-        end
-        item
-          Column = 1
-          Control = rctBotaoSalvar
-          Row = 0
-        end>
-      RowCollection = <
-        item
-          Value = 100.000000000000000000
-        end>
-      object rctBotaoCancelar: TRectangle
-        Align = Client
-        Cursor = crHandPoint
+      object rctHost: TRectangle
+        Align = Top
         Fill.Color = claWhitesmoke
-        Margins.Right = 4.000000000000000000
-        Size.Width = 138.000000000000000000
-        Size.Height = 30.000000000000000000
+        Padding.Left = 8.000000000000000000
+        Padding.Right = 8.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 41.000000000000000000
+        Size.Width = 284.000000000000000000
+        Size.Height = 45.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
-        XRadius = 5.000000000000000000
-        YRadius = 5.000000000000000000
-        object txtBotaoCancelar: TText
+        XRadius = 10.000000000000000000
+        YRadius = 10.000000000000000000
+        object Text1: TText
+          Align = Top
+          Position.X = 8.000000000000000000
+          Size.Width = 268.000000000000000000
+          Size.Height = 20.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Host'
+          TextSettings.Font.Family = 'Segoe UI Variable Small'
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.HorzAlign = Leading
+        end
+        object edtHost: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
           Align = Client
-          HitTest = False
+          StyleLookup = 'transparentedit'
+          TabOrder = 1
+          Size.Width = 268.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = 'Endere'#231'o do Servidor'
+        end
+      end
+      object lytgBotoes: TGridPanelLayout
+        Align = Bottom
+        Position.X = 8.000000000000000000
+        Position.Y = 92.000000000000000000
+        Size.Width = 284.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        ColumnCollection = <
+          item
+            Value = 50.000000000000000000
+          end
+          item
+            Value = 50.000000000000000000
+          end>
+        ControlCollection = <
+          item
+            Column = 0
+            Control = rctBotaoCancelar
+            Row = 0
+          end
+          item
+            Column = 1
+            Control = rctBotaoSalvar
+            Row = 0
+          end>
+        RowCollection = <
+          item
+            Value = 100.000000000000000000
+          end>
+        object rctBotaoCancelar: TRectangle
+          Align = Client
+          Cursor = crHandPoint
+          Fill.Color = claWhitesmoke
+          Margins.Right = 4.000000000000000000
           Size.Width = 138.000000000000000000
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
-          Text = 'Cancelar'
+          Stroke.Kind = None
+          XRadius = 5.000000000000000000
+          YRadius = 5.000000000000000000
+          object txtBotaoCancelar: TText
+            Align = Client
+            HitTest = False
+            Size.Width = 138.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Cancelar'
+          end
         end
-      end
-      object rctBotaoSalvar: TRectangle
-        Align = Client
-        Cursor = crHandPoint
-        Fill.Color = claWhitesmoke
-        Margins.Left = 4.000000000000000000
-        Size.Width = 138.000000000000000000
-        Size.Height = 30.000000000000000000
-        Size.PlatformDefault = False
-        Stroke.Kind = None
-        XRadius = 5.000000000000000000
-        YRadius = 5.000000000000000000
-        OnClick = rctBotaoSalvarClick
-        OnMouseEnter = rctBotaoSalvarMouseEnter
-        OnMouseLeave = rctBotaoSalvarMouseLeave
-        object txtBotaoSalvar: TText
+        object rctBotaoSalvar: TRectangle
           Align = Client
-          HitTest = False
+          Cursor = crHandPoint
+          Fill.Color = claWhitesmoke
+          Margins.Left = 4.000000000000000000
           Size.Width = 138.000000000000000000
           Size.Height = 30.000000000000000000
           Size.PlatformDefault = False
-          Text = 'Salvar'
-          TextSettings.Font.Family = 'Segoe UI Variable Text'
-          TextSettings.FontColor = xFF007FFF
+          Stroke.Kind = None
+          XRadius = 5.000000000000000000
+          YRadius = 5.000000000000000000
+          OnClick = rctBotaoSalvarClick
+          OnMouseEnter = rctBotaoSalvarMouseEnter
+          OnMouseLeave = rctBotaoSalvarMouseLeave
+          object txtBotaoSalvar: TText
+            Align = Client
+            HitTest = False
+            Size.Width = 138.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'Salvar'
+            TextSettings.Font.Family = 'Segoe UI Variable Text'
+            TextSettings.FontColor = xFF007FFF
+          end
         end
       end
     end

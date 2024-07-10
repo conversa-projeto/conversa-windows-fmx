@@ -98,6 +98,7 @@ begin
   lytFoto.Visible := False;
   Visualizador := TVisualizador.Create(lytClient);
   Anexo := TAnexo.Create(Self);
+  lblNome.Visible := False;
   Editor := TEditor.Create(Self);
   Editor.ConfiguraAnexo(Anexo);
   Editor.AdicionaMensagem(

@@ -33,6 +33,7 @@ type
     property ID: Integer read Fid;
     property Nome: String read Fnome;
     procedure Login(sLogin, sSenha: String);
+    function ServerOnline: Boolean;
     procedure Conversas;
     function Mensagens(iConversa, iUltima: Integer): TArray<TMensagem>;
     procedure EnviarMensagem(Mensagem: TMensagem);
@@ -370,6 +371,22 @@ begin
       raise Exception.Create('Falha ao inserir nova conversa');
   finally
     Free;
+  end;
+end;
+
+function TDados.ServerOnline: Boolean;
+begin
+  try
+    with TAPIConversa.Create do
+    try
+      Route('status');
+      GET;
+      Result := True;
+    finally
+      Free;
+    end;
+  except
+    Result := False;
   end;
 end;
 
