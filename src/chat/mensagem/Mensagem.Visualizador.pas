@@ -42,6 +42,7 @@ type
     constructor Create(AOwner: TFmxObject);
     procedure AdicionaMensagem(Mensagem: TMensagem);
     property Visible: Boolean read FVisible write SetVisible;
+    procedure PosicionarUltima;
   end;
 
 implementation
@@ -179,18 +180,15 @@ begin
   rtgFundo.XRadius := 5;
   rtgFundo.YRadius := 5;
 
-
   if Mensagem.Lado = TLado.Esquerdo then
   begin
-    rtgFundo.Fill.Color := $FFEDEDED;//TAlphaColorF.Create(225 / 255, 225 / 255, 225 / 255).ToAlphaColor;// TAlphaColors.White;
-  //  rtgFundo.Fill.Color := TAlphaColors.White;
+    rtgFundo.Fill.Color := $FFEDEDED;
     rtgFundo.Stroke.Kind := TBrushKind.None;
     TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo');
   end
   else
   begin
-    rtgFundo.Fill.Color := $FFE7F3FF;// TAlphaColorF.Create(228 / 255, 232 / 255, 255 / 255).ToAlphaColor;// TAlphaColors.White;
-  //  rtgFundo.Fill.Color := TAlphaColors.White;
+    rtgFundo.Fill.Color := $FFE7F3FF;
     rtgFundo.Stroke.Kind := TBrushKind.None;
     TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo.Usuario');
   end;
@@ -414,6 +412,11 @@ procedure TVisualizador.SetVisible(const Value: Boolean);
 begin
   FVisible := Value;
   lytConteudo.Visible := Value;
+end;
+
+procedure TVisualizador.PosicionarUltima;
+begin
+  rtgUltimaClick(rtgUltima);
 end;
 
 end.

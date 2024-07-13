@@ -67,10 +67,15 @@ inherited ChatListagem: TChatListagem
       end
     end
   end
-  object Timer1: TTimer
+  object tmrExibir: TTimer
     Interval = 500
-    OnTimer = Timer1Timer
-    Left = 280
-    Top = 256
+    OnTimer = tmrExibirTimer
+    Left = 312
+  end
+  object tmrUltima: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = tmrUltimaTimer
+    Left = 384
   end
 end

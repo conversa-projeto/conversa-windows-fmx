@@ -47,7 +47,6 @@ type
     Editor: TEditor;
     Anexo: TAnexo;
     FDestinatarioID: Integer;
-    FUltima: Integer;
     procedure SetUsuario(const Value: String);
     procedure SetDestinatarioID(const Value: Integer);
   public
@@ -59,13 +58,10 @@ type
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
-    property Ultima: Integer read FUltima;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
+    procedure PosicionarUltima;
   end;
-
-var
-  Chat: TChat;
 
 implementation
 
@@ -75,7 +71,6 @@ implementation
 
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
 begin
-  FUltima := Max(Mensagem.id, FUltima);
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
@@ -139,6 +134,11 @@ end;
 procedure TChat.SetUsuario(const Value: String);
 begin
   FUsuario := Value;
+end;
+
+procedure TChat.PosicionarUltima;
+begin
+  Visualizador.PosicionarUltima;
 end;
 
 end.

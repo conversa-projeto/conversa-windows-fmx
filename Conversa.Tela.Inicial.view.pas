@@ -56,9 +56,6 @@ procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
   ModalView := TModalView.Create(lytClientForm);
-
-
-//  Button1.Visible := False;
   tmrShow.Enabled := True;
 end;
 

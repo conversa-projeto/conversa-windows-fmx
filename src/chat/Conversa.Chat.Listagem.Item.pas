@@ -3,15 +3,24 @@ unit Conversa.Chat.Listagem.Item;
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
-  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Controls.Presentation, FMX.Objects, FMX.Layouts,
-
-
+  System.SysUtils,
+  System.Types,
+  System.UITypes,
+  System.Classes,
+  System.Variants,
+  FMX.Types,
+  FMX.Graphics,
+  FMX.Controls,
+  FMX.Forms,
+  FMX.Dialogs,
+  FMX.StdCtrls,
+  FMX.Controls.Presentation,
+  FMX.Objects,
+  FMX.Layouts,
+  FMX.Ani,
   System.StrUtils,
   System.DateUtils,
-
-  Conversa.FrameBase, FMX.Ani;
+  Conversa.FrameBase;
 
 type
   TConversasItemFrame = class(TFrameBase)
@@ -29,15 +38,12 @@ type
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
   private
-    { Private declarations }
     FID: Integer;
     FDestinatarioID: Integer;
     FUltimaMensagem: TDateTime;
     FOnClick: TProc<TConversasItemFrame>;
-//    FNextUpdateDateTime: TDateTime;
     function ConversaFormatDateTime(Value: TDateTime): String;
   public
-    { Public declarations }
     class function New(AOwner: TComponent; AID: Integer; ADestinatarioID: Integer): TConversasItemFrame; static;
     property ID: Integer read FID write FID;
     property DestinatarioId: Integer read FDestinatarioID write FDestinatarioID;
@@ -58,7 +64,6 @@ begin
   Result.Align := TAlignLayout.Client;
   Result.FID := AID;
   Result.FDestinatarioID := ADestinatarioID;
-  //Result.ID := AID;
 end;
 
 function TConversasItemFrame.OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;

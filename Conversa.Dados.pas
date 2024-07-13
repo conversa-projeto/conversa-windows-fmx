@@ -11,7 +11,8 @@ uses
   Datasnap.DBClient,
   FMX.Types,
   REST.API,
-  Mensagem.Tipos;
+  Mensagem.Tipos,
+  Conversa.Memoria;
 
 type
   TDados = class(TDataModule)
@@ -29,13 +30,14 @@ type
     Femail: String;
     Ftelefone: String;
     FEventosNovasMensagens: TArray<TProc<Integer>>;
+    FDadosApp: TDadosApp;
   public
     property ID: Integer read Fid;
     property Nome: String read Fnome;
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
     procedure Conversas;
-    function Mensagens(iConversa, iUltima: Integer): TArray<TMensagem>;
+    function Mensagens(iConversa: Integer): TArray<TMensagem>;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
@@ -98,6 +100,7 @@ end;
 
 procedure TDados.DataModuleCreate(Sender: TObject);
 begin
+  FDadosApp := Default(TDadosApp);
   cdsConversas.CreateDataSet;
 end;
 
@@ -121,7 +124,7 @@ begin
   end;
 end;
 
-function TDados.Mensagens(iConversa, iUltima: Integer): TArray<TMensagem>;
+function TDados.Mensagens(iConversa: Integer): TArray<TMensagem>;
 var
   Mensagem: TMensagem;
   MensagemConteudo: TMensagemConteudo;
@@ -129,7 +132,7 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
-    Query(TJSONObject.Create.AddPair('ultima', iUltima)); // implementar depois o controle de ultima mensagem de cada conversa
+    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem(iConversa)));
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
@@ -149,6 +152,8 @@ begin
         Mensagem.inserida := ISO8601ToDate(Item.GetValue<String>('inserida'));
       if not (Item.FindValue('alterada') is TJSONNull) then
         Mensagem.alterada := ISO8601ToDate(Item.GetValue<String>('alterada'));
+
+      FDadosApp.AdicionaMensagem(iConversa, Mensagem.id);
 
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
@@ -318,7 +323,7 @@ begin
     with TAPIConversa.Create do
     try
       Route('mensagens/novas');
-      Query(TJSONObject.Create.AddPair('ultima', 0)); // obter a ultima mensagem de todas as conversas
+      Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem));
       GET;
       for var Item in Response.ToJSONArray do
         for I := 0 to Pred(Length(FEventosNovasMensagens)) do
