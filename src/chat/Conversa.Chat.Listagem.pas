@@ -22,7 +22,8 @@ uses
   Conversa.Chat.Listagem.Item,
   Conversa.Dados,
   Conversa.Chat,
-  Mensagem.Tipos;
+  Mensagem.Tipos,
+  Conversa.Audio;
 
 type
   TListBoxItem = class(FMX.ListBox.TListBoxItem)
@@ -127,6 +128,8 @@ begin
   for Chat in FChats do
     if Chat.ID = Conversa then
       Chat.AdicionarMensagens(Dados.Mensagens(Conversa));
+
+  PlayResource('nova_mensagem');
 end;
 
 procedure TChatListagem.btnAbrirChat(Item: TConversasItemFrame);

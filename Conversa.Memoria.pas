@@ -1,4 +1,4 @@
-﻿// Eduardo - 17/03/2024
+﻿// Eduardo - 13/07/2024
 unit Conversa.Memoria;
 
 interface

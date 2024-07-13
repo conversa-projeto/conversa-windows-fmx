@@ -22,11 +22,9 @@ uses
   FMX.Ani,
   FMX.Controls.Presentation,
   FMX.StdCtrls,
-
   Conversa.Configuracoes,
   Conversa.Principal,
   Conversa.ModalView,
-
   PascalStyleScript;
 
 type

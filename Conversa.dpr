@@ -1,5 +1,8 @@
 ﻿// Eduardo - 03/03/2024
 program Conversa;
+
+{$R *.dres}
+
 uses
   MidasLib,
   System.StartUpCopy,
@@ -28,9 +31,11 @@ uses
   Conversa.ModalView in 'src\principal\Conversa.ModalView.pas' {ModalView: TFrame},
   Conversa.WMI in 'Conversa.WMI.pas',
   Conversa.Conexao.AvisoInicioSistema in 'src\conexao\Conversa.Conexao.AvisoInicioSistema.pas' {ConexaoFalhaInicio: TFrame},
-  Conversa.Memoria in 'Conversa.Memoria.pas';
+  Conversa.Memoria in 'Conversa.Memoria.pas',
+  Conversa.Audio in 'Conversa.Audio.pas';
 
 {$R *.res}
+
 begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;

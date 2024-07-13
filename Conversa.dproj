@@ -296,6 +296,12 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="Conversa.Memoria.pas"/>
+        <DCCReference Include="Conversa.Audio.pas"/>
+        <RcItem Include="res\nova_mensagem.wav">
+            <ContainerId>ResourceItem</ContainerId>
+            <ResourceType>RCDATA</ResourceType>
+            <ResourceId>nova_mensagem</ResourceId>
+        </RcItem>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -340,6 +346,12 @@ $(PreBuildEvent)]]></PreBuildEvent>
                 <DeployFile LocalName="bin\Conversa.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Conversa.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="res\nova_mensagem.wav" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
