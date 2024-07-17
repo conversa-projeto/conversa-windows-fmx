@@ -22,12 +22,11 @@ type
 
   TDadosApp = record
   private
-    FUltimaMensagem: Integer;
     function ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
   public
     Conversas: TArray<TDadosConversa>;
-    function UltimaMensagem: Integer; overload;
-    function UltimaMensagem(iConversa: Integer): Integer; overload;
+    UltimaMensagemNotificada: Integer;
+    function UltimaMensagemConversa(iConversa: Integer): Integer;
     procedure AdicionaMensagem(iConversa, iMensagem: Integer);
   end;
 
@@ -69,10 +68,10 @@ begin
   P.AdicionaMensagem(iMensagem);
 
   P.FUltimaMensagem := Max(iMensagem, P.FUltimaMensagem);
-  FUltimaMensagem := Max(iMensagem, FUltimaMensagem);
+  UltimaMensagemNotificada := Max(iMensagem, UltimaMensagemNotificada);
 end;
 
-function TDadosApp.UltimaMensagem(iConversa: Integer): Integer;
+function TDadosApp.UltimaMensagemConversa(iConversa: Integer): Integer;
 var
   P: TPDadosConversa;
 begin
@@ -80,11 +79,6 @@ begin
     Result := P.FUltimaMensagem
   else
     Result := 0;
-end;
-
-function TDadosApp.UltimaMensagem: Integer;
-begin
-  Result := FUltimaMensagem;
 end;
 
 { TDadosConversa }

@@ -124,10 +124,39 @@ end;
 procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
 var
   Chat: TChat;
+  bNovo: Boolean;
+  Item: TListBoxItem;
 begin
+  bNovo := True;
   for Chat in FChats do
+  begin
     if Chat.ID = Conversa then
+    begin
+      bNovo := False;
       Chat.AdicionarMensagens(Dados.Mensagens(Conversa));
+    end;
+  end;
+
+  if bNovo then
+  begin
+    Dados.Conversas;
+    if not Dados.cdsConversas.Locate('id', Conversa, []) then
+      Exit;
+
+    Item := TListBoxItem.Create(nil);
+    Item.Text := '';
+    Item.Height := 60;
+    Item.Selectable := False;
+
+    Item.ContatoItem :=
+      TConversasItemFrame.New(Item, Dados.cdsConversas.FieldByName('id').AsInteger, Dados.cdsConversas.FieldByName('destinatario_id').AsInteger)
+        .Descricao(Dados.cdsConversas.FieldByName('descricao').AsString)
+        .Mensagem(Dados.cdsConversas.FieldByName('ultima_mensagem_texto').AsString)
+        .UltimaMensagem(Dados.cdsConversas.FieldByName('ultima_mensagem').AsDateTime)
+        .OnClick(btnAbrirChat);
+
+    lstConversas.AddObject(Item);
+  end;
 
   PlayResource('nova_mensagem');
 end;

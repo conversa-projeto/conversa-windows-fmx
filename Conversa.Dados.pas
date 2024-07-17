@@ -62,6 +62,7 @@ uses
   System.IOUtils,
   System.DateUtils,
   System.Hash,
+  System.Math,
   Conversa.Configuracoes;
 
 const
@@ -132,7 +133,7 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
-    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem(iConversa)));
+    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemConversa(iConversa)));
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
@@ -323,11 +324,14 @@ begin
     with TAPIConversa.Create do
     try
       Route('mensagens/novas');
-      Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem));
+      Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemNotificada));
       GET;
       for var Item in Response.ToJSONArray do
+      begin
+        FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
         for I := 0 to Pred(Length(FEventosNovasMensagens)) do
           FEventosNovasMensagens[I](Item.GetValue<Integer>('conversa_id'));
+      end;
     finally
       Free;
     end;
