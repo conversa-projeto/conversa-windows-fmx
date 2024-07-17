@@ -43,7 +43,7 @@ type
     FID: Integer;
     FUsuario: String;
     FUsuarioID: Integer;
-    Visualizador: TVisualizador;
+    FVisualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
     FDestinatarioID: Integer;
@@ -58,6 +58,7 @@ type
     property Usuario: String read FUsuario write SetUsuario;
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
+    property Visualizador: TVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
     procedure PosicionarUltima;
@@ -91,7 +92,7 @@ begin
   Align := TAlignLayout.Client;
   Visible := True;
   lytFoto.Visible := False;
-  Visualizador := TVisualizador.Create(lytClient);
+  FVisualizador := TVisualizador.Create(lytClient);
   Anexo := TAnexo.Create(Self);
   lblNome.Visible := False;
   Editor := TEditor.Create(Self);

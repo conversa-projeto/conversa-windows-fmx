@@ -134,6 +134,7 @@ begin
     begin
       bNovo := False;
       Chat.AdicionarMensagens(Dados.Mensagens(Conversa));
+      Chat.Visualizador.PosicionarUltima;
     end;
   end;
 

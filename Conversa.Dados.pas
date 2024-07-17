@@ -192,8 +192,9 @@ begin
       cdsConversas.FieldByName('ultima_mensagem_texto').AsString := Item.GetValue<String>('ultima_mensagem_texto');
       cdsConversas.FieldByName('destinatario_id').AsInteger := Item.GetValue<Integer>('destinatario_id');
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
+        cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
 
-      cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
+      FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
     end;
   finally
     Free;
