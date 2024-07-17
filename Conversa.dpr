@@ -32,7 +32,10 @@ uses
   Conversa.WMI in 'Conversa.WMI.pas',
   Conversa.Conexao.AvisoInicioSistema in 'src\conexao\Conversa.Conexao.AvisoInicioSistema.pas' {ConexaoFalhaInicio: TFrame},
   Conversa.Memoria in 'Conversa.Memoria.pas',
-  Conversa.Audio in 'Conversa.Audio.pas';
+  Conversa.Audio in 'Conversa.Audio.pas',
+  Notificacao.Item in 'src\notificacao\Notificacao.Item.pas' {NotificacaoItem: TFrame},
+  Notificacao in 'src\notificacao\Notificacao.pas',
+  Notificacao.Visualizador in 'src\notificacao\Notificacao.Visualizador.pas' {NotificacaoVisualizador};
 
 {$R *.res}
 

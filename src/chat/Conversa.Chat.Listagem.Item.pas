@@ -31,7 +31,7 @@ type
     Text1: TText;
     lytInformacoes: TLayout;
     lblNome: TLabel;
-    lytB: TLayout;
+    lytInformacoesBottom: TLayout;
     lblInformacao1: TLabel;
     lblUltimaMensagem: TLabel;
     ColorAnimation1: TColorAnimation;

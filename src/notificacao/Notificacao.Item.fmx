@@ -1,0 +1,143 @@
+object NotificacaoItem: TNotificacaoItem
+  Margins.Bottom = 5.000000000000000000
+  Size.Width = 300.000000000000000000
+  Size.Height = 150.000000000000000000
+  Size.PlatformDefault = False
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = xFF007FFF
+    Padding.Left = 10.000000000000000000
+    Padding.Top = 10.000000000000000000
+    Padding.Right = 10.000000000000000000
+    Padding.Bottom = 10.000000000000000000
+    Size.Width = 300.000000000000000000
+    Size.Height = 150.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 5.000000000000000000
+    YRadius = 5.000000000000000000
+    object txtHora: TText
+      Align = Bottom
+      Position.X = 10.000000000000000000
+      Position.Y = 124.039062500000000000
+      Size.Width = 280.000000000000000000
+      Size.Height = 15.960937500000000000
+      Size.PlatformDefault = False
+      Text = '00:00'
+      TextSettings.FontColor = claWhite
+      TextSettings.HorzAlign = Trailing
+    end
+    object lytTopo: TLayout
+      Align = Top
+      Position.X = 10.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 280.000000000000000000
+      Size.Height = 20.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object txtTitulo: TText
+        Align = Left
+        Size.Width = 100.000000000000000000
+        Size.Height = 20.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Conversa'
+        TextSettings.FontColor = claWhite
+        TextSettings.HorzAlign = Leading
+      end
+      object lytCloseButton: TLayout
+        Align = Right
+        HitTest = True
+        Position.X = 260.000000000000000000
+        Size.Width = 20.000000000000000000
+        Size.Height = 20.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object rctClose: TRectangle
+          Align = Client
+          Fill.Color = claNull
+          HitTest = False
+          Size.Width = 20.000000000000000000
+          Size.Height = 20.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object lytClose: TLayout
+            Align = Center
+            Padding.Left = 1.000000000000000000
+            Padding.Top = 1.000000000000000000
+            Padding.Right = 1.000000000000000000
+            Padding.Bottom = 1.000000000000000000
+            Size.Width = 12.000000000000000000
+            Size.Height = 12.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            object Path1: TPath
+              Align = Client
+              Data.Path = {
+                0E0000000000000000008043A4B063C301000000A4B06343000080C301000000
+                52D8E1430000F0C301000000A4B06343000030C40100000000008043D71337C4
+                010000000000F043AE27FEC30100000000003044D71337C401000000D7133744
+                000030C401000000AE27FE430000F0C301000000D7133744000080C301000000
+                00003044A4B063C3010000000000F04352D8E1C30100000000008043A4B063C3
+                0300000000008043A4B063C3}
+              Fill.Color = claWhite
+              Size.Width = 10.000000000000000000
+              Size.Height = 10.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Kind = None
+              WrapMode = Fit
+            end
+          end
+        end
+      end
+    end
+    object lytResposta: TLayout
+      Align = Bottom
+      Position.X = 10.000000000000000000
+      Position.Y = 99.039062500000000000
+      Size.Width = 280.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      object rctResposta: TRectangle
+        Align = Client
+        Fill.Color = xFF1B8DFF
+        Size.Width = 280.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+      end
+    end
+    object lytCentro: TLayout
+      Align = Client
+      Size.Width = 280.000000000000000000
+      Size.Height = 69.039062500000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object lytFoto: TLayout
+        Align = Left
+        Size.Width = 50.000000000000000000
+        Size.Height = 69.039062500000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object Circle1: TCircle
+          Align = Client
+          Fill.Color = xFF1B8DFF
+          Size.Width = 50.000000000000000000
+          Size.Height = 69.039062500000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+        end
+      end
+      object PaintBox1: TPaintBox
+        Align = Client
+        Margins.Left = 8.000000000000000000
+        Size.Width = 222.000000000000000000
+        Size.Height = 69.039062500000000000
+        Size.PlatformDefault = False
+        OnPaint = PaintBox1Paint
+      end
+    end
+  end
+end

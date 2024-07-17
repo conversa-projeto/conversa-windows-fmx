@@ -65,7 +65,7 @@ inherited ConversasItemFrame: TConversasItemFrame
           Text = '[Nome]'
           TabOrder = 0
         end
-        object lytB: TLayout
+        object lytInformacoesBottom: TLayout
           Align = Bottom
           Position.Y = 27.000000000000000000
           Size.Width = 245.000000000000000000

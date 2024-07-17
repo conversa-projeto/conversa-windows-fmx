@@ -60,7 +60,8 @@ type
   private
     function GetPSSClassName: String;
   protected
-    procedure DoConversaClose;
+    procedure DoConversaRestore; virtual;
+    procedure DoConversaClose; virtual;
     procedure DoConversaMaximize;
     procedure DoConversaMinimize;
   public
@@ -145,6 +146,11 @@ end;
 procedure TFormularioBase.DoConversaMinimize;
 begin
   Self.WindowState := TWindowState.wsMinimized;
+end;
+
+procedure TFormularioBase.DoConversaRestore;
+begin
+  //
 end;
 
 procedure TFormularioBase.DoConversaMaximize;
