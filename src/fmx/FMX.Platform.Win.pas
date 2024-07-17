@@ -184,7 +184,8 @@ uses
   FMX.Platform.Metrics.Win, FMX.VirtualKeyboard.Win, FMX.Platform.Timer.Win, FMX.Platform.Logger.Win,
   FMX.Platform.Menu.Win,
 
-  Conversa.FormularioBase;
+  Conversa.FormularioBase,
+  Notificacao.Visualizador;
 
 type
   MySTGMEDIUM = record // for compatibility
@@ -2222,51 +2223,56 @@ begin
           WM_NCPAINT,
           WM_NCMOUSELEAVE:
           begin
-            if uMsg in [WM_NCHITTEST, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP] then
+            if Assigned(LForm) and LForm.InheritsFrom(TFormularioBase) then
             begin
-              WindowPoint := TWMNCHitTest(Message).Pos; // Form point in px
-              FormPoint := FormPxToDp(LForm, WindowPoint); // dp
-              ClientPoint := LForm.ScreenToClient(FormPoint);
-              // Se não está maximizado, está identificando o local da interface, e está nas dimensões das bordas
-              if not IsZoomed(Wnd) and (uMsg = WM_NCHITTEST) and (Abs(ClientPoint.Y) <= GetSystemMetrics(SM_CYFRAME)) then
+              if uMsg in [WM_NCHITTEST, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP] then
               begin
-                TWMNCHitTest(Message).Result := HTTOP;
-                TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
-                Exit(HTTOP);
-              end
-              else
-              if PtInRect(TFormularioBase(LForm).lytMaximizeButton.AbsoluteRect.Round, ClientPoint.Round) then
-              begin
-                case Message.Msg of
-                  WM_NCLBUTTONDOWN: TFormularioBaseHack(LForm).DoConversaMaximize; // Adicionar evento do botão aqui
-                  WM_NCLBUTTONUP: Exit(0);
+                WindowPoint := TWMNCHitTest(Message).Pos; // Form point in px
+                FormPoint := FormPxToDp(LForm, WindowPoint); // dp
+                ClientPoint := LForm.ScreenToClient(FormPoint);
+                // Se não está maximizado, está identificando o local da interface, e está nas dimensões das bordas
+                if not IsZoomed(Wnd) and (uMsg = WM_NCHITTEST) and (Abs(ClientPoint.Y) <= GetSystemMetrics(SM_CYFRAME)) then
+                begin
+                  TWMNCHitTest(Message).Result := HTTOP;
+                  TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
+                  Exit(HTTOP);
+                end
                 else
-                  begin
-                    TFormularioBase(LForm).lytMaximizeButtonMouseEnter(TFormularioBase(LForm).lytMaximizeButton);
-                    Exit(HTMAXBUTTON);
-                  end
+                if PtInRect(TFormularioBase(LForm).lytMaximizeButton.AbsoluteRect.Round, ClientPoint.Round) then
+                begin
+                  case Message.Msg of
+                    WM_NCLBUTTONDOWN: TFormularioBaseHack(LForm).DoConversaMaximize; // Adicionar evento do botão aqui
+                    WM_NCLBUTTONUP: Exit(0);
+                  else
+                    begin
+                      TFormularioBase(LForm).lytMaximizeButtonMouseEnter(TFormularioBase(LForm).lytMaximizeButton);
+                      Exit(HTMAXBUTTON);
+                    end
+                  end;
+                end
+                else
+                begin
+                  TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
+                  Result := WMNCMessages(LForm, uMsg, wParam, lParam);
                 end;
               end
               else
+              if uMsg = WM_NCCALCSIZE then
               begin
-                TFormularioBase(LForm).lytMaximizeButtonMouseLeave(TFormularioBase(LForm).lytMaximizeButton);
+                with TWMNCCalcSize(Message).CalcSize_Params.rgrc[0] do
+                begin
+                  Dec(Top, GetSystemMetrics(SM_CYCAPTION));
+                  Dec(Top, GetSystemMetrics(SM_CYFRAME));
+                  Dec(Top, GetSystemMetrics(SM_CXPADDEDBORDER));
+                  if IsZoomed(Wnd) then
+                    Inc(Top, 8)
+                  else
+                    Inc(Top, 1);
+                end;
                 Result := WMNCMessages(LForm, uMsg, wParam, lParam);
-              end;
-            end
-            else
-            if uMsg = WM_NCCALCSIZE then
-            begin
-              with TWMNCCalcSize(Message).CalcSize_Params.rgrc[0] do
-              begin
-                Dec(Top, GetSystemMetrics(SM_CYCAPTION));
-                Dec(Top, GetSystemMetrics(SM_CYFRAME));
-                Dec(Top, GetSystemMetrics(SM_CXPADDEDBORDER));
-                if IsZoomed(Wnd) then
-                  Inc(Top, 8)
-                else
-                  Inc(Top, 1);
-              end;
-              Result := WMNCMessages(LForm, uMsg, wParam, lParam);
+              end
+              else
+                Result := WMNCMessages(LForm, uMsg, wParam, lParam);
             end
             else
               Result := WMNCMessages(LForm, uMsg, wParam, lParam);
@@ -3163,6 +3169,8 @@ var
   begin
     for I := 0 to Screen.FormCount - 1 do
     begin
+      if Screen.Forms[I].InheritsFrom(TNotificacaoVisualizador) then
+        Continue;
       WindowHandle := FormToHWND(Screen.Forms[I]);
       if IsWindowVisible(WindowHandle) then
         DefWindowProc(WindowHandle, WM_SYSCOMMAND, SC_MINIMIZE, 0);

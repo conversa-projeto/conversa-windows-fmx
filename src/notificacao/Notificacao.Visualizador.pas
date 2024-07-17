@@ -22,7 +22,8 @@ type
     procedure CreateHandle; override;
 //    procedure DestroyHandle; override;
   public
-    procedure Exibir;
+    procedure Exibir(const Altura: Single);
+    procedure Ocultar;
     procedure AtualizarPosicao(iAltura: Single);
   end;
 
@@ -56,11 +57,21 @@ implementation
 //  Result := CallWindowProc(prevWndProc, hwnd, uMsg, wParam, lParam);
 //end;
 
-procedure TNotificacaoVisualizador.Exibir;
+procedure TNotificacaoVisualizador.Exibir(const Altura: Single);
 begin
+  if Altura = 0 then
+  begin
+    Ocultar;
+    Exit;
+  end;
+  AtualizarPosicao(Altura);
   // Exibir sem Recebor Foco
   ShowWindow(WindowHandleToPlatform(Handle).Wnd, SW_SHOWNOACTIVATE);
-  AtualizarPosicao(Height);
+end;
+
+procedure TNotificacaoVisualizador.Ocultar;
+begin
+  ShowWindow(WindowHandleToPlatform(Handle).Wnd, SW_HIDE);
 end;
 
 procedure TNotificacaoVisualizador.CreateHandle;

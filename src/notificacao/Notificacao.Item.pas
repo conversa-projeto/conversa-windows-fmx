@@ -16,23 +16,26 @@ type
     rctFundo: TRectangle;
     txtHora: TText;
     lytTopo: TLayout;
-    lytResposta: TLayout;
     lytCentro: TLayout;
     lytFoto: TLayout;
-    Circle1: TCircle;
-    rctResposta: TRectangle;
+    crclFoto: TCircle;
     txtTitulo: TText;
     lytCloseButton: TLayout;
     rctClose: TRectangle;
     lytClose: TLayout;
-    PaintBox1: TPaintBox;
     Path1: TPath;
-    procedure PaintBox1Paint(Sender: TObject; Canvas: TCanvas);
+    lytConteudo: TLayout;
+    pbTexto: TPaintBox;
+    txtNome: TText;
+    txtUserLetra: TText;
+    procedure pbTextoPaint(Sender: TObject; Canvas: TCanvas);
+    procedure lytCloseButtonClick(Sender: TObject);
   private
+    FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
   public
     class function New(AOwner: TFmxObject): TNotificacaoItem;
-    procedure AtualizarConteudo(AConteudos: TArray<TMensagemNotificacao>);
+    procedure AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
   end;
 
 implementation
@@ -54,7 +57,7 @@ begin
   Result.Show;
 end;
 
-procedure TNotificacaoItem.PaintBox1Paint(Sender: TObject; Canvas: TCanvas);
+procedure TNotificacaoItem.pbTextoPaint(Sender: TObject; Canvas: TCanvas);
 type
   TConteudoNotify = record
     Nome: String;
@@ -95,7 +98,7 @@ begin
 
   Layout := TTextLayoutManager.DefaultTextLayout.Create;
   try
-    Layout.MaxSize := TPointF.Create(PaintBox1.Width, PaintBox1.Height);
+    Layout.MaxSize := TPointF.Create(pbTexto.Width, pbTexto.Height);
     Layout.BeginUpdate;
     try
       Layout.Text := Text;
@@ -117,24 +120,27 @@ begin
     finally
       Layout.EndUpdate;
     end;
-    PaintBox1.Canvas.BeginScene;
+    pbTexto.Canvas.BeginScene;
     try
-      Layout.RenderLayout(PaintBox1.Canvas);
+      Layout.RenderLayout(pbTexto.Canvas);
     finally
-      PaintBox1.Canvas.EndScene;
+      pbTexto.Canvas.EndScene;
     end;
   finally
     Layout.Free;
   end;
 end;
 
-procedure TNotificacaoItem.AtualizarConteudo(AConteudos: TArray<TMensagemNotificacao>);
+procedure TNotificacaoItem.AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
 begin
+  FChatId := AChatId;
   FConteudos := AConteudos;
-  PaintBox1.Repaint;
-//  PaintBox1.Visible := False;
-//  PaintBox1.Visible := True;
-//  PaintBox1.Repaint;
+  pbTexto.Repaint;
+end;
+
+procedure TNotificacaoItem.lytCloseButtonClick(Sender: TObject);
+begin
+  TNotificacaoManager.Fechar(FChatId);
 end;
 
 end.

@@ -46,11 +46,14 @@ type
     FVisualizador: TFmxObject;
     FNotificacoes: TList<TNotificacao>;
     constructor Create;
+    procedure AtualizarVisualizador;
     function InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
+    function InternalFechar(ChatId: Integer): TNotificacaoManager;
   public
     destructor Destroy; override;
     class function Instance: TNotificacaoManager;
     class function Apresentar(Value: TNotificacao): TNotificacaoManager; overload;
+    class function Fechar(ChatId: Integer): TNotificacaoManager;
     function Count: Integer;
   end;
 
@@ -58,7 +61,7 @@ implementation
 
 uses
   Notificacao.Visualizador,
-  Notificacao.Item;
+  Notificacao.Item, FMX.Forms;
 
 var
   FInstance: TNotificacaoManager;
@@ -84,6 +87,11 @@ destructor TNotificacaoManager.Destroy;
 begin
   FreeAndNil(FNotificacoes);
   inherited;
+end;
+
+class function TNotificacaoManager.Fechar(ChatId: Integer): TNotificacaoManager;
+begin
+  Result := Instance.InternalFechar(ChatId);
 end;
 
 class function TNotificacaoManager.Instance: TNotificacaoManager;
@@ -115,17 +123,48 @@ begin
     end;
   end;
 
-  Visualizador.Exibir;
-
   ANotificacao.FView := TNotificacaoItem.New(Visualizador);
   with TNotificacaoItem(ANotificacao.FView) do
   begin
+    txtNome.Text := ANotificacao.FNome;
     txtHora.Text := TimeToStr(ANotificacao.FHora);
-    AtualizarConteudo(ANotificacao.FConteudo);
+    AtualizarConteudo(ANotificacao.ChatId, ANotificacao.FConteudo);
   end;
 
   FNotificacoes.Add(ANotificacao);
-  Visualizador.AtualizarPosicao(Count * (TNotificacaoItem(ANotificacao.FView).Height + TNotificacaoItem(ANotificacao.FView).Margins.Bottom));
+
+  AtualizarVisualizador;
+end;
+
+function TNotificacaoManager.InternalFechar(ChatId: Integer): TNotificacaoManager;
+var
+  I: Integer;
+begin
+  Result := Self;
+  for I := 0 to Pred(FNotificacoes.Count) do
+  begin
+    if FNotificacoes[I].ChatId = ChatId then
+    begin
+      FNotificacoes[I].FView.DisposeOf;
+      FNotificacoes.Delete(I);
+      Break;
+    end;
+  end;
+
+  AtualizarVisualizador;
+end;
+
+procedure TNotificacaoManager.AtualizarVisualizador;
+var
+  I: Integer;
+  Altura: Single;
+begin
+  Altura := 0;
+  for I := 0 to Pred(FNotificacoes.Count) do
+    if Assigned(FNotificacoes[I].FView) then
+      Altura := Altura + TFrame(FNotificacoes[I].FView).Height;
+
+  Visualizador.Exibir(Altura);
 end;
 
 { TConteudo }
@@ -185,6 +224,8 @@ function TNotificacao.Nome(const ANome: string): TNotificacao;
 begin
   Result := Self;
   Result.FNome := ANome;
+  if Assigned(FView) then
+    TNotificacaoItem(FView).txtNome.Text := Result.FNome;
 end;
 
 function TNotificacao.Hora(const AHora: TDateTime): TNotificacao;
@@ -201,7 +242,7 @@ begin
   Result.FConteudo := AConteudo;
 
   if Assigned(FView) then
-    TNotificacaoItem(FView).AtualizarConteudo(Result.FConteudo);
+    TNotificacaoItem(FView).AtualizarConteudo(Result.ChatId, Result.FConteudo);
 end;
 
 function TNotificacao.AddConteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao;

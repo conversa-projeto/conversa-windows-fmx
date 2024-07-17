@@ -188,7 +188,7 @@ begin
   end
   else
   begin
-    rtgFundo.Fill.Color := $FFE7F3FF;
+    rtgFundo.Fill.Color := $FFCFE7FF;//$FFBFDFFF;//$FFE7F3FF;
     rtgFundo.Stroke.Kind := TBrushKind.None;
     TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo.Usuario');
   end;
