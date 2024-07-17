@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>32787</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -297,6 +297,14 @@ $(PreBuildEvent)]]></PreBuildEvent>
         </DCCReference>
         <DCCReference Include="Conversa.Memoria.pas"/>
         <DCCReference Include="Conversa.Audio.pas"/>
+        <DCCReference Include="src\notificacao\Notificacao.Item.pas">
+            <Form>NotificacaoItem</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\notificacao\Notificacao.pas"/>
+        <DCCReference Include="src\notificacao\Notificacao.Visualizador.pas">
+            <Form>NotificacaoVisualizador</Form>
+        </DCCReference>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

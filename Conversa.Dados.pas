@@ -62,6 +62,7 @@ uses
   System.IOUtils,
   System.DateUtils,
   System.Hash,
+  System.Math,
   Conversa.Configuracoes;
 
 const
@@ -132,7 +133,7 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
-    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem(iConversa)));
+    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemConversa(iConversa)));
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     GET;
 
@@ -191,8 +192,9 @@ begin
       cdsConversas.FieldByName('ultima_mensagem_texto').AsString := Item.GetValue<String>('ultima_mensagem_texto');
       cdsConversas.FieldByName('destinatario_id').AsInteger := Item.GetValue<Integer>('destinatario_id');
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
+        cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
 
-      cdsConversas.FieldByName('ultima_mensagem').AsDateTime := ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'));
+      FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
     end;
   finally
     Free;
@@ -323,11 +325,14 @@ begin
     with TAPIConversa.Create do
     try
       Route('mensagens/novas');
-      Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem));
+      Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemNotificada));
       GET;
       for var Item in Response.ToJSONArray do
+      begin
+        FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
         for I := 0 to Pred(Length(FEventosNovasMensagens)) do
           FEventosNovasMensagens[I](Item.GetValue<Integer>('conversa_id'));
+      end;
     finally
       Free;
     end;
