@@ -114,6 +114,8 @@ begin
 
       if Assigned(AoEnviarMensagem) then
         AoEnviarMensagem(Self, Mensagem);
+
+      Visualizador.PosicionarUltima;
     end
   );
 end;
