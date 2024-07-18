@@ -172,17 +172,6 @@ begin
 
       Result := Result + [Mensagem];
     end;
-
-    if (FDadosApp.UltimaMensagemNotificada <> 0) and (Length(Result) > 0) then
-    begin
-      TNotificacaoManager.Apresentar(
-        TNotificacao.New
-          .ChatId(iConversa)
-          .Nome(Fnome)
-          .Hora(Now)
-          .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagem.conteudos[0].conteudo)])
-      );
-    end;
   finally
     Free;
   end;

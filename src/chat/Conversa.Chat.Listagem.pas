@@ -22,6 +22,7 @@ uses
   Conversa.Chat.Listagem.Item,
   Conversa.Dados,
   Conversa.Chat,
+  Notificacao,
   Mensagem.Tipos,
   Conversa.Audio;
 
@@ -126,6 +127,7 @@ var
   Chat: TChat;
   bNovo: Boolean;
   Item: TListBoxItem;
+  Mensagens: TArray<TMensagem>;
 begin
   bNovo := True;
   for Chat in FChats do
@@ -133,8 +135,18 @@ begin
     if Chat.ID = Conversa then
     begin
       bNovo := False;
-      Chat.AdicionarMensagens(Dados.Mensagens(Conversa));
+      Mensagens := Dados.Mensagens(Conversa);
+      Chat.AdicionarMensagens(Mensagens);
       Chat.Visualizador.PosicionarUltima;
+
+
+      TNotificacaoManager.Apresentar(
+        TNotificacao.New
+          .ChatId(Conversa)
+          .Nome(Chat.lblNome.Text)
+          .Hora(Now)
+          .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagens[0].conteudos[0].conteudo)])
+      );
     end;
   end;
 
