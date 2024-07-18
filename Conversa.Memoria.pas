@@ -37,6 +37,19 @@ uses
 
 { TDadosApp }
 
+//function TDadosApp.Conversa(iConversa: Integer): TPDadosConversa;
+//var
+//  Conversa: TDadosConversa;
+//begin
+//  if ObtemConversa(iConversa, Result) then
+//    Exit;
+//
+//  Conversa := Default(TDadosConversa);
+//  Conversa.ID := iConversa;
+//  Conversas := Conversas + [Conversa];
+//  Result := @Conversa;
+//end;
+
 function TDadosApp.ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
 var
   I: Integer;

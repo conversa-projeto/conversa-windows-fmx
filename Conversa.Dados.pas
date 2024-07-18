@@ -63,7 +63,8 @@ uses
   System.DateUtils,
   System.Hash,
   System.Math,
-  Conversa.Configuracoes;
+  Conversa.Configuracoes,
+  Notificacao;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -170,6 +171,17 @@ begin
       end;
 
       Result := Result + [Mensagem];
+    end;
+
+    if (FDadosApp.UltimaMensagemNotificada <> 0) and (Length(Result) > 0) then
+    begin
+      TNotificacaoManager.Apresentar(
+        TNotificacao.New
+          .ChatId(iConversa)
+          .Nome(Fnome)
+          .Hora(Now)
+          .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagem.conteudos[0].conteudo)])
+      );
     end;
   finally
     Free;
