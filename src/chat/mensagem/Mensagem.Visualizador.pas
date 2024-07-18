@@ -47,6 +47,9 @@ type
 
 implementation
 
+const
+  TamanhoMaximo = 700;
+
 { TVisualizador }
 
 constructor TVisualizador.Create(AOwner: TFmxObject);
@@ -398,13 +401,13 @@ procedure TVisualizador.lytConteudoResized(Sender: TObject);
 var
   I: Integer;
 begin
-  // Abaixo de 500px começa a reduzir o conteúdo
-  sbxCentro.Width := Min(500, lytConteudo.Width);
+  // Abaixo do tamanho máximo começa a reduzir o conteúdo
+  sbxCentro.Width := Min(TamanhoMaximo, lytConteudo.Width);
 
   // Se mudou a largura
   if FWidth <> sbxCentro.Width then
   begin
-    if (FWidth < 500) or (sbxCentro.Width < 500) then
+    if (FWidth < TamanhoMaximo) or (sbxCentro.Width < TamanhoMaximo) then
     begin
       FWidth := sbxCentro.Width;
 
