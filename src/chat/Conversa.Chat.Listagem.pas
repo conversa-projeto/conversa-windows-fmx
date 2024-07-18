@@ -128,6 +128,7 @@ var
   bNovo: Boolean;
   Item: TListBoxItem;
   Mensagens: TArray<TMensagem>;
+  I: Integer;
 begin
   bNovo := True;
   for Chat in FChats do
@@ -139,7 +140,6 @@ begin
       Chat.AdicionarMensagens(Mensagens);
       Chat.Visualizador.PosicionarUltima;
 
-
       TNotificacaoManager.Apresentar(
         TNotificacao.New
           .ChatId(Conversa)
@@ -147,6 +147,18 @@ begin
           .Hora(Now)
           .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagens[0].conteudos[0].conteudo)])
       );
+    end;
+  end;
+
+  if bNovo then
+  begin
+    for I := 0 to Pred(lstConversas.Count) do
+    begin
+      if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
+      begin
+        bNovo := False;
+        Break;
+      end;
     end;
   end;
 
