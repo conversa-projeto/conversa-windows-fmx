@@ -50,6 +50,7 @@ type
     procedure SetUsuario(const Value: String);
     procedure SetDestinatarioID(const Value: Integer);
   public
+    UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -62,6 +63,7 @@ type
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
     procedure PosicionarUltima;
+    procedure Limpar;
   end;
 
 implementation
@@ -80,7 +82,11 @@ var
   Mensagem: TMensagem;
 begin
   for Mensagem in aMensagem do
+  begin
+    UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
     AdicionarMensagem(Mensagem);
+  end;
+  PosicionarUltima;
 end;
 
 constructor TChat.Create(AOwner: TComponent);
@@ -94,7 +100,7 @@ begin
   lytFoto.Visible := False;
   FVisualizador := TVisualizador.Create(lytClient);
   Anexo := TAnexo.Create(Self);
-  lblNome.Visible := False;
+  lblNome.Visible := True;
   Editor := TEditor.Create(Self);
   Editor.ConfiguraAnexo(Anexo);
   Editor.AdicionaMensagem(
@@ -127,6 +133,11 @@ begin
   Editor.Free;
   Anexo.Free;
   inherited;
+end;
+
+procedure TChat.Limpar;
+begin
+  Visualizador.Limpar;
 end;
 
 procedure TChat.SetDestinatarioID(const Value: Integer);

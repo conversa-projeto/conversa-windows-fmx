@@ -37,12 +37,14 @@ type
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
     procedure Conversas;
-    function Mensagens(iConversa: Integer): TArray<TMensagem>;
+    function ObterMensagens(iConversa: Integer): TArray<TMensagem>;
+    function Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
+    function UltimaMensagemNotificada: Integer;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -126,7 +128,15 @@ begin
   end;
 end;
 
-function TDados.Mensagens(iConversa: Integer): TArray<TMensagem>;
+function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
+begin
+  Result := FDadosApp.Mensagens(iConversa, iInicio);
+
+  if Length(Result) = 0 then
+    Result := ObterMensagens(iConversa);
+end;
+
+function TDados.ObterMensagens(iConversa: Integer): TArray<TMensagem>;
 var
   Mensagem: TMensagem;
   MensagemConteudo: TMensagemConteudo;
@@ -155,8 +165,6 @@ begin
       if not (Item.FindValue('alterada') is TJSONNull) then
         Mensagem.alterada := ISO8601ToDate(Item.GetValue<String>('alterada'));
 
-      FDadosApp.AdicionaMensagem(iConversa, Mensagem.id);
-
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
         MensagemConteudo := Default(TMensagemConteudo);
@@ -169,6 +177,8 @@ begin
         end;
         Mensagem.conteudos := Mensagem.conteudos + [MensagemConteudo];
       end;
+
+      FDadosApp.AdicionaMensagem(iConversa, Mensagem);
 
       Result := Result + [Mensagem];
     end;
@@ -332,7 +342,13 @@ begin
       begin
         FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
         for I := 0 to Pred(Length(FEventosNovasMensagens)) do
+        begin
+          try
+            ObterMensagens(Item.GetValue<Integer>('conversa_id'));
+          except
+          end;
           FEventosNovasMensagens[I](Item.GetValue<Integer>('conversa_id'));
+        end;
       end;
     finally
       Free;
@@ -340,6 +356,11 @@ begin
   finally
     Dados.tmrAtualizarMensagens.Enabled := True;
   end;
+end;
+
+function TDados.UltimaMensagemNotificada: Integer;
+begin
+  Result := FDadosApp.UltimaMensagemNotificada;
 end;
 
 procedure TDados.Contatos(Proc: TProc<TJSONArray>);

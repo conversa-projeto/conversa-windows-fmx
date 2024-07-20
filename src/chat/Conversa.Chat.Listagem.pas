@@ -8,6 +8,7 @@ uses
   System.UITypes,
   System.Classes,
   System.Variants,
+  System.DateUtils,
   FMX.Types,
   FMX.Graphics,
   FMX.Controls,
@@ -44,8 +45,7 @@ type
     procedure tmrExibirTimer(Sender: TObject);
     procedure tmrUltimaTimer(Sender: TObject);
   private
-    FChats: TArray<TChat>;
-    FChatAtivo: Integer;
+    FChat: TChat;
     procedure AoReceberMensagem(Conversa: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
@@ -78,15 +78,14 @@ end;
 constructor TChatListagem.Create(AOwner: TComponent);
 begin
   inherited;
-  FChatAtivo := -1;
+  //
 end;
 
 destructor TChatListagem.Destroy;
-var
-  Chat: TChat;
 begin
-  for Chat in FChats do
-    Chat.Free;
+  if Assigned(FChat) then
+    FreeAndNil(FChat);
+
   inherited;
 end;
 
@@ -124,41 +123,19 @@ end;
 
 procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
 var
-  Chat: TChat;
   bNovo: Boolean;
   Item: TListBoxItem;
   Mensagens: TArray<TMensagem>;
   I: Integer;
 begin
+  Mensagens := Dados.Mensagens(Conversa, 0);
   bNovo := True;
-  for Chat in FChats do
+  for I := 0 to Pred(lstConversas.Count) do
   begin
-    if Chat.ID = Conversa then
+    if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
     begin
       bNovo := False;
-      Mensagens := Dados.Mensagens(Conversa);
-      Chat.AdicionarMensagens(Mensagens);
-      Chat.Visualizador.PosicionarUltima;
-
-      TNotificacaoManager.Apresentar(
-        TNotificacao.New
-          .ChatId(Conversa)
-          .Nome(Chat.lblNome.Text)
-          .Hora(Now)
-          .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagens[0].conteudos[0].conteudo)])
-      );
-    end;
-  end;
-
-  if bNovo then
-  begin
-    for I := 0 to Pred(lstConversas.Count) do
-    begin
-      if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
-      begin
-        bNovo := False;
-        Break;
-      end;
+      Break;
     end;
   end;
 
@@ -183,43 +160,44 @@ begin
     lstConversas.AddObject(Item);
   end;
 
+  if not Assigned(FChat) or not ((FChat.ID = Conversa) and (Application.LastUserActive >= IncSecond(Now, -1))) then
+  begin
+    with Mensagens[Pred(Length(Mensagens))] do
+      TNotificacaoManager.Apresentar(
+        TNotificacao.New
+          .ChatId(Conversa)
+          .Nome(remetente)
+          .Hora(Now)
+          .Conteudo([TMensagemNotificacao.New.Mensagem(conteudos[Pred(Length(conteudos))].conteudo)])
+      );
+  end;
+
+  if Assigned(FChat) and (FChat.ID = Conversa) then
+    FChat.AdicionarMensagens(Dados.Mensagens(Conversa, FChat.UltimaMensagem + 1));
+
   PlayResource('nova_mensagem');
 end;
 
 procedure TChatListagem.btnAbrirChat(Item: TConversasItemFrame);
-var
-  Chat: TChat;
-  bJaCriado: Boolean;
-  I: Integer;
 begin
   try
-    bJaCriado := False;
-    for I := Low(FChats) to High(FChats) do
-    begin
-      if FChats[I].ID <> Item.ID then
-        FChats[I].Visible := False
-      else
-      begin
-        bJaCriado := True;
-        FChats[I].Visible := True;
-        FChatAtivo := I;
-      end;
-    end;
-    if bJaCriado then
+    if not Assigned(FChat) then
+      FChat := TChat.Create(lytViewClient);
+
+    if FChat.ID = Item.ID then
       Exit;
 
-    Chat := TChat.Create(lytViewClient);
-    Chat.DestinatarioID := Item.DestinatarioId;
-    Chat.lblNome.Text := Item.lblNome.Text;
-    Chat.ID := Item.ID;
-    Chat.Usuario := Dados.Nome;
-    Chat.UsuarioID := Dados.ID;
-    Chat.AoEnviarMensagem := EnviarMensagem;
-    Chat.AdicionarMensagens(Dados.Mensagens(Item.ID));
-    Chat.ListagemItem := Item;
-    FChats := FChats + [Chat];
-
-    FChatAtivo := Pred(Length(FChats));
+    FChat.Limpar;
+    FChat.DestinatarioID := Item.DestinatarioId;
+    FChat.lblNome.Text := Item.lblNome.Text;
+    FChat.ID := Item.ID;
+    FChat.Usuario := Dados.Nome;
+    FChat.UsuarioID := Dados.ID;
+    FChat.AoEnviarMensagem := EnviarMensagem;
+    FChat.UltimaMensagem := 0;
+    FChat.AdicionarMensagens(Dados.Mensagens(Item.ID, 0));
+    FChat.ListagemItem := Item;
+    TNotificacaoManager.Fechar(Item.ID);
   finally
     // Posicionar na ultima mensagem
     tmrUltima.Enabled := True;
@@ -229,35 +207,22 @@ end;
 procedure TChatListagem.tmrUltimaTimer(Sender: TObject);
 begin
   tmrUltima.Enabled := False;
-  if FChatAtivo <> -1 then
-    FChats[FChatAtivo].PosicionarUltima;
+  if Assigned(FChat) and FChat.Visible then
+    FChat.PosicionarUltima;
 end;
 
 procedure TChatListagem.AbrirChat(DestinatarioId: Integer; NomeDestinatario: String);
 var
-  Chat: TChat;
   ChatItem: Integer;
-  bLocalizou: Boolean;
+//  bLocalizou: Boolean;
   ChatId: Integer;
   Item: TListBoxItem;
 begin
-  bLocalizou := False;
-  Chat := nil;
-  for Chat in FChats do
-  begin
-    if Chat.DestinatarioID = DestinatarioId then
-    begin
-      bLocalizou := True;
-      Break;
-    end;
-  end;
+//  bLocalizou := False;
 
-  if bLocalizou then
-  begin
-    Chat.Visible := True;
-    Chat.BringToFront;
-    Exit;
-  end;
+  if not Assigned(FChat) then
+    FChat := TChat.Create(lytViewClient);
+
 
   ChatId := 0;
   Item := nil;
@@ -287,16 +252,16 @@ begin
     lstConversas.InsertObject(0, Item);
   end;
 
-  Chat := TChat.Create(lytViewClient);
-  Chat.DestinatarioID := DestinatarioId;
-  Chat.lblNome.Text := NomeDestinatario;
-  Chat.ID := ChatId;
-  Chat.Usuario := Dados.Nome;
-  Chat.UsuarioID := Dados.ID;
-  Chat.AoEnviarMensagem := EnviarMensagem;
-  Chat.AdicionarMensagens(Dados.Mensagens(ChatId));
-  Chat.ListagemItem := Item.ContatoItem;
-  FChats := FChats + [Chat];
+  FChat.Limpar;
+  FChat.DestinatarioID := DestinatarioId;
+  FChat.lblNome.Text := NomeDestinatario;
+  FChat.ID := ChatId;
+  FChat.Usuario := Dados.Nome;
+  FChat.UsuarioID := Dados.ID;
+  FChat.AoEnviarMensagem := EnviarMensagem;
+  FChat.UltimaMensagem := 0;
+  FChat.AdicionarMensagens(Dados.Mensagens(ChatId, 0));
+  FChat.ListagemItem := Item.ContatoItem;
 end;
 
 end.

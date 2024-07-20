@@ -22,6 +22,7 @@ uses
 type
   TVisualizador = class
   private
+    FOwner: TFmxObject;
     FVisible: Boolean;
     lytConteudo: TLayout;
     sbxCentro: TVertScrollBox;
@@ -30,6 +31,7 @@ type
     pthUltima: TPath;
     FWidth: Single;
     FConponentes: Integer;
+    procedure CriarControles;
     procedure NomearComponente(Componente: TControl);
     procedure Redimensionar(CentroWidth: Single; Altura: TLayout);
     procedure lytConteudoResized(Sender: TObject);
@@ -43,6 +45,7 @@ type
     procedure AdicionaMensagem(Mensagem: TMensagem);
     property Visible: Boolean read FVisible write SetVisible;
     procedure PosicionarUltima;
+    procedure Limpar;
   end;
 
 implementation
@@ -54,10 +57,16 @@ const
 
 constructor TVisualizador.Create(AOwner: TFmxObject);
 begin
+  FOwner := AOwner;
   FConponentes := 0;
   FWidth := 0;
 
-  lytConteudo := TLayout.Create(AOwner);
+  CriarControles;
+end;
+
+procedure TVisualizador.CriarControles;
+begin
+  lytConteudo := TLayout.Create(FOwner);
   NomearComponente(lytConteudo);
   lytConteudo.Align := TAlignLayout.Client;
   lytConteudo.HitTest := True;
@@ -67,6 +76,7 @@ begin
   lytConteudo.TabOrder := 1;
   lytConteudo.OnResized := lytConteudoResized;
   lytConteudo.OnMouseWheel := lytConteudoMouseWheel;
+  lytConteudo.Margins.Bottom := 8;
 
   sbxCentro := TVertScrollBox.Create(lytConteudo);
   NomearComponente(sbxCentro);
@@ -133,7 +143,7 @@ begin
   lytConteudo.AddObject(scroll);
   rtgUltima.AddObject(pthUltima);
   lytConteudo.AddObject(rtgUltima);
-  AOwner.AddObject(lytConteudo);
+  FOwner.AddObject(lytConteudo);
 end;
 
 procedure TVisualizador.AdicionaMensagem(Mensagem: TMensagem);
@@ -204,17 +214,17 @@ begin
   lbNome.Size.Width := 373;
   lbNome.Size.Height := 22;
   lbNome.Size.PlatformDefault := False;
-  if Mensagem.Lado = TLado.Esquerdo then
-  begin
-    lbNome.Text := Mensagem.Remetente;
-    if Mensagem.Remetente.IsEmpty then
-      lbNome.Size.Height := 5;
-  end
-  else
-  begin
+//  if Mensagem.Lado = TLado.Esquerdo then
+//  begin
+//    lbNome.Text := Mensagem.Remetente;
+//    if Mensagem.Remetente.IsEmpty then
+//      lbNome.Size.Height := 5;
+//  end
+//  else
+//  begin
     lbNome.Text := EmptyStr;
     lbNome.Size.Height := 5;
-  end;
+//  end;
   TPascalStyleScript.Instance.RegisterObject(lbNome, 'Mensagem.NomeUsuario');
 
   lytConteudoMensagem := TLayout.Create(lytConteudo);
@@ -341,8 +351,18 @@ begin
   end;
 
   for I := 0 to Pred(Fundo.ControlsCount) do
+  begin
+    if not Assigned(Fundo.Controls[I]) or not Fundo.Controls[I].Visible then
+      Continue;
+
     if Fundo.Controls[I] is TLabel then
+    begin
       iSomaAltura := iSomaAltura + TLabel(Fundo.Controls[I]).Height;
+      TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+      TLabel(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TLabel(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+      iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
+    end;
+  end;
 
   Largura.Width := iMaximaLargura + iMargem;
   Altura.Height := iSomaAltura;
@@ -352,7 +372,7 @@ procedure TVisualizador.rtgUltimaClick(Sender: TObject);
 begin
   // Posiciona na última mensagem
   TAnimator.AnimateFloat(scroll, 'Value', scroll.Max - scroll.ViewportSize, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
-  TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+  TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8 + 5, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
 end;
 
 procedure TVisualizador.sbxCentroViewportPositionChange(Sender: TObject; const OldViewportPosition, NewViewportPosition: TPointF; const ContentSizeChanged: Boolean);
@@ -428,6 +448,14 @@ end;
 procedure TVisualizador.PosicionarUltima;
 begin
   rtgUltimaClick(rtgUltima);
+end;
+
+procedure TVisualizador.Limpar;
+begin
+  FConponentes := 0;
+  FWidth := 0;
+  FreeAndNil(lytConteudo);
+  CriarControles;
 end;
 
 end.

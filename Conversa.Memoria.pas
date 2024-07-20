@@ -3,21 +3,18 @@ unit Conversa.Memoria;
 
 interface
 
-type
-  TDadosMensagem = record
-  public
-    ID: Integer;
-  end;
+uses
+  Mensagem.Tipos;
 
+type
   TDadosConversa = record
   private
     FUltimaMensagem: Integer;
   public
     ID: Integer;
-    Mensagens: TArray<TDadosMensagem>;
-    procedure AdicionaMensagem(iMensagem: Integer);
+    Mensagens: TArray<TMensagem>;
+    procedure AdicionaMensagem(Mensagem: TMensagem);
   end;
-
   TPDadosConversa = ^TDadosConversa;
 
   TDadosApp = record
@@ -27,7 +24,8 @@ type
     Conversas: TArray<TDadosConversa>;
     UltimaMensagemNotificada: Integer;
     function UltimaMensagemConversa(iConversa: Integer): Integer;
-    procedure AdicionaMensagem(iConversa, iMensagem: Integer);
+    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
+    function Mensagens(iConversa, iInicio: Integer): TArray<TMensagem>;
   end;
 
 implementation
@@ -36,19 +34,6 @@ uses
   System.Math;
 
 { TDadosApp }
-
-//function TDadosApp.Conversa(iConversa: Integer): TPDadosConversa;
-//var
-//  Conversa: TDadosConversa;
-//begin
-//  if ObtemConversa(iConversa, Result) then
-//    Exit;
-//
-//  Conversa := Default(TDadosConversa);
-//  Conversa.ID := iConversa;
-//  Conversas := Conversas + [Conversa];
-//  Result := @Conversa;
-//end;
 
 function TDadosApp.ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
 var
@@ -65,7 +50,7 @@ begin
   end;
 end;
 
-procedure TDadosApp.AdicionaMensagem(iConversa, iMensagem: Integer);
+procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
 var
   P: TPDadosConversa;
   Conversa: TDadosConversa;
@@ -77,11 +62,9 @@ begin
     Conversas := Conversas + [Conversa];
     P := @Conversa;
   end;
-
-  P.AdicionaMensagem(iMensagem);
-
-  P.FUltimaMensagem := Max(iMensagem, P.FUltimaMensagem);
-  UltimaMensagemNotificada := Max(iMensagem, UltimaMensagemNotificada);
+  P.AdicionaMensagem(Mensagem);
+  P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
+  UltimaMensagemNotificada := Max(Mensagem.id, UltimaMensagemNotificada);
 end;
 
 function TDadosApp.UltimaMensagemConversa(iConversa: Integer): Integer;
@@ -94,19 +77,26 @@ begin
     Result := 0;
 end;
 
-{ TDadosConversa }
+function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
+var
+  Conversa: TPDadosConversa;
+  Mensagem: TMensagem;
+begin
+  Result := [];
+  if not ObtemConversa(iConversa, Conversa) then Exit;
+  for Mensagem in Conversa.Mensagens do
+    if Mensagem.id >= iInicio then
+      Result := Result + [Mensagem];
+end;
 
-procedure TDadosConversa.AdicionaMensagem(iMensagem: Integer);
+{ TDadosConversa }
+procedure TDadosConversa.AdicionaMensagem(Mensagem: TMensagem);
 var
   I: Integer;
-  Mensagem: TDadosMensagem;
 begin
   for I := Low(Mensagens) to High(Mensagens) do
-    if Mensagens[I].ID = iMensagem then
+    if Mensagens[I].ID = Mensagem.id then
       Exit;
-
-  Mensagem := Default(TDadosMensagem);
-  Mensagem.ID := iMensagem;
   Mensagens := Mensagens + [Mensagem];
 end;
 
