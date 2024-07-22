@@ -1,4 +1,4 @@
-unit Conversa.Chat;
+﻿unit Conversa.Chat;
 
 interface
 

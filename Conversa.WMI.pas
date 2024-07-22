@@ -1,4 +1,4 @@
-unit Conversa.WMI;
+﻿unit Conversa.WMI;
 // https://theroadtodelphi.com/2010/12/01/accesing-the-wmi-from-pascal-code-delphi-oxygene-freepascal/
 // https://theroadtodelphi.com/2011/08/02/reading-the-smbios-tables-using-delphi/
 // https://theroadtodelphi.com/2010/11/28/be-careful-when-you-import-the-microsoft-wmiscripting-library/

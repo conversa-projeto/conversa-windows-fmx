@@ -1,4 +1,4 @@
-unit Conversa.ModalView;
+﻿unit Conversa.ModalView;
 
 interface
 

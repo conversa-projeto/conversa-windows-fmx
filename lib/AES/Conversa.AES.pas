@@ -1,4 +1,4 @@
-unit Conversa.AES;
+﻿unit Conversa.AES;
 
 interface
 

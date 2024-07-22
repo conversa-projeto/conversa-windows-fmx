@@ -3,7 +3,6 @@ inherited ConfigurarConexao: TConfigurarConexao
   Size.Height = 534.000000000000000000
   object rctFundo: TRectangle
     Align = Client
-    Enabled = True
     Fill.Color = claWhitesmoke
     Size.Width = 500.000000000000000000
     Size.Height = 534.000000000000000000

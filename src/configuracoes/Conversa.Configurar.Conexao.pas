@@ -1,4 +1,4 @@
-unit Conversa.Configurar.Conexao;
+﻿unit Conversa.Configurar.Conexao;
 
 interface
 

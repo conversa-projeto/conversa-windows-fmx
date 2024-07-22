@@ -1,4 +1,4 @@
-unit Conversa.FormularioBase;
+﻿unit Conversa.FormularioBase;
 
 interface
 

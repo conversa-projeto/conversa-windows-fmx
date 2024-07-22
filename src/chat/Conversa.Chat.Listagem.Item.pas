@@ -1,4 +1,4 @@
-unit Conversa.Chat.Listagem.Item;
+ï»¿unit Conversa.Chat.Listagem.Item;
 
 interface
 
@@ -123,15 +123,15 @@ begin
     Exit('agora');
 
   if Between <= SecsPerMin then
-    Exit(Between.ToString +' segundo'+ IfThen(Between = 1, '', 's') +' atrás');
+    Exit(Between.ToString +' segundo'+ IfThen(Between = 1, '', 's') +' atrÃ¡s');
 
   Between := MinutesBetween(Value, Now);
   if Between <= MinsPerHour then
-    Exit(Between.ToString +' minuto'+ IfThen(Between = 1, '', 's') +' atrás');
+    Exit(Between.ToString +' minuto'+ IfThen(Between = 1, '', 's') +' atrÃ¡s');
 
   Between := HoursBetween(Value, Now);
   if Between <= HoursPerDay then
-    Exit(Between.ToString +' hora'+ IfThen(Between = 1, '', 's') +' atrás');
+    Exit(Between.ToString +' hora'+ IfThen(Between = 1, '', 's') +' atrÃ¡s');
 
   Between := DaysBetween(Value, Now);
   if Between = 1 then

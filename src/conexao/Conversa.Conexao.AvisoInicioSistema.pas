@@ -1,4 +1,4 @@
-unit Conversa.Conexao.AvisoInicioSistema;
+﻿unit Conversa.Conexao.AvisoInicioSistema;
 
 interface
 

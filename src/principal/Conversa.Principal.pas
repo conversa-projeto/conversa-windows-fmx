@@ -1,4 +1,4 @@
-unit Conversa.Principal;
+﻿unit Conversa.Principal;
 
 interface
 

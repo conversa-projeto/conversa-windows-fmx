@@ -1,4 +1,4 @@
-unit Conversa.Contatos.Listagem.Item;
+﻿unit Conversa.Contatos.Listagem.Item;
 
 interface
 

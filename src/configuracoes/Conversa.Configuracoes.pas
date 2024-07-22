@@ -1,4 +1,4 @@
-unit Conversa.Configuracoes;
+﻿unit Conversa.Configuracoes;
 
 interface
 

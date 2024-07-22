@@ -1,4 +1,4 @@
-unit Conversa.FrameBase;
+﻿unit Conversa.FrameBase;
 
 interface
 
