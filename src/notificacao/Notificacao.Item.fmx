@@ -1,7 +1,7 @@
 object NotificacaoItem: TNotificacaoItem
   Margins.Bottom = 5.000000000000000000
   Size.Width = 300.000000000000000000
-  Size.Height = 100.000000000000000000
+  Size.Height = 150.000000000000000000
   Size.PlatformDefault = False
   object rctFundo: TRectangle
     Align = Client
@@ -11,22 +11,11 @@ object NotificacaoItem: TNotificacaoItem
     Padding.Right = 5.000000000000000000
     Padding.Bottom = 5.000000000000000000
     Size.Width = 300.000000000000000000
-    Size.Height = 100.000000000000000000
+    Size.Height = 150.000000000000000000
     Size.PlatformDefault = False
     Stroke.Kind = None
     XRadius = 5.000000000000000000
     YRadius = 5.000000000000000000
-    object txtHora: TText
-      Align = Bottom
-      Position.X = 5.000000000000000000
-      Position.Y = 79.039062500000000000
-      Size.Width = 290.000000000000000000
-      Size.Height = 15.960937500000000000
-      Size.PlatformDefault = False
-      Text = '00:00'
-      TextSettings.FontColor = claWhite
-      TextSettings.HorzAlign = Trailing
-    end
     object lytTopo: TLayout
       Align = Top
       Position.X = 5.000000000000000000
@@ -96,20 +85,20 @@ object NotificacaoItem: TNotificacaoItem
     object lytCentro: TLayout
       Align = Client
       Size.Width = 290.000000000000000000
-      Size.Height = 54.039062500000000000
+      Size.Height = 120.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 2
       object lytFoto: TLayout
         Align = Left
         Size.Width = 50.000000000000000000
-        Size.Height = 54.039062500000000000
+        Size.Height = 120.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object crclFoto: TCircle
           Align = Client
           Fill.Color = xFF1B8DFF
           Size.Width = 50.000000000000000000
-          Size.Height = 54.039062500000000000
+          Size.Height = 120.000000000000000000
           Size.PlatformDefault = False
           Stroke.Kind = None
           object txtUserLetra: TText
@@ -130,13 +119,13 @@ object NotificacaoItem: TNotificacaoItem
         Align = Client
         Margins.Left = 8.000000000000000000
         Size.Width = 232.000000000000000000
-        Size.Height = 54.039062500000000000
+        Size.Height = 120.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
         object pbTexto: TPaintBox
           Align = Client
           Size.Width = 232.000000000000000000
-          Size.Height = 38.078125000000000000
+          Size.Height = 88.078125000000000000
           Size.PlatformDefault = False
           OnPaint = pbTextoPaint
         end
@@ -149,6 +138,16 @@ object NotificacaoItem: TNotificacaoItem
           Text = '[nome]'
           TextSettings.FontColor = claWhite
           TextSettings.HorzAlign = Leading
+        end
+        object txtHora: TText
+          Align = Bottom
+          Position.Y = 104.039062500000000000
+          Size.Width = 232.000000000000000000
+          Size.Height = 15.960937500000000000
+          Size.PlatformDefault = False
+          Text = '00:00'
+          TextSettings.FontColor = claLightblue
+          TextSettings.HorzAlign = Trailing
         end
       end
     end

@@ -9,6 +9,7 @@ uses
   FMX.Effects,
   FMX.Layouts,
   System.StrUtils,
+  System.Math,
   Notificacao;
 
 type
@@ -58,6 +59,10 @@ begin
 end;
 
 procedure TNotificacaoItem.pbTextoPaint(Sender: TObject; Canvas: TCanvas);
+const
+  QuantidadeMaximaExibida = 5;
+  QuantidadeMaximaObterArray = 4;
+  IndexArrayMaximo = 3;
 type
   TConteudoNotify = record
     Nome: String;
@@ -73,15 +78,18 @@ var
   bNome: Boolean;
   I: Integer;
   iLas: Integer;
+  iMax: Integer;
 begin
   Text := EmptyStr;
   bNome := False;
-  for I := 0 to Pred(Length(FConteudos)) do
+  iMax := IfThen(Length(FConteudos) > QuantidadeMaximaExibida, IndexArrayMaximo, Pred(Length(FConteudos)));
+
+  for I := 0 to iMax do
     bNome := bNome or not FConteudos[I].Usuario.Trim.IsEmpty;
 
   iLas := 0;
-  SetLength(ANConteudos, Length(FConteudos));
-  for I := 0 to Pred(Length(FConteudos)) do
+  SetLength(ANConteudos, Succ(iMax));
+  for I := 0 to iMax do
   begin
     if bNome then
       ANConteudos[I].Nome := IfThen(FConteudos[I].Usuario.Trim.IsEmpty, 'desconhecido', FConteudos[I].Usuario) +': '
@@ -95,6 +103,9 @@ begin
 
   for I := 0 to Pred(Length(ANConteudos)) do
     Text := Text + IfThen(I > 0, sLineBreak) + ANConteudos[I].Nome + ANConteudos[I].Mensagem;
+
+  if Length(FConteudos) > QuantidadeMaximaExibida then
+    Text := Text + sLineBreak +'+'+ ((Length(FConteudos) - QuantidadeMaximaObterArray)).ToString;
 
   Layout := TTextLayoutManager.DefaultTextLayout.Create;
   try
