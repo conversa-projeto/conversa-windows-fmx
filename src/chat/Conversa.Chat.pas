@@ -117,7 +117,6 @@ begin
       Mensagem.remetente := Usuario;
       Mensagem.conversa_id := ID;
       Mensagem.remetente_id := FUsuarioID;
-      Visualizador.AdicionaMensagem(Mensagem);
 
       if Assigned(AoEnviarMensagem) then
         AoEnviarMensagem(Self, Mensagem);

@@ -26,6 +26,7 @@ type
     conversa_id: Integer;
     alterada: TDateTime;
     inserida: TDateTime;
+    exibida: Boolean;
     conteudos: TArray<TMensagemConteudo>;
   end;
 

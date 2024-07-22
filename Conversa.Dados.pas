@@ -45,6 +45,7 @@ type
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -317,9 +318,23 @@ begin
     Route('mensagem');
     Body(oJSON);
     PUT;
+    Mensagem.id := Response.ToJSON.GetValue<Integer>('id');
+    FDadosApp.AdicionaMensagem(Mensagem.conversa_id, Mensagem);
   finally
     Free;
   end;
+end;
+
+function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+begin
+  Result := FDadosApp.ExibirMensagem(iConversa, ApenasPendente);
+  if Length(Result) > 0 then
+    Exit;
+
+  if FDadosApp.UltimaMensagemConversa(iConversa) > 0 then
+    Exit;
+
+  Result := ObterMensagens(iConversa);
 end;
 
 procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
@@ -423,3 +438,4 @@ begin
 end;
 
 end.
+

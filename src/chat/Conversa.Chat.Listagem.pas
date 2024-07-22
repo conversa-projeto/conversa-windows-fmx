@@ -49,6 +49,7 @@ type
     procedure AoReceberMensagem(Conversa: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
+    procedure AtualizarChat(Mensagem: TMensagem);
   public
     class function New(AOwner: TFmxObject): TChatListagem; static;
     constructor Create(AOwner: TComponent); override;
@@ -119,6 +120,8 @@ end;
 procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
 begin
   Dados.EnviarMensagem(Mensagem);
+  FChat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.ID, True));
+  AtualizarChat(Mensagem);
 end;
 
 procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
@@ -173,9 +176,28 @@ begin
   end;
 
   if Assigned(FChat) and (FChat.ID = Conversa) then
-    FChat.AdicionarMensagens(Dados.Mensagens(Conversa, FChat.UltimaMensagem + 1));
+    FChat.AdicionarMensagens(Dados.ExibirMensagem(Conversa, True));
 
   PlayResource('nova_mensagem');
+
+  AtualizarChat(Mensagens[Pred(Length(Mensagens))]);
+end;
+
+procedure TChatListagem.AtualizarChat(Mensagem: TMensagem);
+var
+  I: Integer;
+  Item: TListBoxItem;
+begin
+  for I := 0 to Pred(lstConversas.Count) do
+  begin
+    Item := TListBoxItem(lstConversas.ListItems[I]);
+    if Item.ContatoItem.ID = Mensagem.conversa_id then
+    begin
+      Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
+      Item.ContatoItem.UltimaMensagem(Mensagem.inserida);
+      Break;
+    end;
+  end;
 end;
 
 procedure TChatListagem.btnAbrirChat(Item: TConversasItemFrame);
@@ -195,7 +217,7 @@ begin
     FChat.UsuarioID := Dados.ID;
     FChat.AoEnviarMensagem := EnviarMensagem;
     FChat.UltimaMensagem := 0;
-    FChat.AdicionarMensagens(Dados.Mensagens(Item.ID, 0));
+    FChat.AdicionarMensagens(Dados.ExibirMensagem(Item.ID, False));
     FChat.ListagemItem := Item;
     TNotificacaoManager.Fechar(Item.ID);
   finally
@@ -260,7 +282,7 @@ begin
   FChat.UsuarioID := Dados.ID;
   FChat.AoEnviarMensagem := EnviarMensagem;
   FChat.UltimaMensagem := 0;
-  FChat.AdicionarMensagens(Dados.Mensagens(ChatId, 0));
+  FChat.AdicionarMensagens(Dados.ExibirMensagem(ChatId, False));
   FChat.ListagemItem := Item.ContatoItem;
 end;
 

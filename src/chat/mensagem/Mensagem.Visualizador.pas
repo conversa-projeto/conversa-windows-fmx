@@ -18,8 +18,8 @@ uses
   FMX.Graphics,
   PascalStyleScript,
   Mensagem.Tipos;
-
 type
+
   TVisualizador = class
   private
     FOwner: TFmxObject;
@@ -53,14 +53,12 @@ implementation
 const
   TamanhoMaximo = 700;
 
-{ TVisualizador }
-
+  { TVisualizador }
 constructor TVisualizador.Create(AOwner: TFmxObject);
 begin
   FOwner := AOwner;
   FConponentes := 0;
   FWidth := 0;
-
   CriarControles;
 end;
 
@@ -151,9 +149,9 @@ var
   lytAltura: TLayout;
   lytLargura: TLayout;
   rtgFundo: TRectangle;
-  lbNome: TLabel;
+  lbNome: TText;
   lytConteudoMensagem: TLayout;
-  lbHora: TLabel;
+  lbHora: TText;
   txtTexto: TText;
   imgImagem: TImage;
   bmp: TBitmap;
@@ -205,8 +203,7 @@ begin
     rtgFundo.Stroke.Kind := TBrushKind.None;
     TPascalStyleScript.Instance.RegisterObject(rtgFundo, 'Mensagem.Fundo.Usuario');
   end;
-
-  lbNome := TLabel.Create(lytConteudo);
+  lbNome := TText.Create(lytConteudo);
   NomearComponente(lbNome);
   lbNome.Align := TAlignLayout.Top;
   lbNome.Margins.Left := 10;
@@ -235,8 +232,7 @@ begin
   lytConteudoMensagem.Size.Width := 353;
   lytConteudoMensagem.Size.Height := 218;
   lytConteudoMensagem.Size.PlatformDefault := False;
-
-  lbHora := TLabel.Create(lytConteudo);
+  lbHora := TText.Create(lytConteudo);
   NomearComponente(lbHora);
   lbHora.Align := TAlignLayout.Bottom;
   lbHora.Margins.Right := 10;
@@ -354,16 +350,31 @@ begin
   begin
     if not Assigned(Fundo.Controls[I]) or not Fundo.Controls[I].Visible then
       Continue;
-
-    if Fundo.Controls[I] is TLabel then
+//    if Fundo.Controls[I] is TLabel then
+//    begin
+//      iSomaAltura := iSomaAltura + TLabel(Fundo.Controls[I]).Height;
+//      TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+//      TLabel(Fundo.Controls[I]).BeginUpdate;
+//      try
+//        TLabel(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TLabel(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+//      finally
+//        TLabel(Fundo.Controls[I]).EndUpdate;
+//      end;
+//      iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
+//    end;
+    if Fundo.Controls[I] is TText then
     begin
-      iSomaAltura := iSomaAltura + TLabel(Fundo.Controls[I]).Height;
+      iSomaAltura := iSomaAltura + TText(Fundo.Controls[I]).Height;
       TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
-      TLabel(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TLabel(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+      TText(Fundo.Controls[I]).BeginUpdate;
+      try
+        TText(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+      finally
+        TText(Fundo.Controls[I]).EndUpdate;
+      end;
       iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
     end;
   end;
-
   Largura.Width := iMaximaLargura + iMargem;
   Altura.Height := iSomaAltura;
 end;

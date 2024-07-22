@@ -26,12 +26,13 @@ type
     function UltimaMensagemConversa(iConversa: Integer): Integer;
     procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
     function Mensagens(iConversa, iInicio: Integer): TArray<TMensagem>;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
   end;
 
 implementation
 
 uses
-  System.Math;
+  System.Math, Winapi.Windows;
 
 { TDadosApp }
 
@@ -55,6 +56,8 @@ var
   P: TPDadosConversa;
   Conversa: TDadosConversa;
 begin
+  if Mensagem.id <= 0 then
+    Sleep(0);
   if not ObtemConversa(iConversa, P) then
   begin
     Conversa := Default(TDadosConversa);
@@ -63,7 +66,8 @@ begin
     P := @Conversa;
   end;
   P.AdicionaMensagem(Mensagem);
-  P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
+  if Mensagem.lado = TLado.Esquerdo then
+    P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
   UltimaMensagemNotificada := Max(Mensagem.id, UltimaMensagemNotificada);
 end;
 
@@ -89,14 +93,38 @@ begin
       Result := Result + [Mensagem];
 end;
 
+function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+var
+  Conversa: TPDadosConversa;
+  I: Integer;
+begin
+  Result := [];
+  if not ObtemConversa(iConversa, Conversa) then Exit;
+
+  for I := 0 to Pred(Length(Conversa.Mensagens)) do
+  begin
+    if ApenasPendente and Conversa.Mensagens[I].exibida then
+      Continue;
+
+    Conversa.Mensagens[I].exibida := True;
+    Result := Result + [Conversa.Mensagens[I]];
+  end;
+end;
+
 { TDadosConversa }
 procedure TDadosConversa.AdicionaMensagem(Mensagem: TMensagem);
 var
   I: Integer;
 begin
   for I := Low(Mensagens) to High(Mensagens) do
+  begin
     if Mensagens[I].ID = Mensagem.id then
+    begin
+      if Mensagem.exibida and not Mensagens[I].exibida then
+        Mensagens[I].exibida := True;
       Exit;
+    end;
+  end;
   Mensagens := Mensagens + [Mensagem];
 end;
 
