@@ -1,4 +1,4 @@
-﻿unit Notificacao.Visualizador;
+﻿unit Conversa.Notificacao.Visualizador;
 
 interface
 
@@ -11,7 +11,7 @@ uses
   FMX.Edit,
   System.Math,
   Winapi.Messages,
-  Notificacao;
+  Conversa.Notificacao;
 
 type
   TNotificacaoVisualizador = class(TForm)

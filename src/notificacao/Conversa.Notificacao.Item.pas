@@ -1,4 +1,4 @@
-﻿unit Notificacao.Item;
+﻿unit Conversa.Notificacao.Item;
 
 interface
 
@@ -10,7 +10,7 @@ uses
   FMX.Layouts,
   System.StrUtils,
   System.Math,
-  Notificacao;
+  Conversa.Notificacao;
 
 type
   TNotificacaoItem = class(TFrame)

@@ -67,7 +67,7 @@ uses
   System.Hash,
   System.Math,
   Conversa.Configuracoes,
-  Notificacao;
+  Conversa.Notificacao;
 
 const
   PASTA_ANEXO = 'anexos';

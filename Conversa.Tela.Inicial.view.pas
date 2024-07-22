@@ -63,7 +63,7 @@ implementation
 uses
   Conversa.Conexao.AvisoInicioSistema,
   Conversa.Configurar.Conexao,
-  Notificacao;
+  Conversa.Notificacao;
 
 {$R *.fmx}
 

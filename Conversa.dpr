@@ -33,9 +33,9 @@ uses
   Conversa.Conexao.AvisoInicioSistema in 'src\conexao\Conversa.Conexao.AvisoInicioSistema.pas' {ConexaoFalhaInicio: TFrame},
   Conversa.Memoria in 'Conversa.Memoria.pas',
   Conversa.Audio in 'Conversa.Audio.pas',
-  Notificacao.Item in 'src\notificacao\Notificacao.Item.pas' {NotificacaoItem: TFrame},
-  Notificacao in 'src\notificacao\Notificacao.pas',
-  Notificacao.Visualizador in 'src\notificacao\Notificacao.Visualizador.pas' {NotificacaoVisualizador};
+  Conversa.Notificacao.Item in 'src\notificacao\Conversa.Notificacao.Item.pas' {NotificacaoItem: TFrame},
+  Conversa.Notificacao in 'src\notificacao\Conversa.Notificacao.pas',
+  Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador};
 
 {$R *.res}
 

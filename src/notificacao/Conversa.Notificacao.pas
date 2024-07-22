@@ -1,4 +1,4 @@
-﻿unit Notificacao;
+﻿unit Conversa.Notificacao;
 
 interface
 
@@ -60,8 +60,9 @@ type
 implementation
 
 uses
-  Notificacao.Visualizador,
-  Notificacao.Item, FMX.Forms;
+  Conversa.Notificacao.Visualizador,
+  Conversa.Notificacao.Item,
+  FMX.Forms;
 
 var
   FInstance: TNotificacaoManager;

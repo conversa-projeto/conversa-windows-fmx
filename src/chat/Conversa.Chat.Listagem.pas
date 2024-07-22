@@ -23,7 +23,7 @@ uses
   Conversa.Chat.Listagem.Item,
   Conversa.Dados,
   Conversa.Chat,
-  Notificacao,
+  Conversa.Notificacao,
   Mensagem.Tipos,
   Conversa.Audio;
 

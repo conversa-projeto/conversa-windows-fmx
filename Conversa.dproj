@@ -379,12 +379,12 @@ $(PreBuildEvent)]]></PreBuildEvent>
         </DCCReference>
         <DCCReference Include="Conversa.Memoria.pas"/>
         <DCCReference Include="Conversa.Audio.pas"/>
-        <DCCReference Include="src\notificacao\Notificacao.Item.pas">
+        <DCCReference Include="src\notificacao\Conversa.Notificacao.Item.pas">
             <Form>NotificacaoItem</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\notificacao\Notificacao.pas"/>
-        <DCCReference Include="src\notificacao\Notificacao.Visualizador.pas">
+        <DCCReference Include="src\notificacao\Conversa.Notificacao.pas"/>
+        <DCCReference Include="src\notificacao\Conversa.Notificacao.Visualizador.pas">
             <Form>NotificacaoVisualizador</Form>
         </DCCReference>
         <RcItem Include="res\nova_mensagem.wav">

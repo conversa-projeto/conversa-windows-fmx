@@ -185,7 +185,7 @@ uses
   FMX.Platform.Menu.Win,
 
   Conversa.FormularioBase,
-  Notificacao.Visualizador;
+  Conversa.Notificacao.Visualizador;
 
 type
   MySTGMEDIUM = record // for compatibility
