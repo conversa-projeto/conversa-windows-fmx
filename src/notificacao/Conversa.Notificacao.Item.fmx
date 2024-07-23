@@ -61,7 +61,7 @@ object NotificacaoItem: TNotificacaoItem
             Size.Height = 12.000000000000000000
             Size.PlatformDefault = False
             TabOrder = 0
-            object Path1: TPath
+            object pthClose: TPath
               Align = Client
               Data.Path = {
                 0E0000000000000000008043A4B063C301000000A4B06343000080C301000000
@@ -151,5 +151,13 @@ object NotificacaoItem: TNotificacaoItem
         end
       end
     end
+  end
+  object FloatAnimation: TFloatAnimation
+    Delay = 5.000000000000000000
+    Duration = 0.300000011920929000
+    OnFinish = FloatAnimationFinish
+    PropertyName = 'Opacity'
+    StartValue = 1.000000000000000000
+    StopValue = 0.000000000000000000
   end
 end

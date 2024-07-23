@@ -3,14 +3,24 @@
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
-  FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  FMX.Objects,
-  FMX.Effects,
-  FMX.Layouts,
-  System.StrUtils,
+  System.Classes,
   System.Math,
-  Conversa.Notificacao;
+  System.StrUtils,
+  System.SysUtils,
+  System.Types,
+  System.UITypes,
+  System.Variants,
+  FMX.Controls,
+  FMX.Dialogs,
+  FMX.Effects,
+  FMX.Forms,
+  FMX.Graphics,
+  FMX.Layouts,
+  FMX.Objects,
+  FMX.StdCtrls,
+  FMX.TextLayout,
+  FMX.Types,
+  Conversa.Notificacao, FMX.Ani;
 
 type
   TNotificacaoItem = class(TFrame)
@@ -24,13 +34,15 @@ type
     lytCloseButton: TLayout;
     rctClose: TRectangle;
     lytClose: TLayout;
-    Path1: TPath;
+    pthClose: TPath;
     lytConteudo: TLayout;
     pbTexto: TPaintBox;
     txtNome: TText;
     txtUserLetra: TText;
+    FloatAnimation: TFloatAnimation;
     procedure pbTextoPaint(Sender: TObject; Canvas: TCanvas);
     procedure lytCloseButtonClick(Sender: TObject);
+    procedure FloatAnimationFinish(Sender: TObject);
   private
     FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
@@ -40,9 +52,6 @@ type
   end;
 
 implementation
-
-uses
-  FMX.TextLayout;
 
 {$R *.fmx}
 
@@ -55,6 +64,7 @@ begin
   Result.Name := 'TNotificacaoItem_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
   Result.Parent := AOwner;
   Result.Align := TAlignLayout.Top;
+  Result.FloatAnimation.Enabled := True;
   Result.Show;
 end;
 
@@ -114,6 +124,7 @@ begin
     try
       Layout.Text := Text;
       Layout.Color := TAlphaColors.White;
+      Layout.Opacity := Self.Opacity;
       Layout.WordWrap := False;
       BoldFont := TFont.Create;
       BoldFont.Assign(Layout.Font);
@@ -144,9 +155,21 @@ end;
 
 procedure TNotificacaoItem.AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
 begin
+  FloatAnimation.OnFinish := nil;
+  try
+    FloatAnimation.Enabled := False;
+    FloatAnimation.Enabled := True;
+  finally
+    FloatAnimation.OnFinish := FloatAnimationFinish;
+  end;
   FChatId := AChatId;
   FConteudos := AConteudos;
   pbTexto.Repaint;
+end;
+
+procedure TNotificacaoItem.FloatAnimationFinish(Sender: TObject);
+begin
+  TNotificacaoManager.Fechar(FChatId);
 end;
 
 procedure TNotificacaoItem.lytCloseButtonClick(Sender: TObject);
