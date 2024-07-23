@@ -55,6 +55,9 @@ implementation
 
 {$R *.fmx}
 
+uses
+  Conversa.Configuracoes;
+
 { TNotificacao }
 
 class function TNotificacaoItem.New(AOwner: TFmxObject): TNotificacaoItem;
@@ -64,6 +67,7 @@ begin
   Result.Name := 'TNotificacaoItem_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
   Result.Parent := AOwner;
   Result.Align := TAlignLayout.Top;
+  Result.FloatAnimation.Delay := Configuracoes.Notificacoes.Timeout;
   Result.FloatAnimation.Enabled := True;
   Result.Show;
 end;

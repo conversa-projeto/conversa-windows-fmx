@@ -6,10 +6,14 @@ uses
   System.SysUtils;
 
 type
+  TNotificacao = record
+    Timeout: Integer;
+  end;
   TConfiguracoes = record
     Host: String;
     Usuario: String;
     Senha: String;
+    Notificacoes: TNotificacao;
     class procedure Load; static;
     class procedure Save; static;
   end;
@@ -44,6 +48,9 @@ begin
   finally
     Free;
   end;
+
+  if Configuracoes.Notificacoes.Timeout = 0 then
+    Configuracoes.Notificacoes.Timeout := 5;
 end;
 
 class procedure TConfiguracoes.Save;
