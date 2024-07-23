@@ -178,7 +178,7 @@ begin
     lstConversas.AddObject(Item);
   end;
 
-  if not Assigned(FChat) or not ((FChat.ID = Conversa) and (Application.LastUserActive >= IncSecond(Now, -1))) then
+  if not Assigned(FChat) or (FChat.ID <> Conversa) or not Self.IsFormActive then
   begin
     with Mensagens[Pred(Length(Mensagens))] do
       TNotificacaoManager.Apresentar(

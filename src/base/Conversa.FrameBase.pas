@@ -3,6 +3,7 @@
 interface
 
 uses
+  Winapi.Windows,
   System.SysUtils,
   System.Types,
   System.UITypes,
@@ -14,6 +15,7 @@ uses
   FMX.Forms,
   FMX.Dialogs,
   FMX.StdCtrls,
+  FMX.Platform.Win,
   PascalStyleScript;
 
 type
@@ -21,6 +23,7 @@ type
   private
   protected
     function GetPSSClassName: String; virtual;
+    function IsFormActive: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -40,6 +43,26 @@ end;
 function TFrameBase.GetPSSClassName: String;
 begin
   Result := ClassName.Substring(1);
+end;
+
+function TFrameBase.IsFormActive: Boolean;
+var
+  Last: TFmxObject;
+  H: HWND;
+begin
+  Result := False;
+
+  Last := Parent;
+  while Assigned(Last) and Last.HasParent do
+    Last := Last.Parent;
+
+  if not Assigned(Last) or not Last.InheritsFrom(TForm) then Exit;
+  H := FormToHWND(TForm(Last));
+  if not IsWindowVisible(H) then Exit;
+  if not IsWindow(H) then Exit;
+  if not IsWindowEnabled(H) then Exit;
+
+  Result := True;
 end;
 
 end.
