@@ -16,6 +16,7 @@ object NotificacaoItem: TNotificacaoItem
     Stroke.Kind = None
     XRadius = 5.000000000000000000
     YRadius = 5.000000000000000000
+    OnClick = rctFundoClick
     object lytTopo: TLayout
       Align = Top
       Position.X = 5.000000000000000000
@@ -97,6 +98,7 @@ object NotificacaoItem: TNotificacaoItem
         object crclFoto: TCircle
           Align = Client
           Fill.Color = xFF1B8DFF
+          HitTest = False
           Size.Width = 50.000000000000000000
           Size.Height = 120.000000000000000000
           Size.PlatformDefault = False
@@ -104,6 +106,7 @@ object NotificacaoItem: TNotificacaoItem
           object txtUserLetra: TText
             Align = Center
             AutoSize = True
+            HitTest = False
             Size.Width = 26.494140625000000000
             Size.Height = 35.126953125000000000
             Size.PlatformDefault = False
@@ -124,6 +127,7 @@ object NotificacaoItem: TNotificacaoItem
         TabOrder = 1
         object pbTexto: TPaintBox
           Align = Client
+          HitTest = False
           Size.Width = 232.000000000000000000
           Size.Height = 88.078125000000000000
           Size.PlatformDefault = False
@@ -132,6 +136,7 @@ object NotificacaoItem: TNotificacaoItem
         object txtNome: TText
           Align = Top
           AutoSize = True
+          HitTest = False
           Size.Width = 41.675781250000000000
           Size.Height = 15.960937500000000000
           Size.PlatformDefault = False
@@ -141,6 +146,7 @@ object NotificacaoItem: TNotificacaoItem
         end
         object txtHora: TText
           Align = Bottom
+          HitTest = False
           Position.Y = 104.039062500000000000
           Size.Width = 232.000000000000000000
           Size.Height = 15.960937500000000000

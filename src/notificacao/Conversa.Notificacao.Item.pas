@@ -43,6 +43,7 @@ type
     procedure pbTextoPaint(Sender: TObject; Canvas: TCanvas);
     procedure lytCloseButtonClick(Sender: TObject);
     procedure FloatAnimationFinish(Sender: TObject);
+    procedure rctFundoClick(Sender: TObject);
   private
     FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
@@ -56,7 +57,8 @@ implementation
 {$R *.fmx}
 
 uses
-  Conversa.Configuracoes;
+  Conversa.Configuracoes,
+  Conversa.Chat.Listagem;
 
 { TNotificacao }
 
@@ -179,6 +181,12 @@ end;
 procedure TNotificacaoItem.lytCloseButtonClick(Sender: TObject);
 begin
   TNotificacaoManager.Fechar(FChatId);
+end;
+
+procedure TNotificacaoItem.rctFundoClick(Sender: TObject);
+begin
+  Chats.AbrirChat(FChatId);
+  FloatAnimation.Enabled := False;
 end;
 
 end.

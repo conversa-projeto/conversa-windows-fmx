@@ -54,7 +54,8 @@ type
     class function New(AOwner: TFmxObject): TChatListagem; static;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AbrirChat(DestinatarioId: Integer; NomeDestinatario: String);
+    procedure AbrirChat(iChat: Integer); overload;
+    procedure AbrirChat(DestinatarioId: Integer; NomeDestinatario: String); overload;
   end;
 
 var
@@ -122,6 +123,20 @@ begin
   Dados.EnviarMensagem(Mensagem);
   FChat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.ID, True));
   AtualizarChat(Mensagem);
+end;
+
+procedure TChatListagem.AbrirChat(iChat: Integer);
+var
+  I: Integer;
+begin
+  for I := 0 to Pred(lstConversas.Count) do
+  begin
+    if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = iChat then
+    begin
+      btnAbrirChat(TListBoxItem(lstConversas.ListItems[I]).ContatoItem);
+      Break;
+    end;
+  end;
 end;
 
 procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
