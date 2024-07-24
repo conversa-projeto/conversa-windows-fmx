@@ -45,10 +45,16 @@ begin
   Result := ClassName.Substring(1);
 end;
 
+function IsWindowFocused(Handle: HWND): Boolean;
+begin
+  Result := (GetForegroundWindow = Handle);
+end;
+
 function TFrameBase.IsFormActive: Boolean;
 var
   Last: TFmxObject;
-  H: HWND;
+  ParentForm: HWND;
+  WindowsActiveForm: HWND;
 begin
   Result := False;
 
@@ -57,10 +63,15 @@ begin
     Last := Last.Parent;
 
   if not Assigned(Last) or not Last.InheritsFrom(TForm) then Exit;
-  H := FormToHWND(TForm(Last));
-  if not IsWindowVisible(H) then Exit;
-  if not IsWindow(H) then Exit;
-  if not IsWindowEnabled(H) then Exit;
+  ParentForm := FormToHWND(TForm(Last));
+  if not IsWindowVisible(ParentForm) then Exit;
+  if not IsWindow(ParentForm) then Exit;
+  if not IsWindowEnabled(ParentForm) then Exit;
+  if IsIconic(ParentForm) then Exit;
+
+  WindowsActiveForm := GetForegroundWindow;
+  if not ((WindowsActiveForm = ParentForm) or (WindowsActiveForm = ApplicationHWND)) then
+    Exit;
 
   Result := True;
 end;

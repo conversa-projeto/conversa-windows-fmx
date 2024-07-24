@@ -58,7 +58,8 @@ implementation
 
 uses
   Conversa.Configuracoes,
-  Conversa.Chat.Listagem;
+  Conversa.Chat.Listagem,
+  Conversa.Tela.Inicial.view;
 
 { TNotificacao }
 
@@ -185,8 +186,9 @@ end;
 
 procedure TNotificacaoItem.rctFundoClick(Sender: TObject);
 begin
+  TNotificacaoManager.Fechar(FChatId);
   Chats.AbrirChat(FChatId);
-  FloatAnimation.Enabled := False;
+  TelaInicial.DoConversaRestore;
 end;
 
 end.

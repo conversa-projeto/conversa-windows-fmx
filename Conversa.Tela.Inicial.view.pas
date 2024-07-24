@@ -48,11 +48,11 @@ type
     procedure RemoverTrayIcon;
   protected
     procedure DoConversaClose; override;
-    procedure DoConversaRestore; override;
   public
     ModalView: TModalView;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure DoConversaRestore; override;
   end;
 
 var

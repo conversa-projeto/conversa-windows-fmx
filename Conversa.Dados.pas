@@ -327,14 +327,10 @@ end;
 
 function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
 begin
+  if FDadosApp.UltimaMensagemConversa(iConversa) = 0 then
+    ObterMensagens(iConversa);
+
   Result := FDadosApp.ExibirMensagem(iConversa, ApenasPendente);
-  if Length(Result) > 0 then
-    Exit;
-
-  if FDadosApp.UltimaMensagemConversa(iConversa) > 0 then
-    Exit;
-
-  Result := ObterMensagens(iConversa);
 end;
 
 procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);

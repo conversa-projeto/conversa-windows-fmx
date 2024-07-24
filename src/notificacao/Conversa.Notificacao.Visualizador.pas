@@ -118,7 +118,6 @@ begin
   Left := Round(WorkArea.Right - Width - 10);
   Top := Round(WorkArea.Bottom - Height - 10);
   SetWindowPos(WindowHandleToPlatform(Handle).Wnd, HWND_TOPMOST, FormPxToDp(Left), FormPxToDp(Top), FormPxToDp(Width), FormPxToDp(Height), SWP_NOACTIVATE);
-  Winapi.Windows.SetParent(WindowHandleToPlatform(Handle).Wnd, GetDesktopWindow);
 end;
 
 //procedure TNotificacaoVisualizador.DestroyHandle;

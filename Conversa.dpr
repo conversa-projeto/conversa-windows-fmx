@@ -35,7 +35,8 @@ uses
   Conversa.Audio in 'Conversa.Audio.pas',
   Conversa.Notificacao.Item in 'src\notificacao\Conversa.Notificacao.Item.pas' {NotificacaoItem: TFrame},
   Conversa.Notificacao in 'src\notificacao\Conversa.Notificacao.pas',
-  Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador};
+  Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador},
+  Conversa.Windows.Overlay in 'lib\windows\Conversa.Windows.Overlay.pas';
 
 {$R *.res}
 
