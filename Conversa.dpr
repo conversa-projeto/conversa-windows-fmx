@@ -13,7 +13,6 @@ uses
   Conversa.Tela.Inicial.view in 'Conversa.Tela.Inicial.view.pas' {TelaInicial},
   Conversa.Principal in 'src\principal\Conversa.Principal.pas' {PrincipalView: TFrame},
   Conversa.FormularioBase in 'src\base\Conversa.FormularioBase.pas' {FormularioBase},
-  FMX.Platform.Win in 'src\fmx\FMX.Platform.Win.pas',
   PascalStyleScript in 'src\pss\PascalStyleScript.pas',
   Conversa.Configuracoes in 'src\configuracoes\Conversa.Configuracoes.pas',
   Conversa.FrameBase in 'src\base\Conversa.FrameBase.pas' {FrameBase: TFrame},

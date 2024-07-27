@@ -324,7 +324,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>FormularioBase</Form>
             <FormType>fmx</FormType>
         </DCCReference>
-        <DCCReference Include="src\fmx\FMX.Platform.Win.pas"/>
         <DCCReference Include="src\pss\PascalStyleScript.pas"/>
         <DCCReference Include="src\configuracoes\Conversa.Configuracoes.pas"/>
         <DCCReference Include="src\base\Conversa.FrameBase.pas">

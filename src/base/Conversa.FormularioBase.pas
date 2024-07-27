@@ -58,8 +58,11 @@ type
     procedure lytMinimizeButtonMouseLeave(Sender: TObject);
     procedure rctTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
   private
+    FOldWndProc: Pointer;
     function GetPSSClassName: String;
   protected
+    procedure CreateHandle; override;
+    procedure DestroyHandle; override;
     procedure DoConversaRestore; virtual;
     procedure DoConversaClose; virtual;
     procedure DoConversaMaximize;
@@ -70,12 +73,202 @@ type
 
 implementation
 
+uses
+  FMX.Helpers.Win,
+  FMX.Forms.Border.Win,
+  Conversa.Notificacao.Visualizador;
+
 {$R *.fmx}
+
+procedure MinimizeApp;
+var
+  AnimationEnable: Boolean;
+
+  function GetAnimation: Boolean;
+  var
+    Info: TAnimationInfo;
+  begin
+    Info.cbSize := SizeOf(TAnimationInfo);
+    if SystemParametersInfo(SPI_GETANIMATION, Info.cbSize, @Info, 0) then
+      Result := Info.iMinAnimate <> 0
+    else
+      Result := False;
+  end;
+
+  procedure SetAnimation(Value: Boolean);
+  var
+    Info: TAnimationInfo;
+  begin
+    Info.cbSize := SizeOf(TAnimationInfo);
+    Info.iMinAnimate := Integer(BOOL(Value));
+    SystemParametersInfo(SPI_SETANIMATION, Info.cbSize, @Info, 0);
+  end;
+
+  procedure MinimiseAllForms;
+  var
+    I: Integer;
+    WindowHandle: HWND;
+  begin
+    for I := 0 to Screen.FormCount - 1 do
+    begin
+      if Screen.Forms[I].InheritsFrom(TNotificacaoVisualizador) then
+      begin
+        Sleep(00);
+        Continue;
+      end;
+      WindowHandle := FormToHWND(Screen.Forms[I]);
+      if IsWindowVisible(WindowHandle) then
+        DefWindowProc(WindowHandle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+    end;
+  end;
+
+//var
+//  MainForm: TCommonCustomForm;
+//  WndPos: TPoint;
+begin
+  AnimationEnable := GetAnimation;
+  try
+    SetAnimation(False);
+    if Application.MainForm <> nil then
+    begin
+//      MainForm := Application.MainForm;
+//      WndPos := MultiDisplayWin.DpToPx(TPointF.Create(MainForm.Left, MainForm.Top));
+//      SetWindowPos(ApplicationHWND, FormToHWND(Application.MainForm), WndPos.X, WndPos.Y, Trunc(MainForm.Width), 0, SWP_SHOWWINDOW);
+      MinimiseAllForms;
+    end;
+    DefWindowProc(ApplicationHWND, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+  finally
+    SetAnimation(AnimationEnable);
+  end;
+end;
+
+function WndProc(hwnd: HWND; uMsg: UINT; wParam: WPARAM; lParam: LPARAM): LRESULT; stdcall;
+var
+  Frm: TCommonCustomForm;
+  Form: TFormularioBase;
+  Message: TMessage;
+  Wnd: Winapi.Windows.HWND;
+  WindowPoint: TPoint;
+  FormPoint: TPointF;
+  ClientPoint: TPointF;
+  Placement: TWindowPlacement;
+  function FormPxToDp(const AForm: TCommonCustomForm; const APoint: TPoint): TPointF;
+  var
+    LScale: Single;
+  begin
+    LScale := AForm.Handle.Scale;
+    Result := (TPointF(APoint) / LScale).Round;
+  end;
+begin
+  Frm := FMX.Platform.Win.FindWindow(hwnd);
+  if not Assigned(Frm) or not Frm.InheritsFrom(TFormularioBase) then
+    Exit(0);
+
+  Form := TFormularioBase(Frm);
+  Wnd := FormToHWND(Form);
+  Message.Msg := uMsg;
+  Message.WParam := wParam;
+  Message.LParam := lParam;
+  Message.Result := 0;
+  Result := 0;
+  case uMsg of
+    WM_NCHITTEST,
+    WM_NCACTIVATE,
+    WM_NCADDUPDATERECT,
+    WM_NCMOUSEMOVE,
+    WM_NCLBUTTONDOWN,
+    WM_NCLBUTTONUP,
+    WM_NCCALCSIZE,
+    WM_NCPAINT,
+    WM_NCMOUSELEAVE:
+    begin
+      if Assigned(Form) and Form.InheritsFrom(TFormularioBase) then
+      begin
+        if uMsg in [WM_NCHITTEST, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP] then
+        begin
+          WindowPoint := TWMNCHitTest(Message).Pos; // Form point in px
+          FormPoint := FormPxToDp(Form, WindowPoint); // dp
+          ClientPoint := Form.ScreenToClient(FormPoint);
+          // Se não está maximizado, está identificando o local da interface, e está nas dimensões das bordas
+          if not IsZoomed(Wnd) and (uMsg = WM_NCHITTEST) and (Abs(ClientPoint.Y) <= GetSystemMetrics(SM_CYFRAME)) then
+          begin
+            TWMNCHitTest(Message).Result := HTTOP;
+            TFormularioBase(Form).lytMaximizeButtonMouseLeave(TFormularioBase(Form).lytMaximizeButton);
+            Exit(HTTOP);
+          end
+          else
+          if PtInRect(TFormularioBase(Form).lytMaximizeButton.AbsoluteRect.Round, ClientPoint.Round) then
+          begin
+            case Message.Msg of
+              WM_NCLBUTTONDOWN: TFormularioBase(Form).DoConversaMaximize; // Adicionar evento do botão aqui
+              WM_NCLBUTTONUP: Exit(0);
+            else
+              begin
+                TFormularioBase(Form).lytMaximizeButtonMouseEnter(TFormularioBase(Form).lytMaximizeButton);
+                Exit(HTMAXBUTTON);
+              end
+            end;
+          end
+          else
+          begin
+            TFormularioBase(Form).lytMaximizeButtonMouseLeave(TFormularioBase(Form).lytMaximizeButton);
+            Result := WMNCMessages(Form, uMsg, wParam, lParam);
+          end;
+        end
+        else
+        if uMsg = WM_NCCALCSIZE then
+        begin
+          with TWMNCCalcSize(Message).CalcSize_Params.rgrc[0] do
+          begin
+            Dec(Top, GetSystemMetrics(SM_CYCAPTION));
+            Dec(Top, GetSystemMetrics(SM_CYFRAME));
+            Dec(Top, GetSystemMetrics(SM_CXPADDEDBORDER));
+            if IsZoomed(Wnd) then
+              Inc(Top, 8)
+            else
+              Inc(Top, 1);
+          end;
+          Result := WMNCMessages(Form, uMsg, wParam, lParam);
+        end
+        else
+          Result := WMNCMessages(Form, uMsg, wParam, lParam);
+      end
+      else
+        Result := WMNCMessages(Form, uMsg, wParam, lParam);
+    end;
+    WM_WINDOWPOSCHANGED:
+    begin
+      Placement.Length := SizeOf(TWindowPlacement);
+      GetWindowPlacement(hwnd, Placement);
+      if (Application.MainForm <> nil) and (Form = Application.MainForm) and (Placement.showCmd = SW_SHOWMINIMIZED) then
+      begin
+        MinimizeApp;
+        Result := DefWindowProc(hwnd, uMsg, wParam, lParam);
+      end
+      else
+       Result := CallWindowProc(Form.FOldWndProc, hwnd, uMsg, wParam, lParam);
+    end;
+  else
+    Result := CallWindowProc(Form.FOldWndProc, hwnd, uMsg, wParam, lParam);
+  end;
+end;
 
 constructor TFormularioBase.Create(AOwner: TComponent);
 begin
   inherited;
   TPascalStyleScript.Instance.RegisterObject(Self, GetPSSClassName);
+end;
+
+procedure TFormularioBase.CreateHandle;
+begin
+  inherited;
+  FOldWndProc := Pointer(SetWindowLong(WindowHandleToPlatform(Handle).Wnd, GWL_WNDPROC, LongInt(@WndProc)));
+end;
+
+procedure TFormularioBase.DestroyHandle;
+begin
+  SetWindowLong(WindowHandleToPlatform(Handle).Wnd, GWL_WNDPROC, LongInt(FOldWndProc));
+  inherited;
 end;
 
 function TFormularioBase.GetPSSClassName: String;
