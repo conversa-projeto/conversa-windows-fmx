@@ -4,11 +4,17 @@ unit Mensagem.Visualizador;
 interface
 
 uses
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  Winapi.ShellAPI,
+  {$ENDIF MSWINDOWS}
   System.Classes,
   System.Types,
   System.Math,
   System.UITypes,
   System.SysUtils,
+  System.RegularExpressions,
+  System.Generics.Collections,
   FMX.Ani,
   FMX.Types,
   FMX.Controls,
@@ -16,15 +22,25 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Graphics,
+  FMX.TextLayout,
+  FMX.Platform,
+  FMX.Clipboard,
   PascalStyleScript,
   Mensagem.Tipos;
 
 type
-
   TItem = record
     Dados: TPMensagem;
     Mensagem: TLayout;
     Hora: TText;
+  end;
+
+  TText = class(FMX.Objects.TText)
+  private
+    Links: TArray<TPair<Integer, Integer>>;
+  protected
+    procedure Click; override;
+    procedure DblClick; override;
   end;
 
   TVisualizador = class
@@ -48,7 +64,6 @@ type
     procedure lytConteudoMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure rtgUltimaClick(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
-//    function IsLayoutVisible(Layout: TLayout; ScrollBox: TVertScrollBox): Boolean;
   public
     constructor Create(AOwner: TFmxObject);
     procedure AdicionaMensagem(Mensagem: TPMensagem);
@@ -66,7 +81,8 @@ uses
 
 const
   TamanhoMaximo = 700;
-  { TVisualizador }
+
+{ TVisualizador }
 
 constructor TVisualizador.Create(AOwner: TFmxObject);
 begin
@@ -274,6 +290,14 @@ begin
         txtTexto.Text := Mensagem.Conteudos[I].conteudo;
         txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
+
+        // Pinta hiperlink
+        for var Match in TRegEx.Matches(txtTexto.Text, '(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])') do
+        begin
+          txtTexto.Links := txtTexto.Links + [TPair<Integer, Integer>.Create(Pred(Match.Index), Match.Length)];
+          txtTexto.Layout.AddAttribute(TTextRange.Create(Pred(Match.Index), Match.Length), TTextAttribute.Create(txtTexto.Font, TAlphaColorRec.Blue));
+        end;
+
         lytConteudoMensagem.AddObject(txtTexto);
         TPascalStyleScript.Instance.RegisterObject(txtTexto, 'Mensagem.Conteudo.Texto');
       end;
@@ -368,18 +392,6 @@ begin
   begin
     if not Assigned(Fundo.Controls[I]) or not Fundo.Controls[I].Visible then
       Continue;
-//    if Fundo.Controls[I] is TLabel then
-//    begin
-//      iSomaAltura := iSomaAltura + TLabel(Fundo.Controls[I]).Height;
-//      TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
-//      TLabel(Fundo.Controls[I]).BeginUpdate;
-//      try
-//        TLabel(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TLabel(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
-//      finally
-//        TLabel(Fundo.Controls[I]).EndUpdate;
-//      end;
-//      iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
-//    end;
     if Fundo.Controls[I] is TText then
     begin
       iSomaAltura := iSomaAltura + TText(Fundo.Controls[I]).Height;
@@ -525,6 +537,53 @@ procedure TVisualizador.VisualizarTudo;
 begin
   for var I := Pred(Length(FItems)) downto 0 do
     FItems[I].Dados.Visualizada := True;
+end;
+
+{ TText }
+
+procedure TText.Click;
+var
+  srv: IFMXMouseService;
+  P: TPointF;
+  CaretPos: Integer;
+  Link: TPair<Integer, Integer>;
+  sLink: String;
+begin
+  if Length(Links) = 0 then
+    Exit;
+
+  if not TPlatformServices.Current.SupportsPlatformService(IFMXMouseService, IInterface(srv)) then
+    Exit;
+
+  P := Self.ScreenToLocal(srv.GetMousePos);
+  CaretPos := Layout.PositionAtPoint(TPointF.Create(P.X, P.Y));
+
+  for Link in Links do
+  begin
+    if (CaretPos >= Link.Key) and (CaretPos <= Link.Key + Link.Value) then
+    begin
+      sLink := Copy(Text, Succ(Link.Key), Link.Value);
+      Break;
+    end;
+  end;
+
+  if not sLink.IsEmpty then
+  begin
+    {$IFDEF MSWINDOWS}
+    ShellExecute(0, 'OPEN', PChar(sLink), '', '', SW_SHOWNORMAL);
+    {$ENDIF MSWINDOWS}
+    {$IFDEF POSIX}
+    _system(PAnsiChar('open '+ AnsiString(sLink)));
+    {$ENDIF POSIX}
+  end;
+end;
+
+procedure TText.DblClick;
+var
+  svc: IFMXExtendedClipboardService;
+begin
+  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+    svc.SetText(Text);
 end;
 
 end.
