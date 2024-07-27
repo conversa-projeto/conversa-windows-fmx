@@ -8,6 +8,7 @@ uses
   System.Classes,
   System.Types,
   System.Math,
+  System.IOUtils,
   FMX.Memo,
   FMX.Types,
   FMX.Layouts,
@@ -44,6 +45,7 @@ type
     procedure mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure lytMensagemResized(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
+    procedure InternalSelecionarAnexos;
   public
     constructor Create(AOwner: TFmxObject);
     procedure ConfiguraAnexo(Anexo: TAnexo);
@@ -54,7 +56,10 @@ type
 implementation
 
 uses
-  System.UITypes;
+  System.UITypes,
+  FMX.Surfaces,
+  FMX.Clipboard,
+  FMX.Platform;
 
 { TPrevia }
 
@@ -290,6 +295,11 @@ begin
   if not Assigned(FAnexo) then
     raise Exception.Create('Anexo não definido!');
 
+  InternalSelecionarAnexos;
+end;
+
+procedure TEditor.InternalSelecionarAnexos;
+begin
   {TODO -oEduardo -cVisual : Escurecer fundo}
 
   FAguardandoAnexo := True;
@@ -360,12 +370,41 @@ begin
 end;
 
 procedure TEditor.mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+var
+  svc: IFMXExtendedClipboardService;
+  sTemp: String;
 begin
   if (Key = vkReturn) and (Shift = []) then
   begin
     Key := 0;
     KeyChar := #0;
     lytEnviarClick(lytEnviar);
+  end
+  else
+  if (Shift = [ssCtrl]) and (Key = vkV) then
+  begin
+    if not Assigned(FAnexo) then
+      Exit;
+
+    if not TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+      Exit;
+
+    if not svc.HasImage then
+      Exit;
+
+    sTemp := ExtractFilePath(ParamStr(0)) +'clipboard';
+
+    if not TDirectory.Exists(sTemp) then
+      TDirectory.CreateDirectory(sTemp);
+
+    sTemp := sTemp + PathDelim +'clipboard'+ Length(TDirectory.GetFiles(sTemp)).ToString +'.png';
+
+    if not TBitmapCodecManager.SaveToFile(sTemp, svc.GetImage, nil) then
+      raise EBitmapSavingFailed.Create('Erro ao converter a imagem do clipboard para png!');
+
+    InternalSelecionarAnexos;
+
+    FAnexo.AdicionarItem(sTemp);
   end;
 end;
 

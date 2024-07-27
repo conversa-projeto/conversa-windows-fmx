@@ -55,6 +55,7 @@ type
   public
     constructor Create(AOwner: TFmxObject);
     destructor Destroy; override;
+    procedure AdicionarItem(sArquivo: String);
     procedure SelecionarAnexo(AoSelecionar: TProc<TArray<TMensagemConteudo>>);
     procedure CancelarAnexo(AoCancelar: TProc);
     property Layout: TLayout read lytEditorAnexo;
@@ -185,6 +186,39 @@ end;
 procedure TAnexo.CancelarAnexo(AoCancelar: TProc);
 begin
   FAoCancelar := AoCancelar;
+end;
+
+procedure TAnexo.AdicionarItem(sArquivo: String);
+var
+  Item: TListBoxItem;
+  bmp: TBitmap;
+begin
+  bmp := TBitmap.Create;
+  FImagens := FImagens + [bmp];
+
+  bmp.LoadFromFile(sArquivo);
+
+  Item := TListBoxItem.Create(lbxAnexos);
+  Item.Selectable := False;
+  Item.StylesData['Imagem.Bitmap'] := bmp;
+  Item.StylesData['Nome'] := ExtractFileName(sArquivo);
+  Item.StylesData['Tamanho'] := FormatFloat('#,##0.00', TFile.GetSize(sArquivo) / 1024 / 1024) +' MB';
+  Item.StylesData['Arquivo'] := sArquivo;
+
+  lbxAnexos.AddObject(Item);
+
+  Item.OnApplyStyleLookup := ItemOnApplyStyleLookup;
+
+  Item.NeedStyleLookup;
+  Item.ApplyStyleLookup;
+
+  if lbxAnexos.Items.Count <= QUANTIDADE_VISIVEL then
+    rtgEditor.Height := rtgEditor.Height + 55;
+
+  if lbxAnexos.Items.Count <= QUANTIDADE_VISIVEL then
+    rtgEditor.Width := 296
+  else
+    rtgEditor.Width := 310;
 end;
 
 procedure TAnexo.CriarEstilo;
@@ -332,43 +366,10 @@ begin
 end;
 
 procedure TAnexo.sbtAdicionarClick(Sender: TObject);
-var
-  sArquivo: String;
-  Item: TListBoxItem;
-  bmp: TBitmap;
 begin
-  if not odlgArquivo.Execute then
-    Exit;
-
-  for sArquivo in odlgArquivo.Files do
-  begin
-    bmp := TBitmap.Create;
-    FImagens := FImagens + [bmp];
-
-    bmp.LoadFromFile(sArquivo);
-
-    Item := TListBoxItem.Create(lbxAnexos);
-    Item.Selectable := False;
-    Item.StylesData['Imagem.Bitmap'] := bmp;
-    Item.StylesData['Nome'] := ExtractFileName(sArquivo);
-    Item.StylesData['Tamanho'] := FormatFloat('#,##0.00', TFile.GetSize(sArquivo) / 1024 / 1024) +' MB';
-    Item.StylesData['Arquivo'] := sArquivo;
-
-    lbxAnexos.AddObject(Item);
-
-    Item.OnApplyStyleLookup := ItemOnApplyStyleLookup;
-
-    Item.NeedStyleLookup;
-    Item.ApplyStyleLookup;
-
-    if lbxAnexos.Items.Count <= QUANTIDADE_VISIVEL then
-      rtgEditor.Height := rtgEditor.Height + 55;
-  end;
-
-  if lbxAnexos.Items.Count <= QUANTIDADE_VISIVEL then
-    rtgEditor.Width := 296
-  else
-    rtgEditor.Width := 310;
+  if odlgArquivo.Execute then
+    for var sArquivo in odlgArquivo.Files do
+      AdicionarItem(sArquivo);
 end;
 
 procedure TAnexo.ItemOnApplyStyleLookup(Sender: TObject);
