@@ -36,6 +36,7 @@ type
     tmrShow: TTimer;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
   private
     TrayWnd: HWND;
     TrayIconData: TNotifyIconData;
@@ -103,6 +104,12 @@ destructor TTelaInicial.Destroy;
 begin
   RemoverTrayIcon;
   inherited;
+end;
+
+procedure TTelaInicial.FormActivate(Sender: TObject);
+begin
+  inherited;
+  ShowAppOnTaskbar;
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);

@@ -387,6 +387,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="src\notificacao\Conversa.Notificacao.Visualizador.pas">
             <Form>NotificacaoVisualizador</Form>
         </DCCReference>
+        <DCCReference Include="lib\windows\Conversa.Windows.Overlay.pas"/>
+        <DCCReference Include="lib\windows\Conversa.Windows.Utils.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
