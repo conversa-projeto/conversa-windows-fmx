@@ -32,9 +32,9 @@ type
     lytInformacoes: TLayout;
     lblNome: TLabel;
     lytInformacoesBottom: TLayout;
-    lblInformacao1: TLabel;
     lblUltimaMensagem: TLabel;
     ColorAnimation1: TColorAnimation;
+    txtMensagem: TText;
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
   private
@@ -101,7 +101,7 @@ end;
 function TConversasItemFrame.Mensagem(Value: string): TConversasItemFrame;
 begin
   Result := Self;
-  lblInformacao1.Text := Value;
+  txtMensagem.Text := Value;
 end;
 
 function TConversasItemFrame.UltimaMensagem(Value: TDateTime): TConversasItemFrame;
@@ -112,35 +112,14 @@ begin
 end;
 
 function TConversasItemFrame.ConversaFormatDateTime(Value: TDateTime): String;
-var
-  Between: Int64;
 begin
   if Value = 0 then
-    Exit(EmptyStr);
-
-  Between := SecondsBetween(Value, Now);
-  if Between = 0 then
-    Exit('agora');
-
-  if Between <= SecsPerMin then
-    Exit(Between.ToString +' segundo'+ IfThen(Between = 1, '', 's') +' atrás');
-
-  Between := MinutesBetween(Value, Now);
-  if Between <= MinsPerHour then
-    Exit(Between.ToString +' minuto'+ IfThen(Between = 1, '', 's') +' atrás');
-
-  Between := HoursBetween(Value, Now);
-  if Between <= HoursPerDay then
-    Exit(Between.ToString +' hora'+ IfThen(Between = 1, '', 's') +' atrás');
-
-  Between := DaysBetween(Value, Now);
-  if Between = 1 then
-    Exit('ontem')
+    Exit(EmptyStr)
   else
-  if YearOf(Value) = YearOf(Now) then
-    Exit(FormatDateTime(FormatSettings.ShortDateFormat.Replace('y', '').Trim([FormatSettings.DateSeparator]), Value))
+  if DaysBetween(Value, Now) = 0 then
+    Result := TimeToStr(Value)
   else
-    Exit(DateToStr(Value))
+    Exit(DateToStr(Value));
 end;
 
 end.

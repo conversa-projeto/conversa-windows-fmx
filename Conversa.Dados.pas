@@ -45,7 +45,10 @@ type
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
-    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+    function MensagemSemVisualizar: Integer; overload;
+    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
+    procedure AtualizarContador;
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -67,7 +70,8 @@ uses
   System.Hash,
   System.Math,
   Conversa.Configuracoes,
-  Conversa.Notificacao;
+  Conversa.Notificacao,
+  Conversa.Windows.Overlay;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -129,6 +133,16 @@ begin
   end;
 end;
 
+function TDados.MensagemSemVisualizar(iConversa: Integer): Integer;
+begin
+  Result := FDadosApp.MensagemSemVisualizar(iConversa);
+end;
+
+function TDados.MensagemSemVisualizar: Integer;
+begin
+  Result := FDadosApp.MensagemSemVisualizar;
+end;
+
 function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
 begin
   Result := FDadosApp.Mensagens(iConversa, iInicio);
@@ -154,10 +168,10 @@ begin
     begin
       Mensagem := Default(TMensagem);
       Mensagem.id := Item.GetValue<Integer>('id');
-      Mensagem.remetente_id := Item.GetValue<Integer>('remetente_id');
+      Mensagem.RemetenteId := Item.GetValue<Integer>('remetente_id');
       Mensagem.remetente := Item.GetValue<String>('remetente');
-      Mensagem.conversa_id := Item.GetValue<Integer>('conversa_id');
-      if Mensagem.remetente_id = Dados.ID then
+      Mensagem.ConversaId := Item.GetValue<Integer>('conversa_id');
+      if Mensagem.RemetenteId = Dados.ID then
         Mensagem.lado := TLado.Direito
       else
         Mensagem.lado := TLado.Esquerdo;
@@ -253,7 +267,7 @@ begin
 
   // enviar a mensagem
   oJSON := TJSONObject.Create;
-  oJSON.AddPair('conversa_id', Mensagem.conversa_id);
+  oJSON.AddPair('conversa_id', Mensagem.ConversaId);
   aConteudos := TJSONArray.Create;
   oJSON.AddPair('conteudos', aConteudos);
 
@@ -319,13 +333,13 @@ begin
     Body(oJSON);
     PUT;
     Mensagem.id := Response.ToJSON.GetValue<Integer>('id');
-    FDadosApp.AdicionaMensagem(Mensagem.conversa_id, Mensagem);
+    FDadosApp.AdicionaMensagem(Mensagem.ConversaId, Mensagem);
   finally
     Free;
   end;
 end;
 
-function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
 begin
   if FDadosApp.UltimaMensagemConversa(iConversa) = 0 then
     ObterMensagens(iConversa);
@@ -431,6 +445,11 @@ begin
   except
     Result := False;
   end;
+end;
+
+procedure TDados.AtualizarContador;
+begin
+  AtualizarContadorNotificacao(FDadosApp.MensagemSemVisualizar);
 end;
 
 end.

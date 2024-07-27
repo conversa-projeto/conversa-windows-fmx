@@ -64,7 +64,8 @@ implementation
 uses
   Conversa.Conexao.AvisoInicioSistema,
   Conversa.Configurar.Conexao,
-  Conversa.Notificacao;
+  Conversa.Notificacao,
+  Conversa.Chat.Listagem;
 
 {$R *.fmx}
 
@@ -87,7 +88,10 @@ var
   hAppWnd: HWND;
   ExStyle: LongInt;
 begin
-  hAppWnd := Fmx.Platform.Win.ApplicationHWND;
+  hAppWnd := FMX.Platform.Win.ApplicationHWND;
+  if IsWindowVisible(hAppWnd) then
+    Exit; // Se a janela já estiver visível, não faz nada
+
   ShowWindow(hAppWnd, SW_HIDE); // Oculta a janela temporariamente para aplicar as alterações
   ExStyle := GetWindowLongPtr(hAppWnd, GWL_EXSTYLE);
   SetWindowLongPtr(hAppWnd, GWL_EXSTYLE, (ExStyle and not WS_EX_TOOLWINDOW) or WS_EX_APPWINDOW);
@@ -110,6 +114,8 @@ procedure TTelaInicial.FormActivate(Sender: TObject);
 begin
   inherited;
   ShowAppOnTaskbar;
+  if Assigned(Chats) and Assigned(Chats.Chat) then
+    Chats.Chat.ValidarVisualizacao;
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);

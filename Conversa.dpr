@@ -44,10 +44,9 @@ begin
   Application.Title := 'Conversa';
   {$IFNDEF DEBUG}
   if IsApplicationAlreadyRunning then
-  begin
-    BringApplicationToFront;
     Exit;
-  end;
+
+  InicializarComSO;
   {$ENDIF}
 
   ReportMemoryLeaksOnShutdown := True;

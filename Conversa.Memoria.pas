@@ -26,13 +26,17 @@ type
     function UltimaMensagemConversa(iConversa: Integer): Integer;
     procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
     function Mensagens(iConversa, iInicio: Integer): TArray<TMensagem>;
-    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+    function MensagemSemVisualizar: Integer; overload;
+    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
   end;
 
 implementation
 
 uses
-  System.Math, Winapi.Windows;
+  System.Math,
+  Winapi.Windows,
+  Conversa.Dados;
 
 { TDadosApp }
 
@@ -81,6 +85,27 @@ begin
     Result := 0;
 end;
 
+function TDadosApp.MensagemSemVisualizar: Integer;
+var
+  Convera: TdadosConversa;
+begin
+  Result := 0;
+  for Convera in Conversas do
+    Inc(Result, MensagemSemVisualizar(Convera.ID));
+end;
+
+function TDadosApp.MensagemSemVisualizar(iConversa: Integer): Integer;
+var
+  Conversa: TPDadosConversa;
+  Mensagem: TMensagem;
+begin
+  Result := 0;
+  if ObtemConversa(iConversa, Conversa) then
+    for Mensagem in Conversa.Mensagens do
+      if not Mensagem.visualizada then
+        Inc(Result);
+end;
+
 function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
 var
   Conversa: TPDadosConversa;
@@ -93,7 +118,7 @@ begin
       Result := Result + [Mensagem];
 end;
 
-function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArray<TMensagem>;
+function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
 var
   Conversa: TPDadosConversa;
   I: Integer;
@@ -107,7 +132,7 @@ begin
       Continue;
 
     Conversa.Mensagens[I].exibida := True;
-    Result := Result + [Conversa.Mensagens[I]];
+    Result := Result + [@Conversa.Mensagens[I]];
   end;
 end;
 
@@ -126,6 +151,7 @@ begin
     end;
   end;
   Mensagens := Mensagens + [Mensagem];
+  Dados.AtualizarContador;
 end;
 
 end.

@@ -23,9 +23,9 @@ type
   private
   protected
     function GetPSSClassName: String; virtual;
-    function IsFormActive: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
+    function IsFormActive: Boolean;
   end;
 
 implementation

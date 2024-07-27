@@ -102,10 +102,10 @@ begin
 
   txtMensagem := TText.Create(mmMensagem);
   txtMensagem.Align := TAlignLayout.Left;
-  txtMensagem.Size.Width := 65;
+  txtMensagem.Size.Width := 130;
   txtMensagem.Size.Height := 16;
   txtMensagem.Size.PlatformDefault := False;
-  txtMensagem.Text := 'Mensagem';
+  txtMensagem.Text := 'Digite uma mensagem';
   txtMensagem.TextSettings.FontColor := $FF545454;
   txtMensagem.TextSettings.HorzAlign := TTextAlign.Leading;
   txtMensagem.HitTest := False;

@@ -72,16 +72,6 @@ inherited ConversasItemFrame: TConversasItemFrame
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
-          object lblInformacao1: TLabel
-            Align = Client
-            StyledSettings = [Family, Style]
-            Size.Width = 141.000000000000000000
-            Size.Height = 17.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.FontColor = xFF646464
-            Text = '[Informa'#231#227'o]'
-            TabOrder = 1
-          end
           object lblUltimaMensagem: TLabel
             Align = Right
             AutoSize = True
@@ -95,6 +85,18 @@ inherited ConversasItemFrame: TConversasItemFrame
             Text = '[Ultima Mensagem]'
             TabOrder = 0
             OnPaint = lblUltimaMensagemPaint
+          end
+          object txtMensagem: TText
+            Align = Client
+            HitTest = False
+            Size.Width = 141.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Text = '[Informa'#231#227'o]'
+            TextSettings.FontColor = xFF646464
+            TextSettings.Trimming = Character
+            TextSettings.WordWrap = False
+            TextSettings.HorzAlign = Leading
           end
         end
       end

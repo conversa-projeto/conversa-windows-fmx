@@ -18,7 +18,14 @@ uses
   FMX.Graphics,
   PascalStyleScript,
   Mensagem.Tipos;
+
 type
+
+  TItem = record
+    Dados: TPMensagem;
+    Mensagem: TLayout;
+    Hora: TText;
+  end;
 
   TVisualizador = class
   private
@@ -31,6 +38,7 @@ type
     pthUltima: TPath;
     FWidth: Single;
     FConponentes: Integer;
+    FItems: TArray<TItem>;
     procedure CriarControles;
     procedure NomearComponente(Componente: TControl);
     procedure Redimensionar(CentroWidth: Single; Altura: TLayout);
@@ -40,25 +48,32 @@ type
     procedure lytConteudoMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure rtgUltimaClick(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
+//    function IsLayoutVisible(Layout: TLayout; ScrollBox: TVertScrollBox): Boolean;
   public
     constructor Create(AOwner: TFmxObject);
-    procedure AdicionaMensagem(Mensagem: TMensagem);
+    procedure AdicionaMensagem(Mensagem: TPMensagem);
     property Visible: Boolean read FVisible write SetVisible;
     procedure PosicionarUltima;
     procedure Limpar;
+    procedure VisualizarTudo;
+    procedure ValidarVisualizacao;
   end;
 
 implementation
 
+uses
+  Conversa.Chat.Listagem;
+
 const
   TamanhoMaximo = 700;
-
   { TVisualizador }
+
 constructor TVisualizador.Create(AOwner: TFmxObject);
 begin
   FOwner := AOwner;
   FConponentes := 0;
   FWidth := 0;
+  FItems := [];
   CriarControles;
 end;
 
@@ -144,7 +159,7 @@ begin
   FOwner.AddObject(lytConteudo);
 end;
 
-procedure TVisualizador.AdicionaMensagem(Mensagem: TMensagem);
+procedure TVisualizador.AdicionaMensagem(Mensagem: TPMensagem);
 var
   lytAltura: TLayout;
   lytLargura: TLayout;
@@ -156,6 +171,7 @@ var
   imgImagem: TImage;
   bmp: TBitmap;
   I: Integer;
+  Item: TItem;
 begin
   lytAltura := TLayout.Create(lytConteudo);
   NomearComponente(lytAltura);
@@ -289,10 +305,12 @@ begin
   lytLargura.AddObject(rtgFundo);
   lytAltura.AddObject(lytLargura);
   sbxCentro.Content.AddObject(lytAltura);
-
   // Posiciona a mensagem no fim
   lytAltura.Position.Y := scroll.Max;
-
+  Item.Dados := Mensagem;
+  Item.Mensagem := lytAltura;
+  Item.Hora := lbHora;
+  FItems := FItems + [Item];
   Redimensionar(sbxCentro.Width, lytAltura);
 end;
 
@@ -392,6 +410,7 @@ begin
   scroll.Max := sbxCentro.ContentBounds.Height;
   scroll.ViewportSize := lytConteudo.Height;
   scroll.Value := NewViewportPosition.Y;
+  ValidarVisualizacao;
 end;
 
 procedure TVisualizador.scrollChange(Sender: TObject);
@@ -463,10 +482,49 @@ end;
 
 procedure TVisualizador.Limpar;
 begin
+  FItems := [];
   FConponentes := 0;
   FWidth := 0;
   FreeAndNil(lytConteudo);
   CriarControles;
+end;
+
+procedure TVisualizador.ValidarVisualizacao;
+var
+  I: Integer;
+begin
+  if not Chats.IsFormActive then
+    Exit;
+
+  for I := Pred(Length(FItems)) downto 0 do
+  begin
+    if FItems[I].Dados.Visualizada then
+      Continue;
+
+    if InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
+    begin
+      FItems[I].Dados.Visualizada := True;
+      with TColorAnimation.Create(FItems[I].Hora) do
+      begin
+        TAnimator.StopPropertyAnimation(FItems[I].Hora, 'TextSettings.FontColor');
+        Parent := FItems[I].Hora;
+        AnimationType := TAnimationType.In;
+        Interpolation := TInterpolationType.Linear;
+        Duration := Duration;
+        PropertyName := 'TextSettings.FontColor';
+        StartFromCurrent := True;
+        StopValue := TAlphaColors.Blue;
+        Delay := 2;
+        Start;
+      end;
+    end;
+  end;
+end;
+
+procedure TVisualizador.VisualizarTudo;
+begin
+  for var I := Pred(Length(FItems)) downto 0 do
+    FItems[I].Dados.Visualizada := True;
 end;
 
 end.

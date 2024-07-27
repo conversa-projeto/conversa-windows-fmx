@@ -105,6 +105,7 @@ inherited Chat: TChat
             Align = Client
             AutoSize = True
             StyledSettings = [Family, Size]
+            HitTest = True
             Size.Width = 577.000000000000000000
             Size.Height = 28.000000000000000000
             Size.PlatformDefault = False
@@ -112,6 +113,7 @@ inherited Chat: TChat
             TextSettings.FontColor = xFF141414
             Text = '[Nome]'
             TabOrder = 0
+            OnClick = lblNomeClick
           end
         end
       end

@@ -38,6 +38,7 @@ type
     lblNome: TLabel;
     lytClient: TLayout;
     pthFotoDefault: TPath;
+    procedure lblNomeClick(Sender: TObject);
   private
     FListagemItem: TConversasItemFrame;
     FID: Integer;
@@ -60,10 +61,12 @@ type
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
     property Visualizador: TVisualizador read FVisualizador;
-    procedure AdicionarMensagem(Mensagem: TMensagem);
-    procedure AdicionarMensagens(aMensagem: TArray<TMensagem>);
+    procedure AdicionarMensagem(Mensagem: TPMensagem);
+    procedure AdicionarMensagens(aMensagem: TPMensagems);
     procedure PosicionarUltima;
     procedure Limpar;
+    procedure VisualizarTudo;
+    procedure ValidarVisualizacao;
   end;
 
 implementation
@@ -72,14 +75,14 @@ implementation
 
 { TChat }
 
-procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
+procedure TChat.AdicionarMensagem(Mensagem: TPMensagem);
 begin
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
-procedure TChat.AdicionarMensagens(aMensagem: TArray<TMensagem>);
+procedure TChat.AdicionarMensagens(aMensagem: TPMensagems);
 var
-  Mensagem: TMensagem;
+  Mensagem: TPMensagem;
 begin
   for Mensagem in aMensagem do
   begin
@@ -111,16 +114,13 @@ begin
         FID := Dados.NovoChat(FUsuarioID, FDestinatarioID);
         FListagemItem.ID := FID;
       end;
-
       Mensagem.inserida := Now;
       Mensagem.lado := TLado.Direito;
       Mensagem.remetente := Usuario;
-      Mensagem.conversa_id := ID;
-      Mensagem.remetente_id := FUsuarioID;
-
+      Mensagem.ConversaId := ID;
+      Mensagem.RemetenteId := FUsuarioID;
       if Assigned(AoEnviarMensagem) then
         AoEnviarMensagem(Self, Mensagem);
-
       Visualizador.PosicionarUltima;
     end
   );
@@ -132,6 +132,11 @@ begin
   Editor.Free;
   Anexo.Free;
   inherited;
+end;
+
+procedure TChat.lblNomeClick(Sender: TObject);
+begin
+  ShowMessage(Dados.MensagemSemVisualizar(FID).ToString);
 end;
 
 procedure TChat.Limpar;
@@ -147,6 +152,16 @@ end;
 procedure TChat.SetUsuario(const Value: String);
 begin
   FUsuario := Value;
+end;
+
+procedure TChat.ValidarVisualizacao;
+begin
+  Visualizador.ValidarVisualizacao;
+end;
+
+procedure TChat.VisualizarTudo;
+begin
+  Visualizador.VisualizarTudo;
 end;
 
 procedure TChat.PosicionarUltima;

@@ -60,6 +60,7 @@ type
   private
     FOldWndProc: Pointer;
     function GetPSSClassName: String;
+    function SystemButton(pt: TPoint): Integer;
   protected
     procedure CreateHandle; override;
     procedure DestroyHandle; override;
@@ -76,7 +77,8 @@ implementation
 uses
   FMX.Helpers.Win,
   FMX.Forms.Border.Win,
-  Conversa.Notificacao.Visualizador;
+  Conversa.Notificacao.Visualizador,
+  Conversa.Windows.Utils;
 
 {$R *.fmx}
 
@@ -152,6 +154,7 @@ var
   FormPoint: TPointF;
   ClientPoint: TPointF;
   Placement: TWindowPlacement;
+  iSystemButton: Integer;
   function FormPxToDp(const AForm: TCommonCustomForm; const APoint: TPoint): TPointF;
   var
     LScale: Single;
@@ -172,6 +175,10 @@ begin
   Message.Result := 0;
   Result := 0;
   case uMsg of
+    WM_RESTAURAR_CONVERSA:
+    begin
+      Form.DoConversaRestore;
+    end;
     WM_NCHITTEST,
     WM_NCACTIVATE,
     WM_NCADDUPDATERECT,
@@ -193,25 +200,63 @@ begin
           if not IsZoomed(Wnd) and (uMsg = WM_NCHITTEST) and (Abs(ClientPoint.Y) <= GetSystemMetrics(SM_CYFRAME)) then
           begin
             TWMNCHitTest(Message).Result := HTTOP;
-            TFormularioBase(Form).lytMaximizeButtonMouseLeave(TFormularioBase(Form).lytMaximizeButton);
+            Form.lytMinimizeButtonMouseLeave(Form.lytMinimizeButton);
+            Form.lytMaximizeButtonMouseLeave(Form.lytMaximizeButton);
+            Form.lytCloseButtonMouseLeave(Form.lytCloseButton);
             Exit(HTTOP);
           end
           else
-          if PtInRect(TFormularioBase(Form).lytMaximizeButton.AbsoluteRect.Round, ClientPoint.Round) then
           begin
-            case Message.Msg of
-              WM_NCLBUTTONDOWN: TFormularioBase(Form).DoConversaMaximize; // Adicionar evento do botão aqui
-              WM_NCLBUTTONUP: Exit(0);
-            else
+            iSystemButton := Form.SystemButton(ClientPoint.Round);
+            if iSystemButton <> -1 then
+            begin
+              if Message.Msg = WM_NCLBUTTONUP then
               begin
-                TFormularioBase(Form).lytMaximizeButtonMouseEnter(TFormularioBase(Form).lytMaximizeButton);
-                Exit(HTMAXBUTTON);
+                Exit(0);
+              end;
+
+              if Message.Msg = WM_NCLBUTTONDOWN then
+              begin
+                case iSystemButton of
+                  0: Form.DoConversaMinimize;
+                  1: Form.DoConversaMaximize;
+                  2: Form.DoConversaClose;
+                end;
+                Form.lytMinimizeButtonMouseLeave(Form.lytMinimizeButton);
+                Form.lytMaximizeButtonMouseLeave(Form.lytMaximizeButton);
+                Form.lytCloseButtonMouseLeave(Form.lytCloseButton);
+                Exit(0);
               end
+              else
+              begin
+                case iSystemButton of
+                  0:
+                  begin
+                    Form.lytMinimizeButtonMouseEnter(Form.lytMinimizeButton);
+                    Form.lytMaximizeButtonMouseLeave(Form.lytMaximizeButton);
+                    Form.lytCloseButtonMouseLeave(Form.lytCloseButton);
+                    Exit(HTMINBUTTON);
+                  end;
+                  1:
+                  begin
+                    Form.lytMinimizeButtonMouseLeave(Form.lytMinimizeButton);
+                    Form.lytMaximizeButtonMouseEnter(Form.lytMaximizeButton);
+                    Form.lytCloseButtonMouseLeave(Form.lytCloseButton);
+                    Exit(HTMAXBUTTON);
+                  end;
+                  2:
+                  begin
+                    Form.lytMinimizeButtonMouseLeave(Form.lytMinimizeButton);
+                    Form.lytMaximizeButtonMouseLeave(Form.lytMaximizeButton);
+                    Form.lytCloseButtonMouseEnter(Form.lytCloseButton);
+                    Exit(HTCLOSE);
+                  end;
+                end;
+              end;
             end;
-          end
-          else
-          begin
-            TFormularioBase(Form).lytMaximizeButtonMouseLeave(TFormularioBase(Form).lytMaximizeButton);
+            Form.lytMinimizeButtonMouseLeave(Form.lytMinimizeButton);
+            Form.lytMaximizeButtonMouseLeave(Form.lytMaximizeButton);
+            Form.lytCloseButtonMouseLeave(Form.lytCloseButton);
             Result := WMNCMessages(Form, uMsg, wParam, lParam);
           end;
         end
@@ -253,6 +298,18 @@ begin
   end;
 end;
 
+function TFormularioBase.SystemButton(pt: TPoint): Integer;
+var
+  Buttons: TArray<TLayout>;
+  I: Integer;
+begin
+  Buttons := [lytMinimizeButton, lytMaximizeButton, lytCloseButton];
+  Result := -1;
+  for I := 0 to 2 do
+    if PtInRect(Buttons[I].AbsoluteRect.Round, pt) then
+      Exit(I);
+end;
+
 constructor TFormularioBase.Create(AOwner: TComponent);
 begin
   inherited;
@@ -283,9 +340,9 @@ end;
 
 procedure TFormularioBase.lytCloseButtonMouseEnter(Sender: TObject);
 begin
-  TAnimator.AnimateColor(lnClose1, 'Stroke.Color', TAlphaColors.Red, 0.001);
-  TAnimator.AnimateColor(lnClose2, 'Stroke.Color', TAlphaColors.Red, 0.001);
-  TAnimator.AnimateColor(rctClose, 'Fill.Color', TAlphaColorF.Create(255, 255, 255, 0.1).ToAlphaColor, 0.001);
+  TAnimator.AnimateColor(lnClose1, 'Stroke.Color', TAlphaColors.White, 0.001);
+  TAnimator.AnimateColor(lnClose2, 'Stroke.Color', TAlphaColors.White, 0.001);
+  TAnimator.AnimateColor(rctClose, 'Fill.Color', TAlphaColors.Red, 0.001);
 end;
 
 procedure TFormularioBase.lytCloseButtonMouseLeave(Sender: TObject);

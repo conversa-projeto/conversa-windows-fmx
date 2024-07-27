@@ -6,6 +6,10 @@ unit Conversa.Windows.Overlay;
 
 interface
 
+procedure AtualizarContadorNotificacao(const Quantidade: Integer);
+
+implementation
+
 uses
   Winapi.ActiveX,
   Winapi.CommCtrl,
@@ -57,7 +61,8 @@ type
     function SetThumbnailClip(hwnd: HWND; prcClip: PRect): HResult; stdcall;
   end;
 
-implementation
+var
+  UltimaContagem: Integer;
 
 function BitmapToWinBitmap(const Bitmap: TBitmap): HBITMAP;
 var
@@ -107,9 +112,14 @@ begin
       Bitmap.Canvas.FillEllipse(RectF(0, 0, 32, 32), 1);
 
       // Adicionar o contador no ícone
-      Text := IntToStr(Count);
+      if Count <= 9 then
+        Text := IntToStr(Count)
+      else
+        Text := '9+';
+
       Bitmap.Canvas.Fill.Color := TAlphaColors.White;
-      Bitmap.Canvas.Font.Size := 12;
+      Bitmap.Canvas.Font.Family := 'Consolas';
+      Bitmap.Canvas.Font.Size := 22;
       Bitmap.Canvas.FillText(RectF(0, 0, 32, 32), Text, False, 1, [], TTextAlign.Center, TTextAlign.Center);
     finally
       Bitmap.Canvas.EndScene;
@@ -139,6 +149,11 @@ procedure AtualizarContadorNotificacao(const Quantidade: Integer);
 var
   OverlayIcon: HICON;
 begin
+  if UltimaContagem <> Quantidade then
+    UltimaContagem := Quantidade
+  else
+    Exit;
+
   if Quantidade = 0 then
   begin
     SetTaskbarOverlayIcon(0);
@@ -154,5 +169,8 @@ begin
   SetTaskbarOverlayIcon(OverlayIcon);
   DestroyIcon(OverlayIcon); // Libera o ícone após o uso
 end;
+
+initialization
+  UltimaContagem := 0;
 
 end.
