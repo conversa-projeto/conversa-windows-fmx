@@ -428,7 +428,6 @@ procedure TVisualizador.rtgUltimaClick(Sender: TObject);
 begin
   // Posiciona na última mensagem
   TAnimator.AnimateFloat(scroll, 'Value', scroll.Max - scroll.ViewportSize, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
-  TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8 + 5, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
 end;
 
 procedure TVisualizador.sbxCentroViewportPositionChange(Sender: TObject; const OldViewportPosition, NewViewportPosition: TPointF; const ContentSizeChanged: Boolean);
@@ -441,30 +440,47 @@ begin
 end;
 
 procedure TVisualizador.scrollChange(Sender: TObject);
+const
+  Borda = 8;
+var
+  bVisivel: Boolean;
 begin
   // Atualiza a visão
   sbxCentro.ViewportPosition := TPointF.Create(0, scroll.Value);
 
+  bVisivel := rtgUltima.Visible;
+
   // Define o posicionamento do botão de ir para última mensagem
-  if not rtgUltima.Visible then
+  if not bVisivel then
   begin
     rtgUltima.Visible := True;
-    rtgUltima.Position.X := lytConteudo.Width - rtgUltima.Width - scroll.Width - 8;
-    rtgUltima.Position.Y := lytConteudo.Height - rtgUltima.Height - 8;
+    rtgUltima.Position.X := lytConteudo.Width - rtgUltima.Width - scroll.Width - Borda;
+    rtgUltima.Position.Y := lytConteudo.Height - rtgUltima.Height - Borda;
   end;
 
   // Exibe botão para ir até a última mensagem
   if (scroll.Value < (scroll.Max - scroll.ViewportSize - 300)) then
   begin
     // Exibe
-    if rtgUltima.Position.Y = (lytConteudo.Height + rtgUltima.Height + 8) then
-      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height - rtgUltima.Height - 8, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+    if rtgUltima.Position.Y = (lytConteudo.Height + rtgUltima.Height + Borda) then
+    begin
+      TAnimator.StopAnimation(rtgUltima, 'Position.Y');
+      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height - rtgUltima.Height - Borda, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+    end;
   end
   else
   begin
     // Oculta
-    if rtgUltima.Position.Y = (lytConteudo.Height - rtgUltima.Height - 8) then
-      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+    if not bVisivel then
+      rtgUltima.Position.Y := lytConteudo.Height + rtgUltima.Height + Borda
+    else
+    begin
+      if rtgUltima.Position.Y = (lytConteudo.Height - rtgUltima.Height - Borda) then
+      begin
+        TAnimator.StopAnimation(rtgUltima, 'Position.Y');
+        TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + Borda, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+      end;
+    end;
   end;
 end;
 
@@ -504,7 +520,8 @@ end;
 
 procedure TVisualizador.PosicionarUltima;
 begin
-  rtgUltimaClick(rtgUltima);
+  scroll.Value := scroll.Max - scroll.ViewportSize;
+  rtgUltima.Visible := False;
 end;
 
 procedure TVisualizador.Limpar;
