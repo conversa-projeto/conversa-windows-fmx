@@ -625,9 +625,15 @@ end;
 procedure TText.DblClick;
 var
   svc: IFMXExtendedClipboardService;
+  Def: TAlphaColor;
 begin
   if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+  begin
     svc.SetText(Text);
+    Def := Self.Color;
+    Color := TAlphaColors.Green;
+    TAnimator.AnimateColor(Self, 'Color', Def, 1, TAnimationType.InOut, TInterpolationType.Cubic);
+  end;
 end;
 
 procedure TText.MouseMove(Shift: TShiftState; X, Y: Single);
