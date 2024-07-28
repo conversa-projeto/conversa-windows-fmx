@@ -354,9 +354,10 @@ begin
   if mmMensagem.Width < 50 then
     Exit;
 
-  TamanhoTexto := RectF(0, 0, mmMensagem.Width, 10000);
+  TamanhoTexto := RectF(0, 0, mmMensagem.ContentSize.Width, 10000);
   mmMensagem.Canvas.MeasureText(TamanhoTexto, mmMensagem.Lines.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
   cHeight := TamanhoTexto.Bottom + mmMensagem.Margins.Top + mmMensagem.Margins.Bottom;
+
   if cHeight > 40 then
     cHeight := cHeight + 5;
   lytMensagem.Height := Min(212, Max(40, cHeight));
