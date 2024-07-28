@@ -272,6 +272,7 @@ begin
   lytConteudoMensagem.Size.Width := 353;
   lytConteudoMensagem.Size.Height := 218;
   lytConteudoMensagem.Size.PlatformDefault := False;
+
   lbHora := TText.Create(lytConteudo);
   NomearComponente(lbHora);
   lbHora.Align := TAlignLayout.Bottom;
@@ -281,6 +282,8 @@ begin
   lbHora.Size.Height := 22;
   lbHora.Size.PlatformDefault := False;
   lbHora.TextSettings.HorzAlign := TTextAlign.Trailing;
+  lbHora.Font.Size := 10;
+  lbHora.Opacity := 0.5;
   lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida);
   TPascalStyleScript.Instance.RegisterObject(lbHora, 'Mensagem.DataHora');
 
