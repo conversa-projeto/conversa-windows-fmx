@@ -48,6 +48,7 @@ type
   protected
     procedure Click; override;
     procedure DblClick; override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Single); override;
   end;
 
   TVisualizador = class
@@ -559,7 +560,6 @@ var
   CaretPos: Integer;
   I: Integer;
   sLink: String;
-  Fonte: TFont;
 begin
   if Length(Links) = 0 then
     Exit;
@@ -608,6 +608,32 @@ var
 begin
   if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
     svc.SetText(Text);
+end;
+
+procedure TText.MouseMove(Shift: TShiftState; X, Y: Single);
+var
+  CaretPos: Integer;
+  I: Integer;
+  cr: TCursor;
+begin
+  inherited;
+  cr := crDefault;
+  try
+    if Length(Links) = 0 then
+      Exit;
+    CaretPos := Layout.PositionAtPoint(TPointF.Create(X, Y));
+    for I := 0 to Pred(Length(Links)) do
+    begin
+      if Links[I].Range.InRange(CaretPos) then
+      begin
+        cr := crHandPoint;
+        Break;
+      end;
+    end;
+  finally
+    if Self.Cursor <> cr then
+      Self.Cursor := cr;
+  end;
 end;
 
 { TTextLink }
