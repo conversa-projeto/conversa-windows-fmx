@@ -35,9 +35,16 @@ type
     Hora: TText;
   end;
 
+  TTextLink = record
+  public
+    Range: TTextRange;
+    Attribute: TTextAttribute;
+    constructor Create(ARange: TTextRange; AAttribute: TTextAttribute);
+  end;
+
   TText = class(FMX.Objects.TText)
   private
-    Links: TArray<TPair<Integer, Integer>>;
+    Links: TArray<TTextLink>;
   protected
     procedure Click; override;
     procedure DblClick; override;
@@ -292,10 +299,14 @@ begin
         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
 
         // Pinta hiperlink
-        for var Match in TRegEx.Matches(txtTexto.Text, '(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])') do
+        var Matches := TRegEx.Matches(txtTexto.Text, '(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])');
+        for var J := 0 to Pred(Matches.Count) do
         begin
-          txtTexto.Links := txtTexto.Links + [TPair<Integer, Integer>.Create(Pred(Match.Index), Match.Length)];
-          txtTexto.Layout.AddAttribute(TTextRange.Create(Pred(Match.Index), Match.Length), TTextAttribute.Create(txtTexto.Font, TAlphaColorRec.Blue));
+          var Fonte := TFont.Create;
+          Fonte.Assign(txtTexto.Font);
+          Fonte.Style := Fonte.Style + [TFontStyle.fsUnderline];
+          txtTexto.Links := txtTexto.Links + [TTextLink.Create(TTextRange.Create(Pred(Matches.Item[J].Index), Matches.Item[J].Length), TTextAttribute.Create(Fonte, TAlphaColorF.Create(0, 0, 238 / 255).ToAlphaColor))];
+          txtTexto.Layout.AddAttribute(txtTexto.Links[Pred(Length(txtTexto.Links))].Range, txtTexto.Links[Pred(Length(txtTexto.Links))].Attribute);
         end;
 
         lytConteudoMensagem.AddObject(txtTexto);
@@ -546,8 +557,9 @@ var
   srv: IFMXMouseService;
   P: TPointF;
   CaretPos: Integer;
-  Link: TPair<Integer, Integer>;
+  I: Integer;
   sLink: String;
+  Fonte: TFont;
 begin
   if Length(Links) = 0 then
     Exit;
@@ -558,11 +570,23 @@ begin
   P := Self.ScreenToLocal(srv.GetMousePos);
   CaretPos := Layout.PositionAtPoint(TPointF.Create(P.X, P.Y));
 
-  for Link in Links do
+  for I := 0 to Pred(Length(Links)) do
   begin
-    if (CaretPos >= Link.Key) and (CaretPos <= Link.Key + Link.Value) then
+    if Links[I].Range.InRange(CaretPos) then
     begin
-      sLink := Copy(Text, Succ(Link.Key), Link.Value);
+      sLink := Copy(Text, Succ(Links[I].Range.Pos), Links[I].Range.Length);
+
+      Self.Canvas.BeginScene;
+      Self.Layout.BeginUpdate;
+      try
+        Links[I].Attribute.Color := TAlphaColorF.Create(85 / 255, 26 / 255, 139 / 255).ToAlphaColor;
+        Self.Layout.AddAttribute(Links[I].Range, Links[I].Attribute);
+      finally
+        Self.Layout.EndUpdate;
+        Self.Canvas.EndScene;
+      end;
+      Self.Repaint;
+
       Break;
     end;
   end;
@@ -584,6 +608,14 @@ var
 begin
   if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
     svc.SetText(Text);
+end;
+
+{ TTextLink }
+
+constructor TTextLink.Create(ARange: TTextRange; AAttribute: TTextAttribute);
+begin
+  Range := ARange;
+  Attribute := AAttribute;
 end;
 
 end.
