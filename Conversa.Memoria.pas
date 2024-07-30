@@ -12,7 +12,7 @@ type
     FUltimaMensagem: Integer;
   public
     ID: Integer;
-    Mensagens: TArray<TMensagem>;
+    Mensagens: TMensagens;
     procedure AdicionaMensagem(Mensagem: TMensagem);
   end;
   TPDadosConversa = ^TDadosConversa;
@@ -24,17 +24,21 @@ type
     Conversas: TArray<TDadosConversa>;
     UltimaMensagemNotificada: Integer;
     function UltimaMensagemConversa(iConversa: Integer): Integer;
-    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
-    function Mensagens(iConversa, iInicio: Integer): TArray<TMensagem>;
+    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
+    function Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
     function MensagemSemVisualizar: Integer; overload;
     function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
+    function MensagensParaNotificar(iConversa: Integer): TPMensagems;
+    function MensagensParaAtualizar(iConversa: Integer): String;
   end;
 
 implementation
 
 uses
+  System.SysUtils,
   System.Math,
+  System.StrUtils,
   Winapi.Windows,
   Conversa.Dados;
 
@@ -55,13 +59,11 @@ begin
   end;
 end;
 
-procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
+procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
 var
   P: TPDadosConversa;
   Conversa: TDadosConversa;
 begin
-  if Mensagem.id <= 0 then
-    Sleep(0);
   if not ObtemConversa(iConversa, P) then
   begin
     Conversa := Default(TDadosConversa);
@@ -69,7 +71,7 @@ begin
     Conversas := Conversas + [Conversa];
     P := @Conversa;
   end;
-  P.AdicionaMensagem(Mensagem);
+  P.AdicionaMensagem(Mensagem^);
   if Mensagem.lado = TLado.Esquerdo then
     P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
   UltimaMensagemNotificada := Max(Mensagem.id, UltimaMensagemNotificada);
@@ -102,11 +104,11 @@ begin
   Result := 0;
   if ObtemConversa(iConversa, Conversa) then
     for Mensagem in Conversa.Mensagens do
-      if not Mensagem.visualizada then
+      if (Mensagem.Lado <> TLado.Direito) and not Mensagem.visualizada then
         Inc(Result);
 end;
 
-function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
+function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
 var
   Conversa: TPDadosConversa;
   Mensagem: TMensagem;
@@ -115,7 +117,7 @@ begin
   if not ObtemConversa(iConversa, Conversa) then Exit;
   for Mensagem in Conversa.Mensagens do
     if Mensagem.id >= iInicio then
-      Result := Result + [Mensagem];
+      Result := Result + [@Mensagem];
 end;
 
 function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
@@ -136,7 +138,38 @@ begin
   end;
 end;
 
+function TDadosApp.MensagensParaAtualizar(iConversa: Integer): String;
+var
+  Conversa: TPDadosConversa;
+  I: Integer;
+begin
+  Result := '';
+  if ObtemConversa(iConversa, Conversa) then
+  for I := Pred(Length(Conversa.Mensagens)) downto 0 do
+    if not Conversa.Mensagens[I].Visualizada or not Conversa.Mensagens[I].Recebida then
+      Result := Result + IfThen(not Result.Trim.IsEmpty, ',') + Conversa.Mensagens[I].ID.ToString;
+end;
+
+function TDadosApp.MensagensParaNotificar(iConversa: Integer): TPMensagems;
+var
+  Conversa: TPDadosConversa;
+  I: Integer;
+begin
+  if not ObtemConversa(iConversa, Conversa) then Exit;
+    Result := [];
+
+  for I := Pred(Length(Conversa.Mensagens)) downto 0 do
+  begin
+    if Conversa.Mensagens[I].Notificada then
+      Continue;
+
+    Conversa.Mensagens[I].Notificada := True;
+    Result := [@Conversa.Mensagens[I]] + Result;
+  end;
+end;
+
 { TDadosConversa }
+
 procedure TDadosConversa.AdicionaMensagem(Mensagem: TMensagem);
 var
   I: Integer;

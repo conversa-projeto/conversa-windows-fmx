@@ -9,6 +9,7 @@ uses
   System.Classes,
   System.Variants,
   System.DateUtils,
+  System.StrUtils,
   FMX.Types,
   FMX.Graphics,
   FMX.Controls,
@@ -47,8 +48,8 @@ type
   private
     procedure AoReceberMensagem(Conversa: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
-    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
-    procedure AtualizarChat(Mensagem: TMensagem);
+    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
+    procedure AtualizarChat(Mensagem: TPMensagem);
   public
     Chat: TChat;
     class function New(AOwner: TFmxObject): TChatListagem; static;
@@ -118,7 +119,7 @@ begin
   end;
 end;
 
-procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
+procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
 begin
   Dados.EnviarMensagem(Mensagem);
   Chat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.ID, True));
@@ -143,11 +144,16 @@ procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
 var
   bNovo: Boolean;
   Item: TListBoxItem;
-  Mensagens: TArray<TMensagem>;
+  Mensagens: TPMensagems;
+  Msg: TPMensagem;
   I: Integer;
+  AConteudos: TArray<TMensagemNotificacao>;
 begin
-  Mensagens := Dados.Mensagens(Conversa, 0);
+  Mensagens := Dados.MensagensParaNotificar(Conversa);
+  if Length(Mensagens) = 0 then
+    Exit;
   bNovo := True;
+
   for I := 0 to Pred(lstConversas.Count) do
   begin
     if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
@@ -178,16 +184,25 @@ begin
     lstConversas.AddObject(Item);
   end;
 
+  Msg := Mensagens[Pred(Length(Mensagens))];
   if not Assigned(Chat) or (Chat.ID <> Conversa) or not Self.IsFormActive then
   begin
-    with Mensagens[Pred(Length(Mensagens))] do
-      TNotificacaoManager.Apresentar(
-        TNotificacao.New
-          .ChatId(Conversa)
-          .Nome(remetente)
-          .Hora(Now)
-          .Conteudo([TMensagemNotificacao.New.Mensagem(conteudos[Pred(Length(conteudos))].conteudo)])
-      );
+    AConteudos := [];
+    if Length(Msg.Conteudos) > 0 then
+      AConteudos := [
+        TMensagemNotificacao.New
+          .ID(Msg.Conteudos[0].id)
+          //.Usuario(IfThen())
+          .Mensagem(IfThen(Msg.Conteudos[0].tipo = 1, Msg.Conteudos[0].conteudo, 'Imagem'))
+      ];
+
+    TNotificacaoManager.Apresentar(
+      TNotificacao.New
+        .ChatId(Conversa)
+        .Nome(Msg.remetente)
+        .Hora(Now)
+        .Conteudo(AConteudos)
+    );
   end;
 
   if Assigned(Chat) and (Chat.ID = Conversa) then
@@ -195,10 +210,10 @@ begin
 
   PlayResource('nova_mensagem');
 
-  AtualizarChat(Mensagens[Pred(Length(Mensagens))]);
+  AtualizarChat(Msg);
 end;
 
-procedure TChatListagem.AtualizarChat(Mensagem: TMensagem);
+procedure TChatListagem.AtualizarChat(Mensagem: TPMensagem);
 var
   I: Integer;
   Item: TListBoxItem;
@@ -208,7 +223,11 @@ begin
     Item := TListBoxItem(lstConversas.ListItems[I]);
     if Item.ContatoItem.ID = Mensagem.ConversaId then
     begin
-      Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
+      if Mensagem.Lado = TLado.Direito then
+        Item.ContatoItem.Mensagem('Você: '+ Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo)
+      else
+        Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
+
       Item.ContatoItem.UltimaMensagem(Mensagem.inserida);
       Break;
     end;

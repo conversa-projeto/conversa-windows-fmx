@@ -4,6 +4,7 @@ unit Mensagem.Tipos;
 interface
 
 uses
+  System.SysUtils,
   FMX.Graphics;
 
 {$SCOPEDENUMS ON}
@@ -18,6 +19,7 @@ type
     conteudo: String
   end;
 
+  TPMensagem = ^TMensagem;
   TMensagem = record
   private
     Fid: Integer;
@@ -28,11 +30,14 @@ type
     Falterada: TDateTime;
     Finserida: TDateTime;
     Fexibida: Boolean;
+    Frecebida: Boolean;
     Fvisualizada: Boolean;
+    Fnotificada: Boolean;
     Fconteudos: TArray<TMensagemConteudo>;
+    FAoAtualizar: TArray<TProc<TPMensagem>>;
   end;
+  TMensagens = TArray<TMensagem>;
 
-  TPMensagem = ^TMensagem;
   TMensagemH = record helper for TMensagem
   private
     function GetId: Integer;
@@ -54,7 +59,12 @@ type
     function GetConteudos: TArray<TMensagemConteudo>;
     procedure SetConteudos(Value: TArray<TMensagemConteudo>);
     function GetVisualizada: Boolean;
-    procedure SetVisualizada(Value: Boolean);
+    procedure SetVisualizada(const Value: Boolean);
+    function GetNotificada: Boolean;
+    procedure SetNotificada(const Value: Boolean);
+    function GetRecebida: Boolean;
+    procedure SetRecebida(const Value: Boolean);
+    procedure DoAtualizar;
   public
     property Id: Integer read GetId write SetId;
     property RemetenteId: Integer read GetRemetenteId write SetRemetenteId;
@@ -65,13 +75,13 @@ type
     property Inserida: TDateTime read GetInserida write SetInserida;
     property Exibida: Boolean read GetExibida write SetExibida;
     property Conteudos: TArray<TMensagemConteudo> read GetConteudos write SetConteudos;
-    property Visualizada: Boolean read GetVisualizada write SetVisualizada;  // Nova propriedade
+    property Recebida: Boolean read GetRecebida write SetRecebida;
+    property Visualizada: Boolean read GetVisualizada write SetVisualizada;
+    property Notificada: Boolean read GetNotificada write SetNotificada;
+    procedure VisualizarMensagem;
+    procedure AoAtualizar(Value: TProc<TPMensagem>);
   end;
   TPMensagems = TArray<TPMensagem>;
-
-//  TMensagemH = record Helper for TMensagem
-//    class function New: TPMensagem; static;
-//  end;
 
 implementation
 
@@ -170,15 +180,71 @@ begin
   Self.Fconteudos := Value;
 end;
 
+function TMensagemH.GetRecebida: Boolean;
+begin
+  Result := Self.FRecebida;
+end;
+
+procedure TMensagemH.SetRecebida(const Value: Boolean);
+begin
+  if Frecebida = Value then
+    Exit;
+
+  Self.Frecebida := Value;
+  DoAtualizar;
+end;
+
 function TMensagemH.GetVisualizada: Boolean;
 begin
   Result := Self.Fvisualizada;
 end;
 
-procedure TMensagemH.SetVisualizada(Value: Boolean);
+procedure TMensagemH.SetVisualizada(const Value: Boolean);
 begin
+  if Fvisualizada = Value then
+    Exit;
+
   Self.Fvisualizada := Value;
+  DoAtualizar;
+end;
+
+function TMensagemH.GetNotificada: Boolean;
+begin
+  Result := Self.Fnotificada;
+end;
+
+procedure TMensagemH.SetNotificada(const Value: Boolean);
+begin
+  Self.Fnotificada := Value;
+end;
+
+procedure TMensagemH.VisualizarMensagem;
+begin
+  if Visualizada then
+    Exit;
+
+  Self.Visualizada := True;
   Dados.AtualizarContador;
+  Dados.VisualizarMensagem(@Self);
+end;
+
+procedure TMensagemH.AoAtualizar(Value: TProc<TPMensagem>);
+begin
+  Self.FAoAtualizar := Self.FAoAtualizar + [Value];
+end;
+
+procedure TMensagemH.DoAtualizar;
+var
+  Proc: TProc<TPMensagem>;
+begin
+  try
+    if Length(FAoAtualizar) > 0 then
+      for Proc in FAoAtualizar do
+        if Assigned(Proc) then
+          Proc(@Self);
+  except
+    Sleep(0);
+  end;
 end;
 
 end.

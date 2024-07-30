@@ -180,7 +180,7 @@ begin
     uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
     uCallbackMessage := WM_ICONTRAY;
     hIcon := GetClassLong(FmxHandleToHWND(self.Handle), GCL_HICONSM);
-    StrPCopy(szTip, 'testapp');
+    StrPCopy(szTip, 'Conversa');
   end;
   Shell_NotifyIcon(NIM_ADD, @TrayIconData);
 end;

@@ -37,9 +37,9 @@ type
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
     procedure Conversas;
-    function ObterMensagens(iConversa: Integer): TArray<TMensagem>;
-    function Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
-    procedure EnviarMensagem(Mensagem: TMensagem);
+    function ObterMensagens(iConversa: Integer): TPMensagems;
+    function Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
+    procedure EnviarMensagem(Mensagem: TPMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
@@ -49,6 +49,8 @@ type
     function MensagemSemVisualizar: Integer; overload;
     function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
     procedure AtualizarContador;
+    function MensagensParaNotificar(iConversa: Integer): TPMensagems;
+    procedure VisualizarMensagem(Mensagem: TPMensagem);
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -143,7 +145,7 @@ begin
   Result := FDadosApp.MensagemSemVisualizar;
 end;
 
-function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
+function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
 begin
   Result := FDadosApp.Mensagens(iConversa, iInicio);
 
@@ -151,7 +153,12 @@ begin
     Result := ObterMensagens(iConversa);
 end;
 
-function TDados.ObterMensagens(iConversa: Integer): TArray<TMensagem>;
+function TDados.MensagensParaNotificar(iConversa: Integer): TPMensagems;
+begin
+  Result := FDadosApp.MensagensParaNotificar(iConversa);
+end;
+
+function TDados.ObterMensagens(iConversa: Integer): TPMensagems;
 var
   Mensagem: TMensagem;
   MensagemConteudo: TMensagemConteudo;
@@ -161,6 +168,7 @@ begin
     Route('mensagens');
     Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemConversa(iConversa)));
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
+    Query(TJSONObject.Create.AddPair('usuario', ID));
     GET;
 
     Result := [];
@@ -180,6 +188,12 @@ begin
       if not (Item.FindValue('alterada') is TJSONNull) then
         Mensagem.alterada := ISO8601ToDate(Item.GetValue<String>('alterada'));
 
+      if Mensagem.Id = 842 then
+        Sleep(0);
+
+      Mensagem.Recebida := Item.GetValue<Boolean>('recebida');
+      Mensagem.Visualizada := Item.GetValue<Boolean>('visualizada');
+
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
         MensagemConteudo := Default(TMensagemConteudo);
@@ -193,9 +207,9 @@ begin
         Mensagem.conteudos := Mensagem.conteudos + [MensagemConteudo];
       end;
 
-      FDadosApp.AdicionaMensagem(iConversa, Mensagem);
+      FDadosApp.AdicionaMensagem(iConversa, @Mensagem);
 
-      Result := Result + [Mensagem];
+      Result := Result + [@Mensagem];
     end;
   finally
     Free;
@@ -253,7 +267,7 @@ begin
   end;
 end;
 
-procedure TDados.EnviarMensagem(Mensagem: TMensagem);
+procedure TDados.EnviarMensagem(Mensagem: TPMensagem);
 var
   oJSON: TJSONObject;
   aConteudos: TJSONArray;
@@ -355,11 +369,40 @@ end;
 procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
 var
   I: Integer;
+  Conversa: TDadosConversa;
+  sMsgID: String;
 begin
   Dados.tmrAtualizarMensagens.Enabled := False;
   try
     with TAPIConversa.Create do
     try
+      for Conversa in FDadosApp.Conversas do
+      begin
+        sMsgID := FDadosApp.MensagensParaAtualizar(Conversa.ID);
+        if sMsgID.Trim.IsEmpty then
+          Continue;
+
+        Route('mensagem/status');
+        Query(
+          TJSONObject.Create
+            .AddPair('conversa', Conversa.ID)
+            .AddPair('mensagem', sMsgID)
+            .AddPair('usuario', ID)
+        );
+        GET;
+        for var Item in Response.ToJSONArray do
+        begin
+          for I := 0 to Pred(Length(Conversa.Mensagens)) do
+          begin
+            if Conversa.Mensagens[I].Id <> Item.GetValue<Integer>('mensagem_id') then
+              Continue;
+
+            Conversa.Mensagens[I].Recebida := Item.GetValue<Boolean>('recebida');
+            Conversa.Mensagens[I].Visualizada := Item.GetValue<Boolean>('visualizada');
+          end;
+        end;
+      end;
+
       Route('mensagens/novas');
       Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemNotificada));
       GET;
@@ -452,5 +495,23 @@ begin
   AtualizarContadorNotificacao(FDadosApp.MensagemSemVisualizar);
 end;
 
+procedure TDados.VisualizarMensagem(Mensagem: TPMensagem);
+begin
+  with TAPIConversa.Create do
+  try
+    Route('mensagem/visualizar');
+    Query(
+      TJSONObject.Create
+        .AddPair('conversa', Mensagem.ConversaId)
+        .AddPair('mensagem', Mensagem.Id)
+        .AddPair('usuario', ID)
+    );
+    GET;
+  finally
+    Free;
+  end;
+end;
+
 end.
+
 

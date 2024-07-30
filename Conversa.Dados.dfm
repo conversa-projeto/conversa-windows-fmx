@@ -1,13 +1,12 @@
 object Dados: TDados
   OnCreate = DataModuleCreate
-  Height = 578
-  Width = 729
-  PixelsPerInch = 144
+  Height = 385
+  Width = 486
   object cdsConversas: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 56
-    Top = 24
+    Left = 37
+    Top = 16
     object cdsConversasid: TIntegerField
       FieldName = 'id'
     end
@@ -30,7 +29,7 @@ object Dados: TDados
     Enabled = False
     Interval = 5000
     OnTimer = tmrAtualizarMensagensTimer
-    Left = 233
-    Top = 24
+    Left = 155
+    Top = 16
   end
 end
