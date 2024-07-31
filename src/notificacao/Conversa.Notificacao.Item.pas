@@ -134,15 +134,19 @@ begin
       Layout.Opacity := Self.Opacity;
       Layout.WordWrap := False;
       BoldFont := TFont.Create;
-      BoldFont.Assign(Layout.Font);
-      BoldFont.Style := [TFontStyle.fsBold];
-      for I := 0 to Pred(Length(ANConteudos)) do
-        Layout.AddAttribute(
-          TTextAttributedRange.Create(
-            TTextRange.Create(ANConteudos[I].InicioNome, ANConteudos[I].Nome.Length),
-            TTextAttribute.Create(BoldFont, TAlphaColors.Black)
-          )
-        );
+      try
+        BoldFont.Assign(Layout.Font);
+        BoldFont.Style := [TFontStyle.fsBold];
+        for I := 0 to Pred(Length(ANConteudos)) do
+          Layout.AddAttribute(
+            TTextAttributedRange.Create(
+              TTextRange.Create(ANConteudos[I].InicioNome, ANConteudos[I].Nome.Length),
+              TTextAttribute.Create(BoldFont, TAlphaColors.Black)
+            )
+          );
+      finally
+        FreeAndNil(BoldFont);
+      end;
       Layout.WordWrap := True;
       Layout.HorizontalAlign := TTextAlign.Leading;
       Layout.VerticalAlign := TTextAlign.Leading;

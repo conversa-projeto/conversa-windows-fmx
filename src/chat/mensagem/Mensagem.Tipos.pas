@@ -5,22 +5,30 @@ interface
 
 uses
   System.SysUtils,
-  FMX.Graphics;
+  System.Generics.Collections, // Inclui a unidade para TList
+  FMX.Graphics,
+  FMX.Types; // Inclui a unidade FMX.Types para TFmxObject
 
 {$SCOPEDENUMS ON}
 
 type
   TLado = (Esquerdo, Direito);
 
-  TMensagemConteudo = record
-    id: Integer;
-    tipo: Integer;
-    ordem: Integer;
-    conteudo: String
+  TMensagemConteudo = class
+  private
+    Fid: Integer;
+    Ftipo: Integer;
+    Fordem: Integer;
+    Fconteudo: String;
+  public
+    class function New: TMensagemConteudo;
+    property id: Integer read Fid write Fid;
+    property tipo: Integer read Ftipo write Ftipo;
+    property ordem: Integer read Fordem write Fordem;
+    property conteudo: String read Fconteudo write Fconteudo;
   end;
 
-  TPMensagem = ^TMensagem;
-  TMensagem = record
+  TMensagem = class
   private
     Fid: Integer;
     Fremetente_id: Integer;
@@ -33,13 +41,8 @@ type
     Frecebida: Boolean;
     Fvisualizada: Boolean;
     Fnotificada: Boolean;
-    Fconteudos: TArray<TMensagemConteudo>;
-    FAoAtualizar: TArray<TProc<TPMensagem>>;
-  end;
-  TMensagens = TArray<TMensagem>;
-
-  TMensagemH = record helper for TMensagem
-  private
+    Fconteudos: TObjectList<TMensagemConteudo>;
+    FAoAtualizar: TProc<TMensagem>;
     function GetId: Integer;
     procedure SetId(Value: Integer);
     function GetRemetenteId: Integer;
@@ -56,8 +59,8 @@ type
     procedure SetInserida(Value: TDateTime);
     function GetExibida: Boolean;
     procedure SetExibida(Value: Boolean);
-    function GetConteudos: TArray<TMensagemConteudo>;
-    procedure SetConteudos(Value: TArray<TMensagemConteudo>);
+    function GetConteudos: TObjectList<TMensagemConteudo>;
+    procedure SetConteudos(Value: TObjectList<TMensagemConteudo>);
     function GetVisualizada: Boolean;
     procedure SetVisualizada(const Value: Boolean);
     function GetNotificada: Boolean;
@@ -66,6 +69,9 @@ type
     procedure SetRecebida(const Value: Boolean);
     procedure DoAtualizar;
   public
+    constructor Create;
+    destructor Destroy; override;
+    class function New: TMensagem;
     property Id: Integer read GetId write SetId;
     property RemetenteId: Integer read GetRemetenteId write SetRemetenteId;
     property Remetente: String read GetRemetente write SetRemetente;
@@ -74,14 +80,14 @@ type
     property Alterada: TDateTime read GetAlterada write SetAlterada;
     property Inserida: TDateTime read GetInserida write SetInserida;
     property Exibida: Boolean read GetExibida write SetExibida;
-    property Conteudos: TArray<TMensagemConteudo> read GetConteudos write SetConteudos;
+    property Conteudos: TObjectList<TMensagemConteudo> read GetConteudos write SetConteudos;
     property Recebida: Boolean read GetRecebida write SetRecebida;
     property Visualizada: Boolean read GetVisualizada write SetVisualizada;
     property Notificada: Boolean read GetNotificada write SetNotificada;
     procedure VisualizarMensagem;
-    procedure AoAtualizar(Value: TProc<TPMensagem>);
+    procedure AoAtualizar(Value: TProc<TMensagem>);
   end;
-  TPMensagems = TArray<TPMensagem>;
+  TMensagens = TArray<TMensagem>;
 
 implementation
 
@@ -89,299 +95,307 @@ uses
   Conversa.Dados,
   Conversa.Log;
 
+{ TMensagemConteudo }
 
-procedure AddLog(Msg: String);
+class function TMensagemConteudo.New: TMensagemConteudo;
 begin
+  Result := TMensagemConteudo.Create;
 end;
 
-{ TPMensagemH }
+{ TMensagem }
 
-function TMensagemH.GetId: Integer;
+constructor TMensagem.Create;
+begin
+  inherited;
+  Fconteudos := TObjectList<TMensagemConteudo>.Create;
+end;
+
+destructor TMensagem.Destroy;
+begin
+  FreeAndNil(Fconteudos);
+  inherited Destroy;
+end;
+
+class function TMensagem.New: TMensagem;
+begin
+  Result := TMensagem.Create;
+end;
+
+function TMensagem.GetId: Integer;
 begin
   AddLog('Início: GetId');
   try
-    Result := Self.Fid;
+    Result := Fid;
   finally
     AddLog('Fim: GetId');
   end;
 end;
 
-procedure TMensagemH.SetId(Value: Integer);
+procedure TMensagem.SetId(Value: Integer);
 begin
   AddLog('Início: SetId');
   try
-    Self.Fid := Value;
+    Fid := Value;
   finally
     AddLog('Fim: SetId');
   end;
 end;
 
-function TMensagemH.GetRemetenteId: Integer;
+function TMensagem.GetRemetenteId: Integer;
 begin
   AddLog('Início: GetRemetenteId');
   try
-    Result := Self.Fremetente_id;
+    Result := Fremetente_id;
   finally
     AddLog('Fim: GetRemetenteId');
   end;
 end;
 
-procedure TMensagemH.SetRemetenteId(Value: Integer);
+procedure TMensagem.SetRemetenteId(Value: Integer);
 begin
   AddLog('Início: SetRemetenteId');
   try
-    Self.Fremetente_id := Value;
+    Fremetente_id := Value;
   finally
     AddLog('Fim: SetRemetenteId');
   end;
 end;
 
-function TMensagemH.GetRemetente: String;
+function TMensagem.GetRemetente: String;
 begin
   AddLog('Início: GetRemetente');
   try
-    Result := Self.Fremetente;
+    Result := Fremetente;
   finally
     AddLog('Fim: GetRemetente');
   end;
 end;
 
-procedure TMensagemH.SetRemetente(Value: String);
+procedure TMensagem.SetRemetente(Value: String);
 begin
   AddLog('Início: SetRemetente');
   try
-    Self.Fremetente := Value;
+    Fremetente := Value;
   finally
     AddLog('Fim: SetRemetente');
   end;
 end;
 
-function TMensagemH.GetLado: TLado;
+function TMensagem.GetLado: TLado;
 begin
   AddLog('Início: GetLado');
   try
-    Result := Self.Flado;
+    Result := Flado;
   finally
     AddLog('Fim: GetLado');
   end;
 end;
 
-procedure TMensagemH.SetLado(Value: TLado);
+procedure TMensagem.SetLado(Value: TLado);
 begin
   AddLog('Início: SetLado');
   try
-    Self.Flado := Value;
+    Flado := Value;
   finally
     AddLog('Fim: SetLado');
   end;
 end;
 
-function TMensagemH.GetConversaId: Integer;
+function TMensagem.GetConversaId: Integer;
 begin
   AddLog('Início: GetConversaId');
   try
-    Result := Self.Fconversa_id;
+    Result := Fconversa_id;
   finally
     AddLog('Fim: GetConversaId');
   end;
 end;
 
-procedure TMensagemH.SetConversaId(Value: Integer);
+procedure TMensagem.SetConversaId(Value: Integer);
 begin
   AddLog('Início: SetConversaId');
   try
-    Self.Fconversa_id := Value;
+    Fconversa_id := Value;
   finally
     AddLog('Fim: SetConversaId');
   end;
 end;
 
-function TMensagemH.GetAlterada: TDateTime;
+function TMensagem.GetAlterada: TDateTime;
 begin
   AddLog('Início: GetAlterada');
   try
-    Result := Self.Falterada;
+    Result := Falterada;
   finally
     AddLog('Fim: GetAlterada');
   end;
 end;
 
-procedure TMensagemH.SetAlterada(Value: TDateTime);
+procedure TMensagem.SetAlterada(Value: TDateTime);
 begin
   AddLog('Início: SetAlterada');
   try
-    Self.Falterada := Value;
+    Falterada := Value;
   finally
     AddLog('Fim: SetAlterada');
   end;
 end;
 
-function TMensagemH.GetInserida: TDateTime;
+function TMensagem.GetInserida: TDateTime;
 begin
   AddLog('Início: GetInserida');
   try
-    Result := Self.Finserida;
+    Result := Finserida;
   finally
     AddLog('Fim: GetInserida');
   end;
 end;
 
-procedure TMensagemH.SetInserida(Value: TDateTime);
+procedure TMensagem.SetInserida(Value: TDateTime);
 begin
   AddLog('Início: SetInserida');
   try
-    Self.Finserida := Value;
+    Finserida := Value;
   finally
     AddLog('Fim: SetInserida');
   end;
 end;
 
-function TMensagemH.GetExibida: Boolean;
+function TMensagem.GetExibida: Boolean;
 begin
   AddLog('Início: GetExibida');
   try
-    Result := Self.Fexibida;
+    Result := Fexibida;
   finally
     AddLog('Fim: GetExibida');
   end;
 end;
 
-procedure TMensagemH.SetExibida(Value: Boolean);
+procedure TMensagem.SetExibida(Value: Boolean);
 begin
   AddLog('Início: SetExibida');
   try
-    Self.Fexibida := Value;
+    Fexibida := Value;
   finally
     AddLog('Fim: SetExibida');
   end;
 end;
 
-function TMensagemH.GetConteudos: TArray<TMensagemConteudo>;
+function TMensagem.GetConteudos: TObjectList<TMensagemConteudo>;
 begin
   AddLog('Início: GetConteudos');
   try
-    Result := Self.Fconteudos;
+    Result := Fconteudos;
   finally
     AddLog('Fim: GetConteudos');
   end;
 end;
 
-procedure TMensagemH.SetConteudos(Value: TArray<TMensagemConteudo>);
+procedure TMensagem.SetConteudos(Value: TObjectList<TMensagemConteudo>);
 begin
   AddLog('Início: SetConteudos');
   try
-    Self.Fconteudos := Value;
+    Fconteudos := Value;
   finally
     AddLog('Fim: SetConteudos');
   end;
 end;
 
-function TMensagemH.GetRecebida: Boolean;
+function TMensagem.GetRecebida: Boolean;
 begin
   AddLog('Início: GetRecebida');
   try
-    Result := Self.FRecebida;
+    Result := Frecebida;
   finally
     AddLog('Fim: GetRecebida');
   end;
 end;
 
-procedure TMensagemH.SetRecebida(const Value: Boolean);
+procedure TMensagem.SetRecebida(const Value: Boolean);
 begin
   AddLog('Início: SetRecebida');
   try
     if Frecebida = Value then
       Exit;
-
-    Self.Frecebida := Value;
+    Frecebida := Value;
     DoAtualizar;
   finally
     AddLog('Fim: SetRecebida');
   end;
 end;
 
-function TMensagemH.GetVisualizada: Boolean;
+function TMensagem.GetVisualizada: Boolean;
 begin
   AddLog('Início: GetVisualizada');
   try
-    Result := Self.Fvisualizada;
+    Result := Fvisualizada;
   finally
     AddLog('Fim: GetVisualizada');
   end;
 end;
 
-procedure TMensagemH.SetVisualizada(const Value: Boolean);
+procedure TMensagem.SetVisualizada(const Value: Boolean);
 begin
   AddLog('Início: SetVisualizada');
   try
     if Fvisualizada = Value then
       Exit;
-
-    Self.Fvisualizada := Value;
+    Fvisualizada := Value;
     DoAtualizar;
   finally
     AddLog('Fim: SetVisualizada');
   end;
 end;
 
-function TMensagemH.GetNotificada: Boolean;
+function TMensagem.GetNotificada: Boolean;
 begin
   AddLog('Início: GetNotificada');
   try
-    Result := Self.Fnotificada;
+    Result := Fnotificada;
   finally
     AddLog('Fim: GetNotificada');
   end;
 end;
 
-procedure TMensagemH.SetNotificada(const Value: Boolean);
+procedure TMensagem.SetNotificada(const Value: Boolean);
 begin
   AddLog('Início: SetNotificada');
   try
-    Self.Fnotificada := Value;
+    Fnotificada := Value;
   finally
     AddLog('Fim: SetNotificada');
   end;
 end;
 
-procedure TMensagemH.VisualizarMensagem;
+procedure TMensagem.VisualizarMensagem;
 begin
   AddLog('Início: VisualizarMensagem');
   try
-    if Visualizada then
-      Exit;
-
-    Self.Visualizada := True;
-    Dados.AtualizarContador;
-    Dados.VisualizarMensagem(@Self);
+    if not Fvisualizada then
+    begin
+      Fvisualizada := True;
+      if Assigned(FAoAtualizar) then
+        FAoAtualizar(Self);
+    end;
   finally
     AddLog('Fim: VisualizarMensagem');
   end;
 end;
 
-procedure TMensagemH.AoAtualizar(Value: TProc<TPMensagem>);
+procedure TMensagem.AoAtualizar(Value: TProc<TMensagem>);
 begin
   AddLog('Início: AoAtualizar');
   try
-    Self.FAoAtualizar := Self.FAoAtualizar + [Value];
+    FAoAtualizar := Value;
   finally
     AddLog('Fim: AoAtualizar');
   end;
 end;
 
-procedure TMensagemH.DoAtualizar;
-var
-  Proc: TProc<TPMensagem>;
+procedure TMensagem.DoAtualizar;
 begin
-  AddLog('Início: DoAtualizar');
-  try
-    if Length(FAoAtualizar) > 0 then
-      for Proc in FAoAtualizar do
-        if Assigned(Proc) then
-          Proc(@Self);
-  finally
-    AddLog('Fim: DoAtualizar');
-  end;
+  if Assigned(FAoAtualizar) then
+    FAoAtualizar(Self);
 end;
 
 end.

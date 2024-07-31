@@ -4,32 +4,44 @@ unit Conversa.Memoria;
 interface
 
 uses
+  FMX.Types,
+  System.Generics.Collections,
   Mensagem.Tipos;
 
 type
-  TDadosConversa = record
+  TDadosConversa = class
   private
     FUltimaMensagem: Integer;
   public
     ID: Integer;
-    Mensagens: TMensagens;
+    Descricao: String;
+    UltimaMensagem: String;
+    UltimaMensagemData: TDateTime;
+    DestinatarioId: Integer;
+    Destinatario: String;
+    Mensagens: TObjectList<TMensagem>;
     procedure AdicionaMensagem(Mensagem: TMensagem);
+    class function New: TDadosConversa;
+    constructor Create;
+    destructor Destroy; override;
   end;
-  TPDadosConversa = ^TDadosConversa;
 
-  TDadosApp = record
+  TDadosApp = class
   private
-    function ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
   public
-    Conversas: TArray<TDadosConversa>;
+    Conversas: TObjectList<TDadosConversa>;
     UltimaMensagemNotificada: Integer;
+    class function New: TDadosApp;
+    constructor Create;
+    destructor Destroy; override;
+    function ObtemConversa(const iConversa: Integer; var Conversa: TDadosConversa): Boolean;
     function UltimaMensagemConversa(iConversa: Integer): Integer;
-    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
-    function Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
-    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
+    function Mensagens(iConversa: Integer; iInicio: Integer): TMensagens;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TMensagens;
     function MensagemSemVisualizar: Integer; overload;
     function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
-    function MensagensParaNotificar(iConversa: Integer): TPMensagems;
+    function MensagensParaNotificar(iConversa: Integer): TMensagens;
     function MensagensParaAtualizar(iConversa: Integer): String;
   end;
 
@@ -45,18 +57,18 @@ uses
 
 { TDadosApp }
 
-function TDadosApp.ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
+function TDadosApp.ObtemConversa(const iConversa: Integer; var Conversa: TDadosConversa): Boolean;
 var
   I: Integer;
 begin
   AddLog('Início: ObtemConversa');
   try
     Result := False;
-    for I := Low(Conversas) to High(Conversas) do
+    for I := 0 to Pred(Conversas.Count) do
     begin
       if Conversas[I].ID = iConversa then
       begin
-        Conversa := @Conversas[I];
+        Conversa := Conversas[I];
         Exit(True);
       end;
     end;
@@ -65,23 +77,21 @@ begin
   end;
 end;
 
-procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
+procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
 var
-  P: TPDadosConversa;
   Conversa: TDadosConversa;
 begin
   AddLog('Início: AdicionaMensagem');
   try
-    if not ObtemConversa(iConversa, P) then
+    if not ObtemConversa(iConversa, Conversa) then
     begin
-      Conversa := Default(TDadosConversa);
+      Conversa := TDadosConversa.New;
       Conversa.ID := iConversa;
-      Conversas := Conversas + [Conversa];
-      P := @Conversa;
+      Conversas.Add(Conversa);
     end;
-    P.AdicionaMensagem(Mensagem^);
+    Conversa.AdicionaMensagem(Mensagem);
     if Mensagem.lado = TLado.Esquerdo then
-      P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
+      Conversa.FUltimaMensagem := Max(Mensagem.id, Conversa.FUltimaMensagem);
     UltimaMensagemNotificada := Max(Mensagem.id, UltimaMensagemNotificada);
   finally
     AddLog('Fim: AdicionaMensagem');
@@ -90,7 +100,7 @@ end;
 
 function TDadosApp.UltimaMensagemConversa(iConversa: Integer): Integer;
 var
-  P: TPDadosConversa;
+  P: TDadosConversa;
 begin
   AddLog('Início: UltimaMensagemConversa');
   try
@@ -119,7 +129,7 @@ end;
 
 function TDadosApp.MensagemSemVisualizar(iConversa: Integer): Integer;
 var
-  Conversa: TPDadosConversa;
+  Conversa: TDadosConversa;
   Mensagem: TMensagem;
 begin
   AddLog('Início: MensagemSemVisualizar(Integer)');
@@ -134,9 +144,9 @@ begin
   end;
 end;
 
-function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
+function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TMensagens;
 var
-  Conversa: TPDadosConversa;
+  Conversa: TDadosConversa;
   Mensagem: TMensagem;
 begin
   AddLog('Início: Mensagens');
@@ -145,29 +155,38 @@ begin
     if not ObtemConversa(iConversa, Conversa) then Exit;
     for Mensagem in Conversa.Mensagens do
       if Mensagem.id >= iInicio then
-        Result := Result + [@Mensagem];
+        Result := Result + [Mensagem];
   finally
     AddLog('Fim: Mensagens');
   end;
 end;
 
-function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+constructor TDadosApp.Create;
+begin
+  inherited;
+  Conversas := TObjectList<TDadosConversa>.Create;
+end;
+
+destructor TDadosApp.Destroy;
+begin
+  FreeAndNil(Conversas);
+end;
+
+function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TMensagens;
 var
-  Conversa: TPDadosConversa;
+  Conversa: TDadosConversa;
   I: Integer;
 begin
   AddLog('Início: ExibirMensagem');
   try
     Result := [];
     if not ObtemConversa(iConversa, Conversa) then Exit;
-
-    for I := 0 to Pred(Length(Conversa.Mensagens)) do
+    for I := 0 to Pred(Conversa.Mensagens.Count) do
     begin
       if ApenasPendente and Conversa.Mensagens[I].exibida then
         Continue;
-
       Conversa.Mensagens[I].exibida := True;
-      Result := Result + [@Conversa.Mensagens[I]];
+      Result := Result + [Conversa.Mensagens[I]];
     end;
   finally
     AddLog('Fim: ExibirMensagem');
@@ -176,14 +195,14 @@ end;
 
 function TDadosApp.MensagensParaAtualizar(iConversa: Integer): String;
 var
-  Conversa: TPDadosConversa;
+  Conversa: TDadosConversa;
   I: Integer;
 begin
   AddLog('Início: MensagensParaAtualizar');
   try
     Result := '';
     if ObtemConversa(iConversa, Conversa) then
-    for I := Pred(Length(Conversa.Mensagens)) downto 0 do
+    for I := Pred(Conversa.Mensagens.Count) downto 0 do
       if not Conversa.Mensagens[I].Visualizada or not Conversa.Mensagens[I].Recebida then
         Result := Result + IfThen(not Result.Trim.IsEmpty, ',') + Conversa.Mensagens[I].ID.ToString;
   finally
@@ -191,30 +210,49 @@ begin
   end;
 end;
 
-function TDadosApp.MensagensParaNotificar(iConversa: Integer): TPMensagems;
+function TDadosApp.MensagensParaNotificar(iConversa: Integer): TMensagens;
 var
-  Conversa: TPDadosConversa;
+  Conversa: TDadosConversa;
   I: Integer;
 begin
   AddLog('Início: MensagensParaNotificar');
   try
     if not ObtemConversa(iConversa, Conversa) then Exit;
     Result := [];
-
-    for I := Pred(Length(Conversa.Mensagens)) downto 0 do
+    for I := Pred(Conversa.Mensagens.Count) downto 0 do
     begin
       if Conversa.Mensagens[I].Notificada then
         Continue;
-
       Conversa.Mensagens[I].Notificada := True;
-      Result := [@Conversa.Mensagens[I]] + Result;
+      Result := [Conversa.Mensagens[I]] + Result;
     end;
   finally
     AddLog('Fim: MensagensParaNotificar');
   end;
 end;
 
+class function TDadosApp.New: TDadosApp;
+begin
+  Result := TDadosApp.Create;
+end;
+
 { TDadosConversa }
+constructor TDadosConversa.Create;
+begin
+  inherited;
+  Mensagens := TObjectList<TMensagem>.Create;
+end;
+
+destructor TDadosConversa.Destroy;
+begin
+  FreeAndNil(Mensagens);
+  inherited;
+end;
+
+class function TDadosConversa.New: TDadosConversa;
+begin
+  Result := TDadosConversa.Create;
+end;
 
 procedure TDadosConversa.AdicionaMensagem(Mensagem: TMensagem);
 var
@@ -222,7 +260,7 @@ var
 begin
   AddLog('Início: AdicionaMensagem');
   try
-    for I := Low(Mensagens) to High(Mensagens) do
+    for I := 0 to Pred(Mensagens.Count) do
     begin
       if Mensagens[I].ID = Mensagem.id then
       begin
@@ -231,7 +269,7 @@ begin
         Exit;
       end;
     end;
-    Mensagens := Mensagens + [Mensagem];
+    Mensagens.Add(Mensagem);
     Dados.AtualizarContador;
   finally
     AddLog('Fim: AdicionaMensagem');
@@ -239,4 +277,3 @@ begin
 end;
 
 end.
-

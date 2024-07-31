@@ -52,7 +52,7 @@ type
     procedure SetDestinatarioID(const Value: Integer);
   public
     UltimaMensagem: Integer;
-    AoEnviarMensagem: TProc<TChat, TPMensagem>;
+    AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
@@ -61,8 +61,8 @@ type
     property UsuarioID: Integer read FUsuarioID write FUsuarioID;
     property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
     property Visualizador: TVisualizador read FVisualizador;
-    procedure AdicionarMensagem(Mensagem: TPMensagem);
-    procedure AdicionarMensagens(aMensagem: TPMensagems);
+    procedure AdicionarMensagem(Mensagem: TMensagem);
+    procedure AdicionarMensagens(aMensagem: TMensagens);
     procedure PosicionarUltima;
     procedure Limpar;
     procedure VisualizarTudo;
@@ -75,14 +75,14 @@ implementation
 
 { TChat }
 
-procedure TChat.AdicionarMensagem(Mensagem: TPMensagem);
+procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
 begin
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
-procedure TChat.AdicionarMensagens(aMensagem: TPMensagems);
+procedure TChat.AdicionarMensagens(aMensagem: TMensagens);
 var
-  Mensagem: TPMensagem;
+  Mensagem: TMensagem;
 begin
   for Mensagem in aMensagem do
   begin
@@ -107,7 +107,7 @@ begin
   Editor := TEditor.Create(Self);
   Editor.ConfiguraAnexo(Anexo);
   Editor.AdicionaMensagem(
-    procedure(Mensagem: TPMensagem)
+    procedure(Mensagem: TMensagem)
     begin
       if FID = 0 then
       begin

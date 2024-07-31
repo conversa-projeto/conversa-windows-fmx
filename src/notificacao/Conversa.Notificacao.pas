@@ -55,10 +55,9 @@ type
     class function Apresentar(Value: TNotificacao): TNotificacaoManager; overload;
     class function Fechar(ChatId: Integer): TNotificacaoManager;
     function Count: Integer;
+    class procedure Finalizar;
   end;
-
 implementation
-
 uses
   Conversa.Notificacao.Visualizador,
   Conversa.Notificacao.Item,
@@ -87,12 +86,18 @@ end;
 destructor TNotificacaoManager.Destroy;
 begin
   FreeAndNil(FNotificacoes);
+  FreeAndNil(FVisualizador);
   inherited;
 end;
 
 class function TNotificacaoManager.Fechar(ChatId: Integer): TNotificacaoManager;
 begin
   Result := Instance.InternalFechar(ChatId);
+end;
+
+class procedure TNotificacaoManager.Finalizar;
+begin
+  FreeAndNil(FInstance);
 end;
 
 class function TNotificacaoManager.Instance: TNotificacaoManager;

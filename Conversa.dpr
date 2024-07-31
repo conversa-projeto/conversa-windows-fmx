@@ -57,4 +57,6 @@ begin
   Application.CreateForm(TDados, Dados);
   Application.CreateForm(TTelaInicial, TelaInicial);
   Application.Run;
+
+  TNotificacaoManager.Finalizar;
 end.

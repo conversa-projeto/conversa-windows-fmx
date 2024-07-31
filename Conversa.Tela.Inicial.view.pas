@@ -110,6 +110,7 @@ end;
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
   inherited;
+//  Button1.Visible := False;
   AdicionarTrayIcon;
 end;
 
@@ -154,8 +155,9 @@ end;
 
 procedure TTelaInicial.DoConversaClose;
 begin
-  ShowWindow(FormToHWND(Self), SW_HIDE);
-  HideAppOnTaskbar;
+  Close;
+//  ShowWindow(FormToHWND(Self), SW_HIDE);
+//  HideAppOnTaskbar;
 end;
 
 procedure TTelaInicial.DoConversaRestore;

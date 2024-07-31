@@ -35,7 +35,7 @@ type
     lytEnviar: TLayout;
     pthEnviar: TPath;
     OpenDialog: TOpenDialog;
-    FAdicionar: TProc<TPMensagem>;
+    FAdicionar: TProc<TMensagem>;
     FAnexo: TAnexo;
     FAguardandoAnexo: Boolean;
     procedure mmMensagemChangeTracking(Sender: TObject);
@@ -49,7 +49,7 @@ type
   public
     constructor Create(AOwner: TFmxObject);
     procedure ConfiguraAnexo(Anexo: TAnexo);
-    procedure AdicionaMensagem(Adicionar: TProc<TPMensagem>);
+    procedure AdicionaMensagem(Adicionar: TProc<TMensagem>);
     property Visible: Boolean read FVisible write SetVisible;
   end;
 
@@ -309,9 +309,10 @@ begin
     var
       Mensagem: TMensagem;
     begin
-      Mensagem := Default(TMensagem);
-      Mensagem.Conteudos := Selecionados;
-      FAdicionar(@Mensagem);
+      Mensagem := TMensagem.New;
+      Mensagem.Lado := TLado.Direito;
+      Mensagem.Conteudos.AddRange(Selecionados);
+      FAdicionar(Mensagem);
     end
   );
 
@@ -337,13 +338,14 @@ begin
   sMensagem := mmMensagem.Lines.Text.Trim;
   if sMensagem.IsEmpty then
     Exit;
-  Mensagem := Default(TMensagem);
-  Conteudo := Default(TMensagemConteudo);
+  Mensagem := TMensagem.New;
+  Mensagem.Lado := TLado.Direito;
+  Conteudo := TMensagemConteudo.New;
   Conteudo.tipo := 1; // 1-Texto
   Conteudo.conteudo := sMensagem;
-  Mensagem.Conteudos := [Conteudo];
+  Mensagem.Conteudos.Add(Conteudo);
   mmMensagem.Lines.Clear;
-  FAdicionar(@Mensagem);
+  FAdicionar(Mensagem);
 end;
 
 procedure TEditor.lytMensagemResized(Sender: TObject);
@@ -409,7 +411,7 @@ begin
   end;
 end;
 
-procedure TEditor.AdicionaMensagem(Adicionar: TProc<TPMensagem>);
+procedure TEditor.AdicionaMensagem(Adicionar: TProc<TMensagem>);
 begin
   FAdicionar := Adicionar;
 end;

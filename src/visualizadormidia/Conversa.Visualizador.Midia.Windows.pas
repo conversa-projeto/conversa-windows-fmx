@@ -12,6 +12,7 @@ uses
   System.Variants,
   Winapi.Messages,
   Winapi.Windows,
+  Winapi.Dwmapi,
   FMX.Ani,
   FMX.Controls,
   FMX.Dialogs,
@@ -36,9 +37,6 @@ type
     procedure lytMaximizeButtonClick(Sender: TObject);
     procedure lytMinimizeButtonClick(Sender: TObject);
     procedure lytCloseButtonClick(Sender: TObject);
-
-    procedure rctTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
-
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   protected
     procedure CreateHandle; override;
@@ -47,6 +45,7 @@ type
     procedure DoConversaClose; virtual;
     procedure DoConversaMaximize;
     procedure DoConversaMinimize;
+    procedure rctTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
   public
     constructor Create(AOwner: TComponent); override;
     class procedure Exibir(View: TVisualizadorMidia);
@@ -220,23 +219,22 @@ var
 begin
   Form := TVisualizadorMidiaWindows.CreateNew(nil);
   Form.Transparency := True;
-  Form.Fill.Kind := TBrushKind.Solid;
-  Form.Fill.Color := TAlphaColors.Blue;//View.rctFundo.Fill.Color;
   Form.FView := View;
 
 
 //  View.rctFundo.Fill.Color := TAlphaColors.Null;
 
   // Configura botões
-  View.lytTitleBar.Parent := FOrm;
   View.lytMinimizeButton.OnClick := Form.lytMinimizeButtonClick;
   View.lytMaximizeButton.OnClick := Form.lytMaximizeButtonClick;
   View.lytCloseButton.OnClick := Form.lytCloseButtonClick;
+  View.lytTitleBar.Visible := False;
 
   View.Parent := Form;
   View.OnClose := Form.DoOnCloseView;
 
-//  Form.WindowState := TWindowState.wsMaximized;
+  Form.WindowState := TWindowState.wsMaximized;
+  Form.BorderStyle := TFmxFormBorderStyle.None;
   Form.Show;
 end;
 
@@ -267,22 +265,23 @@ end;
 procedure TVisualizadorMidiaWindows.CreateHandle;
 var
   Wnd: HWND;
-  AlphaValue: Byte;
+  dwmWindowCornerPreference: DWORD;
 begin
   inherited;
   Wnd := FormToHWND(Self);
   // WS_EX_LAYERED é adicionado ao estilo da janela para permitir a transparência em janelas no Windows.
   // WS_EX_TOOLWINDOW é adicionado ao estilo da janela para torná-la uma janela de ferramenta, que não aparece na barra de tarefas.
   SetWindowLong(Wnd, GWL_EXSTYLE, GetWindowLong(Wnd, GWL_EXSTYLE) or WS_EX_LAYERED or WS_EX_APPWINDOW);
-  FOldWndProc := Pointer(SetWindowLong(Wnd, GWL_WNDPROC, LongInt(@WndProc)));
 
-    AlphaValue := 125;
-    SetLayeredWindowAttributes(Wnd, 0, alphaValue, LWA_ALPHA);
+//  dwmWindowCornerPreference := DWMWCP_ROUND;
+//  DwmSetWindowAttribute(wnd, DWMWA_WINDOW_CORNER_PREFERENCE, @dwmWindowCornerPreference, SizeOf(dwmWindowCornerPreference));
+
+//  FOldWndProc := Pointer(SetWindowLong(Wnd, GWL_WNDPROC, LongInt(@WndProc)));
 end;
 
 procedure TVisualizadorMidiaWindows.DestroyHandle;
 begin
-  SetWindowLong(WindowHandleToPlatform(Handle).Wnd, GWL_WNDPROC, LongInt(FOldWndProc));
+//  SetWindowLong(WindowHandleToPlatform(Handle).Wnd, GWL_WNDPROC, LongInt(FOldWndProc));
   inherited;
 end;
 

@@ -31,7 +31,7 @@ uses
 type
   TItem = record
     ID: Integer;
-    Dados: TPMensagem;
+    Dados: TMensagem;
     Mensagem: TLayout;
     Hora: TText;
     Status: TPath;
@@ -74,11 +74,11 @@ type
     procedure lytConteudoMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure rtgUltimaClick(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
-    procedure AoAtualizar(Mensagem: TPMensagem);
+    procedure AoAtualizar(Mensagem: TMensagem);
     procedure ImageClick(Sender: TObject);
   public
     constructor Create(AOwner: TFmxObject);
-    procedure AdicionaMensagem(Mensagem: TPMensagem);
+    procedure AdicionaMensagem(Mensagem: TMensagem);
     property Visible: Boolean read FVisible write SetVisible;
     procedure PosicionarUltima;
     procedure Limpar;
@@ -187,7 +187,7 @@ begin
   FOwner.AddObject(lytConteudo);
 end;
 
-procedure TVisualizador.AdicionaMensagem(Mensagem: TPMensagem);
+procedure TVisualizador.AdicionaMensagem(Mensagem: TMensagem);
 var
   lytAltura: TLayout;
   lytLargura: TLayout;
@@ -346,7 +346,7 @@ begin
     end;
   end;
 
-  for I := 0 to Pred(Length(Mensagem.Conteudos)) do
+  for I := 0 to Pred(Mensagem.Conteudos.Count) do
   begin
     case Mensagem.Conteudos[I].Tipo of
       1: // texto
@@ -387,7 +387,7 @@ begin
           FreeAndNil(bmp);
         end;
         imgImagem.Align := TAlignLayout.Top;
-        if (Length(Mensagem.Conteudos) > 1) and (I >= 1) then
+        if ((Mensagem.Conteudos.Count) > 1) and (I >= 1) then
           imgImagem.Margins.Top := 5;
         imgImagem.Size.Width := 353;
         imgImagem.Size.Height := 217;
@@ -416,7 +416,7 @@ begin
   FItems := FItems + [Item];
   Redimensionar(sbxCentro.Width, lytAltura);
   Item.Dados.AoAtualizar(
-    procedure(Mensagem: TPMensagem)
+    procedure(Mensagem: TMensagem)
     begin
       AoAtualizar(Mensagem)
     end
@@ -640,7 +640,10 @@ begin
     begin
       // Se a mensagem já está acima do topo da Scroll, sai do Loop
       if (FItems[I].Mensagem.Position.Y + FItems[I].Mensagem.Height) < scroll.Value then
+      begin
+        Sleep(0);
         Break;
+      end;
 
       Continue;
     end;
@@ -653,7 +656,7 @@ begin
   end;
 end;
 
-procedure TVisualizador.AoAtualizar(Mensagem: TPMensagem);
+procedure TVisualizador.AoAtualizar(Mensagem: TMensagem);
 var
   Item: TItem;
   ID: Integer;

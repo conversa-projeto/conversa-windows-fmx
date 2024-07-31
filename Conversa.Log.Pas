@@ -7,71 +7,28 @@ procedure AddLog(const Msg: String);
 implementation
 
 uses
-  System.Types,
   System.SysUtils,
-  System.IOUtils,
-  System.Classes,
-  System.Threading;
+  System.Classes;
 
 var
   I: Integer;
-  Sync: IReadWriteSync;
-  FLock: TObject;
-
-procedure InternalAddLog(const Msg: String; const DataHora: TDateTime; const ThreID: Cardinal);
-begin
-  Sync.BeginWrite;
-  try
-    Inc(I);
-    try
-      with TStringList.Create do
-      try
-        if TFile.Exists('.\log.txt') then
-          LoadFromFile('.\log.txt');
-
-        Insert(
-          0,
-          I.ToString.PadLeft(10, ' ') +' | '+
-          FormatDateTime('yyyy-mm-dd HH:nn:ss.zzz', DataHora) +' | ' +
-          ThreID.ToString.PadLeft(10, ' ') +' | ' +
-          Msg
-        );
-        SaveToFile('.\log.txt');
-        Sleep(1);
-      finally
-        Free;
-      end;
-    finally
-    end;
-  finally
-    Sync.EndWrite;
-  end;
-end;
+  LogFile: TextFile;
 
 procedure AddLog(const Msg: String);
 begin
-  (procedure(const Msg: String; const DataHora: TDateTime; const ThreID: Cardinal)
-   begin
-     TTask.Run(
-       procedure
-       begin
-         (procedure(const Msg: String; const DataHora: TDateTime; const ThreID: Cardinal)
-          begin
-            InternalAddLog(Msg, DataHora, ThreID)
-          end
-         )(Msg, DataHora, ThreId)
-       end
-     );
-   end
-  )(Msg, Now, TThread.Current.ThreadID)
+  Inc(I);
+  Writeln(
+    LogFile,
+    I.ToString.PadLeft(10, ' ') +' | '+ FormatDateTime('yyyy-mm-dd HH:nn:ss.zzz', Now) +' | ' + TThread.Current.ThreadID.ToString.PadLeft(10, ' ') +' | '+ Msg
+  );
 end;
 
 initialization
   I := 0;
-  Sync := TMREWSync.Create;
-  FLock := TObject.Create;
+  AssignFile(LogFile, '.\log.txt');
+  Rewrite(LogFile);
 
 finalization
-  FreeAndNil(FLock);
+  CloseFile(LogFile);
 
 end.

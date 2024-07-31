@@ -30,6 +30,7 @@ inherited VisualizadorMidia: TVisualizadorMidia
       Size.Height = 240.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
+      OnClick = imgImagemClick
       object aniExibir: TFloatAnimation
         Duration = 0.200000002980232200
         PropertyName = 'Opacity'

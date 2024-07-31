@@ -26,6 +26,7 @@ uses
   Conversa.Chat,
   Conversa.Notificacao,
   Mensagem.Tipos,
+  Conversa.Memoria,
   Conversa.Audio;
 
 type
@@ -46,10 +47,10 @@ type
     procedure tmrExibirTimer(Sender: TObject);
     procedure tmrUltimaTimer(Sender: TObject);
   private
-    procedure AoReceberMensagem(Conversa: Integer);
+    procedure AoReceberMensagem(ConversaId: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
-    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
-    procedure AtualizarChat(Mensagem: TPMensagem);
+    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
+    procedure AtualizarChat(Mensagem: TMensagem);
   public
     Chat: TChat;
     class function New(AOwner: TFmxObject): TChatListagem; static;
@@ -88,38 +89,31 @@ destructor TChatListagem.Destroy;
 begin
   if Assigned(Chat) then
     FreeAndNil(Chat);
-
   inherited;
 end;
-
 procedure TChatListagem.tmrExibirTimer(Sender: TObject);
 var
   Item: TListBoxItem;
+  Conversa: TDadosConversa;
 begin
   tmrExibir.Enabled := False;
-  Dados.Conversas;
-  Dados.cdsConversas.First;
-  while not Dados.cdsConversas.Eof do
-  try
+  Dados.CarregarConversas;
+  for Conversa in Dados.Conversas do
+  begin
     Item := TListBoxItem.Create(nil);
     Item.Text := '';
     Item.Height := 60;
     Item.Selectable := False;
-
     Item.ContatoItem :=
-      TConversasItemFrame.New(Item, Dados.cdsConversas.FieldByName('id').AsInteger, Dados.cdsConversas.FieldByName('destinatario_id').AsInteger)
-        .Descricao(Dados.cdsConversas.FieldByName('descricao').AsString)
-        .Mensagem(Dados.cdsConversas.FieldByName('ultima_mensagem_texto').AsString)
-        .UltimaMensagem(Dados.cdsConversas.FieldByName('ultima_mensagem').AsDateTime)
+      TConversasItemFrame.New(Item, Conversa.ID, Conversa.DestinatarioId)
+        .Descricao(Conversa.Descricao)
+        .Mensagem(Conversa.UltimaMensagem)
+        .UltimaMensagem(Conversa.UltimaMensagemData)
         .OnClick(btnAbrirChat);
-
     lstConversas.AddObject(Item);
-  finally
-    Dados.cdsConversas.Next;
   end;
 end;
-
-procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
+procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
 begin
   Dados.EnviarMensagem(Mensagem);
   Chat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.ID, True));
@@ -139,81 +133,70 @@ begin
     end;
   end;
 end;
-
-procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
+procedure TChatListagem.AoReceberMensagem(ConversaId: Integer);
 var
   bNovo: Boolean;
   Item: TListBoxItem;
-  Mensagens: TPMensagems;
-  Msg: TPMensagem;
+  Mensagens: TMensagens;
+  Msg: TMensagem;
   I: Integer;
   AConteudos: TArray<TMensagemNotificacao>;
+  Conversa: TDadosConversa;
 begin
-  Mensagens := Dados.MensagensParaNotificar(Conversa);
+  Mensagens := Dados.MensagensParaNotificar(ConversaId);
   if Length(Mensagens) = 0 then
     Exit;
   bNovo := True;
-
   for I := 0 to Pred(lstConversas.Count) do
   begin
-    if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
+    if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = ConversaId then
     begin
       bNovo := False;
       Break;
     end;
   end;
-
   if bNovo then
   begin
-    Dados.Conversas;
-    if not Dados.cdsConversas.Locate('id', Conversa, []) then
-      Exit;
-
+    Dados.CarregarConversas;
+    Conversa := Dados.Conversa(ConversaId);
     Item := TListBoxItem.Create(nil);
     Item.Text := '';
     Item.Height := 60;
     Item.Selectable := False;
-
     Item.ContatoItem :=
-      TConversasItemFrame.New(Item, Dados.cdsConversas.FieldByName('id').AsInteger, Dados.cdsConversas.FieldByName('destinatario_id').AsInteger)
-        .Descricao(Dados.cdsConversas.FieldByName('descricao').AsString)
-        .Mensagem(Dados.cdsConversas.FieldByName('ultima_mensagem_texto').AsString)
-        .UltimaMensagem(Dados.cdsConversas.FieldByName('ultima_mensagem').AsDateTime)
+      TConversasItemFrame.New(Item, Conversa.ID, Conversa.DestinatarioId)
+        .Descricao(Conversa.Descricao)
+        .Mensagem(Conversa.UltimaMensagem)
+        .UltimaMensagem(Conversa.UltimaMensagemData)
         .OnClick(btnAbrirChat);
 
     lstConversas.AddObject(Item);
   end;
-
   Msg := Mensagens[Pred(Length(Mensagens))];
-  if not Assigned(Chat) or (Chat.ID <> Conversa) or not Self.IsFormActive then
+  if not Assigned(Chat) or (Chat.ID <> ConversaId) or not Self.IsFormActive then
   begin
     AConteudos := [];
-    if Length(Msg.Conteudos) > 0 then
+    if Msg.Conteudos.Count > 0 then
       AConteudos := [
         TMensagemNotificacao.New
           .ID(Msg.Conteudos[0].id)
           //.Usuario(IfThen())
           .Mensagem(IfThen(Msg.Conteudos[0].tipo = 1, Msg.Conteudos[0].conteudo, 'Imagem'))
       ];
-
     TNotificacaoManager.Apresentar(
       TNotificacao.New
-        .ChatId(Conversa)
+        .ChatId(ConversaId)
         .Nome(Msg.remetente)
         .Hora(Now)
         .Conteudo(AConteudos)
     );
   end;
-
-  if Assigned(Chat) and (Chat.ID = Conversa) then
-    Chat.AdicionarMensagens(Dados.ExibirMensagem(Conversa, True));
-
+  if Assigned(Chat) and (Chat.ID = ConversaId) then
+    Chat.AdicionarMensagens(Dados.ExibirMensagem(ConversaId, True));
   PlayResource('nova_mensagem');
-
   AtualizarChat(Msg);
 end;
-
-procedure TChatListagem.AtualizarChat(Mensagem: TPMensagem);
+procedure TChatListagem.AtualizarChat(Mensagem: TMensagem);
 var
   I: Integer;
   Item: TListBoxItem;
@@ -224,10 +207,9 @@ begin
     if Item.ContatoItem.ID = Mensagem.ConversaId then
     begin
       if Mensagem.Lado = TLado.Direito then
-        Item.ContatoItem.Mensagem('Você: '+ Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo)
+        Item.ContatoItem.Mensagem('Você: '+ Mensagem.conteudos[Pred(Mensagem.Conteudos.Count)].conteudo)
       else
-        Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
-
+        Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Mensagem.conteudos.Count)].conteudo);
       Item.ContatoItem.UltimaMensagem(Mensagem.inserida);
       Break;
     end;

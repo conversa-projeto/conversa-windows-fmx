@@ -412,7 +412,7 @@ begin
   Selecionados := [];
   for I := 0 to Pred(lbxAnexos.Items.Count) do
   begin
-    Item := Default(TMensagemConteudo);
+    Item := TMensagemConteudo.New;
     Item.tipo := 2; // 2-Imagem
     Item.conteudo := TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text;
     Selecionados := Selecionados + [Item];

@@ -49,6 +49,7 @@ type
     procedure lytMinimizeButtonMouseLeave(Sender: TObject);
   private
     { Private declarations }
+    FTelaCheia: Boolean;
     procedure ExibirTelaCheia;
     procedure DoOnClose;
   public
@@ -77,6 +78,7 @@ begin
   inherited;
   Parent := TFmxObject(AOwner);
   Align := TAlignLayout.Client;
+  FTelaCheia := False;
   lytControleDireita.Visible := False;
   lytControleEsquerda.Visible := False;
   lytControlesBottom.Visible := False;
@@ -96,12 +98,18 @@ begin
   begin
     imgImagem.Bitmap.Assign(bmp);
     if IsControlKeyPressed then
-      ExibirTelaCheia;
+      ExibirTelaCheia
+    else
+    begin
+      lytTitleBar.Visible := False;
+    end;
   end;
 end;
 
 procedure TVisualizadorMidia.imgImagemClick(Sender: TObject);
 begin
+  if FTelaCheia then
+    Exit;
   Visible := False;
   DoOnClose;
 end;
@@ -109,6 +117,7 @@ end;
 procedure TVisualizadorMidia.ExibirTelaCheia;
 begin
   {$IFDEF MSWINDOWS}
+  FTelaCheia := True;
   TVisualizadorMidiaWindows.Exibir(Self);
   {$ENDIF MSWINDOWS}
 end;
