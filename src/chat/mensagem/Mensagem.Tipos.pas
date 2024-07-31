@@ -86,165 +86,303 @@ type
 implementation
 
 uses
-  Conversa.Dados;
+  Conversa.Dados,
+  Conversa.Log;
+
+
+procedure AddLog(Msg: String);
+begin
+end;
 
 { TPMensagemH }
 
 function TMensagemH.GetId: Integer;
 begin
-  Result := Self.Fid;
+  AddLog('Início: GetId');
+  try
+    Result := Self.Fid;
+  finally
+    AddLog('Fim: GetId');
+  end;
 end;
 
 procedure TMensagemH.SetId(Value: Integer);
 begin
-  Self.Fid := Value;
+  AddLog('Início: SetId');
+  try
+    Self.Fid := Value;
+  finally
+    AddLog('Fim: SetId');
+  end;
 end;
 
 function TMensagemH.GetRemetenteId: Integer;
 begin
-  Result := Self.Fremetente_id;
+  AddLog('Início: GetRemetenteId');
+  try
+    Result := Self.Fremetente_id;
+  finally
+    AddLog('Fim: GetRemetenteId');
+  end;
 end;
 
 procedure TMensagemH.SetRemetenteId(Value: Integer);
 begin
-  Self.Fremetente_id := Value;
+  AddLog('Início: SetRemetenteId');
+  try
+    Self.Fremetente_id := Value;
+  finally
+    AddLog('Fim: SetRemetenteId');
+  end;
 end;
 
 function TMensagemH.GetRemetente: String;
 begin
-  Result := Self.Fremetente;
+  AddLog('Início: GetRemetente');
+  try
+    Result := Self.Fremetente;
+  finally
+    AddLog('Fim: GetRemetente');
+  end;
 end;
 
 procedure TMensagemH.SetRemetente(Value: String);
 begin
-  Self.Fremetente := Value;
+  AddLog('Início: SetRemetente');
+  try
+    Self.Fremetente := Value;
+  finally
+    AddLog('Fim: SetRemetente');
+  end;
 end;
 
 function TMensagemH.GetLado: TLado;
 begin
-  Result := Self.Flado;
+  AddLog('Início: GetLado');
+  try
+    Result := Self.Flado;
+  finally
+    AddLog('Fim: GetLado');
+  end;
 end;
 
 procedure TMensagemH.SetLado(Value: TLado);
 begin
-  Self.Flado := Value;
+  AddLog('Início: SetLado');
+  try
+    Self.Flado := Value;
+  finally
+    AddLog('Fim: SetLado');
+  end;
 end;
 
 function TMensagemH.GetConversaId: Integer;
 begin
-  Result := Self.Fconversa_id;
+  AddLog('Início: GetConversaId');
+  try
+    Result := Self.Fconversa_id;
+  finally
+    AddLog('Fim: GetConversaId');
+  end;
 end;
 
 procedure TMensagemH.SetConversaId(Value: Integer);
 begin
-  Self.Fconversa_id := Value;
+  AddLog('Início: SetConversaId');
+  try
+    Self.Fconversa_id := Value;
+  finally
+    AddLog('Fim: SetConversaId');
+  end;
 end;
 
 function TMensagemH.GetAlterada: TDateTime;
 begin
-  Result := Self.Falterada;
+  AddLog('Início: GetAlterada');
+  try
+    Result := Self.Falterada;
+  finally
+    AddLog('Fim: GetAlterada');
+  end;
 end;
 
 procedure TMensagemH.SetAlterada(Value: TDateTime);
 begin
-  Self.Falterada := Value;
+  AddLog('Início: SetAlterada');
+  try
+    Self.Falterada := Value;
+  finally
+    AddLog('Fim: SetAlterada');
+  end;
 end;
 
 function TMensagemH.GetInserida: TDateTime;
 begin
-  Result := Self.Finserida;
+  AddLog('Início: GetInserida');
+  try
+    Result := Self.Finserida;
+  finally
+    AddLog('Fim: GetInserida');
+  end;
 end;
 
 procedure TMensagemH.SetInserida(Value: TDateTime);
 begin
-  Self.Finserida := Value;
+  AddLog('Início: SetInserida');
+  try
+    Self.Finserida := Value;
+  finally
+    AddLog('Fim: SetInserida');
+  end;
 end;
 
 function TMensagemH.GetExibida: Boolean;
 begin
-  Result := Self.Fexibida;
+  AddLog('Início: GetExibida');
+  try
+    Result := Self.Fexibida;
+  finally
+    AddLog('Fim: GetExibida');
+  end;
 end;
 
 procedure TMensagemH.SetExibida(Value: Boolean);
 begin
-  Self.Fexibida := Value;
+  AddLog('Início: SetExibida');
+  try
+    Self.Fexibida := Value;
+  finally
+    AddLog('Fim: SetExibida');
+  end;
 end;
 
 function TMensagemH.GetConteudos: TArray<TMensagemConteudo>;
 begin
-  Result := Self.Fconteudos;
+  AddLog('Início: GetConteudos');
+  try
+    Result := Self.Fconteudos;
+  finally
+    AddLog('Fim: GetConteudos');
+  end;
 end;
 
 procedure TMensagemH.SetConteudos(Value: TArray<TMensagemConteudo>);
 begin
-  Self.Fconteudos := Value;
+  AddLog('Início: SetConteudos');
+  try
+    Self.Fconteudos := Value;
+  finally
+    AddLog('Fim: SetConteudos');
+  end;
 end;
 
 function TMensagemH.GetRecebida: Boolean;
 begin
-  Result := Self.FRecebida;
+  AddLog('Início: GetRecebida');
+  try
+    Result := Self.FRecebida;
+  finally
+    AddLog('Fim: GetRecebida');
+  end;
 end;
 
 procedure TMensagemH.SetRecebida(const Value: Boolean);
 begin
-  if Frecebida = Value then
-    Exit;
+  AddLog('Início: SetRecebida');
+  try
+    if Frecebida = Value then
+      Exit;
 
-  Self.Frecebida := Value;
-  DoAtualizar;
+    Self.Frecebida := Value;
+    DoAtualizar;
+  finally
+    AddLog('Fim: SetRecebida');
+  end;
 end;
 
 function TMensagemH.GetVisualizada: Boolean;
 begin
-  Result := Self.Fvisualizada;
+  AddLog('Início: GetVisualizada');
+  try
+    Result := Self.Fvisualizada;
+  finally
+    AddLog('Fim: GetVisualizada');
+  end;
 end;
 
 procedure TMensagemH.SetVisualizada(const Value: Boolean);
 begin
-  if Fvisualizada = Value then
-    Exit;
+  AddLog('Início: SetVisualizada');
+  try
+    if Fvisualizada = Value then
+      Exit;
 
-  Self.Fvisualizada := Value;
-  DoAtualizar;
+    Self.Fvisualizada := Value;
+    DoAtualizar;
+  finally
+    AddLog('Fim: SetVisualizada');
+  end;
 end;
 
 function TMensagemH.GetNotificada: Boolean;
 begin
-  Result := Self.Fnotificada;
+  AddLog('Início: GetNotificada');
+  try
+    Result := Self.Fnotificada;
+  finally
+    AddLog('Fim: GetNotificada');
+  end;
 end;
 
 procedure TMensagemH.SetNotificada(const Value: Boolean);
 begin
-  Self.Fnotificada := Value;
+  AddLog('Início: SetNotificada');
+  try
+    Self.Fnotificada := Value;
+  finally
+    AddLog('Fim: SetNotificada');
+  end;
 end;
 
 procedure TMensagemH.VisualizarMensagem;
 begin
-  if Visualizada then
-    Exit;
+  AddLog('Início: VisualizarMensagem');
+  try
+    if Visualizada then
+      Exit;
 
-  Self.Visualizada := True;
-  Dados.AtualizarContador;
-  Dados.VisualizarMensagem(@Self);
+    Self.Visualizada := True;
+    Dados.AtualizarContador;
+    Dados.VisualizarMensagem(@Self);
+  finally
+    AddLog('Fim: VisualizarMensagem');
+  end;
 end;
 
 procedure TMensagemH.AoAtualizar(Value: TProc<TPMensagem>);
 begin
-  Self.FAoAtualizar := Self.FAoAtualizar + [Value];
+  AddLog('Início: AoAtualizar');
+  try
+    Self.FAoAtualizar := Self.FAoAtualizar + [Value];
+  finally
+    AddLog('Fim: AoAtualizar');
+  end;
 end;
 
 procedure TMensagemH.DoAtualizar;
 var
   Proc: TProc<TPMensagem>;
 begin
+  AddLog('Início: DoAtualizar');
   try
     if Length(FAoAtualizar) > 0 then
       for Proc in FAoAtualizar do
         if Assigned(Proc) then
           Proc(@Self);
-  except
-    Sleep(0);
+  finally
+    AddLog('Fim: DoAtualizar');
   end;
 end;
 
 end.
+

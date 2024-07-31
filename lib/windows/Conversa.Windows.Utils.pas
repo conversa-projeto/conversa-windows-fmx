@@ -10,6 +10,7 @@ uses
 const
   WM_RESTAURAR_CONVERSA = WM_USER + 1;
  
+function IsControlKeyPressed: Boolean;
 function IsApplicationAlreadyRunning: Boolean;
 procedure InicializarComSO;
 procedure RemoveInicializacaoSO;
@@ -185,6 +186,11 @@ begin
     end;
   except
   end;
+end;
+
+function IsControlKeyPressed: Boolean;
+begin
+  Result := GetKeyState(VK_CONTROL) < 0;
 end;
 
 end.

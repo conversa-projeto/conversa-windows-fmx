@@ -29,14 +29,17 @@ uses
   Conversa.Configuracoes,
   Conversa.Principal,
   Conversa.ModalView,
+  Conversa.Visualizador.Midia,
   PascalStyleScript;
 
 type
   TTelaInicial = class(TFormularioBase)
     tmrShow: TTimer;
+    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     TrayWnd: HWND;
     TrayIconData: TNotifyIconData;
@@ -96,6 +99,12 @@ begin
   ExStyle := GetWindowLongPtr(hAppWnd, GWL_EXSTYLE);
   SetWindowLongPtr(hAppWnd, GWL_EXSTYLE, (ExStyle and not WS_EX_TOOLWINDOW) or WS_EX_APPWINDOW);
   ShowWindow(hAppWnd, SW_SHOW); // Mostra a janela novamente
+end;
+
+procedure TTelaInicial.Button1Click(Sender: TObject);
+begin
+  inherited;
+  TVisualizadorMidia.Exibir(nil);
 end;
 
 constructor TTelaInicial.Create(AOwner: TComponent);

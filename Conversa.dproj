@@ -4,7 +4,7 @@
         <ProjectVersion>19.5</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>32787</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -388,6 +388,13 @@ $(PreBuildEvent)]]></PreBuildEvent>
         </DCCReference>
         <DCCReference Include="lib\windows\Conversa.Windows.Overlay.pas"/>
         <DCCReference Include="lib\windows\Conversa.Windows.Utils.pas"/>
+        <DCCReference Include="Conversa.Log.Pas"/>
+        <DCCReference Include="lib\Conversa.Utils.pas"/>
+        <DCCReference Include="src\visualizadormidia\Conversa.Visualizador.Midia.pas">
+            <Form>VisualizadorMidia</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

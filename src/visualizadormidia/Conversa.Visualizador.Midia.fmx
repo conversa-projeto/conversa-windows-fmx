@@ -1,0 +1,252 @@
+inherited VisualizadorMidia: TVisualizadorMidia
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = xC8000000
+    Size.Width = 320.000000000000000000
+    Size.Height = 240.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    object lytMedia: TLayout
+      Align = Client
+      Size.Width = 320.000000000000000000
+      Size.Height = 240.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object imgImagem: TImage
+        MultiResBitmap = <
+          item
+          end>
+        Align = Client
+        Size.Width = 320.000000000000000000
+        Size.Height = 240.000000000000000000
+        Size.PlatformDefault = False
+        OnClick = imgImagemClick
+      end
+    end
+    object lytControles: TLayout
+      Align = Contents
+      HitTest = True
+      Size.Width = 320.000000000000000000
+      Size.Height = 240.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object aniExibir: TFloatAnimation
+        Duration = 0.200000002980232200
+        PropertyName = 'Opacity'
+        StartValue = 0.000000000000000000
+        StopValue = 1.000000000000000000
+        Trigger = 'IsMouseOver=true'
+      end
+      object aniOcultar: TFloatAnimation
+        Delay = 5.000000000000000000
+        Duration = 0.200000002980232200
+        PropertyName = 'Opacity'
+        StartValue = 0.000000000000000000
+        StopValue = 0.000000000000000000
+        Trigger = 'IsMouseOver=true'
+      end
+      object lytControleDireita: TLayout
+        Align = Right
+        Position.X = 270.000000000000000000
+        Position.Y = 35.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 155.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Circle2: TCircle
+          Align = Center
+          Size.Width = 30.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object Path2: TPath
+            Align = Client
+            Size.Width = 30.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+      end
+      object lytControleEsquerda: TLayout
+        Align = Left
+        Position.Y = 35.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 155.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        object Circle1: TCircle
+          Align = Center
+          Size.Width = 30.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object Path1: TPath
+            Align = Client
+            Size.Width = 30.000000000000000000
+            Size.Height = 30.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+      end
+      object lytControlesBottom: TLayout
+        Align = Bottom
+        Position.Y = 190.000000000000000000
+        Size.Width = 320.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 3
+        object lytControlesBotoes: TLayout
+          Align = Center
+          Size.Width = 200.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+        end
+      end
+      object lytTitleBar: TLayout
+        Align = MostTop
+        Size.Width = 320.000000000000000000
+        Size.Height = 35.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lytBotoesSistema: TLayout
+          Align = Right
+          Position.X = 185.000000000000000000
+          Size.Width = 135.000000000000000000
+          Size.Height = 35.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object lytCloseButton: TLayout
+            Align = Right
+            HitTest = True
+            Position.X = 90.000000000000000000
+            Size.Width = 45.000000000000000000
+            Size.Height = 35.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 0
+            OnMouseEnter = lytCloseButtonMouseEnter
+            OnMouseLeave = lytCloseButtonMouseLeave
+            object rctClose: TRectangle
+              Align = Client
+              Fill.Color = claNull
+              HitTest = False
+              Size.Width = 45.000000000000000000
+              Size.Height = 35.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Kind = None
+              object lytClose: TLayout
+                Align = Center
+                Size.Width = 12.000000000000000000
+                Size.Height = 12.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 0
+                object lnClose1: TLine
+                  Align = Client
+                  HitTest = False
+                  LineType = Diagonal
+                  Size.Width = 12.000000000000000000
+                  Size.Height = 12.000000000000000000
+                  Size.PlatformDefault = False
+                end
+                object lnClose2: TLine
+                  Align = Client
+                  HitTest = False
+                  LineType = Diagonal
+                  RotationAngle = 90.000000000000000000
+                  Size.Width = 12.000000000000000000
+                  Size.Height = 12.000000000000000000
+                  Size.PlatformDefault = False
+                end
+              end
+            end
+          end
+          object lytMaximizeButton: TLayout
+            Align = Right
+            HitTest = True
+            Position.X = 45.000000000000000000
+            Size.Width = 45.000000000000000000
+            Size.Height = 35.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 1
+            OnMouseEnter = lytMaximizeButtonMouseEnter
+            OnMouseLeave = lytMaximizeButtonMouseLeave
+            object rctMaximize: TRectangle
+              Align = Client
+              Fill.Color = claNull
+              HitTest = False
+              Size.Width = 45.000000000000000000
+              Size.Height = 35.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Kind = None
+              object lytMaximize: TLayout
+                Align = Center
+                Size.Width = 12.000000000000000000
+                Size.Height = 12.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 0
+                object rctMazimize2: TRectangle
+                  Align = Client
+                  Fill.Kind = None
+                  HitTest = False
+                  Margins.Left = 3.000000000000000000
+                  Margins.Bottom = 3.000000000000000000
+                  Size.Width = 9.000000000000000000
+                  Size.Height = 9.000000000000000000
+                  Size.PlatformDefault = False
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                end
+                object rctMaximize1: TRectangle
+                  Align = Client
+                  Fill.Color = xFFC8C8C8
+                  HitTest = False
+                  Margins.Top = 2.000000000000000000
+                  Margins.Right = 2.000000000000000000
+                  Size.Width = 10.000000000000000000
+                  Size.Height = 10.000000000000000000
+                  Size.PlatformDefault = False
+                  XRadius = 1.000000000000000000
+                  YRadius = 1.000000000000000000
+                end
+              end
+            end
+          end
+          object lytMinimizeButton: TLayout
+            Align = Right
+            HitTest = True
+            Size.Width = 45.000000000000000000
+            Size.Height = 35.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            OnMouseEnter = lytMinimizeButtonMouseEnter
+            OnMouseLeave = lytMinimizeButtonMouseLeave
+            object rctMinimize: TRectangle
+              Align = Client
+              Fill.Color = claNull
+              HitTest = False
+              Size.Width = 45.000000000000000000
+              Size.Height = 35.000000000000000000
+              Size.PlatformDefault = False
+              Stroke.Kind = None
+              object lytMinimize: TLayout
+                Align = Center
+                Size.Width = 12.000000000000000000
+                Size.Height = 1.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 0
+                object lnMinimize: TLine
+                  Align = Client
+                  HitTest = False
+                  LineType = Diagonal
+                  Size.Width = 12.000000000000000000
+                  Size.Height = 1.000000000000000000
+                  Size.PlatformDefault = False
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

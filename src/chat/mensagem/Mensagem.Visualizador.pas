@@ -30,9 +30,11 @@ uses
 
 type
   TItem = record
+    ID: Integer;
     Dados: TPMensagem;
     Mensagem: TLayout;
     Hora: TText;
+    Status: TPath;
   end;
 
   TTextLink = record
@@ -73,6 +75,7 @@ type
     procedure rtgUltimaClick(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
     procedure AoAtualizar(Mensagem: TPMensagem);
+    procedure ImageClick(Sender: TObject);
   public
     constructor Create(AOwner: TFmxObject);
     procedure AdicionaMensagem(Mensagem: TPMensagem);
@@ -85,7 +88,8 @@ type
 implementation
 
 uses
-  Conversa.Chat.Listagem;
+  Conversa.Chat.Listagem,
+  Conversa.Visualizador.Midia;
 
 const
   TamanhoMaximo = 700;
@@ -190,6 +194,8 @@ var
   rtgFundo: TRectangle;
   lbNome: TText;
   lytConteudoMensagem: TLayout;
+  lytBottom: TLayout;
+  pthStatus: TPath;
   lbHora: TText;
   txtTexto: TText;
   imgImagem: TImage;
@@ -273,10 +279,21 @@ begin
   lytConteudoMensagem.Size.Height := 218;
   lytConteudoMensagem.Size.PlatformDefault := False;
 
-  lbHora := TText.Create(lytConteudo);
+  lytBottom := TLayout.Create(lytAltura);
+  NomearComponente(lytBottom);
+  lytBottom.Align := TAlignLayout.Bottom;
+  lytBottom.Margins.Top := 5;
+  lytBottom.Margins.Right := 10;
+  lytBottom.Position.Y := High(Integer);
+  lytBottom.Size.Width := 500;
+  lytBottom.Size.Height := 22;
+  lytBottom.Size.PlatformDefault := False;
+  lytBottom.TabOrder := 1;
+
+  lbHora := TText.Create(lytBottom);
   NomearComponente(lbHora);
-  lbHora.Align := TAlignLayout.Bottom;
-  lbHora.Margins.Right := 10;
+  lbHora.Align := TAlignLayout.Right;
+  lbHora.Margins.Right := 3;
   lbHora.Position.Y := 240;
   lbHora.Size.Width := 373;
   lbHora.Size.Height := 22;
@@ -285,19 +302,49 @@ begin
   lbHora.Font.Size := 10;
   lbHora.Opacity := 0.5;
   lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida);
+  TPascalStyleScript.Instance.RegisterObject(lbHora, 'Mensagem.DataHora');
+
+  pthStatus:= TPath.Create(lytBottom);
+  NomearComponente(pthStatus);
+  pthStatus.Align := TAlignLayout.Right;
+  pthStatus.Fill.Color := TAlphaColors.Red;
+  pthStatus.Size.Width := 14;
+  pthStatus.Size.Height := 14;
+  pthStatus.Size.PlatformDefault := False;
+  pthStatus.WrapMode := TPathWrapMode.Fit;
+  pthStatus.Stroke.Kind := TBrushKind.None;
+  TPascalStyleScript.Instance.RegisterObject(pthStatus, 'Mensagem.Status');
 
   if Mensagem.Lado = TLado.Direito then
   begin
     if Mensagem.Visualizada then
-      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✅'
+    begin
+      pthStatus.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+
+      pthStatus.Fill.Color := TAlphaColors.Green;
+      pthStatus.Size.Width := 14;
+      pthStatus.Size.Height := 14;
+    end
     else
     if Mensagem.Recebida then
-      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ☑'
+    begin
+      pthStatus.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+      pthStatus.Fill.Color := TAlphaColors.Gray;
+      pthStatus.Size.Width := 14;
+      pthStatus.Size.Height := 14;
+    end
     else
-      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✔'
+    begin
+      pthStatus.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
+      pthStatus.Fill.Color := TAlphaColors.Gray;
+      pthStatus.Size.Width := 10;
+      pthStatus.Size.Height := 10;
+    end;
   end;
-
-  TPascalStyleScript.Instance.RegisterObject(lbHora, 'Mensagem.DataHora');
 
   for I := 0 to Pred(Length(Mensagem.Conteudos)) do
   begin
@@ -346,21 +393,26 @@ begin
         imgImagem.Size.Height := 217;
         imgImagem.Size.PlatformDefault := False;
         lytConteudoMensagem.AddObject(imgImagem);
+        imgImagem.OnClick := ImageClick;
       end;
     end;
   end;
 
+  lytBottom.AddObject(pthStatus);
+  lytBottom.AddObject(lbHora);
   rtgFundo.AddObject(lytConteudoMensagem);
   rtgFundo.AddObject(lbNome);
-  rtgFundo.AddObject(lbHora);
+  rtgFundo.AddObject(lytBottom);
   lytLargura.AddObject(rtgFundo);
   lytAltura.AddObject(lytLargura);
   sbxCentro.Content.AddObject(lytAltura);
   // Posiciona a mensagem no fim
   lytAltura.Position.Y := scroll.Max;
+  Item.ID := Mensagem.Id;
   Item.Dados := Mensagem;
   Item.Mensagem := lytAltura;
   Item.Hora := lbHora;
+  Item.Status := pthStatus;
   FItems := FItems + [Item];
   Redimensionar(sbxCentro.Width, lytAltura);
   Item.Dados.AoAtualizar(
@@ -383,6 +435,7 @@ var
   Largura: TLayout;
   Fundo: TRectangle;
   Conteudo: TLayout;
+  Bottom: TLayout;
   Texto: TText;
   Imagem: TImage;
   I: Integer;
@@ -393,6 +446,7 @@ begin
   Largura := Altura.Controls[0] as TLayout;
   Fundo := Largura.Controls[0] as TRectangle;
   Conteudo := Fundo.Controls[0] as TLayout;
+  Bottom := Fundo.Controls[2] as TLayout;
 
   iMaximaLargura := 30;
   iSomaAltura := 0;
@@ -406,7 +460,7 @@ begin
     begin
       Texto := Conteudo.Controls[I] as TText;
       TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
-      Texto.Canvas.MeasureText(TamanhoTexto, Texto.Text, False, [], TTextAlign.Center, TTextAlign.Leading);
+      Texto.Canvas.MeasureText(TamanhoTexto, Texto.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
       iMaximaLargura := Max(iMaximaLargura, Min(TamanhoTexto.Width, CentroWidth));
       Texto.Height := TamanhoTexto.Bottom;
       iSomaAltura := iSomaAltura + TamanhoTexto.Bottom;
@@ -431,9 +485,26 @@ begin
       TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
       TText(Fundo.Controls[I]).BeginUpdate;
       try
-        TText(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Fundo.Controls[I]).Text, False, [], TTextAlign.Trailing, TTextAlign.Center);
+        TText(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
       finally
         TText(Fundo.Controls[I]).EndUpdate;
+      end;
+      iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
+    end;
+  end;
+  for I := 0 to Pred(Bottom.ControlsCount) do
+  begin
+    if not Assigned(Bottom.Controls[I]) or not Bottom.Controls[I].Visible then
+      Continue;
+    if Bottom.Controls[I] is TText then
+    begin
+      iSomaAltura := iSomaAltura + TText(Bottom.Controls[I]).Height;
+      TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+      TText(Bottom.Controls[I]).BeginUpdate;
+      try
+        TText(Bottom.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Bottom.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+      finally
+        TText(Bottom.Controls[I]).EndUpdate;
       end;
       iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
     end;
@@ -559,30 +630,77 @@ begin
     Exit;
 
   for I := Pred(Length(FItems)) downto 0 do
-    if FItems[I].Dados.Lado <> TLado.Direito then
-      if not FItems[I].Dados.Visualizada then
-        if InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
-          FItems[I].Dados.VisualizarMensagem;
+  begin
+    // Se é mensagem própria do usuário não precisa validar
+    if FItems[I].Dados.Lado = TLado.Direito then
+      Continue;
+
+    // Se a mensagem já foi Visualizada, não precisa validar
+    if FItems[I].Dados.Visualizada then
+    begin
+      // Se a mensagem já está acima do topo da Scroll, sai do Loop
+      if (FItems[I].Mensagem.Position.Y + FItems[I].Mensagem.Height) < scroll.Value then
+        Break;
+
+      Continue;
+    end;
+
+    // Valida se está na area visível
+    if not InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
+      Continue;
+
+    FItems[I].Dados.VisualizarMensagem;
+  end;
 end;
 
 procedure TVisualizador.AoAtualizar(Mensagem: TPMensagem);
 var
   Item: TItem;
+  ID: Integer;
 begin
+  if Mensagem.Lado <> TLado.Direito then
+    Exit;
+
+  ID := Mensagem.Id;
+
   for Item in FItems do
   begin
-    if Mensagem.Lado <> TLado.Direito then
-      Continue;
-
-    if Item.Dados.Id <> Mensagem.Id then
+    if Item.ID <> ID then
       Continue;
 
     if Mensagem.Visualizada then
-      Item.Hora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✅'
+    begin
+      Item.Status.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+
+      Item.Status.Fill.Color := TAlphaColors.Green;
+      Item.Status.Size.Width := 14;
+      Item.Status.Size.Height := 14;
+    end
     else
     if Mensagem.Recebida then
-      Item.Hora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ☑';
+    begin
+      Item.Status.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+      Item.Status.Fill.Color := TAlphaColors.Gray;
+      Item.Status.Size.Width := 14;
+      Item.Status.Size.Height := 14;
+    end
+    else
+    begin
+      Item.Status.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
+      Item.Status.Fill.Color := TAlphaColors.Gray;
+      Item.Status.Size.Width := 10;
+      Item.Status.Size.Height := 10;
+    end;
   end;
+end;
+
+procedure TVisualizador.ImageClick(Sender: TObject);
+begin
+  TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
 end;
 
 { TText }

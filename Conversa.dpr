@@ -36,10 +36,13 @@ uses
   Conversa.Notificacao in 'src\notificacao\Conversa.Notificacao.pas',
   Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador},
   Conversa.Windows.Overlay in 'lib\windows\Conversa.Windows.Overlay.pas',
-  Conversa.Windows.Utils in 'lib\windows\Conversa.Windows.Utils.pas';
+  Conversa.Windows.Utils in 'lib\windows\Conversa.Windows.Utils.pas',
+  Conversa.Log in 'Conversa.Log.Pas',
+  Conversa.Utils in 'lib\Conversa.Utils.pas',
+  Conversa.Visualizador.Midia in 'src\visualizadormidia\Conversa.Visualizador.Midia.pas' {VisualizadorMidia: TFrame},
+  Conversa.Visualizador.Midia.Windows in 'src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas';
 
 {$R *.res}
-
 begin
   Application.Title := 'Conversa';
   {$IFNDEF DEBUG}

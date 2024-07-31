@@ -4,7 +4,7 @@ object ModalView: TModalView
   Size.PlatformDefault = False
   object rctFundo: TRectangle
     Align = Client
-    Fill.Color = x4B000000
+    Fill.Color = x64000000
     Size.Width = 320.000000000000000000
     Size.Height = 240.000000000000000000
     Size.PlatformDefault = False
