@@ -163,7 +163,6 @@ function TDados.ObterMensagens(iConversa: Integer): TMensagens;
 var
   Mensagem: TMensagem;
   MensagemConteudo: TMensagemConteudo;
-  Conversa: TDadosConversa;
 begin
   with TAPIConversa.Create do
   try

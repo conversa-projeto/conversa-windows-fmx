@@ -20,9 +20,6 @@ type
     Path1: TPath;
     Path2: TPath;
     imgImagem: TImage;
-    lytControles: TLayout;
-    aniExibir: TFloatAnimation;
-    aniOcultar: TFloatAnimation;
     lytTitleBar: TLayout;
     lytBotoesSistema: TLayout;
     lytCloseButton: TLayout;
@@ -108,8 +105,6 @@ end;
 
 procedure TVisualizadorMidia.imgImagemClick(Sender: TObject);
 begin
-  if FTelaCheia then
-    Exit;
   Visible := False;
   DoOnClose;
 end;

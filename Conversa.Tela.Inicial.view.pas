@@ -35,11 +35,9 @@ uses
 type
   TTelaInicial = class(TFormularioBase)
     tmrShow: TTimer;
-    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     TrayWnd: HWND;
     TrayIconData: TNotifyIconData;
@@ -101,16 +99,9 @@ begin
   ShowWindow(hAppWnd, SW_SHOW); // Mostra a janela novamente
 end;
 
-procedure TTelaInicial.Button1Click(Sender: TObject);
-begin
-  inherited;
-  TVisualizadorMidia.Exibir(nil);
-end;
-
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
   inherited;
-//  Button1.Visible := False;
   AdicionarTrayIcon;
 end;
 
