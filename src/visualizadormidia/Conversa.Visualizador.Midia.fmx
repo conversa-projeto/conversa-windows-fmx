@@ -12,15 +12,21 @@ inherited VisualizadorMidia: TVisualizadorMidia
       Size.Height = 155.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
+      OnMouseEnter = lytMediaMouseEnter
+      OnMouseLeave = lytMediaMouseLeave
       object imgImagem: TImage
         MultiResBitmap = <
           item
           end>
-        Align = Client
-        Size.Width = 220.000000000000000000
-        Size.Height = 155.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
-        OnClick = imgImagemClick
+        OnMouseDown = imgImagemMouseDown
+        OnMouseMove = imgImagemMouseMove
+        OnMouseUp = imgImagemMouseUp
+        OnMouseWheel = imgImagemMouseWheel
       end
     end
     object lytControleDireita: TLayout
