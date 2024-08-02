@@ -20,7 +20,6 @@ uses
   Conversa.FormularioBase,
   Conversa.Login,
   Conversa.Dados,
-  Conversa.Conversas.Listagem,
   FMX.Objects,
   FMX.Layouts,
   FMX.Ani,
