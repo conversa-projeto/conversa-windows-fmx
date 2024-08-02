@@ -29,19 +29,19 @@ type
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
     procedure CarregarConversas;
-    function ObterMensagens(iConversa: Integer): TMensagensArray;
-    function Mensagens(iConversa: Integer; iInicio: Integer): TMensagensArray;
+    function ObterMensagens(iConversa: Integer): TArrayMensagens;
+    function Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
     procedure NovoChat(var Conversa: TConversa);
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
-    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TMensagensArray;
+    function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
     function MensagensSemVisualizar: Integer; overload;
 //    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
     procedure AtualizarContador;
-    function MensagensParaNotificar(iConversa: Integer): TMensagensArray;
+    function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
   end;
 
@@ -147,19 +147,19 @@ begin
   Result := FDadosApp.Conversas.MensagensSemVisualizar;
 end;
 
-function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TMensagensArray;
+function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
 begin
   Result := FDadosApp.Conversas.GetOrAdd(iConversa).Mensagens.GetList(iInicio);
   if Length(Result) = 0 then
     Result := ObterMensagens(iConversa);
 end;
 
-function TDados.MensagensParaNotificar(iConversa: Integer): TMensagensArray;
+function TDados.MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
 begin
   Result := FDadosApp.Conversas.Get(iConversa).Mensagens.ParaNotificar;
 end;
 
-function TDados.ObterMensagens(iConversa: Integer): TMensagensArray;
+function TDados.ObterMensagens(iConversa: Integer): TArrayMensagens;
 var
   Conversa: TConversa;
   Mensagem: TMensagem;
@@ -359,7 +359,7 @@ begin
   end;
 end;
 
-function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TMensagensArray;
+function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
 var
   Conversa: TConversa;
 begin
@@ -380,7 +380,7 @@ procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
 var
   I: Integer;
   Conversa: TConversa;
-  Mensagens: TMensagensArray;
+  Mensagens: TArrayMensagens;
   sIDMensagens: String;
 begin
   Dados.tmrAtualizarMensagens.Enabled := False;
