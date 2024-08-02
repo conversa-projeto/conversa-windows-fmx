@@ -140,7 +140,7 @@ procedure TChatListagem.AoReceberMensagem(ConversaId: Integer);
 var
   bNovo: Boolean;
   Item: TListBoxItem;
-  Mensagens: TMensagensArray;
+  Mensagens: TArrayMensagens;
   Msg: TMensagem;
   I: Integer;
   AConteudos: TArray<TMensagemNotificacao>;

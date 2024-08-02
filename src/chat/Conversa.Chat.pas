@@ -55,7 +55,7 @@ type
 
     property Visualizador: TVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
-    procedure AdicionarMensagens(aMensagem: TMensagensArray);
+    procedure AdicionarMensagens(aMensagem: TArrayMensagens);
     procedure PosicionarUltima;
     procedure Limpar;
     procedure VisualizarTudo;
@@ -73,7 +73,7 @@ begin
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
-procedure TChat.AdicionarMensagens(aMensagem: TMensagensArray);
+procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
 var
   Mensagem: TMensagem;
 begin

@@ -19,8 +19,8 @@ type
   TMensagens = class;
   TConteudo = class;
 
-  TUsuariosArray = TArray<TUsuario>;
-  TMensagensArray = TArray<TMensagem>;
+  TArrayUsuarios = TArray<TUsuario>;
+  TArrayMensagens = TArray<TMensagem>;
   TConteudos = TArray<TConteudo>;
   TPConteudos = ^TConteudos;
 
@@ -75,7 +75,7 @@ type
     FDescricao: String;
     FUltimaMensagem: String;
     FUltimaMensagemData: TDateTime;
-    FUsuarios: TUsuariosArray;
+    FUsuarios: TArrayUsuarios;
     FUltimaMensagemId: Integer;
     FMensagens: TMensagens;
   public
@@ -94,7 +94,7 @@ type
     function UltimaMensagemData(const Value: TDateTime): TConversa; overload;
     function UltimaMensagemID: Integer; overload;
     function UltimaMensagemID(const Value: INteger): TConversa; overload;
-    function Usuarios: TUsuariosArray;
+    function Usuarios: TArrayUsuarios;
     function AddUsuario(const Usuario: TUsuario): TConversa;
     function Destinatario: TUsuario;
   end;
@@ -110,12 +110,12 @@ type
     property UltimaMensagemSincronizada: Integer read FUltimaMensagemSincronizada;
     procedure Add(const Mensagem: TMensagem);
     function Get(const ID: Integer): TMensagem; overload;
-    function GetList(const Inicio: Integer): TMensagensArray; overload;
+    function GetList(const Inicio: Integer): TArrayMensagens; overload;
     procedure Clear;
     function Items: TArray<TMensagem>;
-    function ParaExibir: TMensagensArray;
-    function ParaNotificar: TMensagensArray;
-    function ParaAtualizar: TMensagensArray;
+    function ParaExibir: TArrayMensagens;
+    function ParaNotificar: TArrayMensagens;
+    function ParaAtualizar: TArrayMensagens;
   end;
 
   TLadoMensagem = (Esquerdo, Direito);
@@ -445,7 +445,7 @@ begin
   Result := nil;
 end;
 
-function TConversa.Usuarios: TUsuariosArray;
+function TConversa.Usuarios: TArrayUsuarios;
 begin
   Result := FUsuarios;
 end;
@@ -493,7 +493,7 @@ begin
       Exit(FMensagens[I]);
 end;
 
-function TMensagens.GetList(const Inicio: Integer): TMensagensArray;
+function TMensagens.GetList(const Inicio: Integer): TArrayMensagens;
 var
   I: Integer;
 begin
@@ -508,7 +508,7 @@ begin
   Result := FMensagens;
 end;
 
-function TMensagens.ParaExibir: TMensagensArray;
+function TMensagens.ParaExibir: TArrayMensagens;
 var
   Mensagem: TMensagem;
 begin
@@ -518,7 +518,7 @@ begin
       Result := Result + [Mensagem.Exibida(True)];
 end;
 
-function TMensagens.ParaNotificar: TMensagensArray;
+function TMensagens.ParaNotificar: TArrayMensagens;
 var
   Mensagem: TMensagem;
 begin
@@ -528,7 +528,7 @@ begin
       Result := Result + [Mensagem];
 end;
 
-function TMensagens.ParaAtualizar: TMensagensArray;
+function TMensagens.ParaAtualizar: TArrayMensagens;
 var
   Mensagem: TMensagem;
 begin
