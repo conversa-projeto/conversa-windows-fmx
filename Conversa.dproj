@@ -396,6 +396,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas"/>
+        <DCCReference Include="src\Conversa.Eventos.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

@@ -6,7 +6,7 @@ unit Conversa.Windows.Overlay;
 
 interface
 
-procedure AtualizarContadorNotificacao(const Quantidade: Integer);
+procedure AtualizarContadorNotificacao(const Quantidade: Integer; Force: Boolean = False);
 
 implementation
 
@@ -145,13 +145,14 @@ begin
     TaskbarList.SetOverlayIcon(FMX.Platform.Win.ApplicationHWND, AIcon, PChar('Notificações'));
 end;
 
-procedure AtualizarContadorNotificacao(const Quantidade: Integer);
+procedure AtualizarContadorNotificacao(const Quantidade: Integer; Force: Boolean = False);
 var
   OverlayIcon: HICON;
 begin
   if UltimaContagem <> Quantidade then
     UltimaContagem := Quantidade
   else
+  if not Force then
     Exit;
 
   if Quantidade = 0 then

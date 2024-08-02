@@ -65,7 +65,8 @@ uses
   System.Math,
   Conversa.Configuracoes,
   Conversa.Notificacao,
-  Conversa.Windows.Overlay;
+  Conversa.Windows.Overlay,
+  Conversa.Eventos;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -105,6 +106,7 @@ end;
 procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
+  TEvento.Adicionar(TTipoEvento.ContadorMensagemVisualizar, AtualizarContador);
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
@@ -192,6 +194,9 @@ begin
 
       Mensagem.Recebida(Item.GetValue<Boolean>('recebida'));
       Mensagem.Visualizada(Item.GetValue<Boolean>('visualizada'));
+
+      if not Mensagem.Visualizada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
+        Inc(Conversa.MensagemSemVisualizar);
 
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin

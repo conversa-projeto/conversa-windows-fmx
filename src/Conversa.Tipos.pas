@@ -53,15 +53,12 @@ type
     FUsuarios: TUsuariosArray;
     FUltimaMensagemId: Integer;
     FMensagens: TMensagens;
-    FMensagemSemVisualizar: Integer;
   public
+    MensagemSemVisualizar: Integer;
     class function New(ID: Integer): TConversa;
     constructor Create;
     destructor Destroy; override;
-
     property Mensagens: TMensagens read FMensagens;
-    property MensagemSemVisualizar: Integer read FMensagemSemVisualizar;
-
     function ID: Integer; overload;
     function ID(const Value: Integer): TConversa; overload;
     function Descricao: String; overload;
@@ -72,10 +69,8 @@ type
     function UltimaMensagemData(const Value: TDateTime): TConversa; overload;
     function UltimaMensagemID: Integer; overload;
     function UltimaMensagemID(const Value: INteger): TConversa; overload;
-
     function Usuarios: TUsuariosArray;
     function AddUsuario(const Usuario: TUsuario): TConversa;
-
     function Destinatario: TUsuario;
   end;
 
@@ -92,7 +87,6 @@ type
     FRecebida: Boolean;
     FVisualizada: Boolean;
     FNotificada: Boolean;
-    FAoAtualizar: TProc<TMensagem>;
     procedure DoAoAtualizar;
   public
     Conteudos: TConteudos;
@@ -116,9 +110,8 @@ type
     function Inserida(const Value: TDateTime): TMensagem; overload;
     function Exibida(const Value: Boolean): TMensagem; overload;
     function Recebida(const Value: Boolean): TMensagem; overload;
-    function Visualizada(const Value: Boolean): TMensagem; overload;
+    function Visualizada(const Value: Boolean; const Sincronizar: Boolean = False): TMensagem; overload;
     function Notificada(const Value: Boolean): TMensagem; overload;
-    function AoAtualizar(const Value: TProc<TMensagem>): TMensagem;
   end;
 
   TTipoConteudo = (Nenhum, Texto, Imagem);
@@ -196,7 +189,8 @@ type
 implementation
 
 uses
-  Conversa.Dados;
+  Conversa.Dados,
+  Conversa.Eventos;
 
 { TUsuario }
 
@@ -266,7 +260,7 @@ end;
 constructor TConversa.Create;
 begin
   FMensagens := TMensagens.Create(Self);
-  FMensagemSemVisualizar := 0;
+  MensagemSemVisualizar := 0;
 end;
 
 destructor TConversa.Destroy;
@@ -474,17 +468,24 @@ begin
   Result := FVisualizada;
 end;
 
-function TMensagem.Visualizada(const Value: Boolean): TMensagem;
+function TMensagem.Visualizada(const Value: Boolean; const Sincronizar: Boolean = False): TMensagem;
 begin
   Result := Self;
+  if FVisualizada then
+    Exit;
+
   if FVisualizada = Value then
     Exit;
 
-
-  if (FLado <> TLadoMensagem.Direito) and not FVisualizada and Value and Assigned(FConversa) then
-    Dec(FConversa.FMensagemSemVisualizar);
+  if (FLado = TLadoMensagem.Esquerdo) and not FVisualizada then
+    if Assigned(FConversa) and (FConversa.MensagemSemVisualizar > 0) then
+      Dec(FConversa.MensagemSemVisualizar);
 
   FVisualizada := Value;
+
+  if (Lado = TLadoMensagem.Esquerdo) and Sincronizar then
+    Dados.VisualizarMensagem(Self);
+
   DoAoAtualizar;
 end;
 
@@ -502,18 +503,10 @@ begin
   FNotificada := Value;
 end;
 
-function TMensagem.AoAtualizar(const Value: TProc<TMensagem>): TMensagem;
-begin
-  Result := Self;
-  FAoAtualizar := Value;
-end;
-
 procedure TMensagem.DoAoAtualizar;
 begin
-  if Assigned(FAoAtualizar) then
-    FAoAtualizar(Self);
-
-  Dados.AtualizarContador;
+  TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
+  TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
 end;
 
 { TConteudo }
@@ -634,13 +627,8 @@ var
 begin
   Result := nil;
   for I := 0 to High(FConversas) do
-  begin
     if FConversas[I].ID = ID then
-    begin
-      Result := FConversas[I];
-      Exit;
-    end;
-  end;
+      Exit(FConversas[I]);
 end;
 
 function TConversas.GetOrAdd(const ID: Integer): TConversa;
@@ -692,12 +680,7 @@ end;
 
 procedure TMensagens.Add(const Mensagem: TMensagem);
 begin
-  SetLength(FMensagens, Length(FMensagens) + 1);
-  FMensagens[High(FMensagens)] := Mensagem;
-
-  if Mensagem.Visualizada then
-    Inc(FConversa.FMensagemSemVisualizar);
-
+  FMensagens := FMensagens + [Mensagem];
   FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
 end;
 
@@ -707,13 +690,8 @@ var
 begin
   Result := nil;
   for I := 0 to High(FMensagens) do
-  begin
     if FMensagens[I].ID = ID then
-    begin
-      Result := FMensagens[I];
-      Exit;
-    end;
-  end;
+      Exit(FMensagens[I]);
 end;
 
 function TMensagens.GetList(const Inicio: Integer): TMensagensArray;
@@ -775,8 +753,7 @@ end;
 
 procedure THConteudos.Add(const Conteudo: TConteudo);
 begin
-  SetLength(Self, Length(Self) + 1);
-  Self[High(Self)] := Conteudo;
+  Self := Self + [Conteudo];
 end;
 
 function THConteudos.Get(const ID: Integer): TConteudo;
@@ -785,13 +762,8 @@ var
 begin
   Result := nil;
   for I := 0 to High(Self) do
-  begin
     if Self[I].ID = ID then
-    begin
-      Result := Self[I];
-      Exit;
-    end;
-  end;
+      Exit(Self[I]);
 end;
 
 procedure THConteudos.Add(const Conteudo: TConteudos);

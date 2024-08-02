@@ -41,7 +41,8 @@ uses
   Conversa.Log in 'Conversa.Log.Pas',
   Conversa.Utils in 'lib\Conversa.Utils.pas',
   Conversa.Visualizador.Midia in 'src\visualizadormidia\Conversa.Visualizador.Midia.pas' {VisualizadorMidia: TFrame},
-  Conversa.Visualizador.Midia.Windows in 'src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas';
+  Conversa.Visualizador.Midia.Windows in 'src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas',
+  Conversa.Eventos in 'src\Conversa.Eventos.pas';
 
 {$R *.res}
 begin
@@ -55,9 +56,11 @@ begin
 
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
+  AtualizarContadorNotificacao(0, True);
   Application.CreateForm(TDados, Dados);
   Application.CreateForm(TTelaInicial, TelaInicial);
   Application.Run;
 
   TNotificacaoManager.Finalizar;
+  AtualizarContadorNotificacao(0, True);
 end.

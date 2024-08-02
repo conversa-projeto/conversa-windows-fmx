@@ -29,12 +29,13 @@ uses
   Conversa.Tipos;
 
 type
-  TItem = record
+  TMensagemView = record
     ID: Integer;
     Dados: TMensagem;
     Mensagem: TLayout;
     Hora: TText;
     Status: TPath;
+    procedure AoAtualizar;
   end;
 
   TTextLink = record
@@ -64,7 +65,7 @@ type
     pthUltima: TPath;
     FWidth: Single;
     FConponentes: Integer;
-    FItems: TArray<TItem>;
+    FItems: TArray<TMensagemView>;
     procedure CriarControles;
     procedure NomearComponente(Componente: TControl);
     procedure Redimensionar(CentroWidth: Single; Altura: TLayout);
@@ -74,7 +75,6 @@ type
     procedure lytConteudoMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure rtgUltimaClick(Sender: TObject);
     procedure SetVisible(const Value: Boolean);
-    procedure AoAtualizar(Mensagem: TMensagem);
     procedure ImageClick(Sender: TObject);
   public
     constructor Create(AOwner: TFmxObject);
@@ -88,6 +88,7 @@ type
 implementation
 
 uses
+  Conversa.Eventos,
   Conversa.Chat.Listagem,
   Conversa.Visualizador.Midia;
 
@@ -201,7 +202,7 @@ var
   imgImagem: TImage;
   bmp: TBitmap;
   I: Integer;
-  Item: TItem;
+  Item: TMensagemView;
 begin
   lytAltura := TLayout.Create(lytConteudo);
   NomearComponente(lytAltura);
@@ -416,12 +417,8 @@ begin
   FItems := FItems + [Item];
   Redimensionar(sbxCentro.Width, lytAltura);
 
-  Item.Dados.AoAtualizar(
-    procedure(Mensagem: TMensagem)
-    begin
-      AoAtualizar(Mensagem)
-    end
-  );
+
+  TEvento.Adicionar(TTipoEvento.AtualizacaoMensagem, Item.AoAtualizar, Mensagem.ID)
 end;
 
 procedure TVisualizador.NomearComponente(Componente: TControl);
@@ -653,58 +650,47 @@ begin
     if not InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
       Continue;
 
-//    FItems[I].Dados.VisualizarMensagem;
-  end;
-end;
-
-procedure TVisualizador.AoAtualizar(Mensagem: TMensagem);
-var
-  Item: TItem;
-  ID: Integer;
-begin
-  if Mensagem.Lado <> TLadoMensagem.Direito then
-    Exit;
-
-  ID := Mensagem.Id;
-
-  for Item in FItems do
-  begin
-    if Item.ID <> ID then
-      Continue;
-
-    if Mensagem.Visualizada then
-    begin
-      Item.Status.Data.Data :=
-        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
-        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
-
-      Item.Status.Fill.Color := TAlphaColors.Green;
-      Item.Status.Size.Width := 14;
-      Item.Status.Size.Height := 14;
-    end
-    else
-    if Mensagem.Recebida then
-    begin
-      Item.Status.Data.Data :=
-        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
-        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
-      Item.Status.Fill.Color := TAlphaColors.Gray;
-      Item.Status.Size.Width := 14;
-      Item.Status.Size.Height := 14;
-    end
-    else
-    begin
-      Item.Status.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
-      Item.Status.Fill.Color := TAlphaColors.Gray;
-      Item.Status.Size.Width := 10;
-      Item.Status.Size.Height := 10;
-    end;
+    FItems[I].Dados.Visualizada(True, True);
   end;
 end;
 
 procedure TVisualizador.ImageClick(Sender: TObject);
 begin
   TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
+end;
+
+procedure TMensagemView.AoAtualizar;
+begin
+  if Dados.Lado = TLadoMensagem.Esquerdo then
+    Exit;
+
+  if Dados.Visualizada then
+  begin
+    Status.Data.Data :=
+      'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+      'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+
+    Status.Fill.Color := TAlphaColors.Green;
+    Status.Size.Width := 14;
+    Status.Size.Height := 14;
+  end
+  else
+  if Dados.Recebida then
+  begin
+    Status.Data.Data :=
+      'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+      'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+    Status.Fill.Color := TAlphaColors.Gray;
+    Status.Size.Width := 14;
+    Status.Size.Height := 14;
+  end
+  else
+  begin
+    Status.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
+    Status.Fill.Color := TAlphaColors.Gray;
+    Status.Size.Width := 10;
+    Status.Size.Height := 10;
+  end;
 end;
 
 { TText }

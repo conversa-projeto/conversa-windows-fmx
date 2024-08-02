@@ -218,7 +218,12 @@ begin
               if Message.Msg = WM_NCLBUTTONDOWN then
               begin
                 case iSystemButton of
-                  0: Form.DoConversaMinimize;
+                  0:
+                  begin
+                    Form.DoConversaMinimize;
+                    if Form = Application.MainForm then
+                      MinimizeApp;
+                  end;
                   1: Form.DoConversaMaximize;
                   2: Form.DoConversaClose;
                 end;
