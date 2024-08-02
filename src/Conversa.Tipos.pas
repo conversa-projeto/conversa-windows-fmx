@@ -24,6 +24,18 @@ type
   TConteudos = TArray<TConteudo>;
   TPConteudos = ^TConteudos;
 
+  TUsuarios = class
+  private
+    FUsuarios: TArray<TUsuario>;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Add(const Usuario: TUsuario);
+    function Get(const ID: Integer): TUsuario;
+    function GetOrAdd(const ID: Integer): TUsuario;
+    procedure Clear;
+  end;
+
   TUsuario = class
   private
     FID: Integer;
@@ -42,6 +54,19 @@ type
     function Login(const Value: String): TUsuario; overload;
     function Email(const Value: String): TUsuario; overload;
     function Telefone(const Value: String): TUsuario; overload;
+  end;
+
+  TConversas = class
+  private
+    FConversas: TArray<TConversa>;
+  public
+    destructor Destroy; override;
+    procedure Add(const Conversa: TConversa);
+    function Get(const ID: Integer): TConversa;
+    function GetOrAdd(const ID: Integer): TConversa;
+    function Items: TArray<TConversa>;
+    function MensagensSemVisualizar: Integer;
+    procedure Clear;
   end;
 
   TConversa = class
@@ -72,6 +97,25 @@ type
     function Usuarios: TUsuariosArray;
     function AddUsuario(const Usuario: TUsuario): TConversa;
     function Destinatario: TUsuario;
+  end;
+
+  TMensagens = class
+  private
+    FConversa: TConversa;
+    FMensagens: TArray<TMensagem>;
+    FUltimaMensagemSincronizada: Integer;
+    constructor Create(Owner: TConversa);
+  public
+    destructor Destroy; override;
+    property UltimaMensagemSincronizada: Integer read FUltimaMensagemSincronizada;
+    procedure Add(const Mensagem: TMensagem);
+    function Get(const ID: Integer): TMensagem; overload;
+    function GetList(const Inicio: Integer): TMensagensArray; overload;
+    procedure Clear;
+    function Items: TArray<TMensagem>;
+    function ParaExibir: TMensagensArray;
+    function ParaNotificar: TMensagensArray;
+    function ParaAtualizar: TMensagensArray;
   end;
 
   TLadoMensagem = (Esquerdo, Direito);
@@ -133,50 +177,6 @@ type
     function Conteudo(const Value: String): TConteudo; overload;
   end;
 
-  TUsuarios = class
-  private
-    FUsuarios: TArray<TUsuario>;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    procedure Add(const Usuario: TUsuario);
-    function Get(const ID: Integer): TUsuario;
-    function GetOrAdd(const ID: Integer): TUsuario;
-    procedure Clear;
-  end;
-
-  TConversas = class
-  private
-    FConversas: TArray<TConversa>;
-  public
-    destructor Destroy; override;
-    procedure Add(const Conversa: TConversa);
-    function Get(const ID: Integer): TConversa;
-    function GetOrAdd(const ID: Integer): TConversa;
-    function Items: TArray<TConversa>;
-    function MensagensSemVisualizar: Integer;
-    procedure Clear;
-  end;
-
-  TMensagens = class
-  private
-    FConversa: TConversa;
-    FMensagens: TArray<TMensagem>;
-    FUltimaMensagemSincronizada: Integer;
-    constructor Create(Owner: TConversa);
-  public
-    destructor Destroy; override;
-    property UltimaMensagemSincronizada: Integer read FUltimaMensagemSincronizada;
-    procedure Add(const Mensagem: TMensagem);
-    function Get(const ID: Integer): TMensagem; overload;
-    function GetList(const Inicio: Integer): TMensagensArray; overload;
-    procedure Clear;
-    function Items: TArray<TMensagem>;
-    function ParaExibir: TMensagensArray;
-    function ParaNotificar: TMensagensArray;
-    function ParaAtualizar: TMensagensArray;
-  end;
-
   THConteudos = record Helper for TConteudos
   public
     procedure Add(const Conteudo: TConteudo); overload;
@@ -191,6 +191,58 @@ implementation
 uses
   Conversa.Dados,
   Conversa.Eventos;
+
+{ TUsuarios }
+
+constructor TUsuarios.Create;
+begin
+  //
+end;
+
+destructor TUsuarios.Destroy;
+begin
+  Clear;
+  inherited;
+end;
+
+procedure TUsuarios.Add(const Usuario: TUsuario);
+begin
+  FUsuarios := FUsuarios + [Usuario];
+end;
+
+function TUsuarios.Get(const ID: Integer): TUsuario;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to High(FUsuarios) do
+  begin
+    if FUsuarios[I].ID = ID then
+    begin
+      Result := FUsuarios[I];
+      Exit;
+    end;
+  end;
+end;
+
+function TUsuarios.GetOrAdd(const ID: Integer): TUsuario;
+begin
+  Result := Get(ID);
+  if not Assigned(Result) then
+  begin
+    Result := TUsuario.New(ID);
+    Add(Result);
+  end;
+end;
+
+procedure TUsuarios.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to High(FUsuarios) do
+    FUsuarios[I].Free;
+  SetLength(FUsuarios, 0);
+end;
 
 { TUsuario }
 
@@ -247,6 +299,63 @@ function TUsuario.Telefone(const Value: String): TUsuario;
 begin
   FTelefone := Value;
   Result := Self;
+end;
+
+{ TConversas }
+
+destructor TConversas.Destroy;
+begin
+  Clear;
+  inherited;
+end;
+
+procedure TConversas.Add(const Conversa: TConversa);
+begin
+  SetLength(FConversas, Length(FConversas) + 1);
+  FConversas[High(FConversas)] := Conversa;
+end;
+
+function TConversas.Get(const ID: Integer): TConversa;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to High(FConversas) do
+    if FConversas[I].ID = ID then
+      Exit(FConversas[I]);
+end;
+
+function TConversas.GetOrAdd(const ID: Integer): TConversa;
+begin
+  Result := Get(ID);
+  if not Assigned(Result) then
+  begin
+    Result := TConversa.New(ID);
+    Add(Result);
+  end;
+end;
+
+function TConversas.Items: TArray<TConversa>;
+begin
+  Result := FConversas;
+end;
+
+function TConversas.MensagensSemVisualizar: Integer;
+var
+  Conversa: TConversa;
+begin
+  Result := 0;
+  for Conversa in FConversas do
+    Inc(Result, Conversa.MensagemSemVisualizar);
+end;
+
+procedure TConversas.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to High(FConversas) do
+    FConversas[I].Free;
+  SetLength(FConversas, 0);
 end;
 
 { TConversa }
@@ -352,6 +461,91 @@ begin
       Exit;
 
   FUsuarios := FUsuarios + [Usuario];
+end;
+
+{ TMensagens }
+
+constructor TMensagens.Create(Owner: TConversa);
+begin
+  FConversa := Owner;
+  FUltimaMensagemSincronizada := 0;
+end;
+
+destructor TMensagens.Destroy;
+begin
+  Clear;
+  inherited;
+end;
+
+procedure TMensagens.Add(const Mensagem: TMensagem);
+begin
+  FMensagens := FMensagens + [Mensagem];
+  FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
+end;
+
+function TMensagens.Get(const ID: Integer): TMensagem;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to High(FMensagens) do
+    if FMensagens[I].ID = ID then
+      Exit(FMensagens[I]);
+end;
+
+function TMensagens.GetList(const Inicio: Integer): TMensagensArray;
+var
+  I: Integer;
+begin
+  Result := [];
+  for I := 0 to High(FMensagens) do
+    if FMensagens[I].ID >= Inicio then
+      Result := Result + [FMensagens[I]];
+end;
+
+function TMensagens.Items: TArray<TMensagem>;
+begin
+  Result := FMensagens;
+end;
+
+function TMensagens.ParaExibir: TMensagensArray;
+var
+  Mensagem: TMensagem;
+begin
+  Result := [];
+  for Mensagem in FMensagens do
+    if not Mensagem.Exibida then
+      Result := Result + [Mensagem.Exibida(True)];
+end;
+
+function TMensagens.ParaNotificar: TMensagensArray;
+var
+  Mensagem: TMensagem;
+begin
+  Result := [];
+  for Mensagem in FMensagens do
+    if not Mensagem.Notificada then
+      Result := Result + [Mensagem];
+end;
+
+function TMensagens.ParaAtualizar: TMensagensArray;
+var
+  Mensagem: TMensagem;
+begin
+  Result := [];
+  for Mensagem in FMensagens do
+    if Mensagem.Lado = TLadoMensagem.Direito then
+      if not Mensagem.Recebida or not Mensagem.Visualizada then
+        Result := Result + [Mensagem];
+end;
+
+procedure TMensagens.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to High(FMensagens) do
+    FMensagens[I].Free;
+  SetLength(FMensagens, 0);
 end;
 
 { TMensagem }
@@ -509,6 +703,42 @@ begin
   TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
 end;
 
+{ THConteudos }
+
+procedure THConteudos.Add(const Conteudo: TConteudo);
+begin
+  Self := Self + [Conteudo];
+end;
+
+function THConteudos.Get(const ID: Integer): TConteudo;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to High(Self) do
+    if Self[I].ID = ID then
+      Exit(Self[I]);
+end;
+
+procedure THConteudos.Add(const Conteudo: TConteudos);
+begin
+  Self := Self + Conteudo;
+end;
+
+procedure THConteudos.Clear;
+var
+  I: Integer;
+begin
+  for I := 0 to High(Self) do
+    Self[I].Free;
+  SetLength(Self, 0);
+end;
+
+function THConteudos.Count: Integer;
+begin
+  Result := Length(Self);
+end;
+
 { TConteudo }
 
 class function TConteudo.New(ID: Integer): TConteudo;
@@ -553,236 +783,6 @@ function TConteudo.Conteudo(const Value: String): TConteudo;
 begin
   FConteudo := Value;
   Result := Self;
-end;
-
-{ TUsuarios }
-
-constructor TUsuarios.Create;
-begin
-  //
-end;
-
-destructor TUsuarios.Destroy;
-begin
-  Clear;
-  inherited;
-end;
-
-procedure TUsuarios.Add(const Usuario: TUsuario);
-begin
-  FUsuarios := FUsuarios + [Usuario];
-end;
-
-function TUsuarios.Get(const ID: Integer): TUsuario;
-var
-  I: Integer;
-begin
-  Result := nil;
-  for I := 0 to High(FUsuarios) do
-  begin
-    if FUsuarios[I].ID = ID then
-    begin
-      Result := FUsuarios[I];
-      Exit;
-    end;
-  end;
-end;
-
-function TUsuarios.GetOrAdd(const ID: Integer): TUsuario;
-begin
-  Result := Get(ID);
-  if not Assigned(Result) then
-  begin
-    Result := TUsuario.New(ID);
-    Add(Result);
-  end;
-end;
-
-procedure TUsuarios.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to High(FUsuarios) do
-    FUsuarios[I].Free;
-  SetLength(FUsuarios, 0);
-end;
-
-{ TConversas }
-
-destructor TConversas.Destroy;
-begin
-  Clear;
-  inherited;
-end;
-
-procedure TConversas.Add(const Conversa: TConversa);
-begin
-  SetLength(FConversas, Length(FConversas) + 1);
-  FConversas[High(FConversas)] := Conversa;
-end;
-
-function TConversas.Get(const ID: Integer): TConversa;
-var
-  I: Integer;
-begin
-  Result := nil;
-  for I := 0 to High(FConversas) do
-    if FConversas[I].ID = ID then
-      Exit(FConversas[I]);
-end;
-
-function TConversas.GetOrAdd(const ID: Integer): TConversa;
-begin
-  Result := Get(ID);
-  if not Assigned(Result) then
-  begin
-    Result := TConversa.New(ID);
-    Add(Result);
-  end;
-end;
-
-function TConversas.Items: TArray<TConversa>;
-begin
-  Result := FConversas;
-end;
-
-function TConversas.MensagensSemVisualizar: Integer;
-var
-  Conversa: TConversa;
-begin
-  Result := 0;
-  for Conversa in FConversas do
-    Inc(Result, Conversa.MensagemSemVisualizar);
-end;
-
-procedure TConversas.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to High(FConversas) do
-    FConversas[I].Free;
-  SetLength(FConversas, 0);
-end;
-
-{ TMensagens }
-
-constructor TMensagens.Create(Owner: TConversa);
-begin
-  FConversa := Owner;
-  FUltimaMensagemSincronizada := 0;
-end;
-
-destructor TMensagens.Destroy;
-begin
-  Clear;
-  inherited;
-end;
-
-procedure TMensagens.Add(const Mensagem: TMensagem);
-begin
-  FMensagens := FMensagens + [Mensagem];
-  FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
-end;
-
-function TMensagens.Get(const ID: Integer): TMensagem;
-var
-  I: Integer;
-begin
-  Result := nil;
-  for I := 0 to High(FMensagens) do
-    if FMensagens[I].ID = ID then
-      Exit(FMensagens[I]);
-end;
-
-function TMensagens.GetList(const Inicio: Integer): TMensagensArray;
-var
-  I: Integer;
-begin
-  Result := [];
-  for I := 0 to High(FMensagens) do
-    if FMensagens[I].ID >= Inicio then
-      Result := Result + [FMensagens[I]];
-end;
-
-function TMensagens.Items: TArray<TMensagem>;
-begin
-  Result := FMensagens;
-end;
-
-function TMensagens.ParaExibir: TMensagensArray;
-var
-  Mensagem: TMensagem;
-begin
-  Result := [];
-  for Mensagem in FMensagens do
-    if not Mensagem.Exibida then
-      Result := Result + [Mensagem.Exibida(True)];
-end;
-
-function TMensagens.ParaNotificar: TMensagensArray;
-var
-  Mensagem: TMensagem;
-begin
-  Result := [];
-  for Mensagem in FMensagens do
-    if not Mensagem.Notificada then
-      Result := Result + [Mensagem];
-end;
-
-function TMensagens.ParaAtualizar: TMensagensArray;
-var
-  Mensagem: TMensagem;
-begin
-  Result := [];
-  for Mensagem in FMensagens do
-    if Mensagem.Lado = TLadoMensagem.Direito then
-      if not Mensagem.Recebida or not Mensagem.Visualizada then
-        Result := Result + [Mensagem];
-end;
-
-procedure TMensagens.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to High(FMensagens) do
-    FMensagens[I].Free;
-  SetLength(FMensagens, 0);
-end;
-
-{ THConteudos }
-
-procedure THConteudos.Add(const Conteudo: TConteudo);
-begin
-  Self := Self + [Conteudo];
-end;
-
-function THConteudos.Get(const ID: Integer): TConteudo;
-var
-  I: Integer;
-begin
-  Result := nil;
-  for I := 0 to High(Self) do
-    if Self[I].ID = ID then
-      Exit(Self[I]);
-end;
-
-procedure THConteudos.Add(const Conteudo: TConteudos);
-begin
-  Self := Self + Conteudo;
-end;
-
-procedure THConteudos.Clear;
-var
-  I: Integer;
-begin
-  for I := 0 to High(Self) do
-    Self[I].Free;
-  SetLength(Self, 0);
-end;
-
-function THConteudos.Count: Integer;
-begin
-  Result := Length(Self);
 end;
 
 end.
