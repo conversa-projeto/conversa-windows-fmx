@@ -26,7 +26,7 @@ uses
   FMX.Platform,
   FMX.Clipboard,
   PascalStyleScript,
-  Mensagem.Tipos;
+  Conversa.Tipos;
 
 type
   TItem = record
@@ -216,7 +216,7 @@ begin
 
   lytLargura := TLayout.Create(lytConteudo);
   NomearComponente(lytLargura);
-  if Mensagem.Lado = TLado.Esquerdo then
+  if Mensagem.Lado = TLadoMensagem.Esquerdo then
     lytLargura.Align := TAlignLayout.Left
   else
     lytLargura.Align := TAlignLayout.Right;
@@ -237,7 +237,7 @@ begin
   rtgFundo.XRadius := 5;
   rtgFundo.YRadius := 5;
 
-  if Mensagem.Lado = TLado.Esquerdo then
+  if Mensagem.Lado = TLadoMensagem.Esquerdo then
   begin
     rtgFundo.Fill.Color := $FFEDEDED;
     rtgFundo.Stroke.Kind := TBrushKind.None;
@@ -315,7 +315,7 @@ begin
   pthStatus.Stroke.Kind := TBrushKind.None;
   TPascalStyleScript.Instance.RegisterObject(pthStatus, 'Mensagem.Status');
 
-  if Mensagem.Lado = TLado.Direito then
+  if Mensagem.Lado = TLadoMensagem.Direito then
   begin
     if Mensagem.Visualizada then
     begin
@@ -349,7 +349,7 @@ begin
   for I := 0 to Pred(Mensagem.Conteudos.Count) do
   begin
     case Mensagem.Conteudos[I].Tipo of
-      1: // texto
+      TTipoConteudo.Texto: // texto
       begin
         txtTexto := TText.Create(lytConteudo);
         NomearComponente(txtTexto);
@@ -375,7 +375,7 @@ begin
         lytConteudoMensagem.AddObject(txtTexto);
         TPascalStyleScript.Instance.RegisterObject(txtTexto, 'Mensagem.Conteudo.Texto');
       end;
-      2: // imagem
+      TTipoConteudo.Imagem: // imagem
       begin
         imgImagem := TImage.Create(lytConteudo);
         NomearComponente(imgImagem);
@@ -415,6 +415,7 @@ begin
   Item.Status := pthStatus;
   FItems := FItems + [Item];
   Redimensionar(sbxCentro.Width, lytAltura);
+
   Item.Dados.AoAtualizar(
     procedure(Mensagem: TMensagem)
     begin
@@ -632,7 +633,7 @@ begin
   for I := Pred(Length(FItems)) downto 0 do
   begin
     // Se é mensagem própria do usuário não precisa validar
-    if FItems[I].Dados.Lado = TLado.Direito then
+    if FItems[I].Dados.Lado = TLadoMensagem.Direito then
       Continue;
 
     // Se a mensagem já foi Visualizada, não precisa validar
@@ -652,7 +653,7 @@ begin
     if not InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
       Continue;
 
-    FItems[I].Dados.VisualizarMensagem;
+//    FItems[I].Dados.VisualizarMensagem;
   end;
 end;
 
@@ -661,7 +662,7 @@ var
   Item: TItem;
   ID: Integer;
 begin
-  if Mensagem.Lado <> TLado.Direito then
+  if Mensagem.Lado <> TLadoMensagem.Direito then
     Exit;
 
   ID := Mensagem.Id;

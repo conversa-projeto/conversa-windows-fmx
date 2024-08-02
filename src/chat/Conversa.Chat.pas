@@ -22,7 +22,7 @@ uses
   Conversa.FrameBase,
   Mensagem.Visualizador,
   Mensagem.Editor,
-  Mensagem.Tipos,
+  Conversa.Tipos,
   Mensagem.Anexo,
   Conversa.Chat.Listagem.Item;
 
@@ -38,31 +38,24 @@ type
     lblNome: TLabel;
     lytClient: TLayout;
     pthFotoDefault: TPath;
-    procedure lblNomeClick(Sender: TObject);
   private
     FListagemItem: TConversasItemFrame;
-    FID: Integer;
-    FUsuario: String;
-    FUsuarioID: Integer;
+    FConversa: TConversa;
     FVisualizador: TVisualizador;
     Editor: TEditor;
     Anexo: TAnexo;
-    FDestinatarioID: Integer;
-    procedure SetUsuario(const Value: String);
-    procedure SetDestinatarioID(const Value: Integer);
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
-    property ID: Integer read FID write FID;
-    property Usuario: String read FUsuario write SetUsuario;
-    property UsuarioID: Integer read FUsuarioID write FUsuarioID;
-    property DestinatarioID: Integer read FDestinatarioID write SetDestinatarioID;
+    property Conversa: TConversa read FConversa write FConversa;
+
+
     property Visualizador: TVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
-    procedure AdicionarMensagens(aMensagem: TMensagens);
+    procedure AdicionarMensagens(aMensagem: TMensagensArray);
     procedure PosicionarUltima;
     procedure Limpar;
     procedure VisualizarTudo;
@@ -80,7 +73,7 @@ begin
   Visualizador.AdicionaMensagem(Mensagem);
 end;
 
-procedure TChat.AdicionarMensagens(aMensagem: TMensagens);
+procedure TChat.AdicionarMensagens(aMensagem: TMensagensArray);
 var
   Mensagem: TMensagem;
 begin
@@ -109,18 +102,16 @@ begin
   Editor.AdicionaMensagem(
     procedure(Mensagem: TMensagem)
     begin
-      if FID = 0 then
+      if Conversa.ID = 0 then
       begin
-        FID := Dados.NovoChat(FUsuarioID, FDestinatarioID);
-        FListagemItem.ID := FID;
+        Dados.NovoChat(FConversa);
+        FListagemItem.ID := Conversa.ID;
       end;
-      Mensagem.inserida := Now;
-      Mensagem.lado := TLado.Direito;
-      Mensagem.remetente := Usuario;
-      Mensagem.ConversaId := ID;
-      Mensagem.RemetenteId := FUsuarioID;
-//      Mensagem.Recebida := True;
-//      Mensagem.Visualizada := True;
+      Mensagem
+        .Inserida(Now)
+        .Remetente(Dados.FDadosApp.Usuario)
+        .Conversa(Conversa);
+
       if Assigned(AoEnviarMensagem) then
         AoEnviarMensagem(Self, Mensagem);
       Visualizador.PosicionarUltima;
@@ -136,24 +127,9 @@ begin
   inherited;
 end;
 
-procedure TChat.lblNomeClick(Sender: TObject);
-begin
-  ShowMessage(Dados.MensagemSemVisualizar(FID).ToString);
-end;
-
 procedure TChat.Limpar;
 begin
   Visualizador.Limpar;
-end;
-
-procedure TChat.SetDestinatarioID(const Value: Integer);
-begin
-  FDestinatarioID := Value;
-end;
-
-procedure TChat.SetUsuario(const Value: String);
-begin
-  FUsuario := Value;
 end;
 
 procedure TChat.ValidarVisualizacao;

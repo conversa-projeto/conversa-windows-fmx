@@ -113,7 +113,6 @@ inherited Chat: TChat
             TextSettings.FontColor = xFF141414
             Text = '[Nome]'
             TabOrder = 0
-            OnClick = lblNomeClick
           end
         end
       end

@@ -24,7 +24,7 @@ uses
   FMX.ListBox,
   FMX.Styles,
   System.Messaging,
-  Mensagem.Tipos;
+  Conversa.Tipos;
 
 type
   TAnexo = class
@@ -47,7 +47,7 @@ type
     QUANTIDADE_VISIVEL = 5;
   private
     FImagens: TArray<TBitmap>;
-    FAoSelecionar: TProc<TArray<TMensagemConteudo>>;
+    FAoSelecionar: TProc<TArray<TConteudo>>;
     FAoCancelar: TProc;
     procedure CriarEstilo;
     procedure ItemOnApplyStyleLookup(Sender: TObject);
@@ -56,7 +56,7 @@ type
     constructor Create(AOwner: TFmxObject);
     destructor Destroy; override;
     procedure AdicionarItem(sArquivo: String);
-    procedure SelecionarAnexo(AoSelecionar: TProc<TArray<TMensagemConteudo>>);
+    procedure SelecionarAnexo(AoSelecionar: TProc<TArray<TConteudo>>);
     procedure CancelarAnexo(AoCancelar: TProc);
     property Layout: TLayout read lytEditorAnexo;
   end;
@@ -176,7 +176,7 @@ begin
   inherited;
 end;
 
-procedure TAnexo.SelecionarAnexo(AoSelecionar: TProc<TArray<TMensagemConteudo>>);
+procedure TAnexo.SelecionarAnexo(AoSelecionar: TProc<TArray<TConteudo>>);
 begin
   FAoSelecionar := AoSelecionar;
   lytEditorAnexo.Visible := True;
@@ -405,16 +405,14 @@ end;
 
 procedure TAnexo.sbtEnviarClick(Sender: TObject);
 var
-  Item: TMensagemConteudo;
-  Selecionados: TArray<TMensagemConteudo>;
+  Item: TConteudo;
+  Selecionados: TArray<TConteudo>;
   I: Integer;
 begin
   Selecionados := [];
   for I := 0 to Pred(lbxAnexos.Items.Count) do
   begin
-    Item := TMensagemConteudo.New;
-    Item.tipo := 2; // 2-Imagem
-    Item.conteudo := TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text;
+    Item := TConteudo.New(0).Tipo(TTipoConteudo.Imagem).Conteudo(TText(lbxAnexos.ListItems[I].FindStyleResource('Arquivo')).Text);
     Selecionados := Selecionados + [Item];
   end;
 

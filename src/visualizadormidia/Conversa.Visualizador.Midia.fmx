@@ -8,10 +8,12 @@ inherited VisualizadorMidia: TVisualizadorMidia
     Stroke.Kind = None
     object lytMedia: TLayout
       Align = Client
+      HitTest = True
       Size.Width = 220.000000000000000000
       Size.Height = 155.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
+      OnClick = lytMediaClick
       OnMouseEnter = lytMediaMouseEnter
       OnMouseLeave = lytMediaMouseLeave
       object imgImagem: TImage

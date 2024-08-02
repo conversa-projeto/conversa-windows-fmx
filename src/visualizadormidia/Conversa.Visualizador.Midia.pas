@@ -43,16 +43,13 @@ type
     procedure lytMaximizeButtonMouseLeave(Sender: TObject);
     procedure lytMinimizeButtonMouseEnter(Sender: TObject);
     procedure lytMinimizeButtonMouseLeave(Sender: TObject);
-    procedure imgImagemMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure imgImagemMouseMove(Sender: TObject; Shift: TShiftState; X,
-      Y: Single);
-    procedure imgImagemMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Single);
-    procedure imgImagemMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; var Handled: Boolean);
+    procedure imgImagemMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure imgImagemMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Single);
+    procedure imgImagemMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure imgImagemMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
     procedure lytMediaMouseLeave(Sender: TObject);
     procedure lytMediaMouseEnter(Sender: TObject);
+    procedure lytMediaClick(Sender: TObject);
   private
     { Private declarations }
     FTelaCheia: Boolean;
@@ -154,6 +151,12 @@ end;
 procedure TVisualizadorMidia.lytMaximizeButtonMouseLeave(Sender: TObject);
 begin
   TAnimator.AnimateColor(rctMaximize, 'Fill.Color', TAlphaColorF.Create(255, 255, 255, 0).ToAlphaColor, 0.001);
+end;
+
+procedure TVisualizadorMidia.lytMediaClick(Sender: TObject);
+begin
+  inherited;
+  DoOnClose;
 end;
 
 procedure TVisualizadorMidia.lytMediaMouseEnter(Sender: TObject);

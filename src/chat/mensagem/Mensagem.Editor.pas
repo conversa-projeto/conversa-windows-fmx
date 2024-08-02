@@ -17,7 +17,7 @@ uses
   FMX.Dialogs,
   FMX.Controls,
   PascalStyleScript,
-  Mensagem.Tipos,
+  Conversa.Tipos,
   Mensagem.Anexo;
 
 type
@@ -305,13 +305,12 @@ begin
   FAguardandoAnexo := True;
 
   FAnexo.SelecionarAnexo(
-    procedure(Selecionados: TArray<TMensagemConteudo>)
+    procedure(Selecionados: TArray<TConteudo>)
     var
       Mensagem: TMensagem;
     begin
-      Mensagem := TMensagem.New;
-      Mensagem.Lado := TLado.Direito;
-      Mensagem.Conteudos.AddRange(Selecionados);
+      Mensagem := TMensagem.New(0).Lado(TLadoMensagem.Direito);
+      Mensagem.Conteudos.Add(Selecionados);
       FAdicionar(Mensagem);
     end
   );
@@ -331,19 +330,15 @@ end;
 
 procedure TEditor.lytEnviarClick(Sender: TObject);
 var
-  Conteudo: TMensagemConteudo;
   Mensagem: TMensagem;
   sMensagem: String;
 begin
   sMensagem := mmMensagem.Lines.Text.Trim;
   if sMensagem.IsEmpty then
     Exit;
-  Mensagem := TMensagem.New;
-  Mensagem.Lado := TLado.Direito;
-  Conteudo := TMensagemConteudo.New;
-  Conteudo.tipo := 1; // 1-Texto
-  Conteudo.conteudo := sMensagem;
-  Mensagem.Conteudos.Add(Conteudo);
+
+  Mensagem := TMensagem.New(0).Lado(TLadoMensagem.Direito);
+  Mensagem.Conteudos.Add(TConteudo.New(0).Tipo(TTipoConteudo.Texto).Conteudo(sMensagem));
   mmMensagem.Lines.Clear;
   FAdicionar(Mensagem);
 end;

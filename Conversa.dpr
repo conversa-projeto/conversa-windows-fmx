@@ -7,6 +7,7 @@ uses
   MidasLib,
   System.StartUpCopy,
   FMX.Forms,
+  Conversa.Tipos in 'src\Conversa.Tipos.pas',
   Conversa.Login in 'Conversa.Login.pas' {Login: TFrame},
   Conversa.Dados in 'Conversa.Dados.pas' {Dados: TDataModule},
   REST.API in 'REST.API.pas',

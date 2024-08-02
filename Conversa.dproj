@@ -302,6 +302,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="src\Conversa.Tipos.pas"/>
         <DCCReference Include="Conversa.Login.pas">
             <Form>Login</Form>
             <DesignClass>TFrame</DesignClass>

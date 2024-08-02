@@ -164,9 +164,9 @@ begin
   begin
     lytTitleBarClient.Parent := Self.lytTitleBarClient;
     lytTitleBarClient.Align := TAlignLayout.Client;
-    txtUserLetra.Text := Dados.Nome[1];
+    txtUserLetra.Text := Dados.FDadosApp.Usuario.Nome[1];
   end;
-  Dados.Conversas;
+  Dados.CarregarConversas;
   Dados.tmrAtualizarMensagens.Enabled := True;
 end;
 

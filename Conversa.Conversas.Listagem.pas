@@ -55,7 +55,7 @@ implementation
 uses
   Conversa.Dados,
   Conversa.Login,
-  Mensagem.Tipos,
+  Conversa.Tipos,
   System.NetEncoding;
 
 {$R *.fmx}

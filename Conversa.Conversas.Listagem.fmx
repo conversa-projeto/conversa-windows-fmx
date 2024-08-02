@@ -91,7 +91,6 @@ object Principal: TPrincipal
     end
   end
   object bsrConversas: TBindSourceDB
-    DataSet = Dados.cdsConversas
     ScopeMappings = <>
     Left = 321
   end

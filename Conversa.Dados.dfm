@@ -1,14 +1,13 @@
 object Dados: TDados
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Height = 578
-  Width = 729
-  PixelsPerInch = 144
+  Height = 385
+  Width = 486
   object tmrAtualizarMensagens: TTimer
     Enabled = False
     Interval = 5000
     OnTimer = tmrAtualizarMensagensTimer
-    Left = 233
-    Top = 24
+    Left = 155
+    Top = 16
   end
 end
