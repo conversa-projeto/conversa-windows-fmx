@@ -225,12 +225,7 @@ begin
     if not Assigned(Chat) then
       Chat := TChat.Create(lytViewClient);
 
-    if not Assigned(Chat.Conversa) then
-      Chat.Conversa := Dados.FDadosApp.Conversas.GetOrAdd(Item.ID)
-    else
-    if Chat.Conversa.ID = Item.ID then
-      Exit;
-
+    Chat.Conversa := Dados.FDadosApp.Conversas.GetOrAdd(Item.ID);
     Chat.Limpar;
 
 //    Chat.DestinatarioID := Item.DestinatarioId;

@@ -368,7 +368,10 @@ begin
   if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
     ObterMensagens(iConversa);
 
-  Result := Conversa.Mensagens.ParaExibir;
+  if ApenasPendente then
+    Result := Conversa.Mensagens.ParaExibir
+  else
+    Result := Conversa.Mensagens.Items;
 end;
 
 procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
