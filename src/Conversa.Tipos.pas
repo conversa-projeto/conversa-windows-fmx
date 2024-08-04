@@ -69,9 +69,11 @@ type
     procedure Clear;
   end;
 
+  TTipoConversa = (Chat = 1, Grupo = 2);
   TConversa = class
   private
     FID: Integer;
+    FTipo: TTipoConversa;
     FDescricao: String;
     FUltimaMensagem: String;
     FUltimaMensagemData: TDateTime;
@@ -86,6 +88,8 @@ type
     property Mensagens: TMensagens read FMensagens;
     function ID: Integer; overload;
     function ID(const Value: Integer): TConversa; overload;
+    function Tipo: TTipoConversa; overload;
+    function Tipo(const Value: TTipoConversa): TConversa; overload;
     function Descricao: String; overload;
     function UltimaMensagem: String; overload;
     function UltimaMensagemData: TDateTime; overload;
@@ -390,6 +394,17 @@ begin
 
   FID := Value;
   Result := Self;
+end;
+
+function TConversa.Tipo: TTipoConversa;
+begin
+  Result := FTipo;
+end;
+
+function TConversa.Tipo(const Value: TTipoConversa): TConversa;
+begin
+  Result := Self;
+  FTipo := Value;
 end;
 
 function TConversa.Descricao: String;

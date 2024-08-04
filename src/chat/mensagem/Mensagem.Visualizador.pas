@@ -258,17 +258,17 @@ begin
   lbNome.Size.Width := 373;
   lbNome.Size.Height := 22;
   lbNome.Size.PlatformDefault := False;
-//  if Mensagem.Lado = TLado.Esquerdo then
-//  begin
-//    lbNome.Text := Mensagem.Remetente;
-//    if Mensagem.Remetente.IsEmpty then
-//      lbNome.Size.Height := 5;
-//  end
-//  else
-//  begin
+  if (Mensagem.Lado = TLadoMensagem.Esquerdo) and (Mensagem.Conversa.Tipo = TTipoConversa.Grupo) then
+  begin
+    lbNome.Text := Mensagem.Remetente.Nome;
+    if Mensagem.Remetente.Nome.IsEmpty then
+      lbNome.Size.Height := 5;
+  end
+  else
+  begin
     lbNome.Text := EmptyStr;
     lbNome.Size.Height := 5;
-//  end;
+  end;
   TPascalStyleScript.Instance.RegisterObject(lbNome, 'Mensagem.NomeUsuario');
 
   lytConteudoMensagem := TLayout.Create(lytConteudo);
