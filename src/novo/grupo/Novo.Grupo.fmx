@@ -1,0 +1,211 @@
+inherited NovoGrupo: TNovoGrupo
+  Size.Height = 500.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Bottom = 8.000000000000000000
+    Size.Width = 320.000000000000000000
+    Size.Height = 500.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object txtTitle: TText
+      Align = Top
+      Margins.Left = 8.000000000000000000
+      Margins.Right = 8.000000000000000000
+      Position.X = 8.000000000000000000
+      Size.Width = 304.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Novo Grupo'
+      TextSettings.Font.Size = 15.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.HorzAlign = Leading
+    end
+    object lstContatos: TListBox
+      Align = Client
+      Size.Width = 320.000000000000000000
+      Size.Height = 353.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'transparentlistboxstyle'
+      TabOrder = 0
+      DisableFocusEffect = True
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 320.000000000000000000
+      Viewport.Height = 353.000000000000000000
+    end
+    object lytgBotoes: TGridPanelLayout
+      Align = Bottom
+      Margins.Left = 8.000000000000000000
+      Margins.Right = 8.000000000000000000
+      Position.X = 8.000000000000000000
+      Position.Y = 462.000000000000000000
+      Size.Width = 304.000000000000000000
+      Size.Height = 30.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      ColumnCollection = <
+        item
+          Value = 50.000000000000000000
+        end
+        item
+          Value = 50.000000000000000000
+        end>
+      ControlCollection = <
+        item
+          Column = 0
+          Control = rctBotaoCancelar
+          Row = 0
+        end
+        item
+          Column = 1
+          Control = rctBotaoSalvar
+          Row = 0
+        end>
+      RowCollection = <
+        item
+          Value = 100.000000000000000000
+        end>
+      object rctBotaoCancelar: TRectangle
+        Align = Client
+        Cursor = crHandPoint
+        Fill.Color = claWhitesmoke
+        Margins.Right = 4.000000000000000000
+        Size.Width = 148.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+        OnClick = rctBotaoCancelarClick
+        object txtBotaoCancelar: TText
+          Align = Client
+          HitTest = False
+          Size.Width = 148.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Cancelar'
+        end
+      end
+      object rctBotaoSalvar: TRectangle
+        Align = Client
+        Cursor = crHandPoint
+        Fill.Color = claWhitesmoke
+        Margins.Left = 4.000000000000000000
+        Size.Width = 148.000000000000000000
+        Size.Height = 30.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 5.000000000000000000
+        YRadius = 5.000000000000000000
+        OnClick = rctBotaoSalvarClick
+        object txtBotaoSalvar: TText
+          Align = Client
+          HitTest = False
+          Size.Width = 148.000000000000000000
+          Size.Height = 30.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Salvar'
+          TextSettings.Font.Family = 'Segoe UI Variable Text'
+          TextSettings.FontColor = xFF007FFF
+        end
+      end
+    end
+    object lytGrupo: TLayout
+      Align = Top
+      Margins.Left = 8.000000000000000000
+      Margins.Right = 8.000000000000000000
+      Position.X = 8.000000000000000000
+      Position.Y = 47.000000000000000000
+      Size.Width = 304.000000000000000000
+      Size.Height = 45.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+      object rctNomeGrupo: TRectangle
+        Align = Client
+        Fill.Color = claWhitesmoke
+        Padding.Left = 8.000000000000000000
+        Padding.Right = 8.000000000000000000
+        Margins.Left = 8.000000000000000000
+        Margins.Top = 10.000000000000000000
+        Margins.Right = 8.000000000000000000
+        Margins.Bottom = 10.000000000000000000
+        Size.Width = 238.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 10.000000000000000000
+        YRadius = 10.000000000000000000
+        object edtNomeGrupo: TEdit
+          Touch.InteractiveGestures = [LongTap, DoubleTap]
+          Align = Client
+          StyleLookup = 'transparentedit'
+          TabOrder = 1
+          Size.Width = 222.000000000000000000
+          Size.Height = 25.000000000000000000
+          Size.PlatformDefault = False
+          TextPrompt = 'Informe o nome do grupo para continuar'
+        end
+      end
+      object lytFoto: TLayout
+        Align = Left
+        Size.Width = 50.000000000000000000
+        Size.Height = 45.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclFoto: TCircle
+          Align = Client
+          Fill.Color = claWhite
+          HitTest = False
+          Size.Width = 50.000000000000000000
+          Size.Height = 45.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object txtFoto: TText
+            Align = Center
+            HitTest = False
+            Size.Width = 45.000000000000000000
+            Size.Height = 45.000000000000000000
+            Size.PlatformDefault = False
+            Text = 'C'
+            TextSettings.Font.Family = 'Consolas'
+            TextSettings.Font.Size = 30.000000000000000000
+            TextSettings.FontColor = xFF007DFF
+            TextSettings.WordWrap = False
+          end
+        end
+      end
+    end
+    object lnSeparador: TLine
+      Align = Top
+      LineType = Top
+      Margins.Top = 8.000000000000000000
+      Margins.Bottom = 8.000000000000000000
+      Position.Y = 100.000000000000000000
+      Size.Width = 320.000000000000000000
+      Size.Height = 1.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFFDBDBDB
+    end
+    object Line1: TLine
+      Align = Top
+      LineType = Top
+      Margins.Top = 8.000000000000000000
+      Margins.Bottom = 8.000000000000000000
+      Position.Y = 38.000000000000000000
+      Size.Width = 320.000000000000000000
+      Size.Height = 1.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Color = xFFDBDBDB
+    end
+  end
+  object tmrCarregar: TTimer
+    Interval = 100
+    OnTimer = tmrCarregarTimer
+    Left = 136
+    Top = 8
+  end
+end

@@ -32,6 +32,7 @@ uses
 type
   TListBoxItem = class(FMX.ListBox.TListBoxItem)
   public
+    Conversa: TConversa;
     ContatoItem: TConversasItemFrame;
   end;
   TChatListagem = class(TFrameBase)
@@ -51,6 +52,7 @@ type
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
     procedure AtualizarChat(Mensagem: TMensagem);
+    procedure AtualizarListagem;
   public
     Chat: TChat;
     class function New(AOwner: TFmxObject): TChatListagem; static;
@@ -67,6 +69,9 @@ implementation
 
 {$R *.fmx}
 
+uses
+  Conversa.Eventos;
+
 class function TChatListagem.New(AOwner: TFmxObject): TChatListagem;
 begin
   Chats := TChatListagem.Create(AOwner);
@@ -82,37 +87,21 @@ end;
 constructor TChatListagem.Create(AOwner: TComponent);
 begin
   inherited;
-  //
+  TEvento.Adicionar(TTipoEvento.AtualizacaoListaConversa, AtualizarListagem);
 end;
 
 destructor TChatListagem.Destroy;
 begin
+  TEvento.Remover(TTipoEvento.AtualizacaoListaConversa, AtualizarListagem);
   if Assigned(Chat) then
     FreeAndNil(Chat);
   inherited;
 end;
 
 procedure TChatListagem.tmrExibirTimer(Sender: TObject);
-var
-  Item: TListBoxItem;
-  Conversa: TConversa;
 begin
   tmrExibir.Enabled := False;
   Dados.CarregarConversas;
-  for Conversa in Dados.FDadosApp.Conversas.Items do
-  begin
-    Item := TListBoxItem.Create(nil);
-    Item.Text := '';
-    Item.Height := 60;
-    Item.Selectable := False;
-    Item.ContatoItem :=
-      TConversasItemFrame.New(Item, Conversa.ID, Conversa.Destinatario.ID)
-        .Descricao(Conversa.Descricao)
-        .Mensagem(Conversa.UltimaMensagem)
-        .UltimaMensagem(Conversa.UltimaMensagemData)
-        .OnClick(btnAbrirChat);
-    lstConversas.AddObject(Item);
-  end;
 end;
 
 procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
@@ -223,16 +212,14 @@ procedure TChatListagem.btnAbrirChat(Item: TConversasItemFrame);
 begin
   try
     if not Assigned(Chat) then
-      Chat := TChat.Create(lytViewClient);
+      Chat := TChat.Create(lytViewClient)
+    else
+    if Assigned(Chat.Conversa) and (Chat.Conversa.ID = Item.ID) then
+      Exit;
 
     Chat.Conversa := Dados.FDadosApp.Conversas.GetOrAdd(Item.ID);
     Chat.Limpar;
-
-//    Chat.DestinatarioID := Item.DestinatarioId;
     Chat.lblNome.Text := Item.lblNome.Text;
-//    Chat.ID := Item.ID;
-//    Chat.Usuario := Dados.Nome;
-//    Chat.UsuarioID := Dados.ID;
     Chat.AoEnviarMensagem := EnviarMensagem;
     Chat.UltimaMensagem := 0;
     Chat.AdicionarMensagens(Dados.ExibirMensagem(Item.ID, False));
@@ -304,6 +291,63 @@ begin
   Chat.UltimaMensagem := 0;
   Chat.AdicionarMensagens(Dados.ExibirMensagem(ChatId, False));
   Chat.ListagemItem := Item.ContatoItem;
+end;
+
+procedure TChatListagem.AtualizarListagem;
+var
+  Item: TListBoxItem;
+  Conversas: TArrayConversas;
+  Conversa: TConversa;
+  I: Integer;
+  bContinue: Boolean;
+  DestinatarioId: Integer;
+
+  iConversa: Integer;
+begin
+  Conversas := Dados.FDadosApp.Conversas.Items.OrdemAtualizacao;
+  for iConversa := 0 to Pred(Length(Conversas)) do
+  begin
+    Conversa := Conversas[iConversa];
+    bContinue := False;
+    for I := 0 to Pred(lstConversas.Count) do
+    begin
+      Item := TListBoxItem(lstConversas.ListItems[I]);
+      if Item.Conversa = Conversa then
+      begin
+        Item.Index := iConversa;
+        Item.ContatoItem
+          .Descricao(Conversa.Descricao)
+          .Mensagem(Conversa.UltimaMensagem)
+          .UltimaMensagem(Conversa.UltimaMensagemData);
+
+        bContinue := True;
+        Break;
+      end;
+    end;
+
+    if bContinue then
+      Continue;
+
+    Item := TListBoxItem.Create(nil);
+    Item.Text := '';
+    Item.Height := 60;
+    Item.Selectable := False;
+    Item.Index := iConversa;
+
+    if Conversa.Tipo = TTipoConversa.Chat then
+      DestinatarioId := Conversa.Destinatario.ID
+    else
+      DestinatarioId := 0;
+
+    Item.Conversa := Conversa;
+    Item.ContatoItem :=
+      TConversasItemFrame.New(Item, Conversa.ID, DestinatarioId)
+        .Descricao(Conversa.Descricao)
+        .Mensagem(Conversa.UltimaMensagem)
+        .UltimaMensagem(Conversa.UltimaMensagemData)
+        .OnClick(btnAbrirChat);
+    lstConversas.AddObject(Item);
+  end;
 end;
 
 end.

@@ -8,7 +8,8 @@ uses
   System.SysUtils,
   System.Classes,
   System.Math,
-  System.Generics.Collections;
+  System.Generics.Collections,
+  System.Generics.Defaults;
 
 type
   TUsuario = class;
@@ -20,6 +21,7 @@ type
   TConteudo = class;
 
   TArrayUsuarios = TArray<TUsuario>;
+  TArrayConversas = TArray<TConversa>;
   TArrayMensagens = TArray<TMensagem>;
   TConteudos = TArray<TConteudo>;
   TPConteudos = ^TConteudos;
@@ -58,13 +60,13 @@ type
 
   TConversas = class
   private
-    FConversas: TArray<TConversa>;
+    FConversas: TArrayConversas;
   public
     destructor Destroy; override;
     procedure Add(const Conversa: TConversa);
     function Get(const ID: Integer): TConversa;
     function GetOrAdd(const ID: Integer): TConversa;
-    function Items: TArray<TConversa>;
+    function Items: TArrayConversas;
     function MensagensSemVisualizar: Integer;
     procedure Clear;
   end;
@@ -80,6 +82,7 @@ type
     FUsuarios: TArrayUsuarios;
     FUltimaMensagemId: Integer;
     FMensagens: TMensagens;
+    FCriadoEm: TDateTime;
   public
     MensagemSemVisualizar: Integer;
     class function New(ID: Integer): TConversa;
@@ -98,6 +101,8 @@ type
     function UltimaMensagemData(const Value: TDateTime): TConversa; overload;
     function UltimaMensagemID: Integer; overload;
     function UltimaMensagemID(const Value: INteger): TConversa; overload;
+    function CriadoEm: TDateTime; overload;
+    function CriadoEm(const Value: TDateTime): TConversa; overload;
     function Usuarios: TArrayUsuarios;
     function AddUsuario(const Usuario: TUsuario): TConversa;
     function Destinatario: TUsuario;
@@ -188,6 +193,10 @@ type
     function Get(const ID: Integer): TConteudo;
     function Count: Integer;
     procedure Clear;
+  end;
+
+  THArrayConversas = record Helper for TArrayConversas
+    function OrdemAtualizacao: TArrayConversas;
   end;
 
 implementation
@@ -317,6 +326,7 @@ procedure TConversas.Add(const Conversa: TConversa);
 begin
   SetLength(FConversas, Length(FConversas) + 1);
   FConversas[High(FConversas)] := Conversa;
+  TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
 end;
 
 function TConversas.Get(const ID: Integer): TConversa;
@@ -339,7 +349,7 @@ begin
   end;
 end;
 
-function TConversas.Items: TArray<TConversa>;
+function TConversas.Items: TArrayConversas;
 begin
   Result := FConversas;
 end;
@@ -374,6 +384,17 @@ constructor TConversa.Create;
 begin
   FMensagens := TMensagens.Create(Self);
   MensagemSemVisualizar := 0;
+end;
+
+function TConversa.CriadoEm(const Value: TDateTime): TConversa;
+begin
+  Result := Self;
+  FCriadoEm := Value;
+end;
+
+function TConversa.CriadoEm: TDateTime;
+begin
+  Result := FCriadoEm;
 end;
 
 destructor TConversa.Destroy;
@@ -496,6 +517,18 @@ procedure TMensagens.Add(const Mensagem: TMensagem);
 begin
   FMensagens := FMensagens + [Mensagem];
   FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
+
+
+  if Assigned(FConversa) then
+  begin
+    if FConversa.UltimaMensagemID < Mensagem.ID then
+    begin
+      FConversa.UltimaMensagemData(Mensagem.Inserida);
+      FConversa.UltimaMensagem(Mensagem.Conteudos[0].Conteudo);
+      FConversa.UltimaMensagemID(Mensagem.ID);
+      TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
+    end;
+  end;
 end;
 
 function TMensagens.Get(const ID: Integer): TMensagem;
@@ -799,6 +832,29 @@ begin
   FConteudo := Value;
   Result := Self;
 end;
+
+{ THArrayConversas }
+
+function THArrayConversas.OrdemAtualizacao: TArrayConversas;
+begin
+  // Copiar o array para a variável de resultado
+  Result := Self;
+
+  // Ordenar o array pela data da última mensagem (FUltimaMensagemData) em ordem decrescente
+  TArray.Sort<TConversa>(Result, TComparer<TConversa>.Construct(
+    function(const Anterior, Atual: TConversa): Integer
+    begin
+      if (Atual.FUltimaMensagemData = 0) and (Anterior.FUltimaMensagemData <> 0) then
+        Result := CompareValue(Atual.FCriadoEm, Anterior.FUltimaMensagemData)
+      else
+      if (Atual.FUltimaMensagemData = 0) and (Anterior.FUltimaMensagemData = 0) then
+        Result := CompareValue(Atual.FCriadoEm, Anterior.FCriadoEm)
+      else
+        Result := CompareValue(Atual.FUltimaMensagemData, Anterior.FUltimaMensagemData);
+    end
+  ));
+end;
+
 
 end.
 

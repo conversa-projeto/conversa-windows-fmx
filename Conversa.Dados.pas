@@ -169,7 +169,13 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
-    Query(TJSONObject.Create.AddPair('ultima', Conversa.Mensagens.UltimaMensagemSincronizada));
+    if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
+      Query(TJSONObject.Create.AddPair('offsetanterior', 100))
+    else
+    begin
+      Query(TJSONObject.Create.AddPair('mensagemreferencia', Conversa.Mensagens.UltimaMensagemSincronizada + 1));
+      Query(TJSONObject.Create.AddPair('offsetposterior', 100));
+    end;
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
     GET;
@@ -222,6 +228,7 @@ end;
 procedure TDados.CarregarConversas;
 var
   Conversa: TConversa;
+  bNova: Boolean;
 begin
   with TAPIConversa.Create do
   try
@@ -229,15 +236,27 @@ begin
     GET;
     for var Item in Response.ToJSONArray do
     begin
-      Conversa := FDadosApp.Conversas.GetOrAdd(Item.GetValue<Integer>('id'));
+      Conversa := FDadosApp.Conversas.Get(Item.GetValue<Integer>('id'));
+
+      if not Assigned(Conversa) then
+      begin
+        bNova := True;
+        Conversa := TConversa.New(Item.GetValue<Integer>('id'));
+      end
+      else
+        bNova := False;
 
       Conversa.Descricao(Item.GetValue<String>('descricao'));
       Conversa.AddUsuario(FDadosApp.Usuario);
       Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('destinatario_id')).Nome(Item.GetValue<String>('nome')));
       Conversa.UltimaMensagem(Item.GetValue<String>('ultima_mensagem_texto'));
+      Conversa.CriadoEm(ISO8601ToDate(Item.GetValue<String>('inserida')));
 
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
         Conversa.UltimaMensagemData(ISO8601ToDate(Item.GetValue<String>('ultima_mensagem')));
+
+      if bNova then
+        FDadosApp.Conversas.Add(Conversa);
 
       FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
     end;
@@ -468,7 +487,11 @@ begin
   with TAPIConversa.Create do
   try
     Route('conversa');
-    Body(TJSONObject.Create.AddPair('descricao', TJSONNull.Create));
+    if Conversa.Descricao.Trim.IsEmpty then
+      Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', TJSONNull.Create))
+    else
+      Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', Conversa.Descricao));
+
     PUT;
 
     if Response.Status <> TResponseStatus.Sucess then

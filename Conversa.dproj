@@ -397,6 +397,16 @@ $(PreBuildEvent)]]></PreBuildEvent>
         </DCCReference>
         <DCCReference Include="src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas"/>
         <DCCReference Include="src\Conversa.Eventos.pas"/>
+        <DCCReference Include="src\novo\grupo\Novo.Grupo.Usuario.Item.pas">
+            <Form>NovoGrupoUsuarioItem</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\novo\grupo\Novo.Grupo.pas">
+            <Form>NovoGrupo</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

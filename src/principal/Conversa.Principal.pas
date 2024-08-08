@@ -21,8 +21,12 @@ type
     lytProfileView: TLayout;
     Circle1: TCircle;
     txtUserLetra: TText;
+    rctBotaoNovoGrupo: TRectangle;
+    txtBotaoNovoGrupo: TText;
+    pthBotaoNovoGrupo: TPath;
     procedure Layout2Click(Sender: TObject);
     procedure rctBotaoContatosClick(Sender: TObject);
+    procedure rctBotaoNovoGrupoClick(Sender: TObject);
   public
     class function New(AOwner: TFmxObject): TPrincipalView;
     procedure Criar;
@@ -34,7 +38,8 @@ implementation
 
 uses
   Conversa.Tela.Inicial.view,
-  Conversa.Contatos;
+  Conversa.Contatos,
+  Novo.Grupo;
 
 class function TPrincipalView.New(AOwner: TFmxObject): TPrincipalView;
 begin
@@ -50,6 +55,11 @@ end;
 procedure TPrincipalView.rctBotaoContatosClick(Sender: TObject);
 begin
   TConversaContatos.ExibirContatos;
+end;
+
+procedure TPrincipalView.rctBotaoNovoGrupoClick(Sender: TObject);
+begin
+  TNovoGrupo.CriarGrupo;
 end;
 
 procedure TPrincipalView.Criar;

@@ -42,7 +42,9 @@ uses
   Conversa.Utils in 'lib\Conversa.Utils.pas',
   Conversa.Visualizador.Midia in 'src\visualizadormidia\Conversa.Visualizador.Midia.pas' {VisualizadorMidia: TFrame},
   Conversa.Visualizador.Midia.Windows in 'src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas',
-  Conversa.Eventos in 'src\Conversa.Eventos.pas';
+  Conversa.Eventos in 'src\Conversa.Eventos.pas',
+  Novo.Grupo.Usuario.Item in 'src\novo\grupo\Novo.Grupo.Usuario.Item.pas' {NovoGrupoUsuarioItem: TFrame},
+  Novo.Grupo in 'src\novo\grupo\Novo.Grupo.pas' {NovoGrupo: TFrame};
 
 {$R *.res}
 begin

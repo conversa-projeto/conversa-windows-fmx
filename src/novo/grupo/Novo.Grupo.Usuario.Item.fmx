@@ -1,0 +1,140 @@
+inherited NovoGrupoUsuarioItem: TNovoGrupoUsuarioItem
+  Size.Height = 60.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Cursor = crHandPoint
+    Fill.Color = claWhitesmoke
+    Size.Width = 320.000000000000000000
+    Size.Height = 60.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    OnClick = rctFundoClick
+    object lytClient: TLayout
+      Align = Client
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 5.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 5.000000000000000000
+      Size.Width = 320.000000000000000000
+      Size.Height = 60.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lytFoto: TLayout
+        Align = Left
+        Margins.Left = 5.000000000000000000
+        Position.X = 33.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclFoto: TCircle
+          Align = Client
+          Fill.Color = claWhitesmoke
+          HitTest = False
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object Text1: TText
+            Align = Center
+            HitTest = False
+            Text = 'C'
+            TextSettings.Font.Family = 'Consolas'
+            TextSettings.Font.Size = 30.000000000000000000
+            TextSettings.FontColor = xFF007DFF
+            TextSettings.WordWrap = False
+          end
+        end
+      end
+      object lytInformacoes: TLayout
+        Align = Client
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 224.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object lblNome: TLabel
+          Align = Client
+          StyledSettings = [Family, Size]
+          Size.Width = 224.000000000000000000
+          Size.Height = 44.000000000000000000
+          Size.PlatformDefault = False
+          TextSettings.Font.StyleExt = {00070000000000000004000000}
+          TextSettings.FontColor = xFF141414
+          Text = '[Nome]'
+          TabOrder = 0
+        end
+      end
+      object lytCheck: TLayout
+        Align = Left
+        Position.X = 8.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 20.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 2
+        object pthChecked: TPath
+          Align = Center
+          Data.Path = {
+            26000000000000000000D44300009CC30100000000803044008014C401000000
+            00802244008022C4010000000000D4430000D4C30100000000009B43008006C4
+            0100000000007E430000F1C3010000000000D44300009CC3030000000000D443
+            00009CC300000000000048430000F0C202000000000032430000F0C202000000
+            AB2A1F43ABAAFFC20200000000800F4300800FC302000000ABAAFF42AB2A1FC3
+            020000000000F042000032C3020000000000F042000048C3010000000000F042
+            00003EC4020000000000F042008043C402000000ABAAFF42553548C402000000
+            00800F4300204CC402000000AB2A1F43AB0A50C40200000000003243000052C4
+            0200000000004843000052C40100000000003E44000052C40200000000804344
+            000052C40200000055354844AB0A50C40200000000204C4400204CC402000000
+            AB0A5044553548C40200000000005244008043C4020000000000524400003EC4
+            0100000000005244000048C30200000000005244000032C302000000AB0A5044
+            AB2A1FC30200000000204C4400800FC30200000055354844ABAAFFC202000000
+            008043440000F0C20200000000003E440000F0C201000000000048430000F0C2
+            03000000000048430000F0C2}
+          Fill.Color = claLime
+          Size.Width = 16.000000000000000000
+          Size.Height = 16.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          WrapMode = Fit
+        end
+        object pthUncheck: TPath
+          Align = Center
+          Data.Path = {
+            2400000000000000000048430000F0C202000000000032430000F0C202000000
+            AB2A1F43ABAAFFC20200000000800F4300800FC302000000ABAAFF42AB2A1FC3
+            020000000000F042000032C3020000000000F042000048C3010000000000F042
+            00003EC4020000000000F042008043C402000000ABAAFF42553548C402000000
+            00800F4300204CC402000000AB2A1F43AB0A50C40200000000003243000052C4
+            0200000000004843000052C40100000000003E44000052C40200000000804344
+            000052C40200000055354844AB0A50C40200000000204C4400204CC402000000
+            AB0A5044553548C40200000000005244008043C4020000000000524400003EC4
+            0100000000005244000048C30200000000005244000032C302000000AB0A5044
+            AB2A1FC30200000000204C4400800FC30200000055354844ABAAFFC202000000
+            008043440000F0C20200000000003E440000F0C201000000000048430000F0C2
+            03000000000048430000F0C20000000000004843000048C30100000000003E44
+            000048C30100000000003E4400003EC4010000000000484300003EC401000000
+            00004843000048C30300000000004843000048C3}
+          Size.Width = 16.000000000000000000
+          Size.Height = 16.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          WrapMode = Fit
+        end
+      end
+    end
+    object ColorAnimation1: TColorAnimation
+      AnimationType = InOut
+      Duration = 0.200000002980232200
+      Interpolation = Cubic
+      PropertyName = 'Fill.Color'
+      StartValue = claWhitesmoke
+      StopValue = claWhite
+      Trigger = 'IsMouseOver=true'
+      TriggerInverse = 'IsMouseOver=false'
+    end
+  end
+end
