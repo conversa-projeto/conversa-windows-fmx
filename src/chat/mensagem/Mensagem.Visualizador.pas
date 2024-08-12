@@ -370,7 +370,7 @@ begin
         txtTexto.Size.Width := 276;
         txtTexto.Size.Height := 17;
         txtTexto.Size.PlatformDefault := False;
-        txtTexto.Text := Mensagem.Conteudos[I].conteudo;
+        txtTexto.Text := Mensagem.Conteudos[I].conteudo.Replace('&', '&&');
         txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
 
@@ -775,7 +775,7 @@ var
 begin
   if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
   begin
-    svc.SetText(Text);
+    svc.SetText(Text.Replace('&', '&&'));
     Def := Self.Color;
     Color := TAlphaColors.Green;
     TAnimator.AnimateColor(Self, 'Color', Def, 1, TAnimationType.InOut, TInterpolationType.Cubic);
