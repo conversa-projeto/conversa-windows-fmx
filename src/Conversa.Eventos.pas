@@ -5,6 +5,7 @@ unit Conversa.Eventos;
 interface
 
 uses
+  System.Generics.Collections,
   System.SysUtils;
 
 type
@@ -24,7 +25,7 @@ type
 implementation
 
 var
-  Eventos: TArray<TEvento>;
+  Eventos: TThreadList<TEvento>;
 
 class procedure TEvento.Adicionar(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0);
 var
@@ -33,25 +34,42 @@ begin
   Evento.FID := ID;
   Evento.FTipo := Tipo;
   Evento.FProc := Proc;
-  Eventos := Eventos + [Evento];
+  Eventos.Add(Evento);
 end;
 
 class procedure TEvento.Executar(Tipo: TTipoEvento; ID: Integer = 0);
 var
   Evento: TEvento;
 begin
-  for Evento in Eventos do
-    if (Evento.FTipo = Tipo) and (Evento.FID = ID) then
-      Evento.FProc();
+  with Eventos.LockList do
+  try
+    for Evento in ToArray do
+      if (Evento.FTipo = Tipo) and (Evento.FID = ID) then
+        Evento.FProc();
+  finally
+    Eventos.UnlockList;
+  end;
 end;
 
 class procedure TEvento.Remover(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0);
 var
   I: Integer;
+  Evs: TList<TEvento>;
 begin
-  for I := 0 to Pred(Length(Eventos)) do
-    if (Eventos[I].FTipo = Tipo) and (Eventos[I].FID = ID) and (@Eventos[I].FProc = @Proc) then
-      Delete(Eventos, I, 1);
+  Evs := Eventos.LockList;
+  try
+    for I := 0 to Pred(Evs.Count) do
+      if (Evs[I].FTipo = Tipo) and (Evs[I].FID = ID) and ((@Evs.ToArray[I].FProc) = @Proc) then
+        Evs.Remove(Evs[I]);
+  finally
+    Eventos.UnlockList;
+  end;
 end;
+
+initialization
+  Eventos := TThreadList<TEvento>.Create;
+
+finalization
+  FreeAndNil(Eventos);
 
 end.

@@ -18,9 +18,11 @@ uses
   FMX.Objects,
   FMX.Layouts,
   FMX.Ani,
+  FMX.ListBox,
   System.StrUtils,
   System.DateUtils,
-  Conversa.FrameBase;
+  Conversa.FrameBase,
+  Conversa.Tipos;
 
 type
   TConversasItemFrame = class(TFrameBase)
@@ -38,32 +40,34 @@ type
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
   private
-    FID: Integer;
-    FDestinatarioID: Integer;
+    FConversa: TConversa;
     FUltimaMensagem: TDateTime;
     FOnClick: TProc<TConversasItemFrame>;
     function ConversaFormatDateTime(Value: TDateTime): String;
   public
-    class function New(AOwner: TComponent; AID: Integer; ADestinatarioID: Integer): TConversasItemFrame; static;
-    property ID: Integer read FID write FID;
-    property DestinatarioId: Integer read FDestinatarioID write FDestinatarioID;
+    class function New(AOwner: TComponent; Conversa: TConversa): TConversasItemFrame; static;
+    property Conversa: TConversa read FConversa;
     function Descricao(Value: string): TConversasItemFrame;
     function Mensagem(Value: string): TConversasItemFrame;
     function UltimaMensagem(Value: TDateTime): TConversasItemFrame;
     function OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
+  end;
+  TListBoxItem = class(FMX.ListBox.TListBoxItem)
+  public
+    Conversa: TConversa;
+    ContatoItem: TConversasItemFrame;
   end;
 
 implementation
 
 {$R *.fmx}
 
-class function TConversasItemFrame.New(AOwner: TComponent; AID: Integer; ADestinatarioID: Integer): TConversasItemFrame;
+class function TConversasItemFrame.New(AOwner: TComponent; Conversa: TConversa): TConversasItemFrame;
 begin
   Result := TConversasItemFrame.Create(AOwner);
   Result.Parent := TFmxObject(AOwner);
   Result.Align := TAlignLayout.Client;
-  Result.FID := AID;
-  Result.FDestinatarioID := ADestinatarioID;
+  Result.FConversa := Conversa;
 end;
 
 function TConversasItemFrame.OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
@@ -81,7 +85,10 @@ function TConversasItemFrame.Descricao(Value: string): TConversasItemFrame;
 begin
   Result := Self;
   lblNome.Text := Value;
-  Text1.Text := Value[1];
+  if Value.Trim.IsEmpty then
+    Text1.Text := '?'
+  else
+    Text1.Text := Value[1];
 end;
 
 procedure TConversasItemFrame.lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);

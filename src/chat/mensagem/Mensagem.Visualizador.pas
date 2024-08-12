@@ -29,13 +29,15 @@ uses
   Conversa.Tipos;
 
 type
-  TMensagemView = record
+  TMensagemView = class
     ID: Integer;
     Dados: TMensagem;
     Mensagem: TLayout;
     Hora: TText;
     Status: TPath;
     procedure AoAtualizar;
+  public
+    destructor Destroy; override;
   end;
 
   TTextLink = record
@@ -65,7 +67,7 @@ type
     pthUltima: TPath;
     FWidth: Single;
     FConponentes: Integer;
-    FItems: TArray<TMensagemView>;
+    FItems: TObjectList<TMensagemView>;
     procedure CriarControles;
     procedure NomearComponente(Componente: TControl);
     procedure Redimensionar(CentroWidth: Single; Altura: TLayout);
@@ -78,6 +80,7 @@ type
     procedure ImageClick(Sender: TObject);
   public
     constructor Create(AOwner: TFmxObject);
+    destructor Destroy; override;
     procedure AdicionaMensagem(Mensagem: TMensagem);
     property Visible: Boolean read FVisible write SetVisible;
     procedure PosicionarUltima;
@@ -102,7 +105,7 @@ begin
   FOwner := AOwner;
   FConponentes := 0;
   FWidth := 0;
-  FItems := [];
+  FItems := TObjectList<TMensagemView>.Create;
   CriarControles;
 end;
 
@@ -188,6 +191,13 @@ begin
   FOwner.AddObject(lytConteudo);
 end;
 
+destructor TVisualizador.Destroy;
+begin
+  Limpar;
+  FreeAndNil(FItems);
+  inherited;
+end;
+
 procedure TVisualizador.AdicionaMensagem(Mensagem: TMensagem);
 var
   lytAltura: TLayout;
@@ -258,6 +268,8 @@ begin
   lbNome.Size.Width := 373;
   lbNome.Size.Height := 22;
   lbNome.Size.PlatformDefault := False;
+  lbNome.TextSettings.HorzAlign := TTextAlign.Leading;
+  lbNome.TextSettings.WordWrap := True;
   if (Mensagem.Lado = TLadoMensagem.Esquerdo) and (Mensagem.Conversa.Tipo = TTipoConversa.Grupo) then
   begin
     lbNome.Text := Mensagem.Remetente.Nome;
@@ -409,14 +421,14 @@ begin
   sbxCentro.Content.AddObject(lytAltura);
   // Posiciona a mensagem no fim
   lytAltura.Position.Y := scroll.Max;
+  Item := TMensagemView.Create;
   Item.ID := Mensagem.Id;
   Item.Dados := Mensagem;
   Item.Mensagem := lytAltura;
   Item.Hora := lbHora;
   Item.Status := pthStatus;
-  FItems := FItems + [Item];
+  FItems.Add(Item);
   Redimensionar(sbxCentro.Width, lytAltura);
-
 
   TEvento.Adicionar(TTipoEvento.AtualizacaoMensagem, Item.AoAtualizar, Mensagem.ID)
 end;
@@ -613,7 +625,7 @@ end;
 
 procedure TVisualizador.Limpar;
 begin
-  FItems := [];
+  FItems.Clear;
   FConponentes := 0;
   FWidth := 0;
   FreeAndNil(lytConteudo);
@@ -627,7 +639,7 @@ begin
   if not Chats.IsFormActive then
     Exit;
 
-  for I := Pred(Length(FItems)) downto 0 do
+  for I := Pred(FItems.Count) downto 0 do
   begin
     // Se é mensagem própria do usuário não precisa validar
     if FItems[I].Dados.Lado = TLadoMensagem.Direito then
@@ -661,35 +673,47 @@ end;
 
 procedure TMensagemView.AoAtualizar;
 begin
+  if not Assigned(Self) then
+    Exit;
+
+  if not Assigned(Status) then
+    Exit;
+
+  if not Assigned(Dados) then
+    Exit;
+
   if Dados.Lado = TLadoMensagem.Esquerdo then
     Exit;
 
-  if Dados.Visualizada then
-  begin
-    Status.Data.Data :=
-      'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
-      'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+  try
+    if Dados.Visualizada then
+    begin
+      Status.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
 
-    Status.Fill.Color := TAlphaColors.Green;
-    Status.Size.Width := 14;
-    Status.Size.Height := 14;
-  end
-  else
-  if Dados.Recebida then
-  begin
-    Status.Data.Data :=
-      'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
-      'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
-    Status.Fill.Color := TAlphaColors.Gray;
-    Status.Size.Width := 14;
-    Status.Size.Height := 14;
-  end
-  else
-  begin
-    Status.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
-    Status.Fill.Color := TAlphaColors.Gray;
-    Status.Size.Width := 10;
-    Status.Size.Height := 10;
+      Status.Fill.Color := TAlphaColors.Green;
+      Status.Size.Width := 14;
+      Status.Size.Height := 14;
+    end
+    else
+    if Dados.Recebida then
+    begin
+      Status.Data.Data :=
+        'M268,-240 L42,-466 L99,-522 L269,-352 L325,-296 L268,-240 Z M494,-240 L268,-466 '+
+        'L324,-523 L494,-353 L862,-721 L918,-664 L494,-240 Z M494,-466 L437,-522 L635,-720 L692,-664 L494,-466 Z';
+      Status.Fill.Color := TAlphaColors.Gray;
+      Status.Size.Width := 14;
+      Status.Size.Height := 14;
+    end
+    else
+    begin
+      Status.Data.Data := 'M382,-240 L154,-468 L211,-525 L382,-354 L749,-721 L806,-664 L382,-240 Z';
+      Status.Fill.Color := TAlphaColors.Gray;
+      Status.Size.Width := 10;
+      Status.Size.Height := 10;
+    end;
+  except
   end;
 end;
 
@@ -790,6 +814,12 @@ constructor TTextLink.Create(ARange: TTextRange; AAttribute: TTextAttribute);
 begin
   Range := ARange;
   Attribute := AAttribute;
+end;
+
+destructor TMensagemView.Destroy;
+begin
+  TEvento.Remover(TTipoEvento.AtualizacaoMensagem, AoAtualizar, Dados.ID);
+  inherited;
 end;
 
 end.

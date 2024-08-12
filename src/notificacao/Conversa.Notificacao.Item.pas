@@ -57,6 +57,7 @@ implementation
 {$R *.fmx}
 
 uses
+  Conversa.Dados,
   Conversa.Configuracoes,
   Conversa.Chat.Listagem,
   Conversa.Tela.Inicial.view;
@@ -191,7 +192,7 @@ end;
 procedure TNotificacaoItem.rctFundoClick(Sender: TObject);
 begin
   TNotificacaoManager.Fechar(FChatId);
-  Chats.AbrirChat(FChatId);
+  Chats.AbrirChat(Dados.FDadosApp.Conversas.GetOrAdd(FChatId));
   TelaInicial.DoConversaRestore;
 end;
 

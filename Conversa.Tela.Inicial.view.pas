@@ -163,7 +163,7 @@ begin
   begin
     lytTitleBarClient.Parent := Self.lytTitleBarClient;
     lytTitleBarClient.Align := TAlignLayout.Client;
-    txtUserLetra.Text := Dados.FDadosApp.Usuario.Nome[1];
+    txtUserLetra.Text := Dados.FDadosApp.Usuario.Abreviatura;
   end;
   Dados.CarregarConversas;
   Dados.tmrAtualizarMensagens.Enabled := True;

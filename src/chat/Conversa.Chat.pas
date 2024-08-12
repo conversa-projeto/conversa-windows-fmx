@@ -39,7 +39,6 @@ type
     lytClient: TLayout;
     pthFotoDefault: TPath;
   private
-    FListagemItem: TConversasItemFrame;
     FConversa: TConversa;
     FVisualizador: TVisualizador;
     Editor: TEditor;
@@ -49,7 +48,6 @@ type
     AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
     property Conversa: TConversa read FConversa write FConversa;
 
 
@@ -58,7 +56,6 @@ type
     procedure AdicionarMensagens(aMensagem: TArrayMensagens);
     procedure PosicionarUltima;
     procedure Limpar;
-    procedure VisualizarTudo;
     procedure ValidarVisualizacao;
   end;
 
@@ -105,7 +102,6 @@ begin
       if Conversa.ID = 0 then
       begin
         Dados.NovoChat(FConversa);
-        FListagemItem.ID := Conversa.ID;
       end;
       Mensagem
         .Inserida(Now)
@@ -135,11 +131,6 @@ end;
 procedure TChat.ValidarVisualizacao;
 begin
   Visualizador.ValidarVisualizacao;
-end;
-
-procedure TChat.VisualizarTudo;
-begin
-//  Visualizador.VisualizarTudo;
 end;
 
 procedure TChat.PosicionarUltima;

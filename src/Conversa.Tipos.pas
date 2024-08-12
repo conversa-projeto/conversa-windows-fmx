@@ -56,6 +56,7 @@ type
     function Login(const Value: String): TUsuario; overload;
     function Email(const Value: String): TUsuario; overload;
     function Telefone(const Value: String): TUsuario; overload;
+    function Abreviatura: String;
   end;
 
   TConversas = class
@@ -66,6 +67,7 @@ type
     procedure Add(const Conversa: TConversa);
     function Get(const ID: Integer): TConversa;
     function GetOrAdd(const ID: Integer): TConversa;
+    function FromDestinatario(const ID: Integer): TConversa;
     function Items: TArrayConversas;
     function MensagensSemVisualizar: Integer;
     procedure Clear;
@@ -122,7 +124,7 @@ type
     function GetList(const Inicio: Integer): TArrayMensagens; overload;
     procedure Clear;
     function Items: TArray<TMensagem>;
-    function ParaExibir: TArrayMensagens;
+    function ParaExibir(const ApenasPendente: Boolean): TArrayMensagens;
     function ParaNotificar: TArrayMensagens;
     function ParaAtualizar: TArrayMensagens;
   end;
@@ -165,6 +167,7 @@ type
     function Recebida(const Value: Boolean): TMensagem; overload;
     function Visualizada(const Value: Boolean; const Sincronizar: Boolean = False): TMensagem; overload;
     function Notificada(const Value: Boolean): TMensagem; overload;
+    function DescricaoSimples: String;
   end;
 
   TTipoConteudo = (Nenhum, Texto, Imagem);
@@ -314,6 +317,13 @@ begin
   Result := Self;
 end;
 
+function TUsuario.Abreviatura: String;
+begin
+  Result := EmptyStr;
+  if not FNome.Trim.Isempty then
+    Result := FNome[1];
+end;
+
 { TConversas }
 
 destructor TConversas.Destroy;
@@ -361,6 +371,16 @@ begin
   Result := 0;
   for Conversa in FConversas do
     Inc(Result, Conversa.MensagemSemVisualizar);
+end;
+
+function TConversas.FromDestinatario(const ID: Integer): TConversa;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to High(FConversas) do
+    if (FConversas[I].Tipo = TTipoConversa.Chat) and (FConversas[I].Destinatario.ID = ID) then
+      Exit(FConversas[I]);
 end;
 
 procedure TConversas.Clear;
@@ -429,8 +449,15 @@ begin
 end;
 
 function TConversa.Descricao: String;
+var
+  D: TUsuario;
 begin
-  Result := FDescricao;
+  if not FDescricao.Trim.IsEmpty then
+    Exit(FDescricao);
+
+  D := Destinatario;
+  if (FTipo = TTipoConversa.Chat) and Assigned(D) then
+    Result := D.Nome;
 end;
 
 function TConversa.Descricao(const Value: String): TConversa;
@@ -524,7 +551,7 @@ begin
     if FConversa.UltimaMensagemID < Mensagem.ID then
     begin
       FConversa.UltimaMensagemData(Mensagem.Inserida);
-      FConversa.UltimaMensagem(Mensagem.Conteudos[0].Conteudo);
+      FConversa.UltimaMensagem(Mensagem.DescricaoSimples);
       FConversa.UltimaMensagemID(Mensagem.ID);
       TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
     end;
@@ -556,13 +583,13 @@ begin
   Result := FMensagens;
 end;
 
-function TMensagens.ParaExibir: TArrayMensagens;
+function TMensagens.ParaExibir(const ApenasPendente: Boolean): TArrayMensagens;
 var
   Mensagem: TMensagem;
 begin
   Result := [];
   for Mensagem in FMensagens do
-    if not Mensagem.Exibida then
+    if not ApenasPendente or not Mensagem.Exibida then
       Result := Result + [Mensagem.Exibida(True)];
 end;
 
@@ -602,6 +629,7 @@ class function TMensagem.New(ID: Integer): TMensagem;
 begin
   Result := TMensagem.Create;
   Result.FID := ID;
+  Result.FExibida := False;
 end;
 
 destructor TMensagem.Destroy;
@@ -749,6 +777,25 @@ procedure TMensagem.DoAoAtualizar;
 begin
   TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
   TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
+end;
+
+function TMensagem.DescricaoSimples: String;
+begin
+  if Remetente = Dados.FDadosApp.Usuario then
+    Result := 'Você: '
+  else
+  if Assigned(FRemetente) and Assigned(FConversa) and (FConversa.Tipo = TTipoConversa.Grupo) then
+    Result := Remetente.Nome +': '
+  else
+    Result := EmptyStr;
+
+  if Length(Conteudos) = 0 then
+    Exit;
+
+  case Conteudos[0].Tipo of
+    TTipoConteudo.Texto : Result := Result + Conteudos[0].Conteudo;
+    TTipoConteudo.Imagem: Result := Result +'📷 Imagem';
+  end;
 end;
 
 { THConteudos }

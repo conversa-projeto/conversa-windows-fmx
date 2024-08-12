@@ -33,6 +33,7 @@ implementation
 
 uses
   Conversa.Tela.Inicial.view,
+  Conversa.Tipos,
   Conversa.Chat.Listagem;
 
 { TConversaContatos }
@@ -65,8 +66,22 @@ begin
 
           Item.ContatoItem.OnAbrirChat(
             procedure(DestinatarioId: Integer; NomeDestinaratio: String)
+            var
+              Conversa: TConversa;
             begin
-              Chats.AbrirChat(DestinatarioId, NomeDestinaratio);
+              Conversa := Dados.FDadosApp.Conversas.FromDestinatario(DestinatarioId);
+
+              if not Assigned(Conversa) then
+                Conversa := TConversa.New(0).Descricao(NomeDestinaratio)
+                  .Tipo(TTipoConversa.Chat)
+                  .AddUsuario(Dados.FDadosApp.Usuario)
+                  .AddUsuario(Dados.FDadosApp.Usuarios.GetOrAdd(DestinatarioId).Nome(NomeDestinaratio));
+
+              try
+                Dados.FDadosApp.Conversas.Add(Conversa);
+                Chats.AbrirChat(Conversa);
+              finally
+              end;
               TelaInicial.ModalView.Ocultar;
             end
           );

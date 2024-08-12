@@ -246,6 +246,7 @@ begin
       else
         bNova := False;
 
+      Conversa.Tipo(TTipoConversa(Item.GetValue<Integer>('tipo')));
       Conversa.Descricao(Item.GetValue<String>('descricao'));
       Conversa.AddUsuario(FDadosApp.Usuario);
       Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('destinatario_id')).Nome(Item.GetValue<String>('nome')));
@@ -387,10 +388,7 @@ begin
   if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
     ObterMensagens(iConversa);
 
-  if ApenasPendente then
-    Result := Conversa.Mensagens.ParaExibir
-  else
-    Result := Conversa.Mensagens.Items;
+  Result := Conversa.Mensagens.ParaExibir(ApenasPendente);
 end;
 
 procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
