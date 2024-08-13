@@ -202,6 +202,10 @@ type
     function OrdemAtualizacao: TArrayConversas;
   end;
 
+  THArrayUsuarios = record Helper for TArrayUsuarios
+    function Count: Integer;
+  end;
+
 implementation
 
 uses
@@ -333,9 +337,16 @@ begin
 end;
 
 procedure TConversas.Add(const Conversa: TConversa);
+var
+  C: TConversa;
 begin
-  SetLength(FConversas, Length(FConversas) + 1);
-  FConversas[High(FConversas)] := Conversa;
+  C := Get(Conversa.ID);
+  if not Assigned(C) then
+  begin
+    SetLength(FConversas, Length(FConversas) + 1);
+    FConversas[High(FConversas)] := Conversa;
+  end;
+
   TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
 end;
 
@@ -462,7 +473,11 @@ end;
 
 function TConversa.Descricao(const Value: String): TConversa;
 begin
-  FDescricao := Value;
+  if FTipo = TTipoConversa.Chat then
+    FDescricao := EmptyStr
+  else
+    FDescricao := Value;
+
   Result := Self;
 end;
 
@@ -519,6 +534,7 @@ var
 begin
   Result := Self;
 
+  // Valida se já tem
   for I := 0 to Pred(Length(FUsuarios)) do
     if FUsuarios[I].ID = Usuario.ID then
       Exit;
@@ -902,6 +918,13 @@ begin
   ));
 end;
 
+
+{ THArrayUsuarios }
+
+function THArrayUsuarios.Count: Integer;
+begin
+  Result := Length(Self);
+end;
 
 end.
 

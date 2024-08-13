@@ -165,6 +165,7 @@ begin
     lytTitleBarClient.Align := TAlignLayout.Client;
     txtUserLetra.Text := Dados.FDadosApp.Usuario.Abreviatura;
   end;
+  Dados.CarregarContatos;
   Dados.CarregarConversas;
   Dados.tmrAtualizarMensagens.Enabled := True;
 end;

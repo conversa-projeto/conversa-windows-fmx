@@ -8,6 +8,7 @@ uses
   System.Classes,
   System.JSON,
   System.StrUtils,
+  System.Generics.Collections,
   Data.DB,
   Datasnap.DBClient,
   FMX.Types,
@@ -28,6 +29,7 @@ type
 
     procedure Login(sLogin, sSenha: String);
     function ServerOnline: Boolean;
+    procedure CarregarContatos;
     procedure CarregarConversas;
     function ObterMensagens(iConversa: Integer): TArrayMensagens;
     function Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
@@ -66,7 +68,7 @@ uses
   Conversa.Configuracoes,
   Conversa.Notificacao,
   Conversa.Windows.Overlay,
-  Conversa.Eventos;
+  Conversa.Eventos, Conversa.Login;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -164,8 +166,20 @@ var
   Conversa: TConversa;
   Mensagem: TMensagem;
   MensagemConteudo: TConteudo;
+  Remetente: TUsuario;
 begin
-  Conversa := FDadosApp.Conversas.GetOrAdd(iConversa);
+  Conversa := FDadosApp.Conversas.Get(iConversa);
+
+  // Melhorar aqui
+  if not Assigned(Conversa) then
+  begin
+    CarregarConversas;
+    Conversa := FDadosApp.Conversas.Get(iConversa);
+  end;
+
+  if Conversa.Usuarios.Count = 0 then
+    Conversa.AddUsuario(FDadosApp.Usuario);
+
   with TAPIConversa.Create do
   try
     Route('mensagens');
@@ -182,6 +196,8 @@ begin
     Result := [];
     for var Item in Response.ToJSONArray do
     begin
+      Remetente := FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('remetente_id'));
+      Conversa.AddUsuario(Remetente);
 
       Mensagem := TMensagem.New(Item.GetValue<Integer>('id'))
         .Remetente(FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('remetente_id')))
@@ -223,6 +239,27 @@ begin
   end;
 
   AtualizarContador;
+end;
+
+procedure TDados.CarregarContatos;
+begin
+  Contatos(
+    procedure(jaContatos: TJSONArray)
+    var
+      I: Integer;
+    begin
+      for I := 0 to Pred(jaCOntatos.Count) do
+      begin
+        FDadosApp.Usuarios.Add(
+          TUsuario.New(jaCOntatos[I].GetValue<Integer>('id'))
+            .Nome(jaContatos[I].GetValue<String>('nome'))
+            .Login(jaContatos[I].GetValue<String>('login'))
+            .Email(jaContatos[I].GetValue<String>('email'))
+            .Telefone(jaContatos[I].GetValue<String>('telefone'))
+        );
+      end;
+    end
+  );
 end;
 
 procedure TDados.CarregarConversas;
@@ -485,7 +522,7 @@ begin
   with TAPIConversa.Create do
   try
     Route('conversa');
-    if Conversa.Descricao.Trim.IsEmpty then
+    if Conversa.Tipo = TTipoConversa.Chat then
       Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', TJSONNull.Create))
     else
       Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', Conversa.Descricao));

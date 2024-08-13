@@ -72,8 +72,9 @@ begin
               Conversa := Dados.FDadosApp.Conversas.FromDestinatario(DestinatarioId);
 
               if not Assigned(Conversa) then
-                Conversa := TConversa.New(0).Descricao(NomeDestinaratio)
+                Conversa := TConversa.New(0)
                   .Tipo(TTipoConversa.Chat)
+                  .Descricao(NomeDestinaratio)
                   .AddUsuario(Dados.FDadosApp.Usuario)
                   .AddUsuario(Dados.FDadosApp.Usuarios.GetOrAdd(DestinatarioId).Nome(NomeDestinaratio));
 

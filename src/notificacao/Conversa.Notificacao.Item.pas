@@ -142,7 +142,7 @@ begin
           Layout.AddAttribute(
             TTextAttributedRange.Create(
               TTextRange.Create(ANConteudos[I].InicioNome, ANConteudos[I].Nome.Length),
-              TTextAttribute.Create(BoldFont, TAlphaColors.Black)
+              TTextAttribute.Create(BoldFont, TAlphaColors.White)
             )
           );
       finally
