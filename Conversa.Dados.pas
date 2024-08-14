@@ -193,6 +193,11 @@ begin
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
     GET;
+
+    // Primeira execução
+    if (Conversa.MensagemSemVisualizar > 0) and (Conversa.Mensagens.UltimaMensagemSincronizada = 0) then
+      Conversa.MensagemSemVisualizar := 0;
+
     Result := [];
     for var Item in Response.ToJSONArray do
     begin
@@ -295,6 +300,9 @@ begin
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
         Conversa.UltimaMensagemData(ISO8601ToDate(Item.GetValue<String>('ultima_mensagem')));
 
+      if (Conversa.MensagemSemVisualizar = 0) and (not Item.GetValue<String>('mensagens_sem_visualizar').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty) then
+        Conversa.MensagemSemVisualizar := StrToIntDef(Item.GetValue<String>('mensagens_sem_visualizar'), 0);
+
       if bNova then
         FDadosApp.Conversas.Add(Conversa);
 
@@ -303,6 +311,8 @@ begin
   finally
     Free;
   end;
+  AtualizarContador;
+  TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
 end;
 
 function TDados.DownloadAnexo(sIdentificador: String): String;
