@@ -21,6 +21,7 @@ uses
   FMX.ListBox,
   System.StrUtils,
   System.DateUtils,
+  Conversa.Eventos,
   Conversa.FrameBase,
   Conversa.Tipos;
 
@@ -30,20 +31,29 @@ type
     lytClient: TLayout;
     lytFoto: TLayout;
     crclFoto: TCircle;
-    Text1: TText;
+    txtAbreviatura: TText;
     lytInformacoes: TLayout;
     lblNome: TLabel;
     lytInformacoesBottom: TLayout;
-    lblUltimaMensagem: TLabel;
     ColorAnimation1: TColorAnimation;
     txtMensagem: TText;
+    txtDataHora: TText;
+    rctCount: TRectangle;
+    txtCount: TText;
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
+    procedure txtCountResized(Sender: TObject);
+    procedure rctFundoMouseEnter(Sender: TObject);
+    procedure rctFundoMouseLeave(Sender: TObject);
   private
     FConversa: TConversa;
     FUltimaMensagem: TDateTime;
     FOnClick: TProc<TConversasItemFrame>;
+    FSelecionado: Boolean;
     function ConversaFormatDateTime(Value: TDateTime): String;
+    procedure Configurar;
+    procedure Atualizar;
+    procedure AtualizarContador(const Quantidade: Integer);
   public
     class function New(AOwner: TComponent; Conversa: TConversa): TConversasItemFrame; static;
     property Conversa: TConversa read FConversa;
@@ -51,6 +61,7 @@ type
     function Mensagem(Value: string): TConversasItemFrame;
     function UltimaMensagem(Value: TDateTime): TConversasItemFrame;
     function OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
+    function Selecionado(const Value: Boolean): TConversasItemFrame;
   end;
   TListBoxItem = class(FMX.ListBox.TListBoxItem)
   public
@@ -68,6 +79,9 @@ begin
   Result.Parent := TFmxObject(AOwner);
   Result.Align := TAlignLayout.Client;
   Result.FConversa := Conversa;
+  Result.AtualizarContador(0);
+  Result.Configurar;
+  Result.Selecionado(False);
 end;
 
 function TConversasItemFrame.OnClick(Value: TProc<TConversasItemFrame>): TConversasItemFrame;
@@ -81,14 +95,50 @@ begin
   FOnClick(Self);
 end;
 
+procedure TConversasItemFrame.rctFundoMouseEnter(Sender: TObject);
+begin
+  inherited;
+  if FSelecionado then
+    Exit;
+
+  ColorAnimation1.Inverse := False;
+  ColorAnimation1.Start;
+end;
+
+procedure TConversasItemFrame.rctFundoMouseLeave(Sender: TObject);
+begin
+  inherited;
+  if FSelecionado then
+    Exit;
+
+  ColorAnimation1.Inverse := True;
+  ColorAnimation1.Start;
+end;
+
+function TConversasItemFrame.Selecionado(const Value: Boolean): TConversasItemFrame;
+begin
+  Result := Self;
+  FSelecionado := Value;
+  if Value then
+    rctFundo.Fill.Color := $FFE3F1FF
+  else
+    rctFundo.Fill.Color := TAlphaColors.White;
+end;
+
+procedure TConversasItemFrame.txtCountResized(Sender: TObject);
+begin
+  inherited;
+  rctCount.Width := txtCount.Width + 8;
+end;
+
 function TConversasItemFrame.Descricao(Value: string): TConversasItemFrame;
 begin
   Result := Self;
   lblNome.Text := Value;
   if Value.Trim.IsEmpty then
-    Text1.Text := '?'
+    txtAbreviatura.Text := '?'
   else
-    Text1.Text := Value[1];
+    txtAbreviatura.Text := Value[1];
 end;
 
 procedure TConversasItemFrame.lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
@@ -108,14 +158,43 @@ end;
 function TConversasItemFrame.Mensagem(Value: string): TConversasItemFrame;
 begin
   Result := Self;
-  txtMensagem.Text := Value;
+  txtMensagem.Text := Value.Replace('&', '&&');
 end;
 
 function TConversasItemFrame.UltimaMensagem(Value: TDateTime): TConversasItemFrame;
 begin
   Result := Self;
   FUltimaMensagem := Value;
-  lblUltimaMensagem.Text := ConversaFormatDateTime(FUltimaMensagem);
+  txtDataHora.Text := ConversaFormatDateTime(FUltimaMensagem);
+end;
+
+procedure TConversasItemFrame.Atualizar;
+begin
+  AtualizarContador(FConversa.MensagemSemVisualizar);
+end;
+
+procedure TConversasItemFrame.Configurar;
+begin
+  TEvento.Adicionar(TTipoEvento.AtualizarContadorConversa, Atualizar, 0);
+end;
+
+procedure TConversasItemFrame.AtualizarContador(const Quantidade: Integer);
+begin
+  if Quantidade <= 0 then
+  begin
+    lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style - [TFontStyle.fsBold];
+    txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style - [TFontStyle.fsBold];
+    txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style - [TFontStyle.fsBold];
+    rctCount.Visible := False;
+    Exit;
+  end;
+
+  lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style + [TFontStyle.fsBold];
+  txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style + [TFontStyle.fsBold];
+  txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style + [TFontStyle.fsBold];
+
+  rctCount.Visible := True;
+  txtCount.Text := Quantidade.ToString;
 end;
 
 function TConversasItemFrame.ConversaFormatDateTime(Value: TDateTime): String;

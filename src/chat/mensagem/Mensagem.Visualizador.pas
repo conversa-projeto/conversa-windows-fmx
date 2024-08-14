@@ -775,7 +775,7 @@ var
 begin
   if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
   begin
-    svc.SetText(Text.Replace('&', '&&'));
+    svc.SetText(Text.Replace('&&', '&'));
     Def := Self.Color;
     Color := TAlphaColors.Green;
     TAnimator.AnimateColor(Self, 'Color', Def, 1, TAnimationType.InOut, TInterpolationType.Cubic);

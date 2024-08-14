@@ -793,6 +793,7 @@ procedure TMensagem.DoAoAtualizar;
 begin
   TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
   TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
+  TEvento.Executar(TTipoEvento.AtualizarContadorConversa);
 end;
 
 function TMensagem.DescricaoSimples: String;

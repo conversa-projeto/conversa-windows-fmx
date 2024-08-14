@@ -9,6 +9,8 @@ inherited ConversasItemFrame: TConversasItemFrame
     Size.PlatformDefault = False
     Stroke.Kind = None
     OnClick = rctFundoClick
+    OnMouseEnter = rctFundoMouseEnter
+    OnMouseLeave = rctFundoMouseLeave
     object lytClient: TLayout
       Align = Client
       Padding.Left = 10.000000000000000000
@@ -35,7 +37,7 @@ inherited ConversasItemFrame: TConversasItemFrame
           Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           Stroke.Kind = None
-          object Text1: TText
+          object txtAbreviatura: TText
             Align = Center
             Text = 'D'
             TextSettings.Font.Family = 'Consolas'
@@ -57,11 +59,12 @@ inherited ConversasItemFrame: TConversasItemFrame
         object lblNome: TLabel
           Align = Client
           StyledSettings = [Family, Size]
-          Size.Width = 245.000000000000000000
+          Margins.Right = 8.000000000000000000
+          Size.Width = 167.000000000000000000
           Size.Height = 27.000000000000000000
           Size.PlatformDefault = False
-          TextSettings.Font.StyleExt = {00070000000000000004000000}
           TextSettings.FontColor = xFF141414
+          TextSettings.WordWrap = False
           Text = '[Nome]'
           TabOrder = 0
         end
@@ -72,24 +75,10 @@ inherited ConversasItemFrame: TConversasItemFrame
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
-          object lblUltimaMensagem: TLabel
-            Align = Right
-            AutoSize = True
-            StyledSettings = [Family, Style]
-            Position.X = 141.000000000000000000
-            Size.Width = 104.000000000000000000
-            Size.Height = 17.000000000000000000
-            Size.PlatformDefault = False
-            TextSettings.FontColor = xFF646464
-            TextSettings.HorzAlign = Trailing
-            Text = '[Ultima Mensagem]'
-            TabOrder = 0
-            OnPaint = lblUltimaMensagemPaint
-          end
           object txtMensagem: TText
             Align = Client
             HitTest = False
-            Size.Width = 141.000000000000000000
+            Size.Width = 195.000000000000000000
             Size.Height = 17.000000000000000000
             Size.PlatformDefault = False
             Text = '[Informa'#231#227'o]'
@@ -98,6 +87,38 @@ inherited ConversasItemFrame: TConversasItemFrame
             TextSettings.WordWrap = False
             TextSettings.HorzAlign = Leading
           end
+          object rctCount: TRectangle
+            Align = Right
+            Fill.Color = xFF007DFF
+            HitTest = False
+            Position.X = 195.000000000000000000
+            Size.Width = 50.000000000000000000
+            Size.Height = 17.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Kind = None
+            XRadius = 8.500000000000000000
+            YRadius = 8.500000000000000000
+            object txtCount: TText
+              Align = Center
+              AutoSize = True
+              HitTest = False
+              Size.Width = 10.468750000000000000
+              Size.Height = 15.960937500000000000
+              Size.PlatformDefault = False
+              Text = '0'
+              TextSettings.FontColor = claWhite
+              OnResized = txtCountResized
+            end
+          end
+        end
+        object txtDataHora: TText
+          Align = Right
+          HitTest = False
+          Position.X = 175.000000000000000000
+          Size.Width = 70.000000000000000000
+          Size.Height = 27.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'dd/mm/yyyy'
         end
       end
     end
@@ -108,8 +129,6 @@ inherited ConversasItemFrame: TConversasItemFrame
       PropertyName = 'Fill.Color'
       StartValue = claWhite
       StopValue = xFFE6E6E6
-      Trigger = 'IsMouseOver=true'
-      TriggerInverse = 'IsMouseOver=false'
     end
   end
 end

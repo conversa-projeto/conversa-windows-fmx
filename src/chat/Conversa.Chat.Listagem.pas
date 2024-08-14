@@ -50,6 +50,7 @@ type
     procedure AtualizarListagem;
 
     procedure AdicionarItemListagem(Conversa: TConversa; iPosicao: Integer = -1);
+    procedure SelecionarItemListagem(AConversa: TConversa);
   public
     Chat: TChat;
     class function New(AOwner: TFmxObject): TChatListagem; static;
@@ -239,6 +240,15 @@ begin
   end;
 end;
 
+procedure TChatListagem.SelecionarItemListagem(AConversa: TConversa);
+var
+  I: Integer;
+begin
+  for I := 0 to Pred(lstConversas.Count) do
+    with TListBoxItem(lstConversas.ListItems[I]) do
+      ContatoItem.Selecionado(Conversa = AConversa);
+end;
+
 procedure TChatListagem.AbrirChat(Conversa: TConversa);
 begin
   if not Assigned(Chat) then
@@ -249,6 +259,7 @@ begin
 
   try
     AdicionarItemListagem(Conversa);
+    SelecionarItemListagem(Conversa);
 
     Chat.Conversa := Conversa;
     Chat.Limpar;

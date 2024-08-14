@@ -217,9 +217,6 @@ begin
       Mensagem.Recebida(Item.GetValue<Boolean>('recebida'));
       Mensagem.Visualizada(Item.GetValue<Boolean>('visualizada'));
 
-      if not Mensagem.Visualizada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
-        Inc(Conversa.MensagemSemVisualizar);
-
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
         MensagemConteudo := TConteudo.New(Conteudo.GetValue<Integer>('id'));
@@ -232,6 +229,10 @@ begin
         Mensagem.conteudos.Add(MensagemConteudo);
       end;
       Conversa.Mensagens.Add(Mensagem);
+
+      if not Mensagem.Visualizada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
+        Inc(Conversa.MensagemSemVisualizar);
+
       Result := Result + [Mensagem];
     end;
   finally
@@ -239,6 +240,7 @@ begin
   end;
 
   AtualizarContador;
+  TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
 end;
 
 procedure TDados.CarregarContatos;

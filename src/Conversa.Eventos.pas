@@ -9,7 +9,12 @@ uses
   System.SysUtils;
 
 type
-  TTipoEvento = (AtualizacaoMensagem, ContadorMensagemVisualizar, AtualizacaoListaConversa);
+  TTipoEvento = (
+    AtualizacaoMensagem,
+    ContadorMensagemVisualizar,
+    AtualizacaoListaConversa,
+    AtualizarContadorConversa
+  );
 
   TEvento = record
   private
