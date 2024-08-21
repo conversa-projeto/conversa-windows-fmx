@@ -47,9 +47,13 @@ type
   private
     FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
+    procedure RegistrarEvento;
+    procedure StatusIniciarAnimacao;
   public
     class function New(AOwner: TFmxObject): TNotificacaoItem;
+    destructor Destroy; override;
     procedure AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
+    procedure AtualizarAltura(iTexto: Single);
   end;
 
 implementation
@@ -60,7 +64,9 @@ uses
   Conversa.Dados,
   Conversa.Configuracoes,
   Conversa.Chat.Listagem,
-  Conversa.Tela.Inicial.view;
+  Conversa.Tela.Inicial.view,
+  Conversa.Eventos,
+  Conversa.Windows.UserActivity;
 
 { TNotificacao }
 
@@ -72,7 +78,8 @@ begin
   Result.Parent := AOwner;
   Result.Align := TAlignLayout.Top;
   Result.FloatAnimation.Delay := Configuracoes.Notificacoes.Timeout;
-  Result.FloatAnimation.Enabled := True;
+  Result.FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
+  Result.RegistrarEvento;
   Result.Show;
 end;
 
@@ -127,7 +134,7 @@ begin
 
   Layout := TTextLayoutManager.DefaultTextLayout.Create;
   try
-    Layout.MaxSize := TPointF.Create(pbTexto.Width, pbTexto.Height);
+    Layout.MaxSize := TPointF.Create(pbTexto.Width, 500);
     Layout.BeginUpdate;
     try
       Layout.Text := Text;
@@ -148,11 +155,11 @@ begin
       finally
         FreeAndNil(BoldFont);
       end;
-      Layout.WordWrap := True;
       Layout.HorizontalAlign := TTextAlign.Leading;
       Layout.VerticalAlign := TTextAlign.Leading;
     finally
       Layout.EndUpdate;
+      Layout.TextHeight
     end;
     pbTexto.Canvas.BeginScene;
     try
@@ -170,13 +177,19 @@ begin
   FloatAnimation.OnFinish := nil;
   try
     FloatAnimation.Enabled := False;
-    FloatAnimation.Enabled := True;
+    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
   finally
     FloatAnimation.OnFinish := FloatAnimationFinish;
   end;
   FChatId := AChatId;
   FConteudos := AConteudos;
   pbTexto.Repaint;
+end;
+
+destructor TNotificacaoItem.Destroy;
+begin
+  TEvento.Remover(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+  inherited;
 end;
 
 procedure TNotificacaoItem.FloatAnimationFinish(Sender: TObject);
@@ -194,6 +207,32 @@ begin
   TNotificacaoManager.Fechar(FChatId);
   Chats.AbrirChat(Dados.FDadosApp.Conversas.GetOrAdd(FChatId));
   TelaInicial.DoConversaRestore;
+end;
+
+procedure TNotificacaoItem.RegistrarEvento;
+begin
+  TEvento.Adicionar(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+end;
+
+procedure TNotificacaoItem.StatusIniciarAnimacao;
+begin
+  if not Assigned(Self) or (csDestroying in Self.ComponentState) then
+  begin
+    TEvento.Remover(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+    Exit;
+  end;
+
+  if not FloatAnimation.Enabled then
+    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
+end;
+
+procedure TNotificacaoItem.AtualizarAltura(iTexto: Single);
+var
+  iNova: Single;
+begin
+  iNova := Min(lytTopo.Height + txtNome.Height + txtHora.Height + iTexto, 200);
+  if Self.Height <> iNova then
+    Self.Height := iNova;
 end;
 
 end.

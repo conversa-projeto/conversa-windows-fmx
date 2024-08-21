@@ -44,7 +44,8 @@ uses
   Conversa.Visualizador.Midia.Windows in 'src\visualizadormidia\Conversa.Visualizador.Midia.Windows.pas',
   Conversa.Eventos in 'src\Conversa.Eventos.pas',
   Novo.Grupo.Usuario.Item in 'src\novo\grupo\Novo.Grupo.Usuario.Item.pas' {NovoGrupoUsuarioItem: TFrame},
-  Novo.Grupo in 'src\novo\grupo\Novo.Grupo.pas' {NovoGrupo: TFrame};
+  Novo.Grupo in 'src\novo\grupo\Novo.Grupo.pas' {NovoGrupo: TFrame},
+  Conversa.Windows.UserActivity in 'lib\windows\Conversa.Windows.UserActivity.pas';
 
 {$R *.res}
 begin
@@ -61,8 +62,9 @@ begin
   AtualizarContadorNotificacao(0, True);
   Application.CreateForm(TDados, Dados);
   Application.CreateForm(TTelaInicial, TelaInicial);
+  IniciarMonitoramento;
   Application.Run;
-
   TNotificacaoManager.Finalizar;
+  FinalizarMonitoramento;
   AtualizarContadorNotificacao(0, True);
 end.

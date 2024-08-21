@@ -13,7 +13,8 @@ type
     AtualizacaoMensagem,
     ContadorMensagemVisualizar,
     AtualizacaoListaConversa,
-    AtualizarContadorConversa
+    AtualizarContadorConversa,
+    MudancaStatusUsuarioSO
   );
 
   TEvento = record
