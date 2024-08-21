@@ -220,9 +220,10 @@ begin
                 case iSystemButton of
                   0:
                   begin
-                    Form.DoConversaMinimize;
                     if Form = Application.MainForm then
-                      MinimizeApp;
+                      MinimizeApp
+                    else
+                      Form.DoConversaMinimize;
                   end;
                   1: Form.DoConversaMaximize;
                   2: Form.DoConversaClose;

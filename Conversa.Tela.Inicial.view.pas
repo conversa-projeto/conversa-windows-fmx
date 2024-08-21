@@ -153,8 +153,10 @@ end;
 procedure TTelaInicial.DoConversaRestore;
 begin
   ShowAppOnTaskbar;
-  ShowWindow(FormToHWND(Self), SW_SHOW);
+  DefWindowProc(FormToHWND(Self), WM_SYSCOMMAND, SC_RESTORE, 0);
+  DefWindowProc(ApplicationHWND, WM_SYSCOMMAND, SC_RESTORE, 0);
   BringToFront;
+  Self.Activate;
 end;
 
 procedure TTelaInicial.ExibirTelaPrincipal;
