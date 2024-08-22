@@ -25,8 +25,6 @@ implementation
 var
   MonitorTask: ITask;
   MonitoramentoAtivo: Boolean = False;
-
-threadvar
   ThreadStatusUsuarioSO: TStatusUsuarioSO;
 
 const
@@ -64,7 +62,7 @@ begin
     end
     // Verifica se o usuário voltou a ficar ativo
     else
-    if (IdleTime <= ActiveThreshold) then
+    if (IdleTime <= ActiveThreshold) and (ThreadStatusUsuarioSO <> TStatusUsuarioSO.Ativo)  then
     begin
       try
         TThread.Synchronize(
