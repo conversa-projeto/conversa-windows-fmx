@@ -38,6 +38,7 @@ type
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
   private
+    FOldHWND: HWND;
     TrayWnd: HWND;
     TrayIconData: TNotifyIconData;
     TrayIconAdded: Boolean;
@@ -48,6 +49,8 @@ type
     procedure AdicionarTrayIcon;
     procedure RemoverTrayIcon;
   protected
+    procedure CreateHandle; override;
+    procedure DestroyHandle; override;
     procedure DoConversaClose; override;
   public
     ModalView: TModalView;
@@ -65,38 +68,14 @@ uses
   Conversa.Conexao.AvisoInicioSistema,
   Conversa.Configurar.Conexao,
   Conversa.Notificacao,
+  Conversa.Windows.UserActivity,
+  Conversa.Eventos,
   Conversa.Chat.Listagem;
 
 {$R *.fmx}
 
 const
   WM_ICONTRAY = WM_USER + 1;
-
-procedure HideAppOnTaskbar;
-var
-  hAppWnd: HWND;
-  ExStyle: LongInt;
-begin
-  hAppWnd := Fmx.Platform.Win.ApplicationHWND;
-  ShowWindow(hAppWnd, SW_HIDE);
-  ExStyle := GetWindowLongPtr(hAppWnd, GWL_EXSTYLE);
-  SetWindowLongPtr(hAppWnd, GWL_EXSTYLE, (ExStyle and not WS_EX_APPWINDOW) or WS_EX_TOOLWINDOW);
-end;
-
-procedure ShowAppOnTaskbar;
-var
-  hAppWnd: HWND;
-  ExStyle: LongInt;
-begin
-  hAppWnd := FMX.Platform.Win.ApplicationHWND;
-  if IsWindowVisible(hAppWnd) then
-    Exit; // Se a janela já estiver visível, não faz nada
-
-  ShowWindow(hAppWnd, SW_HIDE); // Oculta a janela temporariamente para aplicar as alterações
-  ExStyle := GetWindowLongPtr(hAppWnd, GWL_EXSTYLE);
-  SetWindowLongPtr(hAppWnd, GWL_EXSTYLE, (ExStyle and not WS_EX_TOOLWINDOW) or WS_EX_APPWINDOW);
-  ShowWindow(hAppWnd, SW_SHOW); // Mostra a janela novamente
-end;
 
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
@@ -110,10 +89,27 @@ begin
   inherited;
 end;
 
+procedure TTelaInicial.CreateHandle;
+begin
+  inherited;
+  // Resolve Problemas do FMX
+  //   Mover ícone entre monitores na barra de tarefa | https://stackoverflow.com/questions/54184950/icon-on-the-taskbar-does-not-move-to-second-monitor
+  //   Form aparecer no "Disponível para SNAP" | https://en.delphipraxis.net/topic/10601-firemonkey-form-not-included-in-also-snap-to-screen/
+  // Referência
+  //   https://stackoverflow.com/questions/63423266/whats-the-difference-between-setwindowlongptrgwl-hwndparent-and-setparent
+  FOldHWND := SetWindowLongPtr(FormToHWND(Self), GWL_HWNDPARENT, 0);
+  ShowWindow(Fmx.Platform.Win.ApplicationHWND, SW_HIDE);
+end;
+
+procedure TTelaInicial.DestroyHandle;
+begin
+  SetWindowLongPtr(FormToHWND(Self), GWL_HWNDPARENT, FOldHWND);
+  inherited;
+end;
+
 procedure TTelaInicial.FormActivate(Sender: TObject);
 begin
   inherited;
-  ShowAppOnTaskbar;
   if Assigned(Chats) and Assigned(Chats.Chat) then
     Chats.Chat.ValidarVisualizacao;
 end;
@@ -151,11 +147,19 @@ begin
 end;
 
 procedure TTelaInicial.DoConversaRestore;
+var
+  H: HWND;
 begin
-  ShowAppOnTaskbar;
-  DefWindowProc(FormToHWND(Self), WM_SYSCOMMAND, SC_RESTORE, 0);
-  DefWindowProc(ApplicationHWND, WM_SYSCOMMAND, SC_RESTORE, 0);
-  BringToFront;
+  H := FormToHWND(Self);
+
+  if IsIconic(H) then
+    ShowOnTaskBar
+  else
+  begin
+    SetWindowPos(H, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+    SetWindowPos(H, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+  end;
+
   Self.Activate;
 end;
 

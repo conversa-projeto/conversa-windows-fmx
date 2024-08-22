@@ -68,6 +68,8 @@ type
     procedure DoConversaClose; virtual;
     procedure DoConversaMaximize;
     procedure DoConversaMinimize;
+    procedure ShowOnTaskBar;
+    procedure HideOfTaskBar;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -123,22 +125,12 @@ var
         DefWindowProc(WindowHandle, WM_SYSCOMMAND, SC_MINIMIZE, 0);
     end;
   end;
-
-//var
-//  MainForm: TCommonCustomForm;
-//  WndPos: TPoint;
 begin
   AnimationEnable := GetAnimation;
   try
     SetAnimation(False);
     if Application.MainForm <> nil then
-    begin
-//      MainForm := Application.MainForm;
-//      WndPos := MultiDisplayWin.DpToPx(TPointF.Create(MainForm.Left, MainForm.Top));
-//      SetWindowPos(ApplicationHWND, FormToHWND(Application.MainForm), WndPos.X, WndPos.Y, Trunc(MainForm.Width), 0, SWP_SHOWWINDOW);
       MinimiseAllForms;
-    end;
-    DefWindowProc(ApplicationHWND, WM_SYSCOMMAND, SC_MINIMIZE, 0);
   finally
     SetAnimation(AnimationEnable);
   end;
@@ -420,6 +412,24 @@ end;
 procedure TFormularioBase.DoConversaClose;
 begin
   Self.Close;
+end;
+
+procedure TFormularioBase.ShowOnTaskBar;
+var
+  H: HWND;
+begin
+  H := FormToHWND(Self);
+  SetWindowLongPtr(H, GWL_EXSTYLE, (GetWindowLong(H, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW) or WS_EX_APPWINDOW);
+  ShowWindow(H, SW_SHOW);
+end;
+
+procedure TFormularioBase.HideOfTaskBar;
+var
+  H: HWND;
+begin
+  H := FormToHWND(Self);
+  SetWindowLongPtr(H, GWL_EXSTYLE, (GetWindowLong(H, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW));
+  ShowWindow(H, SW_SHOW);
 end;
 
 end.
