@@ -5,6 +5,7 @@ interface
 
 uses
   FMX.Dialogs,
+  FMX.Forms,
   Winapi.Messages;
 
 const
@@ -14,6 +15,8 @@ function IsControlKeyPressed: Boolean;
 function IsApplicationAlreadyRunning: Boolean;
 procedure InicializarComSO;
 procedure RemoveInicializacaoSO;
+procedure SalvarPosicaoFormulario(Form: TForm);
+procedure RestaurarPosicaoFormulario(Form: TForm);
 
 implementation
 
@@ -21,9 +24,12 @@ uses
   System.SysUtils,
   Winapi.Windows,
   Winapi.TlHelp32,
-  Winapi.PsAPI,       
+  Winapi.PsAPI,
+  FMX.Platform.Win,
   System.Win.Registry,
-  FMX.Forms;
+  System.JSON,
+  System.Types,
+  System.Classes;
 
 type
   TEnumData = record
@@ -191,6 +197,85 @@ end;
 function IsControlKeyPressed: Boolean;
 begin
   Result := GetKeyState(VK_CONTROL) < 0;
+end;
+
+procedure SalvarPosicaoFormulario(Form: TForm);
+var
+  WindowPlacement: TWindowPlacement;
+  JSONObject: TJSONObject;
+  R: TRectF;
+begin
+  try
+    // Obter o posicionamento atual da janela
+    WindowPlacement.Length := SizeOf(TWindowPlacement);
+    if not GetWindowPlacement(FormToHWND(Form), @WindowPlacement) then
+      Exit;
+
+    JSONObject := TJSONObject.Create;
+    try
+      JSONObject.AddPair('Flags', TJSONNumber.Create(WindowPlacement.Flags));
+      JSONObject.AddPair('ShowCmd', TJSONNumber.Create(WindowPlacement.ShowCmd));
+      JSONObject.AddPair('MinPositionX', TJSONNumber.Create(WindowPlacement.ptMinPosition.X));
+      JSONObject.AddPair('MinPositionY', TJSONNumber.Create(WindowPlacement.ptMinPosition.Y));
+      JSONObject.AddPair('MaxPositionX', TJSONNumber.Create(WindowPlacement.ptMaxPosition.X));
+      JSONObject.AddPair('MaxPositionY', TJSONNumber.Create(WindowPlacement.ptMaxPosition.Y));
+      R := Form.Bounds;
+      JSONObject.AddPair('NormalPositionLeft', TJSONNumber.Create(Round(R.Left * Form.Handle.Scale)));
+      JSONObject.AddPair('NormalPositionTop', TJSONNumber.Create(Round(R.Top * Form.Handle.Scale)));
+      JSONObject.AddPair('NormalPositionRight', TJSONNumber.Create(Round(R.Right * Form.Handle.Scale)));
+      JSONObject.AddPair('NormalPositionBottom', TJSONNumber.Create(Round(R.Bottom * Form.Handle.Scale)));
+
+      with TStringStream.Create(JSONObject.ToString) do
+      try
+        SaveToFile(ExtractFilePath(ParamStr(0)) + 'FormPos.json');
+      finally
+        Free;
+      end;
+    finally
+      JSONObject.Free;
+    end;
+  except
+  end;
+end;
+
+procedure RestaurarPosicaoFormulario(Form: TForm);
+var
+  WindowPlacement: TWindowPlacement;
+  JSONObject: TJSONObject;
+  function FormPxToDp(const AForm: TCommonCustomForm; const APoint: TPoint): TPointF;
+  var
+    LScale: Single;
+  begin
+    LScale := AForm.Handle.Scale;
+    Result := (TPointF(APoint) / LScale).Round;
+  end;
+begin
+  if not FileExists(ExtractFilePath(ParamStr(0)) + 'FormPos.json') then
+    Exit;
+  with TStringStream.Create do
+  try
+    LoadFromFile(ExtractFilePath(ParamStr(0)) + 'FormPos.json');
+    JSONObject := TJSONObject.ParseJSONValue(DataString) as TJSONObject;
+  finally
+    Free;
+  end;
+  if Assigned(JSONObject) then
+  try
+    WindowPlacement.Length := SizeOf(TWindowPlacement);
+    WindowPlacement.Flags := JSONObject.GetValue<Integer>('Flags', 0);
+    WindowPlacement.ShowCmd := JSONObject.GetValue<Integer>('ShowCmd', SW_SHOWNORMAL);
+    WindowPlacement.ptMinPosition.X := JSONObject.GetValue<Integer>('MinPositionX', 0);
+    WindowPlacement.ptMinPosition.Y := JSONObject.GetValue<Integer>('MinPositionY', 0);
+    WindowPlacement.ptMaxPosition.X := JSONObject.GetValue<Integer>('MaxPositionX', 0);
+    WindowPlacement.ptMaxPosition.Y := JSONObject.GetValue<Integer>('MaxPositionY', 0);
+    WindowPlacement.rcNormalPosition.Left := JSONObject.GetValue<Integer>('NormalPositionLeft', 0);
+    WindowPlacement.rcNormalPosition.Top := JSONObject.GetValue<Integer>('NormalPositionTop', 0);
+    WindowPlacement.rcNormalPosition.Right := JSONObject.GetValue<Integer>('NormalPositionRight', 800);  // Valor padrão
+    WindowPlacement.rcNormalPosition.Bottom := JSONObject.GetValue<Integer>('NormalPositionBottom', 600);  // Valor padrão
+    SetWindowPlacement(FormToHWND(Form), @WindowPlacement);
+  finally
+    JSONObject.Free;
+  end;
 end;
 
 end.

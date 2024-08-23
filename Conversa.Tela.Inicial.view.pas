@@ -65,6 +65,7 @@ var
 implementation
 
 uses
+  Conversa.Windows.Utils,
   Conversa.Conexao.AvisoInicioSistema,
   Conversa.Configurar.Conexao,
   Conversa.Notificacao,
@@ -85,6 +86,7 @@ end;
 
 destructor TTelaInicial.Destroy;
 begin
+  SalvarPosicaoFormulario(Self);
   RemoverTrayIcon;
   inherited;
 end;
@@ -117,6 +119,7 @@ end;
 procedure TTelaInicial.FormShow(Sender: TObject);
 begin
   inherited;
+  RestaurarPosicaoFormulario(Self);
   ModalView := TModalView.Create(lytClientForm);
   tmrShow.Enabled := True;
 end;
