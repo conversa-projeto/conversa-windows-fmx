@@ -215,9 +215,9 @@ begin
 
 
       if not (Item.FindValue('inserida') is TJSONNull) then
-        Mensagem.Inserida(ISO8601ToDate(Item.GetValue<String>('inserida')));
+        Mensagem.Inserida(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('inserida'))));
       if not (Item.FindValue('alterada') is TJSONNull) then
-        Mensagem.Alterada(ISO8601ToDate(Item.GetValue<String>('alterada')));
+        Mensagem.Alterada(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('alterada'))));
 
       Mensagem.Recebida(Item.GetValue<Boolean>('recebida'));
       Mensagem.Visualizada(Item.GetValue<Boolean>('visualizada'));
@@ -295,10 +295,10 @@ begin
       Conversa.AddUsuario(FDadosApp.Usuario);
       Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('destinatario_id')).Nome(Item.GetValue<String>('nome')));
       Conversa.UltimaMensagem(Item.GetValue<String>('ultima_mensagem_texto'));
-      Conversa.CriadoEm(ISO8601ToDate(Item.GetValue<String>('inserida')));
+      Conversa.CriadoEm(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('inserida'))));
 
       if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
-        Conversa.UltimaMensagemData(ISO8601ToDate(Item.GetValue<String>('ultima_mensagem')));
+        Conversa.UltimaMensagemData(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'))));
 
       if (Conversa.MensagemSemVisualizar = 0) and (not Item.GetValue<String>('mensagens_sem_visualizar').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty) then
         Conversa.MensagemSemVisualizar := StrToIntDef(Item.GetValue<String>('mensagens_sem_visualizar'), 0);
