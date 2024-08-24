@@ -184,11 +184,11 @@ begin
   try
     Route('mensagens');
     if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
-      Query(TJSONObject.Create.AddPair('offsetanterior', 100))
+      Query(TJSONObject.Create.AddPair('mensagensprevias', 100))
     else
     begin
       Query(TJSONObject.Create.AddPair('mensagemreferencia', Conversa.Mensagens.UltimaMensagemSincronizada + 1));
-      Query(TJSONObject.Create.AddPair('offsetposterior', 100));
+      Query(TJSONObject.Create.AddPair('mensagensseguintes', 100));
     end;
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
