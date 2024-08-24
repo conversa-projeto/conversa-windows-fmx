@@ -615,7 +615,7 @@ var
 begin
   Result := [];
   for Mensagem in FMensagens do
-    if not Mensagem.Notificada then
+    if not Mensagem.Notificada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
       Result := Result + [Mensagem];
 end;
 
