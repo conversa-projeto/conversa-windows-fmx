@@ -142,6 +142,7 @@ type
     FRecebida: Boolean;
     FVisualizada: Boolean;
     FNotificada: Boolean;
+    FPrimeiraExibicao: Boolean;
     procedure DoAoAtualizar;
   public
     Conteudos: TConteudos;
@@ -158,6 +159,7 @@ type
     function Recebida: Boolean; overload;
     function Visualizada: Boolean; overload;
     function Notificada: Boolean; overload;
+    function PrimeiraExibicao: Boolean; overload;
     function Conversa(const Value: TConversa): TMensagem; overload;
     function Remetente(const Value: TUsuario): TMensagem; overload;
     function Lado(const Value: TLadoMensagem): TMensagem; overload;
@@ -167,10 +169,11 @@ type
     function Recebida(const Value: Boolean): TMensagem; overload;
     function Visualizada(const Value: Boolean; const Sincronizar: Boolean = False): TMensagem; overload;
     function Notificada(const Value: Boolean): TMensagem; overload;
+    function PrimeiraExibicao(const Value: Boolean): TMensagem; overload;
     function DescricaoSimples: String;
   end;
 
-  TTipoConteudo = (Nenhum, Texto, Imagem);
+  TTipoConteudo = (Nenhum, Texto, Imagem, Arquivo);
   TConteudo = class
   private
     FID: Integer;
@@ -730,6 +733,9 @@ end;
 
 function TMensagem.Exibida(const Value: Boolean): TMensagem;
 begin
+  if Value and (not FExibida) and FPrimeiraExibicao then
+    PrimeiraExibicao(not FExibida);
+
   FExibida := Value;
   Result := Self;
 end;
@@ -789,11 +795,15 @@ begin
   FNotificada := Value;
 end;
 
-procedure TMensagem.DoAoAtualizar;
+function TMensagem.PrimeiraExibicao: Boolean;
 begin
-  TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
-  TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
-  TEvento.Executar(TTipoEvento.AtualizarContadorConversa);
+  Result := FPrimeiraExibicao;
+end;
+
+function TMensagem.PrimeiraExibicao(const Value: Boolean): TMensagem;
+begin
+  FPrimeiraExibicao := Value;
+  Result := Self;
 end;
 
 function TMensagem.DescricaoSimples: String;
@@ -813,6 +823,13 @@ begin
     TTipoConteudo.Texto : Result := Result + Conteudos[0].Conteudo;
     TTipoConteudo.Imagem: Result := Result +'📷 Imagem';
   end;
+end;
+
+procedure TMensagem.DoAoAtualizar;
+begin
+  TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
+  TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
+  TEvento.Executar(TTipoEvento.AtualizarContadorConversa);
 end;
 
 { THConteudos }
