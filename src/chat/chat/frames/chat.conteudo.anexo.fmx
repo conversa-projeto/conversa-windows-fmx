@@ -1,0 +1,35 @@
+inherited ChatConteudoAnexo: TChatConteudoAnexo
+  Size.Width = 246.000000000000000000
+  Size.Height = 50.000000000000000000
+  object Path: TPath
+    Align = Left
+    Size.Width = 49.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+  end
+  object Layout: TLayout
+    Align = VertCenter
+    Position.X = 49.000000000000000000
+    Size.Width = 197.000000000000000000
+    Size.Height = 50.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object lbTamanho: TLabel
+      Align = Bottom
+      Position.Y = 25.000000000000000000
+      Size.Width = 197.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      Text = '10 KB'
+      TabOrder = 2
+    end
+    object lbNome: TLabel
+      Align = Top
+      Size.Width = 197.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Arquivo.pps'
+      TabOrder = 1
+    end
+  end
+end

@@ -1,0 +1,22 @@
+inherited ChatSeparadorData: TChatSeparadorData
+  Align = Top
+  Size.Width = 312.000000000000000000
+  Size.Height = 22.000000000000000000
+  object rtgFundo: TRectangle
+    Align = Center
+    Size.Width = 55.000000000000000000
+    Size.Height = 19.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 9.500000000000000000
+    YRadius = 9.500000000000000000
+    object txtData: TText
+      Align = Client
+      Size.Width = 55.000000000000000000
+      Size.Height = 19.000000000000000000
+      Size.PlatformDefault = False
+      Text = '21/08'
+      TextSettings.Font.Size = 11.000000000000000000
+    end
+  end
+end

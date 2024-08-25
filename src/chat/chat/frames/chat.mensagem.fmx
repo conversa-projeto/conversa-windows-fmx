@@ -1,0 +1,72 @@
+inherited ChatMensagem: TChatMensagem
+  Align = Top
+  Margins.Top = 5.000000000000000000
+  Margins.Bottom = 5.000000000000000000
+  Position.Y = 5.000000000000000000
+  Size.Width = 364.000000000000000000
+  Size.Height = 136.000000000000000000
+  OnPaint = FramePaint
+  OnResized = FrameResized
+  object lytLargura: TLayout
+    Align = Right
+    Margins.Left = 10.000000000000000000
+    Margins.Right = 10.000000000000000000
+    Position.X = 48.000000000000000000
+    Size.Width = 306.000000000000000000
+    Size.Height = 136.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object rtgFundo: TRectangle
+      Align = Client
+      Size.Width = 306.000000000000000000
+      Size.Height = 136.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      XRadius = 5.000000000000000000
+      YRadius = 5.000000000000000000
+      object txtNome: TText
+        Align = Top
+        Margins.Left = 10.000000000000000000
+        Margins.Right = 10.000000000000000000
+        Position.X = 10.000000000000000000
+        Size.Width = 286.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.WordWrap = False
+        TextSettings.HorzAlign = Leading
+      end
+      object lytBottom: TLayout
+        Align = Bottom
+        Margins.Top = 5.000000000000000000
+        Margins.Right = 10.000000000000000000
+        Position.Y = 116.000000000000000000
+        Size.Width = 296.000000000000000000
+        Size.Height = 20.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object txtHora: TText
+          Align = Right
+          Opacity = 0.500000000000000000
+          Margins.Right = 3.000000000000000000
+          Position.X = 179.000000000000000000
+          Size.Width = 100.000000000000000000
+          Size.Height = 20.000000000000000000
+          Size.PlatformDefault = False
+          Text = '21:15'
+          TextSettings.Font.Size = 10.000000000000000000
+          TextSettings.HorzAlign = Trailing
+        end
+        object pthStatus: TPath
+          Align = Right
+          Fill.Color = claGray
+          Position.X = 282.000000000000000000
+          Size.Width = 14.000000000000000000
+          Size.Height = 20.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          WrapMode = Fit
+        end
+      end
+    end
+  end
+end

@@ -1,0 +1,5 @@
+object ChatBase: TChatBase
+  Size.Width = 128.000000000000000000
+  Size.Height = 60.000000000000000000
+  Size.PlatformDefault = False
+end

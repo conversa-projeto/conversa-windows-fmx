@@ -1,0 +1,32 @@
+inherited ChatExpositor: TChatExpositor
+  Align = Client
+  Size.Width = 532.000000000000000000
+  Size.Height = 566.000000000000000000
+  OnMouseWheel = FrameMouseWheel
+  OnResized = FrameResized
+  object sbxCentro: TVertScrollBox
+    Align = HorzCenter
+    Padding.Bottom = 5.000000000000000000
+    Position.X = 11.000000000000000000
+    Size.Width = 500.000000000000000000
+    Size.Height = 566.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    ShowScrollBars = False
+    OnViewportPositionChange = sbxCentroViewportPositionChange
+    Viewport.Width = 500.000000000000000000
+    Viewport.Height = 566.000000000000000000
+  end
+  object scroll: TSmallScrollBar
+    Align = Right
+    Max = 500.000000000000000000
+    SmallChange = 0.000000000000000000
+    Orientation = Vertical
+    Position.X = 522.000000000000000000
+    Size.Width = 10.000000000000000000
+    Size.Height = 566.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    OnChange = scrollChange
+  end
+end

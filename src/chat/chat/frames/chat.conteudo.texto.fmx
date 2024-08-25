@@ -1,0 +1,11 @@
+inherited ChatConteudoTexto: TChatConteudoTexto
+  Size.Width = 192.000000000000000000
+  Size.Height = 48.000000000000000000
+  object txtMensagem: TText
+    Align = Client
+    Size.Width = 192.000000000000000000
+    Size.Height = 48.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.HorzAlign = Leading
+  end
+end
