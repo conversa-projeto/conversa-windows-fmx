@@ -50,6 +50,8 @@ type
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
     procedure AoAtualizarMensagem(ID: Integer);
+    procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure CriarControles;
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -71,7 +73,9 @@ implementation
 {$R *.fmx}
 
 uses
-  Conversa.Eventos;
+  chat.conteudo.imagem,
+  Conversa.Eventos,
+  Conversa.Visualizador.Midia;
 
 { TChat }
 
@@ -86,17 +90,7 @@ begin
   lytFoto.Visible := False;
   lblNome.Visible := True;
 
-  FVisualizador := TChatVisualizador.Create(lytClient);
-  lytClient.AddObject(Visualizador);
-  Visualizador.Align := TAlignLayout.Client;
-  Visualizador.AoVisualizar := AoVisualizar;
-  Visualizador.LarguraMaximaConteudo := 500;
-
-  Editor := TChatEditor.Create(lytClient);
-  lytClient.AddObject(Editor);
-  Editor.Align := TAlignLayout.Bottom;
-  Editor.AoEnviar := AoEnviar;
-  Editor.LarguraMaximaConteudo := 500;
+  CriarControles;
 
 //  Editor.AdicionaMensagem(
 //    procedure(Mensagem: TMensagem)
@@ -113,8 +107,27 @@ begin
   inherited;
 end;
 
+procedure TChat.CriarControles;
+begin
+  FVisualizador := TChatVisualizador.Create(lytClient);
+  lytClient.AddObject(Visualizador);
+  Visualizador.Align := TAlignLayout.Client;
+  Visualizador.AoVisualizar := AoVisualizar;
+  Visualizador.LarguraMaximaConteudo := 500;
+  Visualizador.AoClicar := AoClicar;
+
+  Editor := TChatEditor.Create(lytClient);
+  lytClient.AddObject(Editor);
+  Editor.Align := TAlignLayout.Bottom;
+  Editor.AoEnviar := AoEnviar;
+  Editor.LarguraMaximaConteudo := 500;
+end;
+
 procedure TChat.Limpar;
 begin
+  FreeAndNil(Editor);
+  FreeAndNil(FVisualizador);
+  CriarControles;
 //  Visualizador.Limpar;
 end;
 
@@ -156,7 +169,6 @@ begin
     Visualizador.Mensagem[Mensagem.ID].Status := TStatus.Pendente;
 
   TEvento.Adicionar(TTipoEvento.AtualizacaoMensagem, AoAtualizarMensagem, Mensagem.ID);
-  Visualizador.AdicionarSeparadorData(TDate(Trunc(Mensagem.Inserida)), Visualizador.Mensagem[Mensagem.ID].Position.Y - 10);
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
@@ -192,8 +204,6 @@ begin
 
   if Assigned(AoEnviarMensagem) then
     AoEnviarMensagem(Self, Mensagem);
-
-//  Visualizador.PosicionarUltima;
 end;
 
 procedure TChat.AoVisualizar(Frame: TFrame);
@@ -223,6 +233,13 @@ begin
     MsgChat.Status := TStatus.Recebida
   else
     MsgChat.Status := TStatus.Pendente;
+end;
+
+procedure TChat.AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
+    if Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
+      TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
 end;
 
 end.

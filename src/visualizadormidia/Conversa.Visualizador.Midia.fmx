@@ -1,4 +1,5 @@
 inherited VisualizadorMidia: TVisualizadorMidia
+  OnKeyDown = FrameKeyDown
   object rctFundo: TRectangle
     Align = Client
     Fill.Color = xC8000000
@@ -14,22 +15,6 @@ inherited VisualizadorMidia: TVisualizadorMidia
       Size.PlatformDefault = False
       TabOrder = 1
       OnClick = lytMediaClick
-      OnMouseEnter = lytMediaMouseEnter
-      OnMouseLeave = lytMediaMouseLeave
-      object imgImagem: TImage
-        MultiResBitmap = <
-          item
-          end>
-        Position.X = 8.000000000000000000
-        Position.Y = 8.000000000000000000
-        Size.Width = 50.000000000000000000
-        Size.Height = 50.000000000000000000
-        Size.PlatformDefault = False
-        OnMouseDown = imgImagemMouseDown
-        OnMouseMove = imgImagemMouseMove
-        OnMouseUp = imgImagemMouseUp
-        OnMouseWheel = imgImagemMouseWheel
-      end
     end
     object lytControleDireita: TLayout
       Align = Right
@@ -110,6 +95,7 @@ inherited VisualizadorMidia: TVisualizadorMidia
           Size.Height = 35.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
+          OnClick = lytCloseButtonClick
           OnMouseEnter = lytCloseButtonMouseEnter
           OnMouseLeave = lytCloseButtonMouseLeave
           object rctClose: TRectangle

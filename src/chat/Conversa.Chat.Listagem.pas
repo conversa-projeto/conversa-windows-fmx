@@ -266,7 +266,11 @@ begin
     Chat.lblNome.Text := Conversa.Descricao;
     Chat.AoEnviarMensagem := EnviarMensagem;
     Chat.UltimaMensagem := 0;
+
+    // Resolve posicionamento do Separador de data
+    Application.ProcessMessages;
     Chat.AdicionarMensagens(Dados.ExibirMensagem(Conversa.ID, False));
+
     TNotificacaoManager.Fechar(Conversa.ID);
   finally
     // Posicionar na ultima mensagem

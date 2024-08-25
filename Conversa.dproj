@@ -408,16 +408,11 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="lib\windows\Conversa.Windows.UserActivity.pas"/>
-        <DCCReference Include="src\chat\chat\frames\chat.base.pas">
-            <Form>ChatBase</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.mensagem.conteudo.pas">
-            <Form>ChatConteudo</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
+        <DCCReference Include="src\chat\chat\chat.editor.pas"/>
+        <DCCReference Include="src\chat\chat\chat.ordenador.pas"/>
+        <DCCReference Include="src\chat\chat\chat.so.pas"/>
+        <DCCReference Include="src\chat\chat\chat.tipos.pas"/>
+        <DCCReference Include="src\chat\chat\chat.visualizador.pas"/>
         <DCCReference Include="src\chat\chat\frames\chat.anexo.item.pas">
             <Form>ChatAnexoItem</Form>
             <FormType>fmx</FormType>
@@ -428,28 +423,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.entrada.pas">
-            <Form>ChatEditorEntrada</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.expositor.pas">
-            <Form>ChatExpositor</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.mensagem.pas">
-            <Form>ChatMensagem</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.separador.data.pas">
-            <Form>ChatSeparadorData</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.ultima.pas">
-            <Form>ChatUltima</Form>
+        <DCCReference Include="src\chat\chat\frames\chat.base.pas">
+            <Form>ChatBase</Form>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -468,10 +443,46 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\chat\chat\chat.editor.pas"/>
-        <DCCReference Include="src\chat\chat\chat.so.pas"/>
-        <DCCReference Include="src\chat\chat\chat.tipos.pas"/>
-        <DCCReference Include="src\chat\chat\chat.visualizador.pas"/>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.entrada.pas">
+            <Form>ChatEditorEntrada</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.expositor.pas">
+            <Form>ChatExpositor</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.mensagem.conteudo.pas">
+            <Form>ChatConteudo</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.mensagem.pas">
+            <Form>ChatMensagem</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.separador.data.pas">
+            <Form>ChatSeparadorData</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.separador.lidas.pas">
+            <Form>ChatSeparadorLidas</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.ultima.pas">
+            <Form>ChatUltima</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\visualizadormidia\ImageViewerFrame.pas">
+            <Form>ImageViewerFrame</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
