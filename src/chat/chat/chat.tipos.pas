@@ -7,6 +7,7 @@ interface
 
 uses
   System.Classes,
+  System.UITypes,
   FMX.Types,
   FMX.Graphics,
   FMX.Forms;
@@ -16,6 +17,7 @@ type
   TStatus = (Pendente, Recebida, Visualizada);
   TTipo = (Texto, Imagem, Arquivo);
   TEvento = procedure(Frame: TFrame) of object;
+  TEventoMouseDown = procedure(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single) of object;
 
   TConteudo = record
   public

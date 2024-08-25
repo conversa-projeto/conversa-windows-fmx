@@ -34,6 +34,7 @@ type
     FConteudos: TArray<TChatConteudo>;
     FStatus: TStatus;
     FNome: String;
+    FDataEnvio: TDateTime;
     FNomeVisivel: Boolean;
     FVisualizada: Boolean;
     FAoVisualizar: TEvento;
@@ -45,6 +46,7 @@ type
     procedure SetNome(const Value: String);
     procedure SetVisualizada(const Value: Boolean);
     function CorFundo(const Value: TLado): TAlphaColor;
+    procedure SetDataEnvio(const Value: TDateTime);
   public
     constructor Create(AOwner: TComponent; AID: Integer); reintroduce;
     procedure AfterConstruction; override;
@@ -52,6 +54,7 @@ type
     property Lado: TLado read GetLado write SetLado;
     property Status: TStatus read FStatus write SetStatus;
     property Nome: String read FNome write SetNome;
+    property DataEnvio: TDateTime read FDataEnvio write SetDataEnvio;
     property NomeVisivel: Boolean read GetNomeVisivel write SetNomeVisivel;
     property Visualizada: Boolean read FVisualizada write SetVisualizada;
     property AoVisualizar: TEvento read FAoVisualizar write FAoVisualizar;
@@ -93,6 +96,12 @@ begin
   else
     Result := 0;
   end;
+end;
+
+procedure TChatMensagem.SetDataEnvio(const Value: TDateTime);
+begin
+  FDataEnvio := Value;
+  txtHora.Text := FormatDateTime('hh:nn', Value);
 end;
 
 procedure TChatMensagem.SetLado(const Value: TLado);
@@ -215,17 +224,14 @@ var
   iSomaAltura: Single;
   iMaxLargura: Single;
   Largura: Single;
-  TamanhoTexto: TRectF;
 begin
   if Length(FConteudos) = 0 then
     Exit;
 
-  Largura := Self.Width - (lytLargura.Margins.Left + lytLargura.Margins.Right);
-
-  TamanhoTexto := RectF(0, 0, Largura + (txtNome.Margins.Left + txtNome.Margins.Right), 10000);
-  txtNome.Canvas.MeasureText(TamanhoTexto, txtNome.Text, False, [], TTextAlign.Leading, TTextAlign.Center);
   iSomaAltura := 0;
-  iMaxLargura := TamanhoTexto.Width + (txtNome.Margins.Left + txtNome.Margins.Right);
+  iMaxLargura := 0;
+
+  Largura := Self.Width - lytLargura.Margins.Left - lytLargura.Margins.Right;
 
   for Conteudo in FConteudos do
   begin
@@ -236,7 +242,13 @@ begin
   end;
 
   if txtNome.Visible then
+  begin
     iSomaAltura := iSomaAltura + txtNome.Height;
+    iMaxLargura := Max(iMaxLargura, txtNome.Canvas.TextWidth(txtNome.Text) + txtNome.Margins.Left + txtNome.Margins.Right);
+  end;
+
+  iMaxLargura := Max(iMaxLargura, lytBottom.Margins.Left + lytBottom.Margins.Right + txtHora.Canvas.TextWidth(txtHora.Text) + pthStatus.Width);
+
   iSomaAltura := iSomaAltura + txtHora.Height;
 
   lytLargura.Width := iMaxLargura;

@@ -37,10 +37,12 @@ inherited ChatMensagem: TChatMensagem
       end
       object lytBottom: TLayout
         Align = Bottom
+        Margins.Left = 10.000000000000000000
         Margins.Top = 5.000000000000000000
         Margins.Right = 10.000000000000000000
+        Position.X = 10.000000000000000000
         Position.Y = 116.000000000000000000
-        Size.Width = 296.000000000000000000
+        Size.Width = 286.000000000000000000
         Size.Height = 20.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
@@ -48,7 +50,7 @@ inherited ChatMensagem: TChatMensagem
           Align = Right
           Opacity = 0.500000000000000000
           Margins.Right = 3.000000000000000000
-          Position.X = 179.000000000000000000
+          Position.X = 169.000000000000000000
           Size.Width = 100.000000000000000000
           Size.Height = 20.000000000000000000
           Size.PlatformDefault = False
@@ -59,7 +61,7 @@ inherited ChatMensagem: TChatMensagem
         object pthStatus: TPath
           Align = Right
           Fill.Color = claGray
-          Position.X = 282.000000000000000000
+          Position.X = 272.000000000000000000
           Size.Width = 14.000000000000000000
           Size.Height = 20.000000000000000000
           Size.PlatformDefault = False

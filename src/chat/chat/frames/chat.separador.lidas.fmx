@@ -1,0 +1,25 @@
+inherited ChatSeparadorLidas: TChatSeparadorLidas
+  Align = Top
+  Size.Width = 396.000000000000000000
+  Size.Height = 22.000000000000000000
+  object rtgFundo: TRectangle
+    Align = Client
+    Fill.Color = claLightsteelblue
+    Size.Width = 396.000000000000000000
+    Size.Height = 22.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 3.000000000000000000
+    YRadius = 3.000000000000000000
+    object txtMensagem: TText
+      Align = Client
+      Margins.Left = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Size.Width = 376.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Mensagens n'#227'o lidas'
+      TextSettings.Font.Size = 11.000000000000000000
+    end
+  end
+end

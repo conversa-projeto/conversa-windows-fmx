@@ -12,7 +12,9 @@ inherited ChatSeparadorData: TChatSeparadorData
     YRadius = 9.500000000000000000
     object txtData: TText
       Align = Client
-      Size.Width = 55.000000000000000000
+      Margins.Left = 10.000000000000000000
+      Margins.Right = 10.000000000000000000
+      Size.Width = 35.000000000000000000
       Size.Height = 19.000000000000000000
       Size.PlatformDefault = False
       Text = '21/08'

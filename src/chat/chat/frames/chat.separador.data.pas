@@ -34,6 +34,10 @@ implementation
 
 {$R *.fmx}
 
+uses
+  System.StrUtils,
+  System.DateUtils;
+
 { TFrameSeparadorData }
 
 function TChatSeparadorData.GetData: TDateTime;
@@ -44,7 +48,8 @@ end;
 procedure TChatSeparadorData.SetData(const Value: TDateTime);
 begin
   FData := Value;
-  txtData.Text := FormatDateTime('dd/mm', Value);
+  txtData.Text := FormatDateTime('dd/mm'+ IfThen(MonthsBetween(Now, Value) > 6, '/yyyy'), Value);
+  rtgFundo.Width := txtData.Canvas.TextWidth(txtData.Text) + txtData.Margins.Left + txtData.Margins.Right;
 end;
 
 end.
