@@ -42,7 +42,7 @@ type
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
     function MensagensSemVisualizar: Integer; overload;
 //    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
-    procedure AtualizarContador;
+    procedure AtualizarContador(ID: Integer);
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
   end;
@@ -221,6 +221,7 @@ begin
 
       Mensagem.Recebida(Item.GetValue<Boolean>('recebida'));
       Mensagem.Visualizada(Item.GetValue<Boolean>('visualizada'));
+      Mensagem.PrimeiraExibicao((Mensagem.Lado = TLadoMensagem.Esquerdo) and not Mensagem.Visualizada);
 
       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
       begin
@@ -244,7 +245,7 @@ begin
     Free;
   end;
 
-  AtualizarContador;
+  AtualizarContador(0);
   TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
 end;
 
@@ -311,7 +312,7 @@ begin
   finally
     Free;
   end;
-  AtualizarContador;
+  AtualizarContador(0);
   TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
 end;
 
@@ -577,7 +578,7 @@ begin
   end;
 end;
 
-procedure TDados.AtualizarContador;
+procedure TDados.AtualizarContador(ID: Integer);
 begin
   AtualizarContadorNotificacao(FDadosApp.Conversas.MensagensSemVisualizar);
 end;

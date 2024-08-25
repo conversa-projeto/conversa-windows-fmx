@@ -52,7 +52,7 @@ type
     FSelecionado: Boolean;
     function ConversaFormatDateTime(Value: TDateTime): String;
     procedure Configurar;
-    procedure Atualizar;
+    procedure Atualizar(ID: Integer);
     procedure AtualizarContador(const Quantidade: Integer);
   public
     class function New(AOwner: TComponent; Conversa: TConversa): TConversasItemFrame; static;
@@ -168,7 +168,7 @@ begin
   txtDataHora.Text := ConversaFormatDateTime(FUltimaMensagem);
 end;
 
-procedure TConversasItemFrame.Atualizar;
+procedure TConversasItemFrame.Atualizar(ID: Integer);
 begin
   AtualizarContador(FConversa.MensagemSemVisualizar);
 end;

@@ -21,11 +21,11 @@ type
   private
     FTipo: TTipoEvento;
     FID: Integer;
-    FProc: TProc;
+    FProc: TProc<Integer>;
   public
-    class procedure Adicionar(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0); static;
+    class procedure Adicionar(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0); static;
     class procedure Executar(Tipo: TTipoEvento; ID: Integer = 0); static;
-    class procedure Remover(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0); static;
+    class procedure Remover(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0); static;
   end;
 
 implementation
@@ -33,7 +33,7 @@ implementation
 var
   Eventos: TThreadList<TEvento>;
 
-class procedure TEvento.Adicionar(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0);
+class procedure TEvento.Adicionar(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0);
 var
   Evento: TEvento;
 begin
@@ -51,13 +51,13 @@ begin
   try
     for Evento in ToArray do
       if (Evento.FTipo = Tipo) and (Evento.FID = ID) then
-        Evento.FProc();
+        Evento.FProc(Evento.FID);
   finally
     Eventos.UnlockList;
   end;
 end;
 
-class procedure TEvento.Remover(Tipo: TTipoEvento; Proc: TProc; ID: Integer = 0);
+class procedure TEvento.Remover(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0);
 var
   I: Integer;
   Evs: TList<TEvento>;

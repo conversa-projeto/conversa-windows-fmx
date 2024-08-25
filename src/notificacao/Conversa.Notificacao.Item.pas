@@ -48,7 +48,7 @@ type
     FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
     procedure RegistrarEvento;
-    procedure StatusIniciarAnimacao;
+    procedure StatusIniciarAnimacao(ID: Integer);
   public
     class function New(AOwner: TFmxObject): TNotificacaoItem;
     destructor Destroy; override;
@@ -214,7 +214,7 @@ begin
   TEvento.Adicionar(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
 end;
 
-procedure TNotificacaoItem.StatusIniciarAnimacao;
+procedure TNotificacaoItem.StatusIniciarAnimacao(ID: Integer);
 begin
   if not Assigned(Self) or (csDestroying in Self.ComponentState) then
   begin

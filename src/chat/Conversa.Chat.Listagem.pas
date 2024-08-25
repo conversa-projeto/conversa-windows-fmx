@@ -47,7 +47,7 @@ type
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
     procedure AtualizarChat(Mensagem: TMensagem);
-    procedure AtualizarListagem;
+    procedure AtualizarListagem(ID: Integer);
 
     procedure AdicionarItemListagem(Conversa: TConversa; iPosicao: Integer = -1);
     procedure SelecionarItemListagem(AConversa: TConversa);
@@ -179,7 +179,7 @@ begin
     Chat.PosicionarUltima;
 end;
 
-procedure TChatListagem.AtualizarListagem;
+procedure TChatListagem.AtualizarListagem(ID: Integer);
 var
   Conversas: TArrayConversas;
   iConversa: Integer;

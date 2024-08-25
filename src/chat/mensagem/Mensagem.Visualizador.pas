@@ -35,7 +35,7 @@ type
     Mensagem: TLayout;
     Hora: TText;
     Status: TPath;
-    procedure AoAtualizar;
+    procedure AoAtualizar(ID: Integer);
   public
     destructor Destroy; override;
   end;
@@ -671,7 +671,7 @@ begin
   TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
 end;
 
-procedure TMensagemView.AoAtualizar;
+procedure TMensagemView.AoAtualizar(ID: Integer);
 begin
   if not Assigned(Self) then
     Exit;
