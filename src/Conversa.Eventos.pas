@@ -14,6 +14,7 @@ type
   TEventoAtualizacaoListaConversa = class(TEventoBase);
   TEventoAtualizarContadorConversa = class(TEventoBase);
   TEventoMudancaStatusUsuarioSO = class(TEventoBase);
+  TEventoStatusConexao = class(TEventoBase);
 
   TEvento = record
   public

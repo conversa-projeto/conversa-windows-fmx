@@ -34,6 +34,8 @@ uses
 type
   TTelaInicial = class(TFormularioBase)
     tmrShow: TTimer;
+    rctAvisoConexao: TRectangle;
+    txtAvisoConexao: TText;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -48,6 +50,7 @@ type
 
     procedure AdicionarTrayIcon;
     procedure RemoverTrayIcon;
+    procedure StatusConexao(Conectado: Integer);
   protected
     procedure CreateHandle; override;
     procedure DestroyHandle; override;
@@ -81,6 +84,8 @@ const
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
   inherited;
+  rctAvisoConexao.Visible := False;
+  TEvento.Adicionar(TEventoStatusConexao, StatusConexao);
   AdicionarTrayIcon;
 end;
 
@@ -88,6 +93,7 @@ destructor TTelaInicial.Destroy;
 begin
   SalvarPosicaoFormulario(Self);
   RemoverTrayIcon;
+  TEvento.Remover(TEventoStatusConexao, StatusConexao);
   inherited;
 end;
 
@@ -215,6 +221,11 @@ begin
   if TrayIconAdded then
     Shell_NotifyIcon(NIM_DELETE, @TrayIconData);
   DeallocateHWnd(TrayWnd);
+end;
+
+procedure TTelaInicial.StatusConexao(Conectado: Integer);
+begin
+  rctAvisoConexao.Visible := Conectado <> 1;
 end;
 
 end.

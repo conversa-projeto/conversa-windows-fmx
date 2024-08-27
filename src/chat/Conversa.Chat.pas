@@ -136,7 +136,9 @@ var
   ID: Integer;
 begin
   for ID in Visualizador.Visiveis do
-    Conversa.Mensagens.Get(ID).Visualizada(True);
+    with Conversa.Mensagens.Get(ID) do
+      if not Visualizada and (Lado = TLadoMensagem.Esquerdo) then
+        Visualizada(True, True);
 //  Visualizador.ValidarVisualizacao;
 end;
 

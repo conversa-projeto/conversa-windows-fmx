@@ -94,6 +94,7 @@ var
 begin
   Result := inherited;
   vJSON := Response.ToJSON;
+  TEvento.Executar(TEventoStatusConexao, 0, IfThen(Response.Status = TResponseStatus.Sucess, 1, 0));
   if Response.Status <> TResponseStatus.Sucess then
   begin
     if Assigned(vJSON) and Assigned(vJSON.FindValue('error')) then
@@ -192,7 +193,10 @@ begin
     end;
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
-    GET;
+    try
+      GET;
+    except
+    end;
 
     // Primeira execução
     if (Conversa.MensagemSemVisualizar > 0) and (Conversa.Mensagens.UltimaMensagemSincronizada = 0) then
@@ -474,7 +478,14 @@ begin
             .AddPair('mensagem', sIDMensagens)
             .AddPair('usuario', FDadosApp.Usuario.ID)
         );
-        GET;
+        try
+          GET;
+        except
+        end;
+
+        if Response.Status <> TResponseStatus.Sucess then
+          Exit;
+
         for var Item in Response.ToJSONArray do
         begin
           for I := 0 to Pred(Length(Mensagens)) do
@@ -490,7 +501,15 @@ begin
       end;
       Route('mensagens/novas');
       Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemNotificada));
-      GET;
+
+      try
+        GET;
+      except
+      end;
+
+      if Response.Status <> TResponseStatus.Sucess then
+        Exit;
+
       for var Item in Response.ToJSONArray do
       begin
         FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
