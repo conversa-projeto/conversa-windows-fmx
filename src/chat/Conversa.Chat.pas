@@ -149,24 +149,27 @@ procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
 var
   DataConteudo: TConteudo;
   MsgConteduos: TArray<chat.tipos.TConteudo>;
+  Msg: TChatMensagem;
 begin
   for DataConteudo in Mensagem.Conteudos do
     MsgConteduos := MsgConteduos + [chat.tipos.TConteudo.Create(TTipo(Pred(Integer(DataConteudo.Tipo))), DataConteudo.Conteudo)];
 
   Visualizador.AdicionarMensagem(Mensagem.ID, Mensagem.Remetente.Nome, Mensagem.Inserida, MsgConteduos);
+  Msg := Visualizador.Mensagem[Mensagem.ID];
+  Msg.NomeVisivel := Conversa.Tipo = TTipoConversa.Grupo;
 
   case Mensagem.Lado of
-    TLadoMensagem.Esquerdo : Visualizador.Mensagem[Mensagem.ID].Lado := TLado.Esquerdo;
-    TLadoMensagem.Direito  : Visualizador.Mensagem[Mensagem.ID].Lado := TLado.Direito;
+    TLadoMensagem.Esquerdo : Msg.Lado := TLado.Esquerdo;
+    TLadoMensagem.Direito  : Msg.Lado := TLado.Direito;
   end;
 
   if Mensagem.Visualizada then
-    Visualizador.Mensagem[Mensagem.ID].Status := TStatus.Visualizada
+    Msg.Status := TStatus.Visualizada
   else
   if Mensagem.Recebida then
-    Visualizador.Mensagem[Mensagem.ID].Status := TStatus.Recebida
+    Msg.Status := TStatus.Recebida
   else
-    Visualizador.Mensagem[Mensagem.ID].Status := TStatus.Pendente;
+    Msg.Status := TStatus.Pendente;
 
   TEvento.Adicionar(TTipoEvento.AtualizacaoMensagem, AoAtualizarMensagem, Mensagem.ID);
 end;

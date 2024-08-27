@@ -15,9 +15,11 @@ uses
 type
   TLado = (Direito = Integer(TAlignLayout.Right), Esquerdo = Integer(TAlignLayout.Left));
   TStatus = (Pendente, Recebida, Visualizada);
+  TLimite = (Inferior, Superior);
   TTipo = (Texto, Imagem, Arquivo);
   TEvento = procedure(Frame: TFrame) of object;
   TEventoMouseDown = procedure(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single) of object;
+  TEventoLimite = procedure(Limite: TLimite) of object;
 
   TConteudo = record
   public

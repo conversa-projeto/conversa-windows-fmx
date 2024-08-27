@@ -46,25 +46,23 @@ uses
   Novo.Grupo.Usuario.Item in 'src\novo\grupo\Novo.Grupo.Usuario.Item.pas' {NovoGrupoUsuarioItem: TFrame},
   Novo.Grupo in 'src\novo\grupo\Novo.Grupo.pas' {NovoGrupo: TFrame},
   Conversa.Windows.UserActivity in 'lib\windows\Conversa.Windows.UserActivity.pas',
-  chat.editor in 'src\chat\chat\chat.editor.pas',
+  ImageViewerFrame in 'src\visualizadormidia\ImageViewerFrame.pas' {ImageViewerFrame: TFrame},
   chat.ordenador in 'src\chat\chat\chat.ordenador.pas',
   chat.so in 'src\chat\chat\chat.so.pas',
   chat.tipos in 'src\chat\chat\chat.tipos.pas',
   chat.visualizador in 'src\chat\chat\chat.visualizador.pas',
   chat.anexo.item in 'src\chat\chat\frames\chat.anexo.item.pas' {ChatAnexoItem: TFrame},
-  chat.anexo in 'src\chat\chat\frames\chat.anexo.pas' {ChatAnexo: TFrame},
   chat.base in 'src\chat\chat\frames\chat.base.pas' {ChatBase: TFrame},
   chat.conteudo.anexo in 'src\chat\chat\frames\chat.conteudo.anexo.pas' {ChatConteudoAnexo: TFrame},
   chat.conteudo.imagem in 'src\chat\chat\frames\chat.conteudo.imagem.pas' {ChatConteudoImagem: TFrame},
   chat.conteudo.texto in 'src\chat\chat\frames\chat.conteudo.texto.pas' {ChatConteudoTexto: TFrame},
-  chat.editor.entrada in 'src\chat\chat\frames\chat.editor.entrada.pas' {ChatEditorEntrada: TFrame},
+  chat.editor in 'src\chat\chat\frames\chat.editor.pas' {ChatEditor: TFrame},
   chat.expositor in 'src\chat\chat\frames\chat.expositor.pas' {ChatExpositor: TFrame},
   chat.mensagem.conteudo in 'src\chat\chat\frames\chat.mensagem.conteudo.pas' {ChatConteudo: TFrame},
   chat.mensagem in 'src\chat\chat\frames\chat.mensagem.pas' {ChatMensagem: TFrame},
   chat.separador.data in 'src\chat\chat\frames\chat.separador.data.pas' {ChatSeparadorData: TFrame},
   chat.separador.lidas in 'src\chat\chat\frames\chat.separador.lidas.pas' {ChatSeparadorLidas: TFrame},
-  chat.ultima in 'src\chat\chat\frames\chat.ultima.pas' {ChatUltima: TFrame},
-  ImageViewerFrame in 'src\visualizadormidia\ImageViewerFrame.pas' {ImageViewerFrame: TFrame};
+  chat.ultima in 'src\chat\chat\frames\chat.ultima.pas' {ChatUltima: TFrame};
 
 {$R *.res}
 begin
