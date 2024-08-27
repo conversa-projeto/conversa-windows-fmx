@@ -1,81 +1,100 @@
-﻿// 2024-08-01
-// Daniel, Eduardo
+﻿// Daniel, Eduardo - 01/08/2024
 unit Conversa.Eventos;
 
 interface
 
 uses
-  System.Generics.Collections,
-  System.SysUtils;
+  System.SysUtils,
+  System.Messaging;
 
 type
-  TTipoEvento = (
-    AtualizacaoMensagem,
-    ContadorMensagemVisualizar,
-    AtualizacaoListaConversa,
-    AtualizarContadorConversa,
-    MudancaStatusUsuarioSO
-  );
+  TEventoBase = class(TMessage<Integer>);
+  TEventoAtualizacaoMensagem = class(TEventoBase);
+  TEventoContadorMensagemVisualizar = class(TEventoBase);
+  TEventoAtualizacaoListaConversa = class(TEventoBase);
+  TEventoAtualizarContadorConversa = class(TEventoBase);
+  TEventoMudancaStatusUsuarioSO = class(TEventoBase);
 
   TEvento = record
-  private
-    FTipo: TTipoEvento;
-    FID: Integer;
-    FProc: TProc<Integer>;
   public
-    class procedure Adicionar(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0); static;
-    class procedure Executar(Tipo: TTipoEvento; ID: Integer = 0); static;
-    class procedure Remover(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0); static;
+    class procedure Adicionar(Tipo: TClass; Proc: TProc<Integer>; ID: Integer = 0); static;
+    class procedure Executar(Tipo: TClass; ID: Integer = 0; Value: Integer = -1); static;
+    class procedure Remover(Tipo: TClass; Proc: TProc<Integer>; ID: Integer = 0); static;
   end;
 
 implementation
 
-var
-  Eventos: TThreadList<TEvento>;
+uses
+  System.Generics.Collections;
 
-class procedure TEvento.Adicionar(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0);
 var
-  Evento: TEvento;
+  Gerenciadores: TArray<TPair<Integer, TMessageManager>>;
+
+class procedure TEvento.Adicionar(Tipo: TClass; Proc: TProc<Integer>; ID: Integer = 0);
+var
+  Gerenciador: TMessageManager;
 begin
-  Evento.FID := ID;
-  Evento.FTipo := Tipo;
-  Evento.FProc := Proc;
-  Eventos.Add(Evento);
+  Gerenciador := nil;
+  for var Item in Gerenciadores do
+  begin
+    if Item.Key <> ID then
+      Continue;
+    Gerenciador := Item.Value;
+    Break;
+  end;
+
+  if not Assigned(Gerenciador) then
+  begin
+    Gerenciador := TMessageManager.Create;
+    Gerenciadores := Gerenciadores + [TPair<Integer, TMessageManager>.Create(ID, Gerenciador)];
+  end;
+
+  Gerenciador.SubscribeToMessage(
+    Tipo,
+    procedure(const Sender: TObject; const M: TMessage)
+    begin
+      Proc((M as TEventoBase).Value);
+    end
+  );
 end;
 
-class procedure TEvento.Executar(Tipo: TTipoEvento; ID: Integer = 0);
+class procedure TEvento.Executar(Tipo: TClass; ID: Integer = 0; Value: Integer = -1);
 var
-  Evento: TEvento;
+  Evento: TEventoBase;
 begin
-  with Eventos.LockList do
-  try
-    for Evento in ToArray do
-      if (Evento.FTipo = Tipo) and (Evento.FID = ID) then
-        Evento.FProc(Evento.FID);
-  finally
-    Eventos.UnlockList;
+  for var Item in Gerenciadores do
+  begin
+    if Item.Key <> ID then
+      Continue;
+
+    Evento := Tipo.Create as TEventoBase;
+    Evento.Create(Value);
+
+    Item.Value.SendMessage(nil, Evento);
+    Exit;
   end;
 end;
 
-class procedure TEvento.Remover(Tipo: TTipoEvento; Proc: TProc<Integer>; ID: Integer = 0);
+class procedure TEvento.Remover(Tipo: TClass; Proc: TProc<Integer>; ID: Integer = 0);
 var
   I: Integer;
-  Evs: TList<TEvento>;
 begin
-  Evs := Eventos.LockList;
-  try
-    for I := 0 to Pred(Evs.Count) do
-      if (Evs[I].FTipo = Tipo) and (Evs[I].FID = ID) and ((@Evs.ToArray[I].FProc) = @Proc) then
-        Evs.Remove(Evs[I]);
-  finally
-    Eventos.UnlockList;
+  for I := 0 to Pred(Length(Gerenciadores)) do
+  begin
+    if Gerenciadores[I].Key = ID then
+    begin
+      Gerenciadores[I].Value.Free;
+      Delete(Gerenciadores, I, 1);
+      Exit;
+    end;
   end;
 end;
 
 initialization
-  Eventos := TThreadList<TEvento>.Create;
+  Gerenciadores := [];
 
 finalization
-  FreeAndNil(Eventos);
+  for var Item in Gerenciadores do
+    Item.Value.Free;
 
 end.
