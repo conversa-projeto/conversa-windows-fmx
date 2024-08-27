@@ -188,7 +188,7 @@ end;
 
 destructor TNotificacaoItem.Destroy;
 begin
-  TEvento.Remover(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+  TEvento.Remover(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
   inherited;
 end;
 
@@ -211,14 +211,14 @@ end;
 
 procedure TNotificacaoItem.RegistrarEvento;
 begin
-  TEvento.Adicionar(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+  TEvento.Adicionar(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
 end;
 
 procedure TNotificacaoItem.StatusIniciarAnimacao(ID: Integer);
 begin
   if not Assigned(Self) or (csDestroying in Self.ComponentState) then
   begin
-    TEvento.Remover(TTipoEvento.MudancaStatusUsuarioSO, StatusIniciarAnimacao, 0);
+    TEvento.Remover(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
     Exit;
   end;
 

@@ -175,7 +175,7 @@ end;
 
 procedure TConversasItemFrame.Configurar;
 begin
-  TEvento.Adicionar(TTipoEvento.AtualizarContadorConversa, Atualizar, 0);
+  TEvento.Adicionar(TEventoAtualizarContadorConversa, Atualizar);
 end;
 
 procedure TConversasItemFrame.AtualizarContador(const Quantidade: Integer);

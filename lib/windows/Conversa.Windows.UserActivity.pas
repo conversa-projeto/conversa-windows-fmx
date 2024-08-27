@@ -53,7 +53,7 @@ begin
           procedure
           begin
             StatusUsuarioSO := TStatusUsuarioSO.Inativo;
-            TEvento.Executar(TTipoEvento.MudancaStatusUsuarioSO, 0);
+            TEvento.Executar(TEventoMudancaStatusUsuarioSO);
           end
         );
         ThreadStatusUsuarioSO := TStatusUsuarioSO.Inativo;
@@ -70,7 +70,7 @@ begin
           procedure
           begin
             StatusUsuarioSO := TStatusUsuarioSO.Ativo;
-            TEvento.Executar(TTipoEvento.MudancaStatusUsuarioSO, 0);
+            TEvento.Executar(TEventoMudancaStatusUsuarioSO);
           end
         );
         ThreadStatusUsuarioSO := TStatusUsuarioSO.Ativo;

@@ -350,7 +350,7 @@ begin
     FConversas[High(FConversas)] := Conversa;
   end;
 
-  TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
+  TEvento.Executar(TEventoAtualizacaoListaConversa);
 end;
 
 function TConversas.Get(const ID: Integer): TConversa;
@@ -572,7 +572,7 @@ begin
       FConversa.UltimaMensagemData(Mensagem.Inserida);
       FConversa.UltimaMensagem(Mensagem.DescricaoSimples);
       FConversa.UltimaMensagemID(Mensagem.ID);
-      TEvento.Executar(TTipoEvento.AtualizacaoListaConversa, 0);
+      TEvento.Executar(TEventoAtualizacaoListaConversa);
     end;
   end;
 end;
@@ -827,9 +827,9 @@ end;
 
 procedure TMensagem.DoAoAtualizar;
 begin
-  TEvento.Executar(TTipoEvento.AtualizacaoMensagem, FID);
-  TEvento.Executar(TTipoEvento.ContadorMensagemVisualizar);
-  TEvento.Executar(TTipoEvento.AtualizarContadorConversa);
+  TEvento.Executar(TEventoAtualizacaoMensagem, FID);
+  TEvento.Executar(TEventoContadorMensagemVisualizar);
+  TEvento.Executar(TEventoAtualizarContadorConversa);
 end;
 
 { THConteudos }

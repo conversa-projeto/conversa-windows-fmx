@@ -108,7 +108,7 @@ end;
 procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
-  TEvento.Adicionar(TTipoEvento.ContadorMensagemVisualizar, AtualizarContador);
+  TEvento.Adicionar(TEventoContadorMensagemVisualizar, AtualizarContador);
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
@@ -246,7 +246,7 @@ begin
   end;
 
   AtualizarContador(0);
-  TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
+  TEvento.Executar(TEventoAtualizarContadorConversa);
 end;
 
 procedure TDados.CarregarContatos;
@@ -313,7 +313,7 @@ begin
     Free;
   end;
   AtualizarContador(0);
-  TEvento.Executar(TTipoEvento.AtualizarContadorConversa, 0);
+  TEvento.Executar(TEventoAtualizarContadorConversa);
 end;
 
 function TDados.DownloadAnexo(sIdentificador: String): String;

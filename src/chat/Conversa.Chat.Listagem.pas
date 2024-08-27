@@ -84,12 +84,12 @@ end;
 constructor TChatListagem.Create(AOwner: TComponent);
 begin
   inherited;
-  TEvento.Adicionar(TTipoEvento.AtualizacaoListaConversa, AtualizarListagem);
+  TEvento.Adicionar(TEventoAtualizacaoListaConversa, AtualizarListagem);
 end;
 
 destructor TChatListagem.Destroy;
 begin
-  TEvento.Remover(TTipoEvento.AtualizacaoListaConversa, AtualizarListagem);
+  TEvento.Remover(TEventoAtualizacaoListaConversa, AtualizarListagem);
   if Assigned(Chat) then
     FreeAndNil(Chat);
   inherited;

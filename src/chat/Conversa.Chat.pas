@@ -168,7 +168,7 @@ begin
   else
     Visualizador.Mensagem[Mensagem.ID].Status := TStatus.Pendente;
 
-  TEvento.Adicionar(TTipoEvento.AtualizacaoMensagem, AoAtualizarMensagem, Mensagem.ID);
+  TEvento.Adicionar(TEventoAtualizacaoMensagem, AoAtualizarMensagem, Mensagem.ID);
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
