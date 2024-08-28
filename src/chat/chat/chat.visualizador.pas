@@ -145,14 +145,27 @@ begin
       end;
       TTipo.Imagem:
       begin
-        frmImagem := TChatConteudoImagem.Create(Self);
-        frmImagem.imgImagem.Bitmap.LoadFromFile(Item.Conteudo);
-        frmMensagem.AddConteudo(frmImagem);
-        frmImagem.Position.Y := iTop;
-        Inc(iTop, Round(frmImagem.Height + frmImagem.imgImagem.Margins.Top));
+        if FileExists(Item.Conteudo) then
+        begin
+          frmImagem := TChatConteudoImagem.Create(Self);
+          frmImagem.imgImagem.Bitmap.LoadFromFile(Item.Conteudo);
+          frmMensagem.AddConteudo(frmImagem);
+          frmImagem.Position.Y := iTop;
+          Inc(iTop, Round(frmImagem.Height + frmImagem.imgImagem.Margins.Top));
+          frmImagem.OnMouseDown := AoClicarInterno;
+          frmImagem.imgImagem.OnMouseDown := AoClicarInterno;
+        end
+        else
+        begin
+          frmTexto := TChatConteudoTexto.Create(Self);
+          frmTexto.txtMensagem.Text := 'Erro: Imagem não encontrada!';
+          frmMensagem.AddConteudo(frmTexto);
+          frmTexto.Position.Y := iTop;
+          Inc(iTop, Round(frmTexto.Height + frmTexto.txtMensagem.Margins.Top));
 
-        frmImagem.OnMouseDown := AoClicarInterno;
-        frmImagem.imgImagem.OnMouseDown := AoClicarInterno;
+          frmTexto.OnMouseDown := AoClicarInterno;
+          frmTexto.txtMensagem.OnMouseDown := AoClicarInterno;
+        end;
       end;
       TTipo.Arquivo:
       begin

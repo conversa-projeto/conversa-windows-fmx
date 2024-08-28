@@ -155,8 +155,8 @@ begin
   begin
     Key := 0;
     KeyChar := #0;
-    if Assigned(lytEnviar.OnClick) then
-      lytEnviar.OnClick(lytEnviar);
+    if Assigned(lytBEnviar.OnClick) then
+      lytBEnviar.OnClick(lytBEnviar);
   end
   else
   if (Shift = [ssCtrl]) and (Key = vkV) then
