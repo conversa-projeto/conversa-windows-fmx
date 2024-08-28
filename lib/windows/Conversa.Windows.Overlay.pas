@@ -142,7 +142,7 @@ var
   TaskbarList: ITaskbarList3;
 begin
   if Succeeded(CoCreateInstance(CLSID_TaskbarList, nil, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, TaskbarList)) then
-    TaskbarList.SetOverlayIcon(FMX.Platform.Win.ApplicationHWND, AIcon, PChar('Notificações'));
+    TaskbarList.SetOverlayIcon(FormToHWND(FMX.Forms.Application.MainForm), AIcon, PChar('Notificações'));
 end;
 
 procedure AtualizarContadorNotificacao(const Quantidade: Integer; Force: Boolean = False);

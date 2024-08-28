@@ -390,7 +390,7 @@ begin
           ss.Position := 0;
           ss.SaveToFile(PASTA_ANEXO + PathDelim + sIdentificador);
           Mensagem.conteudos[iConteudo].conteudo(PASTA_ANEXO + PathDelim + sIdentificador);
-          oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
+          oConteudo.AddPair('conteudo', sIdentificador);
 
           // verifica se já não existe no servidor
           with TAPIConversa.Create do
