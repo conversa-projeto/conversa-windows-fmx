@@ -4,14 +4,19 @@ inherited ChatAnexoItem: TChatAnexoItem
   Size.Height = 50.000000000000000000
   object rtgFundo: TRectangle
     Align = Client
+    Fill.Color = claWhitesmoke
     Padding.Left = 5.000000000000000000
     Padding.Top = 5.000000000000000000
     Padding.Right = 5.000000000000000000
     Padding.Bottom = 5.000000000000000000
+    Margins.Left = 1.000000000000000000
+    Margins.Top = 1.000000000000000000
+    Margins.Right = 3.000000000000000000
     Margins.Bottom = 5.000000000000000000
-    Size.Width = 208.000000000000000000
-    Size.Height = 45.000000000000000000
+    Size.Width = 204.000000000000000000
+    Size.Height = 44.000000000000000000
     Size.PlatformDefault = False
+    Stroke.Kind = None
     XRadius = 5.000000000000000000
     YRadius = 5.000000000000000000
     object imgIcon: TImage
@@ -24,21 +29,21 @@ inherited ChatAnexoItem: TChatAnexoItem
       Position.X = 5.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 42.000000000000000000
-      Size.Height = 35.000000000000000000
+      Size.Height = 34.000000000000000000
       Size.PlatformDefault = False
     end
     object Layout: TLayout
       Align = VertCenter
       Position.X = 52.000000000000000000
-      Position.Y = 2.000000000000000000
-      Size.Width = 127.000000000000000000
+      Position.Y = 1.000000000000000000
+      Size.Width = 123.000000000000000000
       Size.Height = 42.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
       object lbTamanho: TLabel
         Align = Bottom
         Position.Y = 17.000000000000000000
-        Size.Width = 127.000000000000000000
+        Size.Width = 123.000000000000000000
         Size.Height = 25.000000000000000000
         Size.PlatformDefault = False
         Text = '10 KB'
@@ -46,7 +51,7 @@ inherited ChatAnexoItem: TChatAnexoItem
       end
       object lbNome: TLabel
         Align = Top
-        Size.Width = 127.000000000000000000
+        Size.Width = 123.000000000000000000
         Size.Height = 25.000000000000000000
         Size.PlatformDefault = False
         Text = 'Arquivo.pps'
@@ -56,10 +61,10 @@ inherited ChatAnexoItem: TChatAnexoItem
     object lytRemover: TLayout
       Align = Right
       HitTest = True
-      Position.X = 179.000000000000000000
+      Position.X = 175.000000000000000000
       Position.Y = 5.000000000000000000
       Size.Width = 24.000000000000000000
-      Size.Height = 35.000000000000000000
+      Size.Height = 34.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 2
       OnClick = lytRemoverClick
@@ -109,7 +114,7 @@ inherited ChatAnexoItem: TChatAnexoItem
         Margins.Right = 3.000000000000000000
         Margins.Bottom = 8.000000000000000000
         Size.Width = 18.000000000000000000
-        Size.Height = 19.000000000000000000
+        Size.Height = 18.000000000000000000
         Size.PlatformDefault = False
         Stroke.Kind = None
         OnClick = lytRemoverClick

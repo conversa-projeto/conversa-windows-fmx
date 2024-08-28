@@ -331,7 +331,12 @@ begin
   try
     Route('anexo');
     Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
-    GET;
+
+    try
+      GET;
+    except
+      Exit(EmptyStr);
+    end;
 
     sLocal := ExtractFilePath(ParamStr(0)) + PASTA_ANEXO;
 
@@ -351,10 +356,10 @@ var
   oJSON: TJSONObject;
   aConteudos: TJSONArray;
   oConteudo: TJSONObject;
-  Item: TConteudo;
   ss: TStringStream;
   sIdentificador: String;
   bEnviar: Boolean;
+  iConteudo: Integer;
 begin
   bEnviar := True;
 
@@ -364,25 +369,28 @@ begin
   aConteudos := TJSONArray.Create;
   oJSON.AddPair('conteudos', aConteudos);
 
-  for Item in Mensagem.conteudos do
+  for iConteudo := 0 to Pred(Length(Mensagem.conteudos)) do
   begin
     oConteudo := TJSONObject.Create;
-    oConteudo.AddPair('ordem', Item.ordem);
-    oConteudo.AddPair('tipo', Integer(Item.tipo));
+    oConteudo.AddPair('ordem', Mensagem.conteudos[iConteudo].ordem);
+    oConteudo.AddPair('tipo', Integer(Mensagem.conteudos[iConteudo].tipo));
 
-    case Item.tipo of
+    case Mensagem.conteudos[iConteudo].tipo of
       TTipoConteudo.Texto: // texto
       begin
-        oConteudo.AddPair('conteudo', Item.conteudo);
+        oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
       end;
       TTipoConteudo.Imagem: // imagem
       begin
         ss := TStringStream.Create;
         try
-          ss.LoadFromFile(Item.conteudo);
+          ss.LoadFromFile(Mensagem.conteudos[iConteudo].conteudo);
 
           sIdentificador := THashSHA2.GetHashString(ss);
-          oConteudo.AddPair('conteudo', sIdentificador);
+          ss.Position := 0;
+          ss.SaveToFile(PASTA_ANEXO + PathDelim + sIdentificador);
+          Mensagem.conteudos[iConteudo].conteudo(PASTA_ANEXO + PathDelim + sIdentificador);
+          oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
 
           // verifica se já não existe no servidor
           with TAPIConversa.Create do

@@ -30,39 +30,41 @@ type
     mmMensagem: TMemo;
     txtMensagem: TText;
     lytCarinha: TLayout;
-    pthCarinha: TPath;
     lytAnexo: TLayout;
-    pthAnexo: TPath;
     lytEnviar: TLayout;
-    pthEnviar: TPath;
     rtgFundoMensagem: TRectangle;
     rtgFundoAnexo: TRectangle;
     rtgEditor: TRectangle;
-    lytBotoes: TLayout;
-    sbtCancelar: TSpeedButton;
-    sbtAdicionar: TSpeedButton;
     lbTitulo: TLabel;
     vsbxConteudo: TVertScrollBox;
     odlgArquivo: TOpenDialog;
+    lytCancelar: TLayout;
+    pthCancelar: TPath;
+    lytBAnexo: TLayout;
+    pthAnexo: TPath;
+    lytBCarinha: TLayout;
+    pthCarinha: TPath;
+    lytBEnviar: TLayout;
+    pthEnviar: TPath;
     procedure FrameResized(Sender: TObject);
     procedure mmMensagemChangeTracking(Sender: TObject);
     procedure mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure lytAnexoClick(Sender: TObject);
     procedure lytEnviarClick(Sender: TObject);
     procedure lytCarinhaClick(Sender: TObject);
-    procedure sbtAdicionarClick(Sender: TObject);
-    procedure sbtCancelarClick(Sender: TObject);
+    procedure lytCancelarClick(Sender: TObject);
   private
     FLarguraMaximaConteudo: Integer;
     FAoEnviar: TEventoEnvio;
     FAnexoExibindo: Boolean;
     procedure SetLarguraMaximaConteudo(const Value: Integer);
-    procedure AdicionarItem(sArquivo: String);
     procedure AnexoRemoverClick(Sender: TObject);
     procedure RemoverItens;
     function Selecionados: TArray<String>;
+    function AlturaAnexos: Single;
   public
     procedure AfterConstruction; override;
+    procedure AdicionarAnexo(sArquivo: String);
     property LarguraMaximaConteudo: Integer read FLarguraMaximaConteudo write SetLarguraMaximaConteudo;
     property AoEnviar: TEventoEnvio read FAoEnviar write FAoEnviar;
   end;
@@ -72,6 +74,10 @@ implementation
 uses
   System.StrUtils,
   System.Math,
+  System.IOUtils,
+  FMX.Clipboard,
+  FMX.Platform,
+  FMX.Surfaces,
   chat.so,
   chat.anexo.item;
 
@@ -90,6 +96,8 @@ begin
   mmMensagem.StylesData['background.Source'] := nil;
 
   Self.Height := 40;
+  FAnexoExibindo := False;
+  rtgEditor.Corners := [TCorner.TopLeft, TCorner.TopRight];
 end;
 
 procedure TChatEditor.FrameResized(Sender: TObject);
@@ -98,11 +106,17 @@ var
   cHeight: Single;
 begin
   rtgMensagem.Width := Min(LarguraMaximaConteudo, Self.Width);
+  rtgEditor.Width := rtgMensagem.Width;
 
-  if Self.Width > LarguraMaximaConteudo then
-    rtgMensagem.Corners := [TCorner.TopLeft, TCorner.TopRight]
+  if FAnexoExibindo or (Self.Width <= LarguraMaximaConteudo) then
+    rtgMensagem.Corners := []
   else
-    rtgMensagem.Corners := [];
+    rtgMensagem.Corners := [TCorner.TopLeft, TCorner.TopRight];
+
+  if Self.Width <= LarguraMaximaConteudo then
+    rtgEditor.Corners := []
+  else
+    rtgEditor.Corners := [TCorner.TopLeft, TCorner.TopRight];
 
   if not Assigned(mmMensagem.Canvas) then
     Exit;
@@ -120,7 +134,7 @@ begin
   mmMensagem.ShowScrollBars := rtgFundoMensagem.Height > 200;
 
   if FAnexoExibindo then
-    Self.Height := rtgFundoMensagem.Height + rtgFundoAnexo.Height
+    Self.Height := rtgFundoMensagem.Height + AlturaAnexos
   else
     Self.Height := rtgFundoMensagem.Height;
 end;
@@ -132,6 +146,10 @@ begin
 end;
 
 procedure TChatEditor.mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+var
+  svc: IFMXExtendedClipboardService;
+  Bmp: TBitmapSurface;
+  sTemp: String;
 begin
   if (Key = vkReturn) and (Shift = []) then
   begin
@@ -139,6 +157,32 @@ begin
     KeyChar := #0;
     if Assigned(lytEnviar.OnClick) then
       lytEnviar.OnClick(lytEnviar);
+  end
+  else
+  if (Shift = [ssCtrl]) and (Key = vkV) then
+  begin
+    if not TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+      Exit;
+
+    if not svc.HasImage then
+      Exit;
+
+    sTemp := ExtractFilePath(ParamStr(0)) +'clipboard';
+
+    if not TDirectory.Exists(sTemp) then
+      TDirectory.CreateDirectory(sTemp);
+
+    sTemp := sTemp + PathDelim +'clipboard'+ Length(TDirectory.GetFiles(sTemp)).ToString +'.png';
+
+    Bmp := svc.GetImage;
+    try
+      if not TBitmapCodecManager.SaveToFile(sTemp, Bmp, nil) then
+        raise EBitmapSavingFailed.Create('Erro ao converter a imagem do clipboard para png!');
+    finally
+      FreeAndNil(Bmp);
+    end;
+
+    AdicionarAnexo(sTemp);
   end;
 end;
 
@@ -150,12 +194,9 @@ end;
 
 procedure TChatEditor.lytAnexoClick(Sender: TObject);
 begin
-  if FAnexoExibindo then
-    Exit;
-
-  FAnexoExibindo := True;
-
-  Self.Height := rtgFundoMensagem.Height + 70;
+  if odlgArquivo.Execute then
+    for var sArquivo in odlgArquivo.Files do
+      AdicionarAnexo(sArquivo);
 end;
 
 procedure TChatEditor.lytCarinhaClick(Sender: TObject);
@@ -185,7 +226,7 @@ begin
       Conteudo.Conteudo := Item;
       Conteudos := Conteudos + [Conteudo];
     end;
-    sbtCancelarClick(sbtCancelar);
+    lytCancelarClick(lytCancelar);
   end;
 
   if not mmMensagem.Lines.Text.Trim.IsEmpty then
@@ -201,28 +242,20 @@ begin
     FAoEnviar(Conteudos);
 end;
 
-procedure TChatEditor.sbtCancelarClick(Sender: TObject);
-begin
-  RemoverItens;
-  FAnexoExibindo := False;
-  FrameResized(Self);
-end;
-
-procedure TChatEditor.AdicionarItem(sArquivo: String);
+procedure TChatEditor.AdicionarAnexo(sArquivo: String);
 var
   Anexo: TChatAnexoItem;
 begin
+  if not FAnexoExibindo then
+    FAnexoExibindo := True;
+
   Anexo := TChatAnexoItem.Create(vsbxConteudo, sArquivo);
-  vsbxConteudo.Position.Y := Pred(vsbxConteudo.ComponentCount) * Anexo.Height;
+  Anexo.Position.Y := -1;
   Anexo.OnRemoverClick := AnexoRemoverClick;
 
-  if Pred(vsbxConteudo.ComponentCount) <= QUANTIDADE_VISIVEL then
-    Self.Height := rtgFundoMensagem.Height + rtgFundoAnexo.Height + 55;
-
-  if Pred(vsbxConteudo.ComponentCount) <= QUANTIDADE_VISIVEL then
-    rtgEditor.Width := 296
-  else
-    rtgEditor.Width := 310;
+  vsbxConteudo.ShowScrollBars := Pred(vsbxConteudo.ComponentCount) > QUANTIDADE_VISIVEL;
+  if not vsbxConteudo.ShowScrollBars then
+    Self.Height := rtgFundoMensagem.Height + AlturaAnexos;
 end;
 
 procedure TChatEditor.AnexoRemoverClick(Sender: TObject);
@@ -230,13 +263,24 @@ begin
   vsbxConteudo.RemoveObject(TChatAnexoItem(Sender));
   TChatAnexoItem(Sender).Free;
 
-  if Pred(vsbxConteudo.ComponentCount) < QUANTIDADE_VISIVEL then
-    Self.Height := rtgFundoMensagem.Height + rtgFundoAnexo.Height - 55;
+  vsbxConteudo.ShowScrollBars := Pred(vsbxConteudo.ComponentCount) > QUANTIDADE_VISIVEL;
+  if not vsbxConteudo.ShowScrollBars then
+    Self.Height := rtgFundoMensagem.Height + AlturaAnexos;
 
-  if Pred(vsbxConteudo.ComponentCount) <= QUANTIDADE_VISIVEL then
-    rtgEditor.Width := 296
-  else
-    rtgEditor.Width := 310;
+  if Pred(vsbxConteudo.ComponentCount) = 0 then
+    lytCancelarClick(lytCancelar);
+end;
+
+function TChatEditor.AlturaAnexos: Single;
+begin
+  Result := (Pred(vsbxConteudo.ComponentCount) * 50) + lbTitulo.Margins.Top + lbTitulo.Margins.Bottom + rtgEditor.Padding.Top + rtgEditor.Padding.Bottom + 20;
+end;
+
+procedure TChatEditor.lytCancelarClick(Sender: TObject);
+begin
+  RemoverItens;
+  FAnexoExibindo := False;
+  FrameResized(Self);
 end;
 
 procedure TChatEditor.RemoverItens;
@@ -253,13 +297,6 @@ begin
       Item.Free;
     end;
   end;
-end;
-
-procedure TChatEditor.sbtAdicionarClick(Sender: TObject);
-begin
-  if odlgArquivo.Execute then
-    for var sArquivo in odlgArquivo.Files do
-      AdicionarItem(sArquivo);
 end;
 
 function TChatEditor.Selecionados: TArray<String>;

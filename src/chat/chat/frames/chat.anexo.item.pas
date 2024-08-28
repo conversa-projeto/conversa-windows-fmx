@@ -49,19 +49,11 @@ uses
 {$R *.fmx}
 
 constructor TChatAnexoItem.Create(AOwner: TVertScrollBox; sArquivo: String);
-var
-  bmp: TBitmap;
 begin
   inherited Create(AOwner);
   AOwner.AddObject(Self);
   FArquivo := sArquivo;
-  bmp := TBitmap.Create;
-  try
-    bmp.LoadFromFile(sArquivo);
-    imgIcon.Bitmap.Assign(bmp);
-  finally
-    FreeAndNil(bmp);
-  end;
+  imgIcon.Bitmap.LoadFromFile(sArquivo);
   lbNome.Text := ExtractFileName(sArquivo);
   lbTamanho.Text := FormatFloat('#,##0.00', TFile.GetSize(sArquivo) / 1024 / 1024) +' MB';
 end;
