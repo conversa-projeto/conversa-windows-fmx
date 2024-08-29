@@ -91,6 +91,7 @@ begin
   lblNome.Visible := True;
 
   CriarControles;
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
 
 //  Editor.AdicionaMensagem(
 //    procedure(Mensagem: TMensagem)
