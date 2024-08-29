@@ -178,7 +178,6 @@ begin
   else
     Msg.Status := TStatus.Pendente;
 
-  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
