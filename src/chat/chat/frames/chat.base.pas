@@ -18,11 +18,17 @@ implementation
 
 {$R *.fmx}
 
+var
+  FCount: Integer;
+
 constructor TChatBase.Create(AOwner: TComponent);
 begin
   inherited;
-  Name := 'frm'+ Copy(Self.ClassName, 2) + FormatDateTime('ddhhnnsszzz', Now);
-  Sleep(1);
+  Inc(FCount);
+  Name := 'frm_'+ Self.ClassName + FCount.ToString;
 end;
+
+initialization
+  FCount := 0;
 
 end.
