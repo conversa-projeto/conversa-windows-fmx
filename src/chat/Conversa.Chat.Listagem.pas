@@ -258,11 +258,10 @@ begin
     Exit;
 
   try
+    Chat.Limpar;
     AdicionarItemListagem(Conversa);
     SelecionarItemListagem(Conversa);
-
     Chat.Conversa := Conversa;
-    Chat.Limpar;
     Chat.lblNome.Text := Conversa.Descricao;
     Chat.AoEnviarMensagem := EnviarMensagem;
     Chat.UltimaMensagem := 0;

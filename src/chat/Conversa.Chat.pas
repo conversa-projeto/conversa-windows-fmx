@@ -125,6 +125,7 @@ end;
 
 procedure TChat.Limpar;
 begin
+  FConversa := nil;
   FreeAndNil(Editor);
   FreeAndNil(FVisualizador);
   CriarControles;
@@ -135,11 +136,11 @@ procedure TChat.ValidarVisualizacao;
 var
   ID: Integer;
 begin
-  for ID in Visualizador.Visiveis do
-    with Conversa.Mensagens.Get(ID) do
-      if not Visualizada and (Lado = TLadoMensagem.Esquerdo) then
-        Visualizada(True, True);
-//  Visualizador.ValidarVisualizacao;
+  if Assigned(Conversa) then
+    for ID in Visualizador.Visiveis do
+      with Conversa.Mensagens.Get(ID) do
+        if not Visualizada and (Lado = TLadoMensagem.Esquerdo) then
+          Visualizada(True, True);
 end;
 
 procedure TChat.PosicionarUltima;
@@ -153,6 +154,9 @@ var
   MsgConteduos: TArray<chat.tipos.TConteudo>;
   Msg: TChatMensagem;
 begin
+  if not Assigned(Conversa) then
+    Exit;
+
   for DataConteudo in Mensagem.Conteudos do
     MsgConteduos := MsgConteduos + [chat.tipos.TConteudo.Create(TTipo(Pred(Integer(DataConteudo.Tipo))), DataConteudo.Conteudo)];
 
@@ -173,7 +177,7 @@ begin
   else
     Msg.Status := TStatus.Pendente;
 
-  TEvento.Adicionar(TEventoAtualizacaoMensagem, AoAtualizarMensagem, Mensagem.ID);
+  TEvento.Adicionar(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
@@ -193,10 +197,11 @@ var
   Mensagem: TMensagem;
   Cont: chat.tipos.TConteudo;
 begin
+  if not Assigned(Conversa) then
+    Exit;
+
   if Conversa.ID = 0 then
-  begin
     Dados.NovoChat(FConversa);
-  end;
 
   Mensagem := TMensagem.New(0)
     .Lado(TLadoMensagem.Direito)
@@ -215,7 +220,7 @@ procedure TChat.AoVisualizar(Frame: TFrame);
 var
   Msg: TMensagem;
 begin
-  if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
+  if Assigned(Conversa) and Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
   begin
     Msg := Conversa.Mensagens.Get(TChatMensagem(Frame).ID);
     if not Msg.Visualizada and (Msg.Lado = TLadoMensagem.Esquerdo) then
@@ -228,8 +233,16 @@ var
   Msg: TMensagem;
   MsgChat: TChatMensagem;
 begin
+  if not Assigned(Conversa) then
+    Exit;
+
   Msg := Conversa.Mensagens.Get(ID);
+  if not Assigned(Msg) then
+    Exit;
+
   MsgChat := Visualizador.Mensagem[ID];
+  if not Assigned(MsgChat) then
+    Exit;
 
   if Msg.Visualizada then
     MsgChat.Status := TStatus.Visualizada

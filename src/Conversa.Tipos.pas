@@ -829,7 +829,7 @@ procedure TMensagem.DoAoAtualizar;
 begin
   TEvento.Executar(TEventoAtualizarContadorConversa);
   TEvento.Executar(TEventoContadorMensagemVisualizar);
-  TEvento.Executar(TEventoAtualizacaoMensagem, FID, FID);
+  TEvento.Executar(TEventoAtualizacaoMensagem, 0, FID);
 end;
 
 { THConteudos }
