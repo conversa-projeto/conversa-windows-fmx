@@ -9,10 +9,12 @@ uses
   System.JSON,
   System.StrUtils,
   System.Generics.Collections,
+  System.Messaging,
   Data.DB,
   Datasnap.DBClient,
   FMX.Types,
   REST.API,
+  Conversa.Eventos,
   Conversa.Tipos,
   Conversa.Memoria;
 
@@ -42,7 +44,7 @@ type
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
     function MensagensSemVisualizar: Integer; overload;
 //    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
-    procedure AtualizarContador(ID: Integer);
+    procedure AtualizarContador(const Sender: TObject; const M: TMessage);
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
   end;
@@ -68,7 +70,7 @@ uses
   Conversa.Configuracoes,
   Conversa.Notificacao,
   Conversa.Windows.Overlay,
-  Conversa.Eventos, Conversa.Login;
+  Conversa.Login;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -94,7 +96,7 @@ var
 begin
   Result := inherited;
   vJSON := Response.ToJSON;
-  TEvento.Executar(TEventoStatusConexao, 0, IfThen(Response.Status = TResponseStatus.Sucess, 1, 0));
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoStatusConexao.Create(IfThen(Response.Status = TResponseStatus.Sucess, 1, 0)));
   if Response.Status <> TResponseStatus.Sucess then
   begin
     if Assigned(vJSON) and Assigned(vJSON.FindValue('error')) then
@@ -109,7 +111,7 @@ end;
 procedure TDados.DataModuleCreate(Sender: TObject);
 begin
   FDadosApp := TDadosApp.New;
-  TEvento.Adicionar(TEventoContadorMensagemVisualizar, AtualizarContador);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
 end;
 
 procedure TDados.DataModuleDestroy(Sender: TObject);
@@ -249,8 +251,8 @@ begin
     Free;
   end;
 
-  AtualizarContador(0);
-  TEvento.Executar(TEventoAtualizarContadorConversa);
+  AtualizarContador(nil, nil);
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 procedure TDados.CarregarContatos;
@@ -316,8 +318,8 @@ begin
   finally
     Free;
   end;
-  AtualizarContador(0);
-  TEvento.Executar(TEventoAtualizarContadorConversa);
+  AtualizarContador(nil, nil);
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 function TDados.DownloadAnexo(sIdentificador: String): String;
@@ -605,7 +607,7 @@ begin
   end;
 end;
 
-procedure TDados.AtualizarContador(ID: Integer);
+procedure TDados.AtualizarContador(const Sender: TObject; const M: TMessage);
 begin
   AtualizarContadorNotificacao(FDadosApp.Conversas.MensagensSemVisualizar);
 end;

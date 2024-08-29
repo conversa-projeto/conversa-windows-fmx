@@ -27,7 +27,8 @@ uses
   Conversa.Notificacao,
   Conversa.Tipos,
   Conversa.Memoria,
-  Conversa.Audio;
+  Conversa.Audio,
+  Conversa.Eventos;
 
 type
   TChatListagem = class(TFrameBase)
@@ -47,7 +48,7 @@ type
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
     procedure AtualizarChat(Mensagem: TMensagem);
-    procedure AtualizarListagem(ID: Integer);
+    procedure AtualizarListagem(const Sender: TObject; const M: TMessage);
 
     procedure AdicionarItemListagem(Conversa: TConversa; iPosicao: Integer = -1);
     procedure SelecionarItemListagem(AConversa: TConversa);
@@ -66,9 +67,6 @@ implementation
 
 {$R *.fmx}
 
-uses
-  Conversa.Eventos;
-
 class function TChatListagem.New(AOwner: TFmxObject): TChatListagem;
 begin
   Chats := TChatListagem.Create(AOwner);
@@ -84,12 +82,12 @@ end;
 constructor TChatListagem.Create(AOwner: TComponent);
 begin
   inherited;
-  TEvento.Adicionar(TEventoAtualizacaoListaConversa, AtualizarListagem);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoListaConversa, AtualizarListagem);
 end;
 
 destructor TChatListagem.Destroy;
 begin
-  TEvento.Remover(TEventoAtualizacaoListaConversa, AtualizarListagem);
+  TMessageManager.DefaultManager.Unsubscribe(TEventoAtualizacaoListaConversa, AtualizarListagem);
   if Assigned(Chat) then
     FreeAndNil(Chat);
   inherited;
@@ -179,7 +177,7 @@ begin
     Chat.PosicionarUltima;
 end;
 
-procedure TChatListagem.AtualizarListagem(ID: Integer);
+procedure TChatListagem.AtualizarListagem(const Sender: TObject; const M: TMessage);
 var
   Conversas: TArrayConversas;
   iConversa: Integer;

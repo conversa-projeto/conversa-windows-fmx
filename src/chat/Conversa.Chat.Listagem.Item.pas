@@ -40,11 +40,13 @@ type
     txtDataHora: TText;
     rctCount: TRectangle;
     txtCount: TText;
+    Timer1: TTimer;
     procedure lblUltimaMensagemPaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
     procedure rctFundoClick(Sender: TObject);
     procedure txtCountResized(Sender: TObject);
     procedure rctFundoMouseEnter(Sender: TObject);
     procedure rctFundoMouseLeave(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     FConversa: TConversa;
     FUltimaMensagem: TDateTime;
@@ -52,7 +54,7 @@ type
     FSelecionado: Boolean;
     function ConversaFormatDateTime(Value: TDateTime): String;
     procedure Configurar;
-    procedure Atualizar(ID: Integer);
+    procedure Atualizar(const Sender: TObject; const M: TMessage);
     procedure AtualizarContador(const Quantidade: Integer);
   public
     class function New(AOwner: TComponent; Conversa: TConversa): TConversasItemFrame; static;
@@ -168,33 +170,45 @@ begin
   txtDataHora.Text := ConversaFormatDateTime(FUltimaMensagem);
 end;
 
-procedure TConversasItemFrame.Atualizar(ID: Integer);
+procedure TConversasItemFrame.Atualizar(const Sender: TObject; const M: TMessage);
 begin
   AtualizarContador(FConversa.MensagemSemVisualizar);
 end;
 
 procedure TConversasItemFrame.Configurar;
 begin
-  TEvento.Adicionar(TEventoAtualizarContadorConversa, Atualizar);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizarContadorConversa, Atualizar);
 end;
 
 procedure TConversasItemFrame.AtualizarContador(const Quantidade: Integer);
 begin
-  if Quantidade <= 0 then
-  begin
-    lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style - [TFontStyle.fsBold];
-    txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style - [TFontStyle.fsBold];
-    txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style - [TFontStyle.fsBold];
-    rctCount.Visible := False;
-    Exit;
+  Timer1.Enabled := True;
+end;
+
+procedure TConversasItemFrame.Timer1Timer(Sender: TObject);
+begin
+  Timer1.Enabled := False;
+  Self.BeginUpdate;
+  try
+    if FConversa.MensagemSemVisualizar <= 0 then
+    begin
+      lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style - [TFontStyle.fsBold];
+      txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style - [TFontStyle.fsBold];
+      txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style - [TFontStyle.fsBold];
+      rctCount.Visible := False;
+      Exit;
+    end;
+
+    lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style + [TFontStyle.fsBold];
+    txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style + [TFontStyle.fsBold];
+    txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style + [TFontStyle.fsBold];
+
+    rctCount.Visible := True;
+    txtCount.Text := FConversa.MensagemSemVisualizar.ToString;
+  finally
+    Self.EndUpdate;
+    Self.Repaint;
   end;
-
-  lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style + [TFontStyle.fsBold];
-  txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style + [TFontStyle.fsBold];
-  txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style + [TFontStyle.fsBold];
-
-  rctCount.Visible := True;
-  txtCount.Text := Quantidade.ToString;
 end;
 
 function TConversasItemFrame.ConversaFormatDateTime(Value: TDateTime): String;

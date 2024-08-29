@@ -9,7 +9,8 @@ uses
   System.Classes,
   System.Math,
   System.Generics.Collections,
-  System.Generics.Defaults;
+  System.Generics.Defaults,
+  System.Messaging;
 
 type
   TUsuario = class;
@@ -350,7 +351,7 @@ begin
     FConversas[High(FConversas)] := Conversa;
   end;
 
-  TEvento.Executar(TEventoAtualizacaoListaConversa);
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoListaConversa.Create(0));
 end;
 
 function TConversas.Get(const ID: Integer): TConversa;
@@ -572,7 +573,7 @@ begin
       FConversa.UltimaMensagemData(Mensagem.Inserida);
       FConversa.UltimaMensagem(Mensagem.DescricaoSimples);
       FConversa.UltimaMensagemID(Mensagem.ID);
-      TEvento.Executar(TEventoAtualizacaoListaConversa);
+      TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoListaConversa.Create(0));
     end;
   end;
 end;
@@ -827,9 +828,9 @@ end;
 
 procedure TMensagem.DoAoAtualizar;
 begin
-  TEvento.Executar(TEventoAtualizarContadorConversa);
-  TEvento.Executar(TEventoContadorMensagemVisualizar);
-  TEvento.Executar(TEventoAtualizacaoMensagem, 0, FID);
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoMensagem.Create(FID));
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoContadorMensagemVisualizar.Create(0));
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 { THConteudos }

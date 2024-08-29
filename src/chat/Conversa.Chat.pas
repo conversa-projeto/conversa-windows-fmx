@@ -28,6 +28,7 @@ uses
   Conversa.Dados,
   Conversa.FrameBase,
   Conversa.Tipos,
+  Conversa.Eventos,
   Conversa.Chat.Listagem.Item;
 
 type
@@ -49,7 +50,7 @@ type
     //Anexo: TAnexo;
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
-    procedure AoAtualizarMensagem(ID: Integer);
+    procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
     procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure CriarControles;
   public
@@ -74,7 +75,6 @@ implementation
 
 uses
   chat.conteudo.imagem,
-  Conversa.Eventos,
   Conversa.Visualizador.Midia;
 
 { TChat }
@@ -177,7 +177,7 @@ begin
   else
     Msg.Status := TStatus.Pendente;
 
-  TEvento.Adicionar(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
@@ -228,7 +228,7 @@ begin
   end;
 end;
 
-procedure TChat.AoAtualizarMensagem(ID: Integer);
+procedure TChat.AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
 var
   Msg: TMensagem;
   MsgChat: TChatMensagem;
@@ -236,11 +236,11 @@ begin
   if not Assigned(Conversa) then
     Exit;
 
-  Msg := Conversa.Mensagens.Get(ID);
+  Msg := Conversa.Mensagens.Get(TEventoAtualizacaoMensagem(M).Value);
   if not Assigned(Msg) then
     Exit;
 
-  MsgChat := Visualizador.Mensagem[ID];
+  MsgChat := Visualizador.Mensagem[TEventoAtualizacaoMensagem(M).Value];
   if not Assigned(MsgChat) then
     Exit;
 

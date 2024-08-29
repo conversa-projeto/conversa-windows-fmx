@@ -20,6 +20,7 @@ uses
   FMX.StdCtrls,
   FMX.TextLayout,
   FMX.Types,
+  Conversa.Eventos,
   Conversa.Notificacao, FMX.Ani;
 
 type
@@ -48,7 +49,7 @@ type
     FChatId: Integer;
     FConteudos: TArray<TMensagemNotificacao>;
     procedure RegistrarEvento;
-    procedure StatusIniciarAnimacao(ID: Integer);
+    procedure StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
   public
     class function New(AOwner: TFmxObject): TNotificacaoItem;
     destructor Destroy; override;
@@ -65,7 +66,6 @@ uses
   Conversa.Configuracoes,
   Conversa.Chat.Listagem,
   Conversa.Tela.Inicial.view,
-  Conversa.Eventos,
   Conversa.Windows.UserActivity;
 
 { TNotificacao }
@@ -188,7 +188,7 @@ end;
 
 destructor TNotificacaoItem.Destroy;
 begin
-  TEvento.Remover(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
+  TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
   inherited;
 end;
 
@@ -211,14 +211,14 @@ end;
 
 procedure TNotificacaoItem.RegistrarEvento;
 begin
-  TEvento.Adicionar(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
 end;
 
-procedure TNotificacaoItem.StatusIniciarAnimacao(ID: Integer);
+procedure TNotificacaoItem.StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
 begin
   if not Assigned(Self) or (csDestroying in Self.ComponentState) then
   begin
-    TEvento.Remover(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
+    TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
     Exit;
   end;
 

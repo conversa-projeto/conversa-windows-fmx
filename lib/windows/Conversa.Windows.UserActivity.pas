@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Threading,
+  System.Messaging,
   FMX.Forms,
   Winapi.Windows,
   Conversa.Eventos;
@@ -53,7 +54,7 @@ begin
           procedure
           begin
             StatusUsuarioSO := TStatusUsuarioSO.Inativo;
-            TEvento.Executar(TEventoMudancaStatusUsuarioSO);
+            TMessageManager.DefaultManager.SendMessage(nil, TEventoMudancaStatusUsuarioSO.Create(0));
           end
         );
         ThreadStatusUsuarioSO := TStatusUsuarioSO.Inativo;
@@ -70,7 +71,7 @@ begin
           procedure
           begin
             StatusUsuarioSO := TStatusUsuarioSO.Ativo;
-            TEvento.Executar(TEventoMudancaStatusUsuarioSO);
+            TMessageManager.DefaultManager.SendMessage(nil, TEventoMudancaStatusUsuarioSO.Create(0));
           end
         );
         ThreadStatusUsuarioSO := TStatusUsuarioSO.Ativo;

@@ -131,4 +131,11 @@ inherited ConversasItemFrame: TConversasItemFrame
       StopValue = xFFE6E6E6
     end
   end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = Timer1Timer
+    Left = 146
+    Top = 16
+  end
 end

@@ -430,7 +430,7 @@ begin
   FItems.Add(Item);
   Redimensionar(sbxCentro.Width, lytAltura);
 
-  TEvento.Adicionar(TEventoAtualizacaoMensagem, Item.AoAtualizar, Mensagem.ID)
+//  TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, Item.AoAtualizar, Mensagem.ID)
 end;
 
 procedure TVisualizador.NomearComponente(Componente: TControl);
@@ -818,7 +818,7 @@ end;
 
 destructor TMensagemView.Destroy;
 begin
-  TEvento.Remover(TEventoAtualizacaoMensagem, AoAtualizar, Dados.ID);
+//  TEvento.Remover(TEventoAtualizacaoMensagem, AoAtualizar, Dados.ID);
   inherited;
 end;
 

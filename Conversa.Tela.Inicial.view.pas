@@ -29,6 +29,7 @@ uses
   Conversa.Principal,
   Conversa.ModalView,
   Conversa.Visualizador.Midia,
+  Conversa.Eventos,
   PascalStyleScript;
 
 type
@@ -44,13 +45,13 @@ type
     TrayWnd: HWND;
     TrayIconData: TNotifyIconData;
     TrayIconAdded: Boolean;
-    procedure TrayWndProc(var Message: TMessage);
+    procedure TrayWndProc(var Message: Winapi.Messages.TMessage);
     procedure Iniciar;
     procedure ExibirTelaPrincipal;
 
     procedure AdicionarTrayIcon;
     procedure RemoverTrayIcon;
-    procedure StatusConexao(Conectado: Integer);
+    procedure StatusConexao(const Sender: TObject; const M: Conversa.Eventos.TMessage);
   protected
     procedure CreateHandle; override;
     procedure DestroyHandle; override;
@@ -73,7 +74,6 @@ uses
   Conversa.Configurar.Conexao,
   Conversa.Notificacao,
   Conversa.Windows.UserActivity,
-  Conversa.Eventos,
   Conversa.Chat.Listagem;
 
 {$R *.fmx}
@@ -85,7 +85,7 @@ constructor TTelaInicial.Create(AOwner: TComponent);
 begin
   inherited;
   rctAvisoConexao.Visible := False;
-  TEvento.Adicionar(TEventoStatusConexao, StatusConexao);
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoStatusConexao, StatusConexao);
   AdicionarTrayIcon;
 end;
 
@@ -93,7 +93,7 @@ destructor TTelaInicial.Destroy;
 begin
   SalvarPosicaoFormulario(Self);
   RemoverTrayIcon;
-  TEvento.Remover(TEventoStatusConexao, StatusConexao);
+  TMessageManager.DefaultManager.Unsubscribe(TEventoStatusConexao, StatusConexao);
   inherited;
 end;
 
@@ -202,7 +202,7 @@ begin
   Shell_NotifyIcon(NIM_ADD, @TrayIconData);
 end;
 
-procedure TTelaInicial.TrayWndProc(var Message: TMessage);
+procedure TTelaInicial.TrayWndProc(var Message: Winapi.Messages.TMessage);
 begin
   if Message.MSG = WM_ICONTRAY then
   begin
@@ -223,9 +223,9 @@ begin
   DeallocateHWnd(TrayWnd);
 end;
 
-procedure TTelaInicial.StatusConexao(Conectado: Integer);
+procedure TTelaInicial.StatusConexao(const Sender: TObject; const M: Conversa.Eventos.TMessage);
 begin
-  rctAvisoConexao.Visible := Conectado <> 1;
+  rctAvisoConexao.Visible := TEventoStatusConexao(M).Value <> 1;
 end;
 
 end.
