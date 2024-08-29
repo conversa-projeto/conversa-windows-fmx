@@ -106,6 +106,10 @@ begin
       ExibirTelaCheia
     else
     begin
+      CanFocus := True;
+      SetFocus;
+//      rctFundo.CanFocus := True;
+//      rctFundo.SetFocus;
       lytMinimizeButton.Visible := False;
       lytMaximizeButton.Visible := False;
     end;
@@ -120,8 +124,7 @@ begin
   {$ENDIF MSWINDOWS}
 end;
 
-procedure TVisualizadorMidia.FrameKeyDown(Sender: TObject; var Key: Word;
-  var KeyChar: Char; Shift: TShiftState);
+procedure TVisualizadorMidia.FrameKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   inherited;
   if Key = vkEscape then
