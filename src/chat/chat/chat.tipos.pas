@@ -30,6 +30,9 @@ type
 
   TEventoEnvio = procedure(Conteudos: TArray<TConteudo>) of object;
 
+const
+  TipoArquivoImagem: Array of String = ['bmp', 'jpg', 'png', 'gif'];
+
 implementation
 
 { TConteudo }

@@ -236,7 +236,7 @@ begin
         MensagemConteudo.Tipo(TTipoConteudo(Conteudo.GetValue<Integer>('tipo')));
         case MensagemConteudo.Tipo of
           TTipoConteudo.Texto: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
-          TTipoConteudo.Imagem: MensagemConteudo.conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
+          TTipoConteudo.Imagem, TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
         end;
         Mensagem.conteudos.Add(MensagemConteudo);
       end;
@@ -365,7 +365,6 @@ var
 begin
   bEnviar := True;
 
-  // enviar a mensagem
   oJSON := TJSONObject.Create;
   oJSON.AddPair('conversa_id', Mensagem.Conversa.ID);
   aConteudos := TJSONArray.Create;
@@ -378,11 +377,11 @@ begin
     oConteudo.AddPair('tipo', Integer(Mensagem.conteudos[iConteudo].tipo));
 
     case Mensagem.conteudos[iConteudo].tipo of
-      TTipoConteudo.Texto: // texto
+      TTipoConteudo.Texto:
       begin
         oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
       end;
-      TTipoConteudo.Imagem: // imagem
+      TTipoConteudo.Imagem, TTipoConteudo.Arquivo:
       begin
         ss := TStringStream.Create;
         try

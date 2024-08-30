@@ -21,7 +21,8 @@ uses
   chat.conteudo.anexo,
   chat.separador.data,
   chat.separador.lidas,
-  chat.ordenador;
+  chat.ordenador,
+  chat.emoji;
 
 type
   TChatVisualizador = class(TControl, IControl)
@@ -34,6 +35,7 @@ type
     Ultima: TChatUltima;
     FAoVisualizar: TEvento;
     FAoClicar: TEventoMouseDown;
+    FAoClicarDownloadAnexo: TEventoMouseDown;
     FAoChegarLimite: TEventoLimite;
     function GetCount: Integer;
     function GetVisivel(const ID: Integer): Boolean;
@@ -43,6 +45,7 @@ type
     procedure SetLarguraMaximaConteudo(const Value: Integer);
     function GetMensagem(const ID: Integer): TChatMensagem;
     procedure AoClicarInterno(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure AoClicarDownloadAnexoInterno(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure AtualizaSeparadoresData(ID: Integer; bAdd: Boolean);
     function ObtemTopMensagem(ID: Integer; Data: TDateTime; Max: Single): Single;
   public
@@ -61,6 +64,7 @@ type
     procedure OcultarSeparadorLidas;
     property AoVisualizar: TEvento read FAoVisualizar write FAoVisualizar;
     property AoClicar: TEventoMouseDown read FAoClicar write FAoClicar;
+    property AoClicarDownloadAnexo: TEventoMouseDown read FAoClicarDownloadAnexo write FAoClicarDownloadAnexo;
     property AoChegarLimite: TEventoLimite read FAoChegarLimite write FAoChegarLimite;
   end;
 
@@ -136,6 +140,10 @@ begin
       begin
         frmTexto := TChatConteudoTexto.Create(Self);
         frmTexto.txtMensagem.Text := Item.Conteudo;
+
+        if TEmojiItem.SoEmoji(Item.Conteudo) then
+          frmTexto.txtMensagem.TextSettings.Font.Size := 30;
+
         frmMensagem.AddConteudo(frmTexto);
         frmTexto.Position.Y := iTop;
         Inc(iTop, Round(frmTexto.Height + frmTexto.txtMensagem.Margins.Top));
@@ -173,11 +181,12 @@ begin
         frmAnexo.lbNome.Text := ExtractFileName(Item.Conteudo);
         frmMensagem.AddConteudo(frmAnexo);
         frmAnexo.Position.Y := iTop;
-        Inc(iTop, Round(frmAnexo.Height + frmAnexo.Layout.Margins.Top));
+        Inc(iTop, Round(frmAnexo.Height + frmAnexo.lytDados.Margins.Top));
 
         frmAnexo.OnMouseDown := AoClicarInterno;
         frmAnexo.Path.OnMouseDown := AoClicarInterno;
-        frmAnexo.Layout.OnMouseDown := AoClicarInterno;
+        frmAnexo.lytDados.OnMouseDown := AoClicarInterno;
+        frmAnexo.lytDownload.OnMouseDown := AoClicarDownloadAnexoInterno;
       end;
     end;
   end;
@@ -310,6 +319,23 @@ begin
         Break;
     end;
     AoClicar(Item as TFrame, Sender, Button, Shift, X, Y);
+  end;
+end;
+
+procedure TChatVisualizador.AoClicarDownloadAnexoInterno(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+var
+  Item: TFmxObject;
+begin
+  if Assigned(FAoClicarDownloadAnexo) then
+  begin
+    Item := Sender as TFmxObject;
+    while Assigned(Item) do
+    begin
+      Item := Item.Parent;
+      if Item is TChatMensagem then
+        Break;
+    end;
+    AoClicarDownloadAnexo(Item as TFrame, Sender, Button, Shift, X, Y);
   end;
 end;
 

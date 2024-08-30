@@ -53,6 +53,8 @@ type
     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
     procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure CriarControles;
+    procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+      Y: Single);
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -75,6 +77,7 @@ implementation
 
 uses
   chat.conteudo.imagem,
+  chat.conteudo.anexo,
   Conversa.Visualizador.Midia;
 
 { TChat }
@@ -116,6 +119,7 @@ begin
   Visualizador.AoVisualizar := AoVisualizar;
   Visualizador.LarguraMaximaConteudo := 500;
   Visualizador.AoClicar := AoClicar;
+  Visualizador.AoClicarDownloadAnexo := AoClicarDownloadAnexo;
 
   Editor := TChatEditor.Create(lytClient);
   lytClient.AddObject(Editor);
@@ -258,6 +262,13 @@ begin
   if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
     if Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
       TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
+end;
+
+procedure TChat.AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+begin
+  if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
+    if Assigned(Sender) and (Sender.InheritsFrom(TLayout) and TLayout(Sender).Parent.InheritsFrom(TChatConteudoAnexo)) then
+      ShowMessage('Ainda não ta pronto!');
 end;
 
 end.

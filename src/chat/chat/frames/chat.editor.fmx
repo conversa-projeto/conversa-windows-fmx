@@ -37,8 +37,8 @@ inherited ChatEditor: TChatEditor
         Size.PlatformDefault = False
         TabOrder = 0
         OnKeyDown = mmMensagemKeyDown
-        Viewport.Width = 381.000000000000000000
-        Viewport.Height = 16.000000000000000000
+        Viewport.Width = 385.000000000000000000
+        Viewport.Height = 20.000000000000000000
         object txtMensagem: TText
           Align = Left
           HitTest = False
@@ -236,7 +236,7 @@ inherited ChatEditor: TChatEditor
           Size.Width = 17.000000000000000000
           Size.Height = 17.000000000000000000
           Size.PlatformDefault = False
-          TabOrder = 4
+          TabOrder = 3
           OnClick = lytCancelarClick
           object pthCancelar: TPath
             Align = Client

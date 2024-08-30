@@ -219,7 +219,7 @@ begin
     for var Item in Selecionados do
     begin
       Conteudo := Default(TConteudo);
-      if IndexStr(ExtractFileExt(Item).Replace('.', EmptyStr).ToLower, ['bmp', 'jpg', 'png', 'gif']) >= 0 then
+      if IndexStr(ExtractFileExt(Item).Replace('.', EmptyStr).ToLower, TipoArquivoImagem) >= 0 then
         Conteudo.Tipo := TTipo.Imagem
       else
         Conteudo.Tipo := TTipo.Arquivo;
