@@ -18,6 +18,7 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Types,
+  System.StrUtils,
 //  Mensagem.Visualizador,
 //  Mensagem.Editor,
 //  Mensagem.Anexo,
@@ -47,6 +48,8 @@ type
     FConversa: TConversa;
     FVisualizador: TChatVisualizador;
     Editor: TChatEditor;
+    FMsgClicada: TFrame;
+    FObjetoClicado: TObject;
     //Anexo: TAnexo;
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
@@ -56,6 +59,7 @@ type
     procedure CriarControles;
     procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
       Y: Single);
+    procedure Copiar;
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -77,9 +81,12 @@ implementation
 {$R *.fmx}
 
 uses
+  FMX.Platform,
+  FMX.Clipboard,
   chat.conteudo.imagem,
   chat.conteudo.anexo,
-  Conversa.Visualizador.Midia;
+  Conversa.Visualizador.Midia,
+  PopupMenu;
 
 { TChat }
 
@@ -118,7 +125,7 @@ begin
   lytClient.AddObject(Visualizador);
   Visualizador.Align := TAlignLayout.Client;
   Visualizador.AoVisualizar := AoVisualizar;
-  Visualizador.LarguraMaximaConteudo := 500;
+  Visualizador.LarguraMaximaConteudo := 800;
   Visualizador.AoClicar := AoClicar;
   Visualizador.AoChegarLimite := AoChegarLimite;
   Visualizador.AoClicarDownloadAnexo := AoClicarDownloadAnexo;
@@ -127,7 +134,7 @@ begin
   lytClient.AddObject(Editor);
   Editor.Align := TAlignLayout.Bottom;
   Editor.AoEnviar := AoEnviar;
-  Editor.LarguraMaximaConteudo := 500;
+  Editor.LarguraMaximaConteudo := 800;
 end;
 
 procedure TChat.Limpar;
@@ -265,8 +272,55 @@ end;
 procedure TChat.AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
 begin
   if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
-    if Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
-      TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
+  begin
+    FMsgClicada := Frame;
+    FObjetoClicado := Sender;
+    if (Button = TMouseButton.mbLeft) and Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
+      TVisualizadorMidia.Exibir(TImage(Sender).Bitmap)
+    else
+    if Button = TMouseButton.mbRight then
+      TPopupMenu.New(Frame)
+        .Add('Copiar',
+          procedure(Sender: TObject)
+          begin
+            Copiar;
+          end
+        ).Exibir(Screen.MousePos);
+  end;
+end;
+
+procedure TChat.Copiar;
+var
+  Conteudos: TArray<TConteudo>;
+  Conteudo: TConteudo;
+  Texto: String;
+  svc: IFMXExtendedClipboardService;
+begin
+  if not Assigned(FMsgClicada) or not FMsgClicada.InheritsFrom(TChatMensagem) then
+    Exit;
+
+  if not Assigned(FObjetoClicado) then
+    Exit;
+
+  if (FObjetoClicado.InheritsFrom(TImage) and TImage(FObjetoClicado).Parent.InheritsFrom(TChatConteudoImagem)) then
+  begin
+    if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+      svc.SetClipboard(TImage(FObjetoClicado).Bitmap);
+
+    Exit;
+  end;
+
+  Conteudos := FConversa.Mensagens.Get(TChatMensagem(FMsgClicada).ID).Conteudos;
+  Texto := EmptyStr;
+  for Conteudo in Conteudos do
+    if Conteudo.Tipo = TTipoConteudo.Texto then
+      Texto := Texto + IfThen(not Texto.Trim.IsEmpty, sLineBreak) + Conteudo.Conteudo;
+
+  if Texto.Trim.IsEmpty then
+    Exit;
+
+  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
+    svc.SetText(Texto.Replace('&', '&&'));
 end;
 
 procedure TChat.AoChegarLimite(Limite: TLimite);
