@@ -6,6 +6,7 @@ inherited TelaInicial: TTelaInicial
   DesignerMasterStyle = 0
   inherited rctFundo: TRectangle
     ClipChildren = True
+    Fill.Color = claWhitesmoke
     inherited lytClient: TLayout
       ClipChildren = True
       inherited lytClientForm: TLayout

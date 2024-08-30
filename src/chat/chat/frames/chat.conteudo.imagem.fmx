@@ -9,6 +9,7 @@ inherited ChatConteudoImagem: TChatConteudoImagem
       item
       end>
     Align = Client
+    Cursor = crHandPoint
     Margins.Top = 3.000000000000000000
     Size.Width = 256.000000000000000000
     Size.Height = 185.000000000000000000

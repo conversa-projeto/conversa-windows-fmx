@@ -206,6 +206,10 @@ type
     function OrdemAtualizacao: TArrayConversas;
   end;
 
+  THArrayMensagens = record Helper for TArrayMensagens
+    function OrdemTempo: TArrayMensagens;
+  end;
+
   THArrayUsuarios = record Helper for TArrayUsuarios
     function Count: Integer;
   end;
@@ -943,6 +947,28 @@ end;
 function THArrayUsuarios.Count: Integer;
 begin
   Result := Length(Self);
+end;
+
+{ THArrayMensagens }
+
+function THArrayMensagens.OrdemTempo: TArrayMensagens;
+begin
+  // Copiar o array para a variável de resultado
+  Result := Self;
+
+  // Ordenar o array pela data da última mensagem (FUltimaMensagemData) em ordem decrescente
+  TArray.Sort<TMensagem>(Result, TComparer<TMensagem>.Construct(
+    function(const Anterior, Atual: TMensagem): Integer
+    begin
+//      if (Atual.Alterada = 0) and (Anterior.Alterada <> 0) then
+//        Result := CompareValue(Atual.FCriadoEm, Anterior.FUltimaMensagemData)
+//      else
+      if (Atual.Alterada = 0) and (Anterior.Alterada = 0) then
+        Result := CompareValue(Atual.Inserida, Anterior.Inserida)
+      else
+        Result := CompareValue(Atual.Alterada, Anterior.Alterada);
+    end
+  ));
 end;
 
 end.

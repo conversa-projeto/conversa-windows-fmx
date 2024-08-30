@@ -17,7 +17,7 @@ type
     ID: Integer;
     Top: Single;
     Height: Single;
-    Data: TDate;
+    Data: TDateTime;
   end;
 
   TOrdenadorComparer = class(TInterfacedObject, IComparer<TOrdenador>)

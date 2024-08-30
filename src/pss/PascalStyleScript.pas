@@ -510,6 +510,7 @@ var
   sValue: String;
   I: Integer;
 begin
+  Exit;
   Result := Self;
   if not Assigned(Value) then
     raise Exception.Create('Objeto não criado!');

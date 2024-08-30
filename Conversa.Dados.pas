@@ -33,8 +33,8 @@ type
     function ServerOnline: Boolean;
     procedure CarregarContatos;
     procedure CarregarConversas;
-    function ObterMensagens(iConversa: Integer): TArrayMensagens;
-    function Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
+    function ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
+    function Mensagens(iConversa: Integer; iInicio: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure Contatos(Proc: TProc<TJSONArray>);
@@ -152,11 +152,11 @@ begin
   Result := FDadosApp.Conversas.MensagensSemVisualizar;
 end;
 
-function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
+function TDados.Mensagens(iConversa: Integer; iInicio: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
 begin
   Result := FDadosApp.Conversas.GetOrAdd(iConversa).Mensagens.GetList(iInicio);
   if Length(Result) = 0 then
-    Result := ObterMensagens(iConversa);
+    Result := ObterMensagens(iConversa, MensagemPrevia);
 end;
 
 function TDados.MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
@@ -164,12 +164,15 @@ begin
   Result := FDadosApp.Conversas.Get(iConversa).Mensagens.ParaNotificar;
 end;
 
-function TDados.ObterMensagens(iConversa: Integer): TArrayMensagens;
+function TDados.ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
 var
   Conversa: TConversa;
   Mensagem: TMensagem;
   MensagemConteudo: TConteudo;
   Remetente: TUsuario;
+  MsgRef: Integer;
+  IDMsg: Integer;
+  Msgs: TArrayMensagens;
 begin
   Conversa := FDadosApp.Conversas.Get(iConversa);
 
@@ -186,6 +189,20 @@ begin
   with TAPIConversa.Create do
   try
     Route('mensagens');
+    if MensagemPrevia then
+    begin
+      Msgs := Conversa.Mensagens.Items;
+      MsgRef := Conversa.Mensagens.UltimaMensagemSincronizada;
+      for IDMsg := Pred(Length(Msgs)) downto 0 do
+        MsgRef := Min(Msgs[IDMsg].ID, MsgRef);
+
+      if (MsgRef - 1) <= 0 then
+        Exit;
+
+      Query(TJSONObject.Create.AddPair('mensagemreferencia', MsgRef - 1));
+      Query(TJSONObject.Create.AddPair('mensagensprevias', 100));
+    end
+    else
     if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
       Query(TJSONObject.Create.AddPair('mensagensprevias', 100))
     else
@@ -199,6 +216,9 @@ begin
       GET;
     except
     end;
+
+    if Response.Status <> TResponseStatus.Sucess then
+      Exit;
 
     // Primeira execução
     if (Conversa.MensagemSemVisualizar > 0) and (Conversa.Mensagens.UltimaMensagemSincronizada = 0) then

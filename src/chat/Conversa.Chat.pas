@@ -52,6 +52,7 @@ type
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
     procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+    procedure AoChegarLimite(Limite: TLimite);
     procedure CriarControles;
   public
     UltimaMensagem: Integer;
@@ -63,7 +64,7 @@ type
 
     property Visualizador: TChatVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
-    procedure AdicionarMensagens(aMensagem: TArrayMensagens);
+    procedure AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
     procedure PosicionarUltima;
     procedure Limpar;
     procedure ValidarVisualizacao;
@@ -116,6 +117,7 @@ begin
   Visualizador.AoVisualizar := AoVisualizar;
   Visualizador.LarguraMaximaConteudo := 500;
   Visualizador.AoClicar := AoClicar;
+  Visualizador.AoChegarLimite := AoChegarLimite;
 
   Editor := TChatEditor.Create(lytClient);
   lytClient.AddObject(Editor);
@@ -180,16 +182,19 @@ begin
 
 end;
 
-procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens);
+procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
 var
   Mensagem: TMensagem;
 begin
+  if Length(aMensagem) = 0 then
+    Exit;
   for Mensagem in aMensagem do
   begin
     UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
     AdicionarMensagem(Mensagem);
   end;
-  PosicionarUltima;
+  if IrParaUltima then
+    PosicionarUltima;
 end;
 
 procedure TChat.AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
@@ -258,6 +263,16 @@ begin
   if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
     if Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
       TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
+end;
+
+procedure TChat.AoChegarLimite(Limite: TLimite);
+begin
+  Exit;
+  if Limite = TLimite.Superior then
+  begin
+    Dados.ObterMensagens(Conversa.ID, True);
+    AdicionarMensagens(Conversa.Mensagens.ParaExibir(True).OrdemTempo, False);
+  end;
 end;
 
 end.
