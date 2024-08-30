@@ -20,10 +20,6 @@ uses
   Conversa.Chat in 'src\chat\Conversa.Chat.pas' {Chat: TFrame},
   Conversa.Chat.Listagem in 'src\chat\Conversa.Chat.Listagem.pas' {ChatListagem: TFrame},
   Conversa.Chat.Listagem.Item in 'src\chat\Conversa.Chat.Listagem.Item.pas' {ConversasItemFrame: TFrame},
-  Mensagem.Anexo in 'src\chat\mensagem\Mensagem.Anexo.pas',
-  Mensagem.Editor in 'src\chat\mensagem\Mensagem.Editor.pas',
-  Mensagem.Tipos in 'src\chat\mensagem\Mensagem.Tipos.pas',
-  Mensagem.Visualizador in 'src\chat\mensagem\Mensagem.Visualizador.pas',
   Conversa.AES in 'lib\AES\Conversa.AES.pas',
   Conversa.Configurar.Conexao in 'src\configuracoes\Conversa.Configurar.Conexao.pas' {ConfigurarConexao: TFrame},
   Conversa.Contatos in 'src\contatos\Conversa.Contatos.pas' {ConversaContatos: TFrame},
@@ -62,7 +58,8 @@ uses
   chat.mensagem in 'src\chat\chat\frames\chat.mensagem.pas' {ChatMensagem: TFrame},
   chat.separador.data in 'src\chat\chat\frames\chat.separador.data.pas' {ChatSeparadorData: TFrame},
   chat.separador.lidas in 'src\chat\chat\frames\chat.separador.lidas.pas' {ChatSeparadorLidas: TFrame},
-  chat.ultima in 'src\chat\chat\frames\chat.ultima.pas' {ChatUltima: TFrame};
+  chat.ultima in 'src\chat\chat\frames\chat.ultima.pas' {ChatUltima: TFrame},
+  chat.emoji in 'src\chat\chat\chat.emoji.pas';
 
 {$R *.res}
 begin

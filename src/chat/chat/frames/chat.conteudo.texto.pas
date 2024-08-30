@@ -4,6 +4,10 @@ unit chat.conteudo.texto;
 interface
 
 uses
+  {$IFDEF MSWINDOWS}
+  Winapi.Windows,
+  Winapi.ShellAPI,
+  {$ENDIF MSWINDOWS}
   System.Types,
   System.Classes,
   FMX.Types,
@@ -30,7 +34,6 @@ type
     procedure SetNewText(const Value: String);
   protected
     procedure Click; override;
-    procedure DblClick; override;
     procedure MouseMove(Shift: TShiftState; X, Y: Single); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -47,10 +50,6 @@ type
 implementation
 
 uses
-  {$IFDEF MSWINDOWS}
-  Winapi.Windows,
-  Winapi.ShellAPI,
-  {$ENDIF MSWINDOWS}
   System.SysUtils,
   System.UITypes,
   System.RegularExpressions,
@@ -127,22 +126,6 @@ begin
   end;
 end;
 
-procedure TText.DblClick;
-var
-  svc: IFMXExtendedClipboardService;
-  Def: TAlphaColor;
-begin
-  inherited;
-
-  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
-  begin
-    svc.SetText(Text.Replace('&', '&&'));
-    Def := Self.Color;
-    Color := TAlphaColors.Green;
-    TAnimator.AnimateColor(Self, 'Color', Def, 1, TAnimationType.InOut, TInterpolationType.Cubic);
-  end;
-end;
-
 procedure TText.MouseMove(Shift: TShiftState; X, Y: Single);
 var
   CaretPos: Integer;
@@ -204,9 +187,23 @@ end;
 function TChatConteudoTexto.Target(Largura: Single): TTarget;
 var
   TamanhoTexto: TRectF;
+  Anterior: Single;
+  Correta: Single;
 begin
   TamanhoTexto := RectF(0, 0, Largura - (Self.Margins.Left + Self.Margins.Right), 10000);
-  txtMensagem.Canvas.MeasureText(TamanhoTexto, txtMensagem.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
+
+  Anterior := txtMensagem.Canvas.Font.Size;
+  Correta := txtMensagem.TextSettings.Font.Size;
+
+  if Anterior = Correta then
+    txtMensagem.Canvas.MeasureText(TamanhoTexto, txtMensagem.Text, True, [], TTextAlign.Center, TTextAlign.Leading)
+  else
+  begin
+    txtMensagem.Canvas.Font.Size := Correta;
+    txtMensagem.Canvas.MeasureText(TamanhoTexto, txtMensagem.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
+    txtMensagem.Canvas.Font.Size := Anterior;
+  end;
+
   Result.Width := TamanhoTexto.Width + Self.Margins.Left + Self.Margins.Right;
   Result.Height := TamanhoTexto.Bottom;
 end;

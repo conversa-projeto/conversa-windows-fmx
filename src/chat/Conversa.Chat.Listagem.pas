@@ -112,6 +112,7 @@ var
   Msg: TMensagem;
   AConteudos: TArray<TMensagemNotificacao>;
   Conversa: TConversa;
+  sConteudo: String;
 begin
   Conversa  := Dados.FDadosApp.Conversas.Get(ConversaId);
   Mensagens := Dados.MensagensParaNotificar(ConversaId);
@@ -125,12 +126,19 @@ begin
   begin
     AConteudos := [];
     if Msg.Conteudos.Count > 0 then
+    begin
+      case Msg.Conteudos[0].tipo of
+        TTipoConteudo.Texto:   sConteudo := Msg.Conteudos[0].conteudo;
+        TTipoConteudo.Imagem:  sConteudo := 'Imagem';
+        TTipoConteudo.Arquivo: sConteudo := 'Arquivo';
+      end;
       AConteudos := [
         TMensagemNotificacao.New
           .ID(Msg.Conteudos[0].id)
           .Usuario(IfThen(Conversa.Tipo = TTipoConversa.Chat, '', Msg.Remetente.Nome))
-          .Mensagem(IfThen(Msg.Conteudos[0].tipo = TTipoConteudo.Texto, Msg.Conteudos[0].conteudo, 'Imagem'))
+          .Mensagem(sConteudo)
       ];
+    end;
     TNotificacaoManager.Apresentar(
       TNotificacao.New
         .ChatId(ConversaId)

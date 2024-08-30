@@ -825,8 +825,9 @@ begin
     Exit;
 
   case Conteudos[0].Tipo of
-    TTipoConteudo.Texto : Result := Result + Conteudos[0].Conteudo;
-    TTipoConteudo.Imagem: Result := Result +'📷 Imagem';
+    TTipoConteudo.Texto :  Result := Result + Conteudos[0].Conteudo;
+    TTipoConteudo.Imagem:  Result := Result +'📷 Imagem';
+    TTipoConteudo.Arquivo: Result := Result +'📦 Arquivo';
   end;
 end;
 
