@@ -1,0 +1,12 @@
+inherited PopupMenuItemSeparador: TPopupMenuItemSeparador
+  Padding.Top = 3.000000000000000000
+  Padding.Bottom = 3.000000000000000000
+  Size.Height = 10.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Size.Width = 150.000000000000000000
+    Size.Height = 4.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+  end
+end

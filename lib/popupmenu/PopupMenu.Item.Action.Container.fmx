@@ -1,0 +1,2 @@
+inherited PopupMenuActions: TPopupMenuActions
+end

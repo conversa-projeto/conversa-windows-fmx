@@ -1,0 +1,5 @@
+object Popup: TPopup
+  Size.Width = 150.000000000000000000
+  Size.Height = 150.000000000000000000
+  Size.PlatformDefault = False
+end

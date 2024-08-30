@@ -1,0 +1,35 @@
+inherited PopupMenu: TPopupMenu
+  Size.Height = 100.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Left = 1.000000000000000000
+    Padding.Top = 3.000000000000000000
+    Padding.Right = 1.000000000000000000
+    Padding.Bottom = 3.000000000000000000
+    Margins.Left = 10.000000000000000000
+    Margins.Top = 10.000000000000000000
+    Margins.Right = 10.000000000000000000
+    Margins.Bottom = 10.000000000000000000
+    Size.Width = 130.000000000000000000
+    Size.Height = 80.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Color = claGainsboro
+    XRadius = 2.000000000000000000
+    YRadius = 2.000000000000000000
+    object lytItems: TLayout
+      Align = Client
+      Size.Width = 128.000000000000000000
+      Size.Height = 74.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+    end
+    object ShadowEffect1: TShadowEffect
+      Distance = 1.000000000000000000
+      Direction = 45.000000000000000000
+      Softness = 0.200000002980232200
+      Opacity = 0.300000011920929000
+      ShadowColor = claBlack
+    end
+  end
+end

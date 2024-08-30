@@ -59,7 +59,13 @@ uses
   chat.separador.data in 'src\chat\chat\frames\chat.separador.data.pas' {ChatSeparadorData: TFrame},
   chat.separador.lidas in 'src\chat\chat\frames\chat.separador.lidas.pas' {ChatSeparadorLidas: TFrame},
   chat.ultima in 'src\chat\chat\frames\chat.ultima.pas' {ChatUltima: TFrame},
-  chat.emoji in 'src\chat\chat\chat.emoji.pas';
+  chat.emoji in 'src\chat\chat\chat.emoji.pas',
+  Popup in 'lib\popupmenu\Popup.pas' {Popup: TFrame},
+  PopupMenu.Item.Action.Container in 'lib\popupmenu\PopupMenu.Item.Action.Container.pas',
+  PopupMenu.Item.Base in 'lib\popupmenu\PopupMenu.Item.Base.pas' {PopupMenuItemBase: TFrame},
+  PopupMenu.Item in 'lib\popupmenu\PopupMenu.Item.pas' {PopupMenuItemFrame: TFrame},
+  PopupMenu.Item.Separador in 'lib\popupmenu\PopupMenu.Item.Separador.pas' {PopupMenuItemSeparador: TFrame},
+  PopupMenu in 'lib\popupmenu\PopupMenu.pas' {PopupMenu: TFrame};
 
 {$R *.res}
 begin

@@ -1,0 +1,5 @@
+object PopupMenuItemBase: TPopupMenuItemBase
+  Size.Width = 150.000000000000000000
+  Size.Height = 30.000000000000000000
+  Size.PlatformDefault = False
+end

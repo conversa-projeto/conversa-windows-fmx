@@ -1,0 +1,59 @@
+inherited PopupMenuItemFrame: TPopupMenuItemFrame
+  object rctFundo: TRectangle
+    Align = Client
+    Cursor = crHandPoint
+    Fill.Color = claSnow
+    Padding.Left = 10.000000000000000000
+    Padding.Right = 10.000000000000000000
+    Size.Width = 150.000000000000000000
+    Size.Height = 30.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    OnClick = rctFundoClick
+    OnMouseEnter = rctFundoMouseEnter
+    OnMouseLeave = rctFundoMouseLeave
+    object aniCorFundo: TColorAnimation
+      Duration = 0.050000000745058060
+      PropertyName = 'Fill.Color'
+      StartValue = claWhite
+      StopValue = claWhitesmoke
+    end
+    object txtDescricao: TText
+      Align = Left
+      AutoSize = True
+      HitTest = False
+      Position.X = 10.000000000000000000
+      Size.Width = 90.115234375000000000
+      Size.Height = 15.960937500000000000
+      Size.PlatformDefault = False
+      Text = '[Descri'#231#227'o Aqui]'
+      TextSettings.Trimming = Character
+      TextSettings.WordWrap = False
+      TextSettings.HorzAlign = Leading
+      OnResized = txtDescricaoResized
+    end
+    object pthSub: TPath
+      Align = Right
+      Data.Path = {
+        080000000000000029EC04440000F0C30100000052D8AD43000026C401000000
+        0000BC43D7132DC401000000D71313440000F0C3010000000000BC4352D885C3
+        0100000052D8AD43000094C30100000029EC04440000F0C30300000029EC0444
+        0000F0C3}
+      Fill.Color = claBlack
+      Margins.Top = 10.000000000000000000
+      Margins.Bottom = 10.000000000000000000
+      Position.X = 135.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 5.000000000000000000
+      Size.Height = 10.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+    end
+  end
+  object tmrExibir: TTimer
+    Enabled = False
+    Interval = 500
+    OnTimer = tmrExibirTimer
+    Left = 64
+  end
+end
