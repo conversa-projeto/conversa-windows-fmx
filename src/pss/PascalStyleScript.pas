@@ -510,8 +510,8 @@ var
   sValue: String;
   I: Integer;
 begin
-  Exit;
   Result := Self;
+  Exit;
   if not Assigned(Value) then
     raise Exception.Create('Objeto não criado!');
   obj.id := IfThen(ID.Trim.IsEmpty, String(Value.Name), ID);
