@@ -125,7 +125,8 @@ function GetFileIconAsBitmap(const FileName: String): TBitmap;
 var
   FileInfo: SHFILEINFOA;
   hIcon: Winapi.Windows.HICON;
-  IconWidth, IconHeight: Integer;
+  IconWidth: Integer;
+  IconHeight: Integer;
   IconDC, MemDC: HDC;
   DIB: HBITMAP;
   BitmapInfo: Winapi.Windows.BITMAPINFO;
@@ -171,7 +172,7 @@ begin
               for Row := 0 to IconHeight - 1 do
               begin
                 // Copiar a linha correspondente
-                Move(Pointer(NativeUInt(BitmapBits) + Row * IconWidth * 4)^, bitdata.GetScanline(Row)^, IconWidth * 4);
+                Move(Pointer(NativeInt(BitmapBits) + Row * IconWidth * 4)^, bitdata.GetScanline(Row)^, IconWidth * 4);
               end;
             finally
               Result.Unmap(bitdata);
