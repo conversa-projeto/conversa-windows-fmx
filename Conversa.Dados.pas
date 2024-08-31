@@ -43,7 +43,6 @@ type
     function UltimaMensagemNotificada: Integer;
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
     function MensagensSemVisualizar: Integer; overload;
-//    function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
     procedure AtualizarContador(const Sender: TObject; const M: TMessage);
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
@@ -74,6 +73,7 @@ uses
 
 const
   PASTA_ANEXO = 'anexos';
+  QUANTIDADE_MENSAGENS_CARREGAMENTO = 50;
 
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
@@ -142,11 +142,6 @@ begin
   end;
 end;
 
-//function TDados.MensagemSemVisualizar(iConversa: Integer): Integer;
-//begin
-//  Result := FDadosApp.MensagemSemVisualizar(iConversa);
-//end;
-
 function TDados.MensagensSemVisualizar: Integer;
 begin
   Result := FDadosApp.Conversas.MensagensSemVisualizar;
@@ -200,15 +195,15 @@ begin
         Exit;
 
       Query(TJSONObject.Create.AddPair('mensagemreferencia', MsgRef - 1));
-      Query(TJSONObject.Create.AddPair('mensagensprevias', 100));
+      Query(TJSONObject.Create.AddPair('mensagensprevias', QUANTIDADE_MENSAGENS_CARREGAMENTO));
     end
     else
     if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
-      Query(TJSONObject.Create.AddPair('mensagensprevias', 100))
+      Query(TJSONObject.Create.AddPair('mensagensprevias', QUANTIDADE_MENSAGENS_CARREGAMENTO))
     else
     begin
       Query(TJSONObject.Create.AddPair('mensagemreferencia', Conversa.Mensagens.UltimaMensagemSincronizada + 1));
-      Query(TJSONObject.Create.AddPair('mensagensseguintes', 100));
+      Query(TJSONObject.Create.AddPair('mensagensseguintes', QUANTIDADE_MENSAGENS_CARREGAMENTO));
     end;
     Query(TJSONObject.Create.AddPair('conversa', iConversa));
     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
@@ -456,7 +451,6 @@ begin
     PUT;
     Mensagem.ID(Response.ToJSON.GetValue<Integer>('id'));
     Mensagem.Conversa.Mensagens.Add(Mensagem);
-    //FDadosApp.AdicionaMensagem(Mensagem.ConversaId, Mensagem);
   finally
     Free;
   end;

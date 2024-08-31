@@ -18,9 +18,6 @@ uses
   FMX.Objects,
   FMX.StdCtrls,
   FMX.Types,
-//  Mensagem.Visualizador,
-//  Mensagem.Editor,
-//  Mensagem.Anexo,
   chat.visualizador,
   chat.editor,
   chat.tipos,
@@ -47,7 +44,6 @@ type
     FConversa: TConversa;
     FVisualizador: TChatVisualizador;
     Editor: TChatEditor;
-    //Anexo: TAnexo;
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
@@ -62,8 +58,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property Conversa: TConversa read FConversa write FConversa;
-
-
     property Visualizador: TChatVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
@@ -96,19 +90,12 @@ begin
 
   CriarControles;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
-
-//  Editor.AdicionaMensagem(
-//    procedure(Mensagem: TMensagem)
-//    begin
-//    end
-//  );
 end;
 
 destructor TChat.Destroy;
 begin
   Visualizador.Free;
   Editor.Free;
-//  Anexo.Free;
   inherited;
 end;
 
@@ -136,7 +123,6 @@ begin
   FreeAndNil(Editor);
   FreeAndNil(FVisualizador);
   CriarControles;
-//  Visualizador.Limpar;
 end;
 
 procedure TChat.ValidarVisualizacao;
@@ -152,7 +138,7 @@ end;
 
 procedure TChat.PosicionarUltima;
 begin
-  Visualizador.Posicionar();
+  Visualizador.Posicionar;
 end;
 
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
@@ -183,7 +169,6 @@ begin
     Msg.Status := TStatus.Recebida
   else
     Msg.Status := TStatus.Pendente;
-
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
@@ -192,11 +177,18 @@ var
 begin
   if Length(aMensagem) = 0 then
     Exit;
-  for Mensagem in aMensagem do
-  begin
-    UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
-    AdicionarMensagem(Mensagem);
+
+  Visualizador.OcultarSeparadoresData;
+  try
+    for Mensagem in aMensagem do
+    begin
+      UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
+      AdicionarMensagem(Mensagem);
+    end;
+  finally
+    Visualizador.ExibirSeparadoresData;
   end;
+
   if IrParaUltima then
     PosicionarUltima;
 end;
@@ -271,7 +263,6 @@ end;
 
 procedure TChat.AoChegarLimite(Limite: TLimite);
 begin
-  Exit;
   if Limite = TLimite.Superior then
   begin
     Dados.ObterMensagens(Conversa.ID, True);
