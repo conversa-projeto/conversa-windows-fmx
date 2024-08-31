@@ -174,10 +174,12 @@ end;
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
 var
   Mensagem: TMensagem;
+  Anterior: Single;
 begin
   if Length(aMensagem) = 0 then
     Exit;
 
+  Anterior := Visualizador.Bottom;
   Visualizador.OcultarSeparadoresData;
   try
     for Mensagem in aMensagem do
@@ -190,7 +192,9 @@ begin
   end;
 
   if IrParaUltima then
-    PosicionarUltima;
+    PosicionarUltima
+  else
+    Visualizador.Bottom := Anterior;
 end;
 
 procedure TChat.AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);

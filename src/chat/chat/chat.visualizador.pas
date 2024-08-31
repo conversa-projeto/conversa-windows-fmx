@@ -47,6 +47,8 @@ type
     procedure AoClicarInterno(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure AoClicarDownloadAnexoInterno(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     function ObtemTopMensagem(ID: Integer; Data: TDateTime; Max: Single): Single;
+    function GetBottom: Single;
+    procedure SetBottom(const Value: Single);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -63,6 +65,7 @@ type
     procedure OcultarSeparadorLidas;
     procedure ExibirSeparadoresData;
     procedure OcultarSeparadoresData;
+    property Bottom: Single read GetBottom write SetBottom;
     property AoVisualizar: TEvento read FAoVisualizar write FAoVisualizar;
     property AoClicar: TEventoMouseDown read FAoClicar write FAoClicar;
     property AoClicarDownloadAnexo: TEventoMouseDown read FAoClicarDownloadAnexo write FAoClicarDownloadAnexo;
@@ -72,7 +75,8 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils,
+  System.Types;
 
 { TChatVisualizador }
 
@@ -407,6 +411,16 @@ end;
 function TChatVisualizador.GetMensagem(const ID: Integer): TChatMensagem;
 begin
   Result := FMensagens[ID];
+end;
+
+function TChatVisualizador.GetBottom: Single;
+begin
+  Result := Chat.Bottom;
+end;
+
+procedure TChatVisualizador.SetBottom(const Value: Single);
+begin
+  Chat.Bottom := Value;
 end;
 
 end.
