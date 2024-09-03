@@ -181,6 +181,8 @@ type
     FTipo: TTipoConteudo;
     FOrdem: Integer;
     FConteudo: String;
+    FNome: String;
+    FExtensao: String;
   public
     UltimaMensagemAdicionada: Integer;
     class function New(ID: Integer): TConteudo;
@@ -188,6 +190,10 @@ type
     function Tipo: TTipoConteudo; overload;
     function Ordem: Integer; overload;
     function Conteudo: String; overload;
+    function Nome: String; overload;
+    function Nome(const Value: String): TConteudo; overload;
+    function Extensao: String; overload;
+    function Extensao(const Value: String): TConteudo; overload;
     function Tipo(const Value: TTipoConteudo): TConteudo; overload;
     function Ordem(const Value: Integer): TConteudo; overload;
     function Conteudo(const Value: String): TConteudo; overload;
@@ -917,6 +923,28 @@ end;
 function TConteudo.Conteudo(const Value: String): TConteudo;
 begin
   FConteudo := Value;
+  Result := Self;
+end;
+
+function TConteudo.Nome: String;
+begin
+  Result := FNome;
+end;
+
+function TConteudo.Nome(const Value: String): TConteudo;
+begin
+  FNome := Value;
+  Result := Self;
+end;
+
+function TConteudo.Extensao: String;
+begin
+  Result := FExtensao;
+end;
+
+function TConteudo.Extensao(const Value: String): TConteudo;
+begin
+  FExtensao := Value;
   Result := Self;
 end;
 

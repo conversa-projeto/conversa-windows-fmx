@@ -178,7 +178,14 @@ begin
       TTipo.Arquivo:
       begin
         frmAnexo := TChatConteudoAnexo.Create(Self);
-        frmAnexo.lbNome.Text := ExtractFileName(Item.Conteudo);
+        if Item.Nome.Trim.IsEmpty then
+          frmAnexo.lbNome.Text := ExtractFileName(Item.Conteudo)
+        else
+        if Item.Extensao.Trim.IsEmpty then
+          frmAnexo.lbNome.Text := Item.Nome
+        else
+          frmAnexo.lbNome.Text := Item.Nome +'.'+ Item.Extensao;
+
         frmMensagem.AddConteudo(frmAnexo);
         frmAnexo.Position.Y := iTop;
         Inc(iTop, Round(frmAnexo.Height + frmAnexo.lytDados.Margins.Top));

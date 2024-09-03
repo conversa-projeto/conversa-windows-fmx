@@ -25,6 +25,8 @@ type
   public
     Tipo: TTipo;
     Conteudo: String;
+    Nome: String;
+    Extensao: String;
     constructor Create(ATipo: TTipo; AConteudo: String);
   end;
 

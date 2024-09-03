@@ -172,7 +172,7 @@ begin
     if not TDirectory.Exists(sTemp) then
       TDirectory.CreateDirectory(sTemp);
 
-    sTemp := sTemp + PathDelim +'clipboard'+ Length(TDirectory.GetFiles(sTemp)).ToString +'.png';
+    sTemp := sTemp + PathDelim +'imagem-'+ FormatDateTime('yyyy-mm-dd-HH-nn-ss-zzz', Now) +'.png';
 
     Bmp := svc.GetImage;
     try
@@ -223,6 +223,9 @@ begin
         Conteudo.Tipo := TTipo.Imagem
       else
         Conteudo.Tipo := TTipo.Arquivo;
+
+      Conteudo.Nome := ExtractFileName(Item).Replace(ExtractFileExt(Item), EmptyStr);
+      Conteudo.Extensao := ExtractFileExt(Item).Replace('.', EmptyStr);
       Conteudo.Conteudo := Item;
       Conteudos := Conteudos + [Conteudo];
     end;

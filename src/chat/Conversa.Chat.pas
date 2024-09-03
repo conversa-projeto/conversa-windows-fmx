@@ -165,6 +165,7 @@ end;
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
 var
   DataConteudo: TConteudo;
+  MsgCont: chat.tipos.TConteudo;
   MsgConteduos: TArray<chat.tipos.TConteudo>;
   Msg: TChatMensagem;
 begin
@@ -172,7 +173,12 @@ begin
     Exit;
 
   for DataConteudo in Mensagem.Conteudos do
-    MsgConteduos := MsgConteduos + [chat.tipos.TConteudo.Create(TTipo(Pred(Integer(DataConteudo.Tipo))), DataConteudo.Conteudo)];
+  begin
+    MsgCont := chat.tipos.TConteudo.Create(TTipo(Pred(Integer(DataConteudo.Tipo))), DataConteudo.Conteudo);
+    MsgCont.Nome := DataConteudo.Nome;
+    MsgCont.Extensao := DataConteudo.Extensao;
+    MsgConteduos := MsgConteduos + [MsgCont];
+  end;
 
   Visualizador.AdicionarMensagem(Mensagem.ID, Mensagem.Remetente.Nome, Mensagem.Inserida, MsgConteduos);
   Msg := Visualizador.Mensagem[Mensagem.ID];
@@ -226,7 +232,13 @@ begin
     .Conversa(Conversa);
 
   for Cont in Conteudos do
-    Mensagem.Conteudos.Add(TConteudo.New(0).Tipo(TTipoConteudo(Succ(Integer(Cont.Tipo)))).Conteudo(Cont.Conteudo));
+    Mensagem.Conteudos.Add(
+      TConteudo.New(0)
+        .Tipo(TTipoConteudo(Succ(Integer(Cont.Tipo))))
+        .Conteudo(Cont.Conteudo)
+        .Nome(Cont.Nome)
+        .Extensao(Cont.Extensao)
+    );
 
   if Assigned(AoEnviarMensagem) then
     AoEnviarMensagem(Self, Mensagem);
@@ -325,7 +337,6 @@ end;
 
 procedure TChat.AoChegarLimite(Limite: TLimite);
 begin
-  Exit;
   if Limite = TLimite.Superior then
   begin
     Dados.ObterMensagens(Conversa.ID, True);

@@ -254,6 +254,8 @@ begin
         MensagemConteudo := TConteudo.New(Conteudo.GetValue<Integer>('id'));
         MensagemConteudo.Ordem(Conteudo.GetValue<Integer>('ordem'));
         MensagemConteudo.Tipo(TTipoConteudo(Conteudo.GetValue<Integer>('tipo')));
+        MensagemConteudo.Nome(Conteudo.GetValue<String>('nome', ''));
+        MensagemConteudo.Extensao(Conteudo.GetValue<String>('extensao', ''));
         case MensagemConteudo.Tipo of
           TTipoConteudo.Texto: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
           TTipoConteudo.Imagem, TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
@@ -433,6 +435,8 @@ begin
               Headers(
                 TJSONObject.Create
                   .AddPair('Content-Type', 'application/octet-stream')
+                  .AddPair('nome', Mensagem.conteudos[iConteudo].Nome)
+                  .AddPair('extensao', Mensagem.conteudos[iConteudo].Extensao)
               );
               Body(ss);
               PUT;
