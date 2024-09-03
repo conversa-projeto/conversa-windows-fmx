@@ -66,8 +66,6 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property Conversa: TConversa read FConversa write FConversa;
-
-
     property Visualizador: TChatVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
@@ -103,19 +101,12 @@ begin
 
   CriarControles;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
-
-//  Editor.AdicionaMensagem(
-//    procedure(Mensagem: TMensagem)
-//    begin
-//    end
-//  );
 end;
 
 destructor TChat.Destroy;
 begin
   Visualizador.Free;
   Editor.Free;
-//  Anexo.Free;
   inherited;
 end;
 
@@ -143,7 +134,6 @@ begin
   FreeAndNil(Editor);
   FreeAndNil(FVisualizador);
   CriarControles;
-//  Visualizador.Limpar;
 end;
 
 procedure TChat.ValidarVisualizacao;
@@ -159,7 +149,7 @@ end;
 
 procedure TChat.PosicionarUltima;
 begin
-  Visualizador.Posicionar();
+  Visualizador.Posicionar;
 end;
 
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);
@@ -196,22 +186,32 @@ begin
     Msg.Status := TStatus.Recebida
   else
     Msg.Status := TStatus.Pendente;
-
 end;
 
 procedure TChat.AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
 var
   Mensagem: TMensagem;
+  Anterior: Single;
 begin
   if Length(aMensagem) = 0 then
     Exit;
-  for Mensagem in aMensagem do
-  begin
-    UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
-    AdicionarMensagem(Mensagem);
+
+  Anterior := Visualizador.Bottom;
+  Visualizador.OcultarSeparadoresData;
+  try
+    for Mensagem in aMensagem do
+    begin
+      UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
+      AdicionarMensagem(Mensagem);
+    end;
+  finally
+    Visualizador.ExibirSeparadoresData;
   end;
+
   if IrParaUltima then
-    PosicionarUltima;
+    PosicionarUltima
+  else
+    Visualizador.Bottom := Anterior;
 end;
 
 procedure TChat.AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);

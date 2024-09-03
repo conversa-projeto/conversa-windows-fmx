@@ -73,7 +73,6 @@ begin
   lbTamanho.Text := FormatFloat('#,##0.00', TFile.GetSize(sArquivo) / 1024 / 1024) +' MB';
 end;
 
-
 function TChatAnexoItem.GetOnRemoverClick: TNotifyEvent;
 begin
   Result := FOnRemover;

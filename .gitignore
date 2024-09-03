@@ -43,3 +43,4 @@ __recovery/
 anexos
 *.json
 *.png
+bin/log.txt

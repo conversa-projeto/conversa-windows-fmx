@@ -57,7 +57,7 @@ begin
     TTipoOrdenacao.Data:
     begin
       L := Left.Data;
-      R := Right.Data
+      R := Right.Data;
     end;
   else
     raise Exception.Create('Tipo não definido!');
