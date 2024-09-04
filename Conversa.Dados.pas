@@ -16,7 +16,7 @@ uses
   REST.API,
   Conversa.Eventos,
   Conversa.Tipos,
-  Conversa.Memoria;
+  Conversa.Memoria, FMX.Dialogs;
 
 type
   TDados = class(TDataModule)
@@ -46,6 +46,7 @@ type
     procedure AtualizarContador(const Sender: TObject; const M: TMessage);
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
+    procedure SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);
   end;
 
   TAPIConversa = class(TRESTAPI)
@@ -253,7 +254,8 @@ begin
         MensagemConteudo.Extensao(Conteudo.GetValue<String>('extensao', ''));
         case MensagemConteudo.Tipo of
           TTipoConteudo.Texto: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
-          TTipoConteudo.Imagem, TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
+          TTipoConteudo.Imagem: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
+          TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
         end;
         Mensagem.conteudos.Add(MensagemConteudo);
       end;
@@ -646,5 +648,47 @@ begin
   end;
 end;
 
-end.
+procedure TDados.SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);
+var
+  Cont: TConteudo;
+  SaveDlg: TSaveDialog;
+  Nome: String;
+  Extensao: string;
+  Localizou: Boolean;
+begin
+  Localizou := False;
+  for Cont in Mensagem.Conteudos do
+  begin
+    if Cont.Conteudo = Identificador then
+    begin
+      Localizou := True;
+      Nome := Cont.Nome;
+      Extensao := Cont.Extensao.ToLower;
+      Break;
+    end;
+  end;
 
+  if not Localizou then
+    raise Exception.Create('Anexo não encontrado!');
+
+
+  SaveDlg := TSaveDialog.Create(Self);
+  try
+    SaveDlg.Title      := 'Salvar Arquivo';
+    SaveDlg.InitialDir := TPath.GetDownloadsPath;
+    SaveDlg.DefaultExt := Extensao;
+    SaveDlg.Filter     := 'Arquivo|*.'+ Extensao;
+    SaveDlg.FileName   := Nome +'.'+ Extensao;
+
+    if SaveDlg.Execute then
+    begin
+      if TFile.Exists(SaveDlg.FileName) then
+        TFile.Delete(SaveDlg.FileName);
+      TFile.Move(DownloadAnexo(Identificador), SaveDlg.FileName);
+    end;
+  finally
+    FreeAndNil(SaveDlg);
+  end;
+end;
+
+end.

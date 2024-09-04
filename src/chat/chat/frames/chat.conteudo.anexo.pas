@@ -21,6 +21,7 @@ type
     lbNome: TLabel;
     lytDownload: TLayout;
   public
+    Identificador: String;
     function Target(Largura: Single): TTarget; override;
   end;
 

@@ -348,7 +348,7 @@ procedure TChat.AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TM
 begin
   if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
     if Assigned(Sender) and (Sender.InheritsFrom(TLayout) and TLayout(Sender).Parent.InheritsFrom(TChatConteudoAnexo)) then
-      ShowMessage('Ainda não ta pronto!');
+      Dados.SalvarAnexo(Conversa.Mensagens.Get(TChatMensagem(Frame).ID), TChatConteudoAnexo(TLayout(Sender).Parent).Identificador);
 end;
 
 end.

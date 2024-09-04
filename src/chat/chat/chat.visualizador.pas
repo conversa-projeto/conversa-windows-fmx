@@ -183,6 +183,8 @@ begin
       TTipo.Arquivo:
       begin
         frmAnexo := TChatConteudoAnexo.Create(Self);
+        frmAnexo.Identificador := Item.Conteudo;
+
         if Item.Nome.Trim.IsEmpty then
           frmAnexo.lbNome.Text := ExtractFileName(Item.Conteudo)
         else
