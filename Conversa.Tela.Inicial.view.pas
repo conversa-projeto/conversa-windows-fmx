@@ -40,6 +40,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
+    procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
   private
     FOldHWND: HWND;
     TrayWnd: HWND;
@@ -120,6 +121,29 @@ begin
   inherited;
   if Assigned(Chats) and Assigned(Chats.Chat) then
     Chats.Chat.ValidarVisualizacao;
+end;
+
+procedure TTelaInicial.FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
+begin
+  if not (ssCtrl in Shift) then
+    Exit;
+
+  if WheelDelta > 0 then
+  begin
+    if lytClient.Scale.X > 1.5 then
+      Exit;
+
+    lytClient.Scale.X := lytClient.Scale.X + 0.1;
+    lytClient.Scale.Y := lytClient.Scale.Y + 0.1;
+  end
+  else
+  begin
+    if lytClient.Scale.X < 0.5 then
+      Exit;
+
+    lytClient.Scale.X := lytClient.Scale.X - 0.1;
+    lytClient.Scale.Y := lytClient.Scale.Y - 0.1;
+  end;
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);
