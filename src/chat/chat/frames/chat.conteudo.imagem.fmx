@@ -2,17 +2,6 @@ inherited ChatConteudoImagem: TChatConteudoImagem
   Margins.Left = 1.000000000000000000
   Margins.Right = 1.000000000000000000
   Position.X = 1.000000000000000000
-  Size.Width = 256.000000000000000000
+  Size.Width = 234.000000000000000000
   Size.Height = 188.000000000000000000
-  object imgImagem: TImage
-    MultiResBitmap = <
-      item
-      end>
-    Align = Client
-    Cursor = crHandPoint
-    Margins.Top = 3.000000000000000000
-    Size.Width = 256.000000000000000000
-    Size.Height = 185.000000000000000000
-    Size.PlatformDefault = False
-  end
 end

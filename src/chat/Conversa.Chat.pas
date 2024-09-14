@@ -19,9 +19,6 @@ uses
   FMX.StdCtrls,
   FMX.Types,
   System.StrUtils,
-//  Mensagem.Visualizador,
-//  Mensagem.Editor,
-//  Mensagem.Anexo,
   chat.visualizador,
   chat.editor,
   chat.tipos,
@@ -50,15 +47,13 @@ type
     Editor: TChatEditor;
     FMsgClicada: TFrame;
     FObjetoClicado: TObject;
-    //Anexo: TAnexo;
     procedure AoVisualizar(Frame: TFrame);
     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
     procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure AoChegarLimite(Limite: TLimite);
     procedure CriarControles;
-    procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
-      Y: Single);
+    procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure Copiar;
   public
     UltimaMensagem: Integer;
@@ -287,8 +282,8 @@ begin
   begin
     FMsgClicada := Frame;
     FObjetoClicado := Sender;
-    if (Button = TMouseButton.mbLeft) and Assigned(Sender) and (Sender.InheritsFrom(TImage) and TImage(Sender).Parent.InheritsFrom(TChatConteudoImagem)) then
-      TVisualizadorMidia.Exibir(TImage(Sender).Bitmap)
+    if (Button = TMouseButton.mbLeft) and Assigned(Sender) and Sender.InheritsFrom(TChatConteudoImagem) then
+      TVisualizadorMidia.Exibir(TChatConteudoImagem(Sender).Bitmap)
     else
     if Button = TMouseButton.mbRight then
       TPopupMenu.New(Frame)

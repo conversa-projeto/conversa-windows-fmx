@@ -58,7 +58,7 @@ begin
   inherited Create(AOwner);
   AOwner.AddObject(Self);
   FArquivo := sArquivo;
-  if IndexStr(ExtractFileExt(sArquivo).Replace('.', EmptyStr).ToLower, TipoArquivoImagem) >= 0 then
+  if IndexStr(ExtractFileExt(sArquivo).Replace('.', EmptyStr).ToLower, ['bmp', 'jpg', 'png', 'gif']) >= 0 then
     imgIcon.Bitmap.LoadFromFile(sArquivo)
   else
   begin

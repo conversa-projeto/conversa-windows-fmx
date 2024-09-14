@@ -161,12 +161,11 @@ begin
         if FileExists(Item.Conteudo) then
         begin
           frmImagem := TChatConteudoImagem.Create(Self);
-          frmImagem.imgImagem.Bitmap.LoadFromFile(Item.Conteudo);
+          frmImagem.LoadFromFile(Item.Conteudo);
           frmMensagem.AddConteudo(frmImagem);
           frmImagem.Position.Y := iTop;
-          Inc(iTop, Round(frmImagem.Height + frmImagem.imgImagem.Margins.Top));
+          Inc(iTop, Round(frmImagem.Height + frmImagem.ImageMargins.Top));
           frmImagem.OnMouseDown := AoClicarInterno;
-          frmImagem.imgImagem.OnMouseDown := AoClicarInterno;
         end
         else
         begin
