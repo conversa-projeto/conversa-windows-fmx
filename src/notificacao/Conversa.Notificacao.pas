@@ -151,7 +151,7 @@ begin
   begin
     if FNotificacoes[I].ChatId = ChatId then
     begin
-      FNotificacoes[I].FView.DisposeOf;
+      FNotificacoes[I].FView.Free;
       FNotificacoes.Delete(I);
       Break;
     end;

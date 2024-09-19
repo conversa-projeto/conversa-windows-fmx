@@ -16,7 +16,8 @@ uses
   REST.API,
   Conversa.Eventos,
   Conversa.Tipos,
-  Conversa.Memoria, FMX.Dialogs;
+  Conversa.Memoria,
+  FMX.Dialogs;
 
 type
   TDados = class(TDataModule)

@@ -38,9 +38,11 @@ type
     lytViewClient: TLayout;
     rctFundo: TRectangle;
     tmrExibir: TTimer;
-    lblAvisoConversa: TLabel;
     lnSeparador: TLine;
     tmrUltima: TTimer;
+    Layout1: TLayout;
+    lblAvisoConversa: TLabel;
+    imgLogo: TImage;
     procedure tmrExibirTimer(Sender: TObject);
     procedure tmrUltimaTimer(Sender: TObject);
   private
@@ -275,6 +277,8 @@ begin
     // Resolve posicionamento do Separador de data
     Application.ProcessMessages;
     Chat.AdicionarMensagens(Dados.ExibirMensagem(Conversa.ID, False));
+
+    Chat.FocoEditor;
 
     TNotificacaoManager.Fechar(Conversa.ID);
   finally

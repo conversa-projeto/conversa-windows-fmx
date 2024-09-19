@@ -67,6 +67,7 @@ type
     procedure PosicionarUltima;
     procedure Limpar;
     procedure ValidarVisualizacao;
+    procedure FocoEditor;
   end;
 
 implementation
@@ -344,6 +345,11 @@ begin
   if Assigned(Frame) and Frame.InheritsFrom(TChatMensagem) then
     if Assigned(Sender) and (Sender.InheritsFrom(TLayout) and TLayout(Sender).Parent.InheritsFrom(TChatConteudoAnexo)) then
       Dados.SalvarAnexo(Conversa.Mensagens.Get(TChatMensagem(Frame).ID), TChatConteudoAnexo(TLayout(Sender).Parent).Identificador);
+end;
+
+procedure TChat.FocoEditor;
+begin
+  Editor.mmMensagem.SetFocus;
 end;
 
 end.
