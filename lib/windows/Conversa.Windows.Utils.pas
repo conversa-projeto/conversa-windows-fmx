@@ -17,6 +17,7 @@ procedure InicializarComSO;
 procedure RemoveInicializacaoSO;
 procedure SalvarPosicaoFormulario(Form: TForm);
 procedure RestaurarPosicaoFormulario(Form: TForm);
+procedure DefinirDiretorio;
 
 implementation
 
@@ -165,8 +166,8 @@ begin
     Reg := TRegistry.Create;
     try
       Reg.RootKey := HKEY_CURRENT_USER;
-      Reg.Openkey('SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN',False);
-      Reg.WriteString(Application.Title, ParamStr(0));
+      Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Run', False);
+      Reg.WriteString(Application.Title, '"'+ ParamStr(0) +'" -inicializar');
       Reg.CloseKey;
     finally
       FreeAndNil(Reg);
@@ -183,7 +184,7 @@ begin
     Reg := TRegistry.Create;
     try
       Reg.RootKey := HKEY_CURRENT_USER;
-      Reg.Openkey('SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN',False);
+      Reg.Openkey('Software\Microsoft\Windows\CurrentVersion\Run', False);
       if Reg.ValueExists(Application.Title) then
         Reg.DeleteValue(Application.Title);
       Reg.CloseKey;
@@ -276,6 +277,11 @@ begin
   finally
     JSONObject.Free;
   end;
+end;
+
+procedure DefinirDiretorio;
+begin
+  SetCurrentDir(ExtractFileDir(ParamStr(0)));
 end;
 
 end.

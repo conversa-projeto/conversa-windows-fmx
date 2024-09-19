@@ -62,7 +62,7 @@ type
   end;
 
 var
-  UltimaContagem: Integer;
+  UltimaContagem: Integer = 0;
 
 function BitmapToWinBitmap(const Bitmap: TBitmap): HBITMAP;
 var
@@ -170,8 +170,5 @@ begin
   SetTaskbarOverlayIcon(OverlayIcon);
   DestroyIcon(OverlayIcon); // Libera o ícone após o uso
 end;
-
-initialization
-  UltimaContagem := 0;
 
 end.

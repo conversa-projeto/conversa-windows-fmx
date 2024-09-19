@@ -68,10 +68,4 @@ begin
   end;
 end;
 
-initialization
-  TConfiguracoes.Load;
-
-finalization
-  TConfiguracoes.Save;
-
 end.

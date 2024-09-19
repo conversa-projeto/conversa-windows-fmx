@@ -133,7 +133,8 @@ type
     function PropriedadesDisponiveis(Value: TFmxObject): TArray<String>;
   public
     class function Instance: TPascalStyleScript;
-    class function New: TPascalStyleScript;
+    class procedure Start;
+    class procedure Stop;
     destructor Destroy; override;
     procedure LoadFromFile(sFile: String);
     function RegisterObject(const Value: TFmxObject; ID: String = ''; Recursive: Boolean = True): TPascalStyleScript;
@@ -155,9 +156,14 @@ begin
   Result := FInstance;
 end;
 
-class function TPascalStyleScript.New: TPascalStyleScript;
+class procedure TPascalStyleScript.Start;
 begin
-  Result := TPascalStyleScript.Create;
+  FInstance := TPascalStyleScript.Create;
+end;
+
+class procedure TPascalStyleScript.Stop;
+begin
+  FreeAndNil(FInstance);
 end;
 
 function TPascalStyleScript.Next(Obj: TFmxObject): Boolean;
@@ -777,11 +783,5 @@ function TPascalStyleScript.TPSSProperty.GetValue: TValue;
 begin
   Result := Self.RttiProp.GetValue(Self.Owner);
 end;
-
-initialization
-  FInstance := TPascalStyleScript.New;
-
-finalization
-  FreeAndNil(FInstance);
 
 end.

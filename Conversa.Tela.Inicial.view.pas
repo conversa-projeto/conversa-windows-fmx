@@ -174,9 +174,11 @@ end;
 
 procedure TTelaInicial.DoConversaClose;
 begin
+  {$IFDEF DEBUG}
   Close;
-//  ShowWindow(FormToHWND(Self), SW_HIDE);
-//  HideAppOnTaskbar;
+  {$ELSE}
+  ShowWindow(FormToHWND(Self), SW_HIDE);
+  {$ENDIF}
 end;
 
 procedure TTelaInicial.DoConversaRestore;

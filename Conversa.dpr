@@ -71,26 +71,16 @@ uses
   FMX.Skia.Canvas.GL in 'src\chat\chat\skia\FMX\FMX.Skia.Canvas.GL.pas',
   FMX.Skia.Canvas.Metal in 'src\chat\chat\skia\FMX\FMX.Skia.Canvas.Metal.pas',
   FMX.Skia.Canvas in 'src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas',
-  FMX.Skia in 'src\chat\chat\skia\FMX\FMX.Skia.pas';
+  FMX.Skia in 'src\chat\chat\skia\FMX\FMX.Skia.pas',
+  Conversa.Inicializacoes in 'Conversa.Inicializacoes.pas';
 
 {$R *.res}
 begin
   Application.Title := 'Conversa';
-  {$IFNDEF DEBUG}
-  if IsApplicationAlreadyRunning then
-    Exit;
-
-  InicializarComSO;
-  {$ENDIF}
-
-  ReportMemoryLeaksOnShutdown := True;
+  Iniciar;
   Application.Initialize;
-  AtualizarContadorNotificacao(0, True);
   Application.CreateForm(TDados, Dados);
   Application.CreateForm(TTelaInicial, TelaInicial);
-  IniciarMonitoramento;
   Application.Run;
-  TNotificacaoManager.Finalizar;
-  FinalizarMonitoramento;
-  AtualizarContadorNotificacao(0, True);
+  Finalizar;
 end.
