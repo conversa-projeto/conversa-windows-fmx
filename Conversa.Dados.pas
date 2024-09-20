@@ -345,8 +345,8 @@ function TDados.DownloadAnexo(sIdentificador: String): String;
 var
   sLocal: String;
 begin
-  if TFile.Exists(PASTA_ANEXO + PathDelim + sIdentificador) then
-    Exit(PASTA_ANEXO + PathDelim + sIdentificador);
+  if TFile.Exists(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador) then
+    Exit(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
 
   with TAPIConversa.Create do
   try
@@ -359,7 +359,7 @@ begin
       Exit(EmptyStr);
     end;
 
-    sLocal := ExtractFilePath(ParamStr(0)) + PASTA_ANEXO;
+    sLocal := PastaDados + PASTA_ANEXO;
 
     if not TDirectory.Exists(sLocal) then
       TDirectory.CreateDirectory(sLocal);
@@ -408,8 +408,8 @@ begin
 
           sIdentificador := THashSHA2.GetHashString(ss);
           ss.Position := 0;
-          ss.SaveToFile(PASTA_ANEXO + PathDelim + sIdentificador);
-          Mensagem.conteudos[iConteudo].conteudo(PASTA_ANEXO + PathDelim + sIdentificador);
+          ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+          Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
           oConteudo.AddPair('conteudo', sIdentificador);
 
           // verifica se já não existe no servidor

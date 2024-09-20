@@ -3,13 +3,14 @@ unit Conversa.Inicializacoes;
 
 interface
 
-procedure Iniciar;
+function Iniciar: Boolean;
 procedure Finalizar;
 
 implementation
 
 uses
   System.SysUtils,
+  System.IOUtils,
   PascalStyleScript,
   Conversa.Windows.Utils,
   Conversa.Configuracoes,
@@ -18,21 +19,18 @@ uses
   Conversa.Windows.Overlay,
   Conversa.Log;
 
-procedure Iniciar;
+function Iniciar: Boolean;
 begin
+  Result := True;
+
+  {$IFDEF RELEASE}
+  if IsApplicationAlreadyRunning then
+    Exit(False);
+  {$ENDIF}
+
   DefinirDiretorio;
 
   ReportMemoryLeaksOnShutdown := True;
-
-  {$IFNDEF DEBUG}
-  if IsApplicationAlreadyRunning then
-    Exit;
-
-  if ParamStr(1) <> '-inicializar' then
-    InicializarComSO
-  else
-    Sleep(10_000);
-  {$ENDIF}
 
   TConfiguracoes.Load;
 

@@ -26,7 +26,9 @@ uses
   FMX.Ani,
   FMX.Graphics,
   FMX.Objects,
-  FMX.Types, FMX.Controls, FMX.Edit;
+  FMX.Types,
+  FMX.Controls,
+  FMX.Edit;
 
 type
   TPSSCor = record
@@ -143,7 +145,7 @@ type
 
 implementation
 const
-  DefaultFile = 'tema/default.pss';
+  DefaultFile = '.\tema\default.pss';
   DefaultTemaCores = '@cores';
 
 var

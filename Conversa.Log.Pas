@@ -9,7 +9,9 @@ implementation
 
 uses
   System.SysUtils,
-  System.Classes;
+  System.Classes,
+  System.IOUtils,
+  Conversa.Configuracoes;
 
 var
   I: Integer = -1;
@@ -17,7 +19,8 @@ var
 
 procedure PararLog;
 begin
-  CloseFile(LogFile);
+  if TTextRec(LogFile).Handle <> 0 then
+    CloseFile(LogFile);
 end;
 
 procedure AddLog(const Msg: String);
@@ -25,7 +28,7 @@ begin
   if I = -1 then
   begin
     I := 0;
-    AssignFile(LogFile, '.\log.txt');
+    AssignFile(LogFile, PastaDados +'log.txt');
     Rewrite(LogFile);
   end;
 
