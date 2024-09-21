@@ -88,6 +88,12 @@ begin
   rctAvisoConexao.Visible := False;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoStatusConexao, StatusConexao);
   AdicionarTrayIcon;
+
+  if (Configuracoes.Escala <> 0) and (Configuracoes.Escala <> lytClient.Scale.X) then
+  begin
+    lytClient.Scale.X := Configuracoes.Escala;
+    lytClient.Scale.Y := Configuracoes.Escala;
+  end;
 end;
 
 destructor TTelaInicial.Destroy;
@@ -135,6 +141,8 @@ begin
 
     lytClient.Scale.X := lytClient.Scale.X + 0.1;
     lytClient.Scale.Y := lytClient.Scale.Y + 0.1;
+
+    Width := Width + 10;
   end
   else
   begin
@@ -143,7 +151,14 @@ begin
 
     lytClient.Scale.X := lytClient.Scale.X - 0.1;
     lytClient.Scale.Y := lytClient.Scale.Y - 0.1;
+
+    Width := Width - 10;
   end;
+
+  Configuracoes.Escala := lytClient.Scale.X;
+  Configuracoes.Save;
+
+  Application.ProcessMessages;
 end;
 
 procedure TTelaInicial.FormShow(Sender: TObject);
