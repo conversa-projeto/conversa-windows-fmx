@@ -27,6 +27,7 @@ type
   private
     FEventosNovasMensagens: TArray<TProc<Integer>>;
   public
+    FTokenJWT: String;
     FDadosApp: TDadosApp;
 
     procedure Login(sLogin, sSenha: String);
@@ -86,9 +87,8 @@ constructor TAPIConversa.Create;
 begin
   inherited;
   Host(Configuracoes.Host);
-  if Assigned(Dados) and Assigned(Dados.FDadosApp) and Assigned(Dados.FDadosApp.Usuario) then
-    if Dados.FDadosApp.Usuario.ID <> 0 then
-      Headers(TJSONObject.Create.AddPair('uid', Dados.FDadosApp.Usuario.ID));
+  if Assigned(Dados) and not Dados.FTokenJWT.IsEmpty then
+    Authorization(TAuthBearer.New(Dados.FTokenJWT));
 end;
 
 function TAPIConversa.InternalExecute: TRESTAPI;
@@ -138,6 +138,8 @@ begin
           .Nome(GetValue<String>('nome'))
           .Email(GetValue<String>('email'))
           .Telefone(GetValue<String>('telefone'));
+
+    FTokenJWT := Response.ToJSON.GetValue<String>('token');
   finally
     Free;
   end;
