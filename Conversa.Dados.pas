@@ -28,6 +28,7 @@ type
   private
     FEventosNovasMensagens: TArray<TProc<Integer>>;
   public
+    FTokenJWT: String;
     FDadosApp: TDadosApp;
 
     procedure Login(sLogin, sSenha: String);
@@ -87,9 +88,8 @@ constructor TAPIConversa.Create;
 begin
   inherited;
   Host(Configuracoes.Host);
-  if Assigned(Dados) and Assigned(Dados.FDadosApp) and Assigned(Dados.FDadosApp.Usuario) then
-    if Dados.FDadosApp.Usuario.ID <> 0 then
-      Headers(TJSONObject.Create.AddPair('uid', Dados.FDadosApp.Usuario.ID));
+  if Assigned(Dados) and not Dados.FTokenJWT.IsEmpty then
+    Authorization(TAuthBearer.New(Dados.FTokenJWT));
 end;
 
 function TAPIConversa.InternalExecute: TRESTAPI;
@@ -139,6 +139,8 @@ begin
           .Nome(GetValue<String>('nome'))
           .Email(GetValue<String>('email'))
           .Telefone(GetValue<String>('telefone'));
+
+    FTokenJWT := Response.ToJSON.GetValue<String>('token');
   finally
     Free;
   end;
@@ -346,8 +348,8 @@ function TDados.DownloadAnexo(sIdentificador: String): String;
 var
   sLocal: String;
 begin
-  if TFile.Exists(PASTA_ANEXO + PathDelim + sIdentificador) then
-    Exit(PASTA_ANEXO + PathDelim + sIdentificador);
+  if TFile.Exists(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador) then
+    Exit(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
 
   with TAPIConversa.Create do
   try
@@ -360,7 +362,7 @@ begin
       Exit(EmptyStr);
     end;
 
-    sLocal := ExtractFilePath(ParamStr(0)) + PASTA_ANEXO;
+    sLocal := PastaDados + PASTA_ANEXO;
 
     if not TDirectory.Exists(sLocal) then
       TDirectory.CreateDirectory(sLocal);
@@ -409,8 +411,8 @@ begin
 
           sIdentificador := THashSHA2.GetHashString(ss);
           ss.Position := 0;
-          ss.SaveToFile(PASTA_ANEXO + PathDelim + sIdentificador);
-          Mensagem.conteudos[iConteudo].conteudo(PASTA_ANEXO + PathDelim + sIdentificador);
+          ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+          Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
           oConteudo.AddPair('conteudo', sIdentificador);
 
           // verifica se já não existe no servidor

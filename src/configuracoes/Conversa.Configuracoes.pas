@@ -3,23 +3,28 @@
 interface
 
 uses
+  Winapi.Windows,
   System.SysUtils;
 
 type
   TNotificacao = record
     Timeout: Integer;
   end;
+
   TConfiguracoes = record
     Host: String;
     Usuario: String;
     Senha: String;
     Notificacoes: TNotificacao;
+    Escala: Single;
+    WindowPlacement: TWindowPlacement;
     class procedure Load; static;
     class procedure Save; static;
   end;
 
 var
   Configuracoes: TConfiguracoes;
+  PastaDados: String;
 
 implementation
 
@@ -33,12 +38,15 @@ uses
 
 class procedure TConfiguracoes.Load;
 begin
-  if not TFile.Exists('.\conversa.json') then
+  PastaDados := TPath.GetHomePath + TPath.DirectorySeparatorChar +'Conversa'+ TPath.DirectorySeparatorChar;
+  TDirectory.CreateDirectory(PastaDados);
+
+  if not TFile.Exists(PastaDados +'conversa.json') then
     Exit;
 
   with TStringStream.Create do
   try
-    LoadFromFile('.\conversa.json');
+    LoadFromFile(PastaDados +'conversa.json');
     with TJsonSerializer.Create do
     try
       Populate<TConfiguracoes>(DataString, Configuracoes);
@@ -59,7 +67,7 @@ begin
   try
     with TStringStream.Create(Serialize<TConfiguracoes>(Configuracoes)) do
     try
-      SaveToFile('.\conversa.json');
+      SaveToFile(PastaDados +'conversa.json');
     finally
       Free;
     end;

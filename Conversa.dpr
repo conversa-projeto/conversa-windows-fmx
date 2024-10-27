@@ -83,7 +83,10 @@ uses
 {$R *.res}
 begin
   Application.Title := 'Conversa';
-  Iniciar;
+
+  if not Iniciar then
+    Exit;
+
   Application.Initialize;
   Application.CreateForm(TDados, Dados);
   Application.CreateForm(TTelaInicial, TelaInicial);
