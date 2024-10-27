@@ -1,5 +1,7 @@
 inherited ChatMensagem: TChatMensagem
   Align = Top
+  Padding.Left = 10.000000000000000000
+  Padding.Right = 10.000000000000000000
   Margins.Top = 5.000000000000000000
   Margins.Bottom = 5.000000000000000000
   Position.Y = 5.000000000000000000
@@ -9,8 +11,6 @@ inherited ChatMensagem: TChatMensagem
   OnResized = FrameResized
   object lytLargura: TLayout
     Align = Right
-    Margins.Left = 10.000000000000000000
-    Margins.Right = 10.000000000000000000
     Position.X = 48.000000000000000000
     Size.Width = 306.000000000000000000
     Size.Height = 136.000000000000000000
@@ -18,6 +18,10 @@ inherited ChatMensagem: TChatMensagem
     TabOrder = 0
     object rtgFundo: TRectangle
       Align = Client
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 8.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 8.000000000000000000
       Size.Width = 306.000000000000000000
       Size.Height = 136.000000000000000000
       Size.PlatformDefault = False
@@ -26,48 +30,55 @@ inherited ChatMensagem: TChatMensagem
       YRadius = 5.000000000000000000
       object txtNome: TText
         Align = Top
-        Margins.Left = 10.000000000000000000
-        Margins.Right = 10.000000000000000000
-        Position.X = 10.000000000000000000
-        Size.Width = 286.000000000000000000
-        Size.Height = 22.000000000000000000
+        AutoSize = True
+        Position.X = 8.000000000000000000
+        Position.Y = 8.000000000000000000
+        Size.Width = 290.000000000000000000
+        Size.Height = 15.000000000000000000
         Size.PlatformDefault = False
         TextSettings.WordWrap = False
         TextSettings.HorzAlign = Leading
       end
       object lytBottom: TLayout
         Align = Bottom
-        Margins.Left = 10.000000000000000000
-        Margins.Top = 5.000000000000000000
-        Margins.Right = 10.000000000000000000
-        Position.X = 10.000000000000000000
-        Position.Y = 116.000000000000000000
-        Size.Width = 286.000000000000000000
-        Size.Height = 20.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 113.000000000000000000
+        Size.Width = 290.000000000000000000
+        Size.Height = 15.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object txtHora: TText
           Align = Right
+          AutoSize = True
           Opacity = 0.500000000000000000
-          Margins.Right = 3.000000000000000000
-          Position.X = 169.000000000000000000
-          Size.Width = 100.000000000000000000
-          Size.Height = 20.000000000000000000
+          Margins.Left = 3.000000000000000000
+          Position.X = 245.936203002929700000
+          Size.Width = 27.063802719116210000
+          Size.Height = 13.300781250000000000
           Size.PlatformDefault = False
           Text = '21:15'
           TextSettings.Font.Size = 10.000000000000000000
+          TextSettings.WordWrap = False
           TextSettings.HorzAlign = Trailing
         end
         object pthStatus: TPath
           Align = Right
           Fill.Color = claGray
-          Position.X = 272.000000000000000000
+          Margins.Left = 3.000000000000000000
+          Position.X = 276.000000000000000000
           Size.Width = 14.000000000000000000
-          Size.Height = 20.000000000000000000
+          Size.Height = 15.000000000000000000
           Size.PlatformDefault = False
           Stroke.Kind = None
           WrapMode = Fit
         end
+      end
+      object lytConteudo: TLayout
+        Align = Client
+        Size.Width = 290.000000000000000000
+        Size.Height = 90.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
       end
     end
   end

@@ -1,0 +1,57 @@
+inherited ChatEditorAnexo: TChatEditorAnexo
+  Padding.Left = 10.000000000000000000
+  Padding.Right = 10.000000000000000000
+  Size.Width = 300.000000000000000000
+  Size.Height = 200.000000000000000000
+  object odlgArquivo: TOpenDialog
+    Options = [ofHideReadOnly, ofAllowMultiSelect, ofEnableSizing]
+    Left = 428
+  end
+  object lbTitulo: TLabel
+    Align = Top
+    StyledSettings = [Family, Size, FontColor]
+    Margins.Bottom = 3.000000000000000000
+    Position.X = 10.000000000000000000
+    Size.Width = 280.000000000000000000
+    Size.Height = 17.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Font.StyleExt = {00070000000000000004000000}
+    Text = 'Enviar'
+    TabOrder = 0
+    object lytCancelar: TLayout
+      Align = Right
+      HitTest = True
+      Position.X = 263.000000000000000000
+      Size.Width = 17.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 4
+      OnClick = lytCancelarClick
+      object pthCancelar: TPath
+        Align = Client
+        Data.Path = {
+          0800000000000000000080410000804101000000000040410000404100000000
+          0000404100004041010000000000004100000041000000000000404100004041
+          0100000000008041000000410000000000004041000040410100000000000041
+          00008041}
+        HitTest = False
+        Margins.Left = 3.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Right = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 11.000000000000000000
+        Size.Height = 11.000000000000000000
+        Size.PlatformDefault = False
+      end
+    end
+  end
+  object vsbxConteudo: TVertScrollBox
+    Align = Client
+    Size.Width = 280.000000000000000000
+    Size.Height = 180.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    Viewport.Width = 280.000000000000000000
+    Viewport.Height = 180.000000000000000000
+  end
+end

@@ -4,12 +4,12 @@ unit chat.conteudo.imagem;
 interface
 
 uses
-  System.Skia,
   FMX.Types,
   FMX.Controls,
-  FMX.Objects,
   FMX.Graphics,
+  FMX.Objects,
   FMX.Skia,
+  Skia,
   chat.mensagem.conteudo;
 
 type
@@ -32,7 +32,6 @@ implementation
 
 uses
   System.Math,
-  System.Classes,
   System.SysUtils,
   System.StrUtils,
   System.UITypes,
@@ -50,36 +49,10 @@ end;
 procedure TChatConteudoImagem.LoadFromFile(sFile: String);
 var
   SkImage: ISkImage;
-  ss: TStringStream;
-  Buff: TBytes;
-  sTipo: String;
 begin
-  sTipo := ExtractFileExt(sFile);
-  if sTipo.Trim.IsEmpty then
+  if MatchStr(ExtractFileExt(sFile).Replace('.', '').ToLower, ['lottie', 'tgs', 'gif', 'webp', 'svg']) then
   begin
-    ss := TStringStream.Create;
-    try
-      ss.LoadFromFile(sFile);
-      ss.Position := 0;
-      SetLength(Buff, 4);
-      ss.Read(Buff, 4);
-      if (Buff[1] = Ord('P')) and (Buff[2] = Ord('N')) and (Buff[3] = Ord('G')) then
-        sTipo := 'png'
-      else
-      if (Buff[0] = Ord('G')) and (Buff[1] = Ord('I')) and (Buff[2] = Ord('F')) then
-        sTipo := 'gif'
-      else
-      if (Buff[1] = Ord('B')) and (Buff[2] = Ord('M')) then
-        sTipo := 'bmp'
-    finally
-      FreeAndNil(ss);
-    end;
-  end;
-  sTipo := sTipo.ToLower;
-
-  if MatchStr(sTipo.Replace('.', '').ToLower, ['lottie', 'tgs', 'gif', 'webp', 'svg']) then
-  begin
-    if sTipo.Equals('.svg') then
+    if ExtractFileExt(sFile).ToLower.Equals('.svg') then
     begin
       FComponente := TSkSvg.Create(Self);
       TSkSvg(FComponente).Svg.Source := TFile.ReadAllText(sFile);
@@ -106,16 +79,8 @@ begin
   FComponente.HitTest := False;
   FComponente.Align := TAlignLayout.Client;
   FComponente.Cursor := crHandPoint;
-  FComponente.Margins.Top := 3;
   FComponente.Size.PlatformDefault := False;
   Self.AddObject(FComponente);
-end;
-
-function TChatConteudoImagem.Bitmap: TBitmap;
-begin
-  Result := nil;
-  if FComponente.InheritsFrom(TImage) then
-    Result := TImage(FComponente).Bitmap;
 end;
 
 function TChatConteudoImagem.Target(Largura: Single): TTarget;
@@ -125,6 +90,13 @@ begin
   Proporcao := Min(Largura / ImageWidth, Max(30, ImageHeight) / ImageHeight);
   Result.Width := Max(100, Round(ImageWidth * Proporcao));
   Result.Height := Round(ImageHeight * Proporcao);
+end;
+
+function TChatConteudoImagem.Bitmap: TBitmap;
+begin
+  Result := nil;
+  if FComponente.InheritsFrom(TImage) then
+    Result := TImage(FComponente).Bitmap;
 end;
 
 end.

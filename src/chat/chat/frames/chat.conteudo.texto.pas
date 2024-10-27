@@ -121,7 +121,7 @@ begin
     ShellExecute(0, 'OPEN', PChar(sLink), '', '', SW_SHOWNORMAL);
     {$ENDIF MSWINDOWS}
     {$IFDEF POSIX}
-    _system(PAnsiChar('open '+ AnsiString(sLink)));
+    //_system(PAnsiChar('open '+ AnsiString(sLink)));
     {$ENDIF POSIX}
   end;
 end;

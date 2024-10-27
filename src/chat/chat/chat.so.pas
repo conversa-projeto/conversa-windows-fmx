@@ -191,7 +191,7 @@ begin
 end;
 
 {$ELSE}
-function IsFormActive(Parent: TForm): Boolean;
+function IsFormActive(Parent: TFrame): Boolean;
 begin
   Result := True;
 end;

@@ -349,7 +349,7 @@ end;
 
 procedure TChat.FocoEditor;
 begin
-  Editor.mmMensagem.SetFocus;
+  Editor.FocoEditorTexto;
 end;
 
 end.

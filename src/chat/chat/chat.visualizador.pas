@@ -19,6 +19,7 @@ uses
   chat.conteudo.texto,
   chat.conteudo.imagem,
   chat.conteudo.anexo,
+  chat.conteudo.mensagem.audio,
   chat.separador.data,
   chat.separador.lidas,
   chat.ordenador,
@@ -123,6 +124,7 @@ var
   frmTexto: TChatConteudoTexto;
   frmImagem: TChatConteudoImagem;
   frmAnexo: TChatConteudoAnexo;
+  frmMsgAudio: TChatConteudoMensagemAudio;
   iTop: Integer;
 begin
   if FMensagens.ContainsKey(ID) then
@@ -174,13 +176,13 @@ begin
           frmMensagem.AddConteudo(frmTexto);
           frmTexto.Position.Y := iTop;
           Inc(iTop, Round(frmTexto.Height + frmTexto.txtMensagem.Margins.Top));
-
           frmTexto.OnMouseDown := AoClicarInterno;
           frmTexto.txtMensagem.OnMouseDown := AoClicarInterno;
         end;
       end;
       TTipo.Arquivo:
       begin
+        frmMensagem.HeightContents := [TChatMensagemHeightContent.Nome];
         frmAnexo := TChatConteudoAnexo.Create(Self);
         frmAnexo.Identificador := Item.Conteudo;
 
@@ -191,15 +193,26 @@ begin
           frmAnexo.lbNome.Text := Item.Nome
         else
           frmAnexo.lbNome.Text := Item.Nome +'.'+ Item.Extensao;
-
         frmMensagem.AddConteudo(frmAnexo);
+        frmMensagem.lytBottom.Parent := frmAnexo.lytDados;
+        frmAnexo.lbTamanho.Parent := frmMensagem.lytBottom;
         frmAnexo.Position.Y := iTop;
         Inc(iTop, Round(frmAnexo.Height + frmAnexo.lytDados.Margins.Top));
-
         frmAnexo.OnMouseDown := AoClicarInterno;
         frmAnexo.Path.OnMouseDown := AoClicarInterno;
         frmAnexo.lytDados.OnMouseDown := AoClicarInterno;
         frmAnexo.lytDownload.OnMouseDown := AoClicarDownloadAnexoInterno;
+      end;
+      TTipo.MensagemAudio:
+      begin
+        frmMensagem.HeightContents := [TChatMensagemHeightContent.Nome];
+        frmMsgAudio := TChatConteudoMensagemAudio.Create(Self);
+        frmMsgAudio.SetFile(Item.Conteudo);
+        frmMensagem.AddConteudo(frmMsgAudio);
+        frmMensagem.lytBottom.Parent := frmMsgAudio.lytDados;
+        frmMsgAudio.txtInformacoes.Parent := frmMensagem.lytBottom;
+        frmMsgAudio.Position.Y := iTop;
+        Inc(iTop, Round(frmMsgAudio.Height + frmMsgAudio.lytDados.Margins.Top));
       end;
     end;
   end;

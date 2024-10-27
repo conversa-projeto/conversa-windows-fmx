@@ -320,30 +320,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="src\chat\chat\chat.so.pas"/>
         <DCCReference Include="src\chat\chat\chat.tipos.pas"/>
         <DCCReference Include="src\chat\chat\chat.visualizador.pas"/>
-        <DCCReference Include="src\chat\chat\frames\chat.anexo.item.pas">
-            <Form>ChatAnexoItem</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.base.pas">
-            <Form>ChatBase</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.anexo.pas">
-            <Form>ChatConteudoAnexo</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.imagem.pas">
-            <Form>ChatConteudoImagem</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.texto.pas">
-            <Form>ChatConteudoTexto</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.pas">
-            <Form>ChatEditor</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="src\chat\chat\frames\chat.expositor.pas">
             <Form>ChatExpositor</Form>
             <DesignClass>TFrame</DesignClass>
@@ -397,6 +373,62 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas"/>
         <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.pas"/>
         <DCCReference Include="Conversa.Inicializacoes.pas"/>
+        <DCCReference Include="src\chat\chat\frames\chat.base.pas">
+            <Form>ChatBase</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.conteudo.anexo.pas">
+            <Form>ChatConteudoAnexo</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.conteudo.imagem.pas">
+            <Form>ChatConteudoImagem</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.conteudo.mensagem.audio.pas">
+            <Form>ChatConteudoMensagemAudio</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.conteudo.texto.pas">
+            <Form>ChatConteudoTexto</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.anexo.item.pas">
+            <Form>ChatAnexoItem</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.anexo.pas">
+            <Form>ChatEditorAnexo</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.audio.pas">
+            <Form>ChatEditorAudio</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.base.pas">
+            <Form>ChatEditorBase</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.pas">
+            <Form>ChatEditor</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\frames\chat.editor.texto.pas">
+            <Form>ChatEditorTexto</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chat\chat\chat.selectfile.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
@@ -449,7 +481,19 @@ $(PreBuildEvent)]]></PreBuildEvent>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="bin\Conversa.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Conversa.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="res\nova_mensagem.wav" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="res\nova_mensagem.wav" Configuration="Release" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

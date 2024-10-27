@@ -20,6 +20,8 @@ uses
   chat.mensagem.conteudo;
 
 type
+  TChatMensagemHeightContent = (Nome, Informacoes);
+  TChatMensagemHeightContents = set of TChatMensagemHeightContent;
   TChatMensagem = class(TChatBase)
     lytLargura: TLayout;
     rtgFundo: TRectangle;
@@ -27,6 +29,7 @@ type
     lytBottom: TLayout;
     txtHora: TText;
     pthStatus: TPath;
+    lytConteudo: TLayout;
     procedure FrameResized(Sender: TObject);
     procedure FramePaint(Sender: TObject; Canvas: TCanvas; const ARect: TRectF);
   private
@@ -35,9 +38,10 @@ type
     FStatus: TStatus;
     FNome: String;
     FDataEnvio: TDateTime;
-    FNomeVisivel: Boolean;
     FVisualizada: Boolean;
     FAoVisualizar: TEvento;
+    FChatMensagemHeightContents: TChatMensagemHeightContents;
+    FT: TTarget;
     function GetLado: TLado;
     procedure SetLado(const Value: TLado);
     procedure SetStatus(const Value: TStatus);
@@ -47,6 +51,7 @@ type
     procedure SetVisualizada(const Value: Boolean);
     function CorFundo(const Value: TLado): TAlphaColor;
     procedure SetDataEnvio(const Value: TDateTime);
+    procedure SetChatMensagemHeightContents(const Value: TChatMensagemHeightContents);
   public
     constructor Create(AOwner: TComponent; AID: Integer); reintroduce;
     procedure AfterConstruction; override;
@@ -58,6 +63,7 @@ type
     property NomeVisivel: Boolean read GetNomeVisivel write SetNomeVisivel;
     property Visualizada: Boolean read FVisualizada write SetVisualizada;
     property AoVisualizar: TEvento read FAoVisualizar write FAoVisualizar;
+    property HeightContents: TChatMensagemHeightContents read FChatMensagemHeightContents write SetChatMensagemHeightContents;
     procedure AddConteudo(Conteudo: TChatConteudo);
     procedure Piscar(Cor: TAlphaColor; Tempo: Single = 0.2);
   end;
@@ -65,6 +71,7 @@ type
 implementation
 
 uses
+  FMX.Dialogs,
   System.Math,
   System.SysUtils;
 
@@ -74,12 +81,12 @@ constructor TChatMensagem.Create(AOwner: TComponent; AID: Integer);
 begin
   inherited Create(AOwner);
   FID := AID;
+  FChatMensagemHeightContents := [TChatMensagemHeightContent.Nome, TChatMensagemHeightContent.Informacoes];
 end;
 
 procedure TChatMensagem.AfterConstruction;
 begin
   inherited;
-  FNomeVisivel := True;
   FVisualizada := False;
 end;
 
@@ -169,31 +176,25 @@ begin
   end;
 end;
 
+procedure TChatMensagem.SetChatMensagemHeightContents(const Value: TChatMensagemHeightContents);
+begin
+  FChatMensagemHeightContents := Value;
+end;
+
 function TChatMensagem.GetNomeVisivel: Boolean;
 begin
-  Result := FNomeVisivel;
+  Result := txtNome.Visible;
 end;
 
 procedure TChatMensagem.SetNome(const Value: String);
 begin
   FNome := Value;
-  SetNomeVisivel(FNomeVisivel);
+  txtNome.Text := Value;
 end;
 
 procedure TChatMensagem.SetNomeVisivel(const Value: Boolean);
 begin
-  FNomeVisivel := Value;
-  if FNomeVisivel then
-  begin
-    txtNome.Text := FNome;
-    txtNome.Height := 22;
-  end
-  else
-  begin
-    txtNome.Text := '';
-    txtNome.Height := 5;
-  end;
-
+  txtNome.Visible := Value;
   FrameResized(Self);
 end;
 
@@ -207,7 +208,7 @@ end;
 procedure TChatMensagem.AddConteudo(Conteudo: TChatConteudo);
 begin
   FConteudos := FConteudos + [Conteudo];
-  rtgFundo.AddObject(Conteudo);
+  lytConteudo.AddObject(Conteudo);
 end;
 
 procedure TChatMensagem.Piscar(Cor: TAlphaColor; Tempo: Single);
@@ -221,6 +222,7 @@ procedure TChatMensagem.FrameResized(Sender: TObject);
 var
   Target: TTarget;
   Conteudo: TChatConteudo;
+  iPaddingLargura: Single;
   iSomaAltura: Single;
   iMaxLargura: Single;
   Largura: Single;
@@ -228,28 +230,33 @@ begin
   if Length(FConteudos) = 0 then
     Exit;
 
-  iSomaAltura := 0;
-  iMaxLargura := 0;
+  iPaddingLargura := rtgFundo.Padding.Left + rtgFundo.Padding.Right;
+  iSomaAltura     := rtgFundo.Padding.Top + rtgFundo.Padding.Bottom;
+  iMaxLargura     := 0;
 
-  Largura := Self.Width - lytLargura.Margins.Left - lytLargura.Margins.Right;
+  Largura := Self.Width;
 
   for Conteudo in FConteudos do
   begin
-    Target := Conteudo.Target(Largura);
+    Target := Conteudo.Target(Largura - iPaddingLargura);
+    FT := Target;
     iSomaAltura := iSomaAltura + Target.Height;
-    iMaxLargura := Max(iMaxLargura, Min(Target.Width, Largura));
+    iMaxLargura := Max(iMaxLargura, Min(Target.Width + iPaddingLargura, Largura + iPaddingLargura));
     Conteudo.Height := Target.Height;
   end;
 
   if txtNome.Visible then
   begin
-    iSomaAltura := iSomaAltura + txtNome.Height;
-    iMaxLargura := Max(iMaxLargura, txtNome.Canvas.TextWidth(txtNome.Text) + txtNome.Margins.Left + txtNome.Margins.Right);
+    if TChatMensagemHeightContent.Nome in FChatMensagemHeightContents then
+      iSomaAltura := iSomaAltura + txtNome.Height + txtNome.Margins.Bottom;
+
+    iMaxLargura := Max(iMaxLargura, txtNome.Canvas.TextWidth(txtNome.Text) + rtgFundo.Padding.Left + rtgFundo.Padding.Right);
   end;
 
-  iMaxLargura := Max(iMaxLargura, lytBottom.Margins.Left + lytBottom.Margins.Right + txtHora.Canvas.TextWidth(txtHora.Text) + pthStatus.Width);
+  iMaxLargura := Max(iMaxLargura, rtgFundo.Padding.Left + rtgFundo.Padding.Right + txtHora.Canvas.TextWidth(txtHora.Text) + pthStatus.Width);
 
-  iSomaAltura := iSomaAltura + txtHora.Height;
+  if TChatMensagemHeightContent.Informacoes in FChatMensagemHeightContents then
+    iSomaAltura := iSomaAltura + lytBottom.Height + lytBottom.Margins.Top;
 
   lytLargura.Width := iMaxLargura;
   Self.Height := iSomaAltura;

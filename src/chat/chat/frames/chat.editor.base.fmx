@@ -1,0 +1,4 @@
+inherited ChatEditorBase: TChatEditorBase
+  Size.Width = 250.000000000000000000
+  Size.Height = 50.000000000000000000
+end

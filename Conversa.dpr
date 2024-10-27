@@ -47,12 +47,6 @@ uses
   chat.so in 'src\chat\chat\chat.so.pas',
   chat.tipos in 'src\chat\chat\chat.tipos.pas',
   chat.visualizador in 'src\chat\chat\chat.visualizador.pas',
-  chat.anexo.item in 'src\chat\chat\frames\chat.anexo.item.pas' {ChatAnexoItem: TFrame},
-  chat.base in 'src\chat\chat\frames\chat.base.pas' {ChatBase: TFrame},
-  chat.conteudo.anexo in 'src\chat\chat\frames\chat.conteudo.anexo.pas' {ChatConteudoAnexo: TFrame},
-  chat.conteudo.imagem in 'src\chat\chat\frames\chat.conteudo.imagem.pas' {ChatConteudoImagem: TFrame},
-  chat.conteudo.texto in 'src\chat\chat\frames\chat.conteudo.texto.pas' {ChatConteudoTexto: TFrame},
-  chat.editor in 'src\chat\chat\frames\chat.editor.pas' {ChatEditor: TFrame},
   chat.expositor in 'src\chat\chat\frames\chat.expositor.pas' {ChatExpositor: TFrame},
   chat.mensagem.conteudo in 'src\chat\chat\frames\chat.mensagem.conteudo.pas' {ChatConteudo: TFrame},
   chat.mensagem in 'src\chat\chat\frames\chat.mensagem.pas' {ChatMensagem: TFrame},
@@ -72,7 +66,19 @@ uses
   FMX.Skia.Canvas.Metal in 'src\chat\chat\skia\FMX\FMX.Skia.Canvas.Metal.pas',
   FMX.Skia.Canvas in 'src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas',
   FMX.Skia in 'src\chat\chat\skia\FMX\FMX.Skia.pas',
-  Conversa.Inicializacoes in 'Conversa.Inicializacoes.pas';
+  Conversa.Inicializacoes in 'Conversa.Inicializacoes.pas',
+  chat.base in 'src\chat\chat\frames\chat.base.pas' {ChatBase: TFrame},
+  chat.conteudo.anexo in 'src\chat\chat\frames\chat.conteudo.anexo.pas' {ChatConteudoAnexo: TFrame},
+  chat.conteudo.imagem in 'src\chat\chat\frames\chat.conteudo.imagem.pas' {ChatConteudoImagem: TFrame},
+  chat.conteudo.mensagem.audio in 'src\chat\chat\frames\chat.conteudo.mensagem.audio.pas' {ChatConteudoMensagemAudio: TFrame},
+  chat.conteudo.texto in 'src\chat\chat\frames\chat.conteudo.texto.pas' {ChatConteudoTexto: TFrame},
+  chat.editor.anexo.item in 'src\chat\chat\frames\chat.editor.anexo.item.pas' {ChatAnexoItem: TFrame},
+  chat.editor.anexo in 'src\chat\chat\frames\chat.editor.anexo.pas' {ChatEditorAnexo: TFrame},
+  chat.editor.audio in 'src\chat\chat\frames\chat.editor.audio.pas' {ChatEditorAudio: TFrame},
+  chat.editor.base in 'src\chat\chat\frames\chat.editor.base.pas' {ChatEditorBase: TFrame},
+  chat.editor in 'src\chat\chat\frames\chat.editor.pas' {ChatEditor: TFrame},
+  chat.editor.texto in 'src\chat\chat\frames\chat.editor.texto.pas' {ChatEditorTexto: TFrame},
+  chat.selectfile in 'src\chat\chat\chat.selectfile.pas';
 
 {$R *.res}
 begin
