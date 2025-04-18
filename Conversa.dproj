@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>32787</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -366,12 +366,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>PopupMenu</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\chat\chat\skia\System.Skia.API.pas"/>
-        <DCCReference Include="src\chat\chat\skia\System.Skia.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.GL.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.Metal.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.pas"/>
         <DCCReference Include="Conversa.Inicializacoes.pas"/>
         <DCCReference Include="src\chat\chat\frames\chat.base.pas">
             <Form>ChatBase</Form>

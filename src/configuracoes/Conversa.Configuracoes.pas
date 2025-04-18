@@ -39,7 +39,7 @@ uses
 
 class procedure TConfiguracoes.Load;
 begin
-  PastaDados := TPath.GetHomePath + TPath.DirectorySeparatorChar +'Conversa'+ TPath.DirectorySeparatorChar;
+  PastaDados := TPath.GetAppPath + TPath.DirectorySeparatorChar +'Conversa'+ TPath.DirectorySeparatorChar;
   TDirectory.CreateDirectory(PastaDados);
 
   if not TFile.Exists(PastaDados +'conversa.json') then

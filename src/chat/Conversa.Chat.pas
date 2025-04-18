@@ -160,6 +160,10 @@ begin
 
   for DataConteudo in Mensagem.Conteudos do
   begin
+    if DataConteudo.Tipo = TTipoConteudo.MensagemAudio then
+      Sleep(0);
+
+
     MsgCont := chat.tipos.TConteudo.Create(TTipo(Pred(Integer(DataConteudo.Tipo))), DataConteudo.Conteudo);
     MsgCont.Nome := DataConteudo.Nome;
     MsgCont.Extensao := DataConteudo.Extensao;
