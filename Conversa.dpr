@@ -78,7 +78,8 @@ uses
   chat.editor.base in 'src\chat\chat\frames\chat.editor.base.pas' {ChatEditorBase: TFrame},
   chat.editor in 'src\chat\chat\frames\chat.editor.pas' {ChatEditor: TFrame},
   chat.editor.texto in 'src\chat\chat\frames\chat.editor.texto.pas' {ChatEditorTexto: TFrame},
-  chat.selectfile in 'src\chat\chat\chat.selectfile.pas';
+  chat.selectfile in 'src\chat\chat\chat.selectfile.pas',
+  Conversa.DeviceInfo.Utils in 'lib\Conversa.DeviceInfo.Utils.pas';
 
 {$R *.res}
 begin

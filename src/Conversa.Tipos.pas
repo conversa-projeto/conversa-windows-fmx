@@ -174,7 +174,7 @@ type
     function DescricaoSimples: String;
   end;
 
-  TTipoConteudo = (Nenhum, Texto, Imagem, Arquivo);
+  TTipoConteudo = (Nenhum, Texto, Imagem, Arquivo, MensagemAudio);
   TConteudo = class
   private
     FID: Integer;

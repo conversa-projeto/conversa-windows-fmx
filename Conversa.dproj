@@ -429,6 +429,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="src\chat\chat\chat.selectfile.pas"/>
+        <DCCReference Include="lib\Conversa.DeviceInfo.Utils.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

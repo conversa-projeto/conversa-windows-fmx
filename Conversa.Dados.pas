@@ -72,7 +72,8 @@ uses
   Conversa.Configuracoes,
   Conversa.Notificacao,
   Conversa.Windows.Overlay,
-  Conversa.Login;
+  Conversa.Login,
+  Conversa.DeviceInfo.Utils;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -141,6 +142,31 @@ begin
           .Telefone(GetValue<String>('telefone'));
 
     FTokenJWT := Response.ToJSON.GetValue<String>('token');
+  finally
+    Free;
+  end;
+
+  with TAPIConversa.Create do
+  try
+    if Configuracoes.DispositivoId = 0 then
+    begin
+      Route('dispositivo');
+      with GetDeviceInfo do
+        Body(
+          TJSONObject.Create
+            .AddPair('nome', DeviceName)
+            .AddPair('modelo', Model)
+            .AddPair('versao_so', OSVersion)
+            .AddPair('plataforma', Platform)
+            .AddPair('usuario_id', FDadosApp.Usuario.ID)
+        );
+      PUT;
+      with Response.ToJSON do
+        Configuracoes.DispositivoId := GetValue<Integer>('id');
+
+      Configuracoes.Save;
+    end;
+
   finally
     Free;
   end;
@@ -252,6 +278,10 @@ begin
       begin
         MensagemConteudo := TConteudo.New(Conteudo.GetValue<Integer>('id'));
         MensagemConteudo.Ordem(Conteudo.GetValue<Integer>('ordem'));
+
+        if not (Conteudo.GetValue<Integer>('tipo') in [1,2,3]) then
+          Sleep(0);
+
         MensagemConteudo.Tipo(TTipoConteudo(Conteudo.GetValue<Integer>('tipo')));
         MensagemConteudo.Nome(Conteudo.GetValue<String>('nome', ''));
         MensagemConteudo.Extensao(Conteudo.GetValue<String>('extensao', ''));
@@ -259,6 +289,7 @@ begin
           TTipoConteudo.Texto: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
           TTipoConteudo.Imagem: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
           TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(Conteudo.GetValue<String>('conteudo'));
+          TTipoConteudo.MensagemAudio: MensagemConteudo.Conteudo(DownloadAnexo(Conteudo.GetValue<String>('conteudo')));
         end;
         Mensagem.conteudos.Add(MensagemConteudo);
       end;
@@ -403,7 +434,7 @@ begin
       begin
         oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
       end;
-      TTipoConteudo.Imagem, TTipoConteudo.Arquivo:
+      TTipoConteudo.Imagem, TTipoConteudo.Arquivo, TTipoConteudo.MensagemAudio:
       begin
         ss := TStringStream.Create;
         try
