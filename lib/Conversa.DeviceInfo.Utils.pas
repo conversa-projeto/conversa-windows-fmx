@@ -31,6 +31,11 @@ function GetDeviceInfo: TDeviceInfo;
 implementation
 
 function GetDeviceInfo: TDeviceInfo;
+{$IFDEF MSWINDOWS}
+var
+  ComputerName: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
+  Size: DWORD;
+{$ENDIF}
 begin
   Result.DeviceName := '';
   Result.OSVersion := '';
@@ -40,8 +45,7 @@ begin
   Result.Platform := 'Windows';
 
   // Obtém o nome do computador
-  var ComputerName: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
-  var Size: DWORD := MAX_COMPUTERNAME_LENGTH + 1;
+  Size := MAX_COMPUTERNAME_LENGTH + 1;
   if GetComputerName(ComputerName, Size) then
     Result.DeviceName := ComputerName;
 
