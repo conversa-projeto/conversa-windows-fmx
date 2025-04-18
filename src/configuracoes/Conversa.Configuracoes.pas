@@ -37,8 +37,13 @@ uses
 
 class procedure TConfiguracoes.Load;
 begin
-  PastaDados := TPath.Combine(TPath.GetHomePath, 'Conversa') + TPath.DirectorySeparatorChar;
-  TDirectory.CreateDirectory(PastaDados);
+  PastaDados := TPath.Combine(ExtractFilePath(ParamStr(0)), 'Conversa') + TPath.DirectorySeparatorChar;
+
+  if not TDirectory.Exists(PastaDados) or not TFile.Exists(PastaDados +'conversa.json') then
+  begin
+    PastaDados := TPath.Combine(TPath.GetHomePath, 'Conversa') + TPath.DirectorySeparatorChar;
+    TDirectory.CreateDirectory(PastaDados);
+  end;
 
   if not TFile.Exists(PastaDados +'conversa.json') then
     Exit;
