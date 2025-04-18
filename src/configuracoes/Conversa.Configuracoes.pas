@@ -17,6 +17,7 @@ type
     Senha: String;
     Notificacoes: TNotificacao;
     Escala: Single;
+    DispositivoId: Integer;
     WindowPlacement: TWindowPlacement;
     class procedure Load; static;
     class procedure Save; static;
