@@ -366,6 +366,12 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>PopupMenu</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="src\chat\chat\skia\System.Skia.API.pas"/>
+        <DCCReference Include="src\chat\chat\skia\System.Skia.pas"/>
+        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.GL.pas"/>
+        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.Metal.pas"/>
+        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas"/>
+        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.pas"/>
         <DCCReference Include="Conversa.Inicializacoes.pas"/>
         <DCCReference Include="src\chat\chat\frames\chat.base.pas">
             <Form>ChatBase</Form>
@@ -1152,9 +1158,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
