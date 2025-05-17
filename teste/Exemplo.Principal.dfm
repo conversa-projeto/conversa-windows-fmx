@@ -70,4 +70,20 @@ object Principal: TPrincipal
     TabOrder = 6
     OnClick = btnVisualizadaClick
   end
+  object btnMensagens: TButton
+    Left = 23
+    Top = 144
+    Width = 72
+    Height = 25
+    Caption = 'Mensagens'
+    TabOrder = 7
+    OnClick = btnMensagensClick
+  end
+  object edtMensagem: TEdit
+    Left = 101
+    Top = 146
+    Width = 116
+    Height = 21
+    TabOrder = 8
+  end
 end
