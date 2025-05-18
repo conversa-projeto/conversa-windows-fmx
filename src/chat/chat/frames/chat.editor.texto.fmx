@@ -147,15 +147,14 @@ inherited ChatEditorTexto: TChatEditorTexto
           Size.PlatformDefault = False
           TabOrder = 0
           OnKeyDown = mmMensagemKeyDown
-          Viewport.Width = 170.000000000000000000
-          Viewport.Height = 25.000000000000000000
+          Viewport.Width = 166.000000000000000000
+          Viewport.Height = 21.000000000000000000
         end
         object txtMensagem: TText
           Align = Client
           HitTest = False
-          Margins.Left = 5.000000000000000000
-          Margins.Right = 5.000000000000000000
-          Size.Width = 160.000000000000000000
+          Margins.Left = 1.000000000000000000
+          Size.Width = 169.000000000000000000
           Size.Height = 25.000000000000000000
           Size.PlatformDefault = False
           Text = 'Mensagem'

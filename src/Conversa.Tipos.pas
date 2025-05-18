@@ -615,12 +615,12 @@ end;
 
 function TMensagens.ParaExibir(const ApenasPendente: Boolean): TArrayMensagens;
 var
-  Mensagem: TMensagem;
+  I: Integer;
 begin
   Result := [];
-  for Mensagem in FMensagens do
-    if not ApenasPendente or not Mensagem.Exibida then
-      Result := Result + [Mensagem.Exibida(True)];
+  for I := Pred(Length(FMensagens)) downto 0 do
+    if not ApenasPendente or not FMensagens[I].Exibida then
+      Result := Result + [FMensagens[I].Exibida(True)];
 end;
 
 function TMensagens.ParaNotificar: TArrayMensagens;

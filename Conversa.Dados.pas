@@ -436,6 +436,9 @@ begin
       end;
       TTipoConteudo.Imagem, TTipoConteudo.Arquivo, TTipoConteudo.MensagemAudio:
       begin
+        if not TDirectory.Exists(PastaDados + PASTA_ANEXO + PathDelim) then
+          TDirectory.CreateDirectory(PastaDados + PASTA_ANEXO + PathDelim);
+
         ss := TStringStream.Create;
         try
           ss.LoadFromFile(Mensagem.conteudos[iConteudo].conteudo);
