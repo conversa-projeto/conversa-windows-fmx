@@ -48,6 +48,8 @@ implementation
 
 uses
   Conversa.Tela.Inicial.view,
+  Conversa.Proxy,
+  Conversa.Proxy.Tipos,
   Conversa.Tipos;
 
 { TNovoGrupo }
@@ -70,29 +72,22 @@ begin
 end;
 
 procedure TNovoGrupo.tmrCarregarTimer(Sender: TObject);
+var
+  Contato: Conversa.Proxy.Tipos.TContato;
+  Item: TListBoxItem;
 begin
   TTimer(Sender).Enabled := False;
-  Dados.Contatos(
-    procedure(jaContatos: TJSONArray)
-    var
-      Item: TListBoxItem;
-    begin
-      if Assigned(jaContatos) then
-      begin
-        for var joContato in  jaContatos do
-        begin
-          Item := TListBoxItem.Create(nil);
-          Item.Text := '';
-          Item.Height := 60;
-          Item.Selectable := False;
-          Item.ContatoItem := TNovoGrupoUsuarioItem.Create(Item, Dados.FDadosApp.Usuarios.GetOrAdd(joContato.GetValue<Integer>('id')));
-          Item.ContatoItem.lblNome.Text := joContato.GetValue<String>('nome');
-          Item.ContatoItem.Text1.Text := joContato.GetValue<String>('nome')[1];
-          lstContatos.AddObject(Item);
-        end;
-      end;
-    end
-  );
+  for Contato in Conversa.Proxy.TAPIConversa.Usuario.Contatos do
+  begin
+    Item := TListBoxItem.Create(nil);
+    Item.Text := '';
+    Item.Height := 60;
+    Item.Selectable := False;
+    Item.ContatoItem := TNovoGrupoUsuarioItem.Create(Item, Dados.FDadosApp.Usuarios.GetOrAdd(Contato.id));
+    Item.ContatoItem.lblNome.Text := Contato.nome;
+    Item.ContatoItem.Text1.Text := Contato.nome[1];
+    lstContatos.AddObject(Item);
+  end;
 end;
 
 procedure TNovoGrupo.ValidarCriacao;

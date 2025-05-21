@@ -34,7 +34,9 @@ implementation
 uses
   Conversa.Tela.Inicial.view,
   Conversa.Tipos,
-  Conversa.Chat.Listagem;
+  Conversa.Chat.Listagem,
+  Conversa.Proxy,
+  Conversa.Proxy.Tipos;
 
 { TConversaContatos }
 
@@ -44,52 +46,45 @@ begin
 end;
 
 procedure TConversaContatos.tmrCarregarTimer(Sender: TObject);
+var
+  Contato: Conversa.Proxy.Tipos.TContato;
+  Item: TListBoxItem;
 begin
   TTimer(Sender).Enabled := False;
-  Dados.Contatos(
-    procedure(jaContatos: TJSONArray)
-    var
-      Item: TListBoxItem;
-    begin
-      if Assigned(jaContatos) then
+  for Contato in Conversa.Proxy.TAPIConversa.Usuario.Contatos do
+  begin
+    Item := TListBoxItem.Create(nil);
+    Item.Text := '';
+    Item.Height := 60;
+    Item.Selectable := False;
+    Item.ContatoItem := TConversaContatoItem.Create(Item, Contato.id);
+    Item.ContatoItem.lblNome.Text := Contato.nome;
+    Item.ContatoItem.Text1.Text := Contato.nome[1];
+    lstContatos.AddObject(Item);
+
+    Item.ContatoItem.OnAbrirChat(
+      procedure(DestinatarioId: Integer; NomeDestinaratio: String)
+      var
+        objConversa: Conversa.Tipos.TConversa;
       begin
-        for var joContato in  jaContatos do
-        begin
-          Item := TListBoxItem.Create(nil);
-          Item.Text := '';
-          Item.Height := 60;
-          Item.Selectable := False;
-          Item.ContatoItem := TConversaContatoItem.Create(Item, joContato.GetValue<Integer>('id'));
-          Item.ContatoItem.lblNome.Text := joContato.GetValue<String>('nome');
-          Item.ContatoItem.Text1.Text := joContato.GetValue<String>('nome')[1];
-          lstContatos.AddObject(Item);
+        objConversa := Dados.FDadosApp.Conversas.FromDestinatario(DestinatarioId);
 
-          Item.ContatoItem.OnAbrirChat(
-            procedure(DestinatarioId: Integer; NomeDestinaratio: String)
-            var
-              Conversa: TConversa;
-            begin
-              Conversa := Dados.FDadosApp.Conversas.FromDestinatario(DestinatarioId);
+        if not Assigned(objConversa) then
+          objConversa := Conversa.Tipos.TConversa.New(0)
+            .Tipo(TTipoConversa.Chat)
+            .Descricao(NomeDestinaratio)
+            .AddUsuario(Dados.FDadosApp.Usuario)
+            .AddUsuario(Dados.FDadosApp.Usuarios.GetOrAdd(DestinatarioId).Nome(NomeDestinaratio));
 
-              if not Assigned(Conversa) then
-                Conversa := TConversa.New(0)
-                  .Tipo(TTipoConversa.Chat)
-                  .Descricao(NomeDestinaratio)
-                  .AddUsuario(Dados.FDadosApp.Usuario)
-                  .AddUsuario(Dados.FDadosApp.Usuarios.GetOrAdd(DestinatarioId).Nome(NomeDestinaratio));
-
-              try
-                Dados.FDadosApp.Conversas.Add(Conversa);
-                Chats.AbrirChat(Conversa);
-              finally
-              end;
-              TelaInicial.ModalView.Ocultar;
-            end
-          );
+        try
+          Dados.FDadosApp.Conversas.Add(objConversa);
+          Chats.AbrirChat(objConversa);
+        finally
         end;
-      end;
-    end
-  );
+        TelaInicial.ModalView.Ocultar;
+      end
+    );
+  end
 end;
 
 end.

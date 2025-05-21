@@ -55,6 +55,7 @@ type
     procedure CriarControles;
     procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure Copiar;
+    procedure EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
@@ -87,6 +88,8 @@ uses
 constructor TChat.Create(AOwner: TComponent);
 begin
   inherited;
+  TExibirMensagem.Subscribe(EventoExibirMensagens);
+
   Sleep(1);
   Name := 'chat_'+ FormatDateTime('yyyymmddHHnnsszzz', Now);
   Parent := TFmxObject(AOwner);
@@ -103,6 +106,8 @@ destructor TChat.Destroy;
 begin
   Visualizador.Free;
   Editor.Free;
+
+  TExibirMensagem.Unsubscribe(EventoExibirMensagens);
   inherited;
 end;
 
@@ -354,6 +359,11 @@ end;
 procedure TChat.FocoEditor;
 begin
   Editor.FocoEditorTexto;
+end;
+
+procedure TChat.EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
+begin
+  AdicionarMensagens(M.Value);
 end;
 
 end.

@@ -8,7 +8,7 @@ uses
   Conversa.Eventos in 'Conversa.Eventos.pas',
   REST.API in 'REST.API.pas',
   Conversa.Proxy in 'Conversa.Proxy.pas',
-  Conversa.Tipos in 'Conversa.Tipos.pas';
+  Conversa.Proxy.Tipos in 'Conversa.Proxy.Tipos.pas';
 
 {$R *.res}
 

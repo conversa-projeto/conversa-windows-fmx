@@ -1,5 +1,5 @@
 ﻿// Eduardo/Daniel - 17/05/2025
-unit Conversa.Tipos;
+unit Conversa.Proxy.Tipos;
 
 interface
 

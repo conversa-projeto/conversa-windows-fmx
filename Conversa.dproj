@@ -100,7 +100,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <SanitizedProjectName>Conversa</SanitizedProjectName>
-        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PreBuildEvent><![CDATA[taskkill /f /t /im Conversa.exe
 $(PreBuildEvent)]]></PreBuildEvent>
         <PreBuildEventCancelOnError>false</PreBuildEventCancelOnError>
@@ -203,6 +203,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>Conversa_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -261,7 +262,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>ConversasItemFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="lib\AES\Conversa.AES.pas"/>
         <DCCReference Include="src\configuracoes\Conversa.Configurar.Conexao.pas">
             <Form>ConfigurarConexao</Form>
             <DesignClass>TFrame</DesignClass>
@@ -293,10 +293,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="src\notificacao\Conversa.Notificacao.Visualizador.pas">
             <Form>NotificacaoVisualizador</Form>
         </DCCReference>
-        <DCCReference Include="lib\windows\Conversa.Windows.Overlay.pas"/>
-        <DCCReference Include="lib\windows\Conversa.Windows.Utils.pas"/>
         <DCCReference Include="Conversa.Log.Pas"/>
-        <DCCReference Include="lib\Conversa.Utils.pas"/>
         <DCCReference Include="src\visualizadormidia\Conversa.Visualizador.Midia.pas">
             <Form>VisualizadorMidia</Form>
             <DesignClass>TFrame</DesignClass>
@@ -311,125 +308,14 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>NovoGrupo</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="lib\windows\Conversa.Windows.UserActivity.pas"/>
         <DCCReference Include="src\visualizadormidia\ImageViewerFrame.pas">
             <Form>ImageViewerFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="src\chat\chat\chat.ordenador.pas"/>
-        <DCCReference Include="src\chat\chat\chat.so.pas"/>
-        <DCCReference Include="src\chat\chat\chat.tipos.pas"/>
-        <DCCReference Include="src\chat\chat\chat.visualizador.pas"/>
-        <DCCReference Include="src\chat\chat\frames\chat.expositor.pas">
-            <Form>ChatExpositor</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.mensagem.conteudo.pas">
-            <Form>ChatConteudo</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.mensagem.pas">
-            <Form>ChatMensagem</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.separador.data.pas">
-            <Form>ChatSeparadorData</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.separador.lidas.pas">
-            <Form>ChatSeparadorLidas</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.ultima.pas">
-            <Form>ChatUltima</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\chat.emoji.pas"/>
-        <DCCReference Include="lib\popupmenu\Popup.pas">
-            <Form>Popup</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="lib\popupmenu\PopupMenu.Item.Action.Container.pas"/>
-        <DCCReference Include="lib\popupmenu\PopupMenu.Item.Base.pas">
-            <Form>PopupMenuItemBase</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="lib\popupmenu\PopupMenu.Item.pas">
-            <Form>PopupMenuItemFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="lib\popupmenu\PopupMenu.Item.Separador.pas">
-            <Form>PopupMenuItemSeparador</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="lib\popupmenu\PopupMenu.pas">
-            <Form>PopupMenu</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\skia\System.Skia.API.pas"/>
-        <DCCReference Include="src\chat\chat\skia\System.Skia.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.GL.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.Metal.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.Canvas.pas"/>
-        <DCCReference Include="src\chat\chat\skia\FMX\FMX.Skia.pas"/>
         <DCCReference Include="Conversa.Inicializacoes.pas"/>
-        <DCCReference Include="src\chat\chat\frames\chat.base.pas">
-            <Form>ChatBase</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.anexo.pas">
-            <Form>ChatConteudoAnexo</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.imagem.pas">
-            <Form>ChatConteudoImagem</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.mensagem.audio.pas">
-            <Form>ChatConteudoMensagemAudio</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.conteudo.texto.pas">
-            <Form>ChatConteudoTexto</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.anexo.item.pas">
-            <Form>ChatAnexoItem</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.anexo.pas">
-            <Form>ChatEditorAnexo</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.audio.pas">
-            <Form>ChatEditorAudio</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.base.pas">
-            <Form>ChatEditorBase</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.pas">
-            <Form>ChatEditor</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\frames\chat.editor.texto.pas">
-            <Form>ChatEditorTexto</Form>
-            <FormType>fmx</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="src\chat\chat\chat.selectfile.pas"/>
-        <DCCReference Include="lib\Conversa.DeviceInfo.Utils.pas"/>
+        <DCCReference Include="src\Conversa.Proxy.pas"/>
+        <DCCReference Include="src\Conversa.Proxy.Tipos.pas"/>
+        <DCCReference Include="src\Conversa.Evento.Base.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
@@ -456,8 +342,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
                     <Source Name="MainSource">Conversa.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
@@ -1158,6 +1044,9 @@ $(PreBuildEvent)]]></PreBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>

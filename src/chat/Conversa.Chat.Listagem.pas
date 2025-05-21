@@ -104,7 +104,7 @@ end;
 procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
 begin
   Dados.EnviarMensagem(Mensagem);
-  Chat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.Conversa.ID, True));
+  Chat.AdicionarMensagens([Mensagem]{Dados.ExibirMensagem(Conteudo.Conversa.ID, True)});
   AtualizarChat(Mensagem);
 end;
 

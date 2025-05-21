@@ -6,7 +6,7 @@ object Dados: TDados
   PixelsPerInch = 144
   object tmrAtualizarMensagens: TTimer
     Enabled = False
-    Interval = 5000
+    Interval = 500
     OnTimer = tmrAtualizarMensagensTimer
     Left = 233
     Top = 24
