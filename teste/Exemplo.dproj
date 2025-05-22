@@ -112,6 +112,11 @@
         <DCCReference Include="REST.API.pas"/>
         <DCCReference Include="Conversa.Proxy.pas"/>
         <DCCReference Include="Conversa.Proxy.Tipos.pas"/>
+        <DCCReference Include="socket\GenericSocket.Client.pas"/>
+        <DCCReference Include="socket\GenericSocket.Interfaces.pas"/>
+        <DCCReference Include="socket\GenericSocket.Message.pas"/>
+        <DCCReference Include="socket\GenericSocket.pas"/>
+        <DCCReference Include="socket\GenericSocket.Server.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -140,7 +145,7 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="4">
-                <DeployFile LocalName="Win32\Debug\Exemplo.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="exe\Exemplo.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>Exemplo.exe</RemoteName>
                         <Overwrite>true</Overwrite>
@@ -804,9 +809,6 @@
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win64">
-                        <Operation>1</Operation>
-                    </Platform>
-                    <Platform Name="Win64x">
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>

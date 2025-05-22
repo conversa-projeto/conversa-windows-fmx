@@ -16,7 +16,9 @@ uses
   Vcl.StdCtrls,
   Conversa.Eventos,
   Conversa.Proxy,
-  Conversa.Tipos;
+  Conversa.Proxy.Tipos,
+  GenericSocket.Interfaces,
+  GenericSocket.Client;
 
 type
   TPrincipal = class(TForm)
@@ -29,6 +31,7 @@ type
     btnVisualizada: TButton;
     btnMensagens: TButton;
     edtMensagem: TEdit;
+    btnEnviar: TButton;
     procedure btnLoginClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -36,7 +39,9 @@ type
     procedure btnContatosClick(Sender: TObject);
     procedure btnVisualizadaClick(Sender: TObject);
     procedure btnMensagensClick(Sender: TObject);
+    procedure btnEnviarClick(Sender: TObject);
   private
+    Client: ISocketClient;
     procedure ObterConversas(const Sender: TObject; const M: TObterConversas);
     procedure ErroServidor(const Sender: TObject; const M: TErroServidor);
     procedure DownloadAnexo(const Sender: TObject; const M: TDownloadAnexo);
@@ -60,6 +65,17 @@ begin
   TObterMensagens.Subscribe(ObterMensagens);
   TObterMensagensStatus.Subscribe(ObterMensagemStatus);
   TObterMensagensNovas.Subscribe(ObterMensagensNovas);
+
+  Client := TSocketClient.New;
+  Client.Connect('localhost', 55888, '2');
+  Client.RegisterCallback(
+    'mensagem',
+    function(Conteudo: String): String
+    begin
+      Result := '';
+      ShowMessage(Conteudo);
+    end
+  );
 end;
 
 procedure TPrincipal.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -70,6 +86,8 @@ begin
   TObterMensagens.Unsubscribe(ObterMensagens);
   TObterMensagensStatus.Unsubscribe(ObterMensagemStatus);
   TObterMensagensNovas.Unsubscribe(ObterMensagensNovas);
+
+  Client.Disconnet;
 end;
 
 procedure TPrincipal.ObterConversas(const Sender: TObject; const M: TObterConversas);
@@ -131,6 +149,17 @@ end;
 procedure TPrincipal.btnMensagensClick(Sender: TObject);
 begin
   TAPIConversa.Mensagens(1, 0, 10, 10, 0, 0);
+end;
+
+procedure TPrincipal.btnEnviarClick(Sender: TObject);
+var
+  req: TReqMensagem;
+begin
+  req := Default(TReqMensagem);
+  req.conversa_id := 1;
+  req.inserida := Now;
+  req.conteudos := [];
+  TAPIConversa.Mensagem.Incluir(req);
 end;
 
 end.

@@ -86,4 +86,13 @@ object Principal: TPrincipal
     Height = 21
     TabOrder = 8
   end
+  object btnEnviar: TButton
+    Left = 23
+    Top = 175
+    Width = 72
+    Height = 25
+    Caption = 'Enviar'
+    TabOrder = 9
+    OnClick = btnEnviarClick
+  end
 end

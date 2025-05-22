@@ -8,7 +8,12 @@ uses
   Conversa.Eventos in 'Conversa.Eventos.pas',
   REST.API in 'REST.API.pas',
   Conversa.Proxy in 'Conversa.Proxy.pas',
-  Conversa.Proxy.Tipos in 'Conversa.Proxy.Tipos.pas';
+  Conversa.Proxy.Tipos in 'Conversa.Proxy.Tipos.pas',
+  GenericSocket.Client in 'socket\GenericSocket.Client.pas',
+  GenericSocket.Interfaces in 'socket\GenericSocket.Interfaces.pas',
+  GenericSocket.Message in 'socket\GenericSocket.Message.pas',
+  GenericSocket in 'socket\GenericSocket.pas',
+  GenericSocket.Server in 'socket\GenericSocket.Server.pas';
 
 {$R *.res}
 

@@ -6,7 +6,7 @@ interface
 uses
   System.SysUtils,
   REST.API,
-  Conversa.Tipos;
+  Conversa.Proxy.Tipos;
 
 type
   TDispositivo = record
@@ -634,7 +634,7 @@ begin
   with TAPIInternal.Create do
   try
     Route('anexo/existe');
-    Headers(TJSONObject.Create.AddPair('identificador', sIdentificador));
+    Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
     GET;
     ValidarErro(Response);
     Result := Response.ToJSON.GetValue<Boolean>('existe');
@@ -653,7 +653,7 @@ begin
       with TAPIInternal.Create do
       try
         Route('anexo');
-        Headers(TJSONObject.Create.AddPair('identificador', sIdentificador));
+        Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
         GET;
 
         Resposta := Default(TRespostaDownloadAnexo);
@@ -677,12 +677,12 @@ begin
       with TAPIInternal.Create do
       try
         Route('anexo');
-        Query(TJSONObject.Create.AddPair('tipo', iTipo));
-        Headers(
+        Query(
           TJSONObject.Create
+            .AddPair('tipo', iTipo)
             .AddPair('nome', sNome)
             .AddPair('extensao', sExtensao)
-          );
+        );
         Body(TStringStream.Create(aConteudo));
         PUT;
         ValidarErro(Response);

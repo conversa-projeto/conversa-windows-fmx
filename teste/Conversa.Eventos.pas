@@ -5,7 +5,7 @@ interface
 
 uses
   Conversa.Evento.Base,
-  Conversa.Tipos;
+  Conversa.Proxy.Tipos;
 
 type
   TObterConversas = class(TEventBase<TObterConversas, TRespostaConversas>);
