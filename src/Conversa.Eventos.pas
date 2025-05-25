@@ -28,6 +28,7 @@ type
   TObterMensagensNovas = class(TEventBase<TObterMensagensNovas, TRespostaMensagensNovas>);
 
   TExibirMensagem = class(TEventBase<TExibirMensagem, TArrayMensagens>);
+  TEnvioMensagem = class(TEventBase<TEnvioMensagem, TRespostaMensagem>);
 
 implementation
 

@@ -34,7 +34,8 @@ type
   end;
 
   TConversa = record
-    procedure Incluir(sDescricao: String; iTipo: Integer);
+    class var Usuario: TConversaUsuario;
+    function Incluir(sDescricao: String; iTipo: Integer): TRespostaConversa;
     procedure Alterar(ID: Integer; sDescricao: String; iTipo: Integer);
     procedure Excluir(ID: Integer);
   end;
@@ -73,7 +74,8 @@ uses
   System.JSON,
   System.JSON.Serializers,
   System.DateUtils,
-  Conversa.Eventos;
+  Conversa.Eventos,
+  Conversa.Serializer;
 
 type
   TAPIInternal = class(TRESTAPI)
@@ -488,7 +490,7 @@ end;
 
 { TConversa }
 
-procedure TConversa.Incluir(sDescricao: String; iTipo: Integer);
+function TConversa.Incluir(sDescricao: String; iTipo: Integer): TRespostaConversa;
 begin
   with TAPIInternal.Create do
   try
@@ -501,6 +503,14 @@ begin
     );
     PUT;
     ValidarErro(Response);
+
+    Result.Status := Response.Status;
+    with TJsonSerializer.Create do
+    try
+      Result.Dados := Deserialize<Conversa.Proxy.Tipos.TConversa>(Response.ToString);
+    finally
+      Free;
+    end;
   finally
     Free;
   end;
@@ -546,8 +556,8 @@ begin
     Route('conversa/usuario');
     Body(
       TJSONObject.Create
-        .AddPair('usuario_id', Conversa)
-        .AddPair('conversa_id', Usuario)
+        .AddPair('conversa_id', Conversa)
+        .AddPair('usuario_id', Usuario)
     );
     PUT;
     ValidarErro(Response);
@@ -574,6 +584,7 @@ end;
 procedure TMensagem.Incluir(Mensagem: TReqMensagem);
 var
   oMensagem: TJSONObject;
+  Resposta: TRespostaMensagem;
 begin
   with TAPIInternal.Create do
   try
@@ -588,6 +599,10 @@ begin
     Body(oMensagem);
     PUT;
     ValidarErro(Response);
+    Resposta.Status := Response.Status;
+    Resposta.Erro := MensagemErro;
+    Resposta.Dados := TJsonSerializer<Conversa.Proxy.Tipos.TMensagem>.FromStr(Response.ToString);
+    TEnvioMensagem.Send(Resposta);
   finally
     Free;
   end;
@@ -651,7 +666,7 @@ begin
   with TAPIInternal.Create do
   try
     Route('anexo/existe');
-    Headers(TJSONObject.Create.AddPair('identificador', sIdentificador));
+    Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
     GET;
     ValidarErro(Response);
     Result := Response.ToJSON.GetValue<Boolean>('existe');
@@ -670,7 +685,7 @@ begin
       with TAPIInternal.Create do
       try
         Route('anexo');
-        Headers(TJSONObject.Create.AddPair('identificador', sIdentificador));
+        Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
         GET;
 
         Resposta := Default(TRespostaDownloadAnexo);
@@ -694,12 +709,13 @@ begin
       with TAPIInternal.Create do
       try
         Route('anexo');
-        Query(TJSONObject.Create.AddPair('tipo', iTipo));
-        Headers(
+        Query(
+
           TJSONObject.Create
+            .AddPair('tipo', iTipo)
             .AddPair('nome', sNome)
             .AddPair('extensao', sExtensao)
-          );
+        );
         Body(TStringStream.Create(aConteudo));
         PUT;
         ValidarErro(Response);

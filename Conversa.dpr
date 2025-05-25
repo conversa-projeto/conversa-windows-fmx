@@ -41,7 +41,8 @@ uses
   Conversa.Inicializacoes in 'Conversa.Inicializacoes.pas',
   Conversa.Proxy in 'src\Conversa.Proxy.pas',
   Conversa.Proxy.Tipos in 'src\Conversa.Proxy.Tipos.pas',
-  Conversa.Evento.Base in 'src\Conversa.Evento.Base.pas';
+  Conversa.Evento.Base in 'src\Conversa.Evento.Base.pas',
+  Conversa.Serializer in 'src\Conversa.Serializer.pas';
 
 {$R *.res}
 begin
