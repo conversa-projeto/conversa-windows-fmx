@@ -4,6 +4,7 @@ unit Conversa.Proxy;
 interface
 
 uses
+  System.Classes,
   System.SysUtils,
   REST.API,
   Conversa.Proxy.Tipos;
@@ -41,7 +42,7 @@ type
   end;
 
   TMensagem = record
-    procedure Incluir(Mensagem: TReqMensagem);
+    function Incluir(Mensagem: TReqMensagem): TRespostaMensagem;
     procedure Excluir(ID: Integer);
     procedure Visualizar(iConversa, iMensagem: Integer);
     procedure Status(iConversa: Integer; sMensagensId: String);
@@ -49,8 +50,8 @@ type
 
   TAnexo = record
     function Existe(sIdentificador: String): Boolean;
-    procedure Download(sIdentificador: String);
-    procedure Incluir(iTipo: Integer; sNome, sExtensao: String; aConteudo: TBytes);
+    function Download(sIdentificador: String): TRespostaDownloadAnexo;
+    procedure Incluir(iTipo: Integer; sNome, sExtensao: String; aConteudo: TStringStream);
   end;
 
   TAPIConversa = record
@@ -61,7 +62,7 @@ type
     class var Dispositivo: TDispositivoProxy;
     class var Conversa: TConversa;
     class var Anexo: TAnexo;
-    class function Login(sLogin, sSenha: String): TRespostaLogin; static;
+    class function Login(sLogin, sSenha: String; Dispositivo: Integer): TRespostaLogin; static;
     class procedure Conversas; static;
     class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer); static;
     class procedure MensagensNovas(UltimaMensagem: Integer); static;
@@ -70,10 +71,10 @@ type
 implementation
 
 uses
-  System.Classes,
   System.JSON,
   System.JSON.Serializers,
   System.DateUtils,
+  Conversa.Configuracoes,
   Conversa.Eventos,
   Conversa.Serializer;
 
@@ -152,7 +153,7 @@ end;
 
 { TAPIConversa }
 
-class function TAPIConversa.Login(sLogin, sSenha: String): TRespostaLogin;
+class function TAPIConversa.Login(sLogin, sSenha: String; Dispositivo: Integer): TRespostaLogin;
 begin
   with TAPIInternal.Create do
   try
@@ -161,11 +162,23 @@ begin
       TJSONObject.Create
         .AddPair('login', sLogin)
         .AddPair('senha', sSenha)
+        .AddPair('dispositivo_id', Dispositivo)
     );
     POST;
 
     if Response.Status <> TResponseStatus.Sucess then
+    begin
+      if Trunc(Response.StatusCode div 100) = 4 then
+      begin
+        if FMensagemErro.Contains('Seção Encerrada!') then
+          Configuracoes.DispositivoId := 0;
+
+        Configuracoes.Senha := EmptyStr;
+        Configuracoes.Save;
+      end;
+
       raise Exception.Create(MensagemErro);
+    end;
 
     with TJsonSerializer.Create do
     try
@@ -236,12 +249,13 @@ begin
 
         if Response.Status = TResponseStatus.Sucess then
         begin
-          with TJsonSerializer.Create do
-          try
-            Resposta.Dados := Deserialize<TMensagens>(Response.ToString);
-          finally
-            Free;
-          end;
+          Resposta.Dados := TJsonSerializer<TMensagens>.FromStr(Response.ToString);
+//          with TJsonSerializer.Create do
+//          try
+//            Resposta.Dados := Deserialize<TMensagens>(Response.ToString);
+//          finally
+//            Free;
+//          end;
         end;
 
         TObterMensagens.Send(Resposta);
@@ -330,7 +344,7 @@ begin
 
     Route('usuario');
     Body(oUsuario);
-//    PATH;
+    PATCH;
     ValidarErro(Response);
   finally
     Free;
@@ -408,7 +422,6 @@ begin
         .AddPair('modelo', DeviceInfo.modelo)
         .AddPair('versao_so', DeviceInfo.versao_so)
         .AddPair('plataforma', DeviceInfo.plataforma)
-        .AddPair('usuario_id', DeviceInfo.usuario_id)
     );
     PUT;
     ValidarErro(Response);
@@ -435,12 +448,13 @@ begin
     Route('dispositivo');
       Body(
         TJSONObject.Create
+          .AddPair('id', DeviceInfo.id)
           .AddPair('nome', DeviceInfo.nome)
           .AddPair('modelo', DeviceInfo.modelo)
           .AddPair('versao_so', DeviceInfo.versao_so)
           .AddPair('plataforma', DeviceInfo.plataforma)
       );
-//    PATH;
+    PATCH;
     ValidarErro(Response);
   finally
     Free;
@@ -527,7 +541,7 @@ begin
         .AddPair('descricao', sDescricao)
         .AddPair('tipo', iTipo)
     );
-//    PATH;
+    PATCH;
     ValidarErro(Response);
   finally
     Free;
@@ -581,10 +595,9 @@ end;
 
 { TMensagem }
 
-procedure TMensagem.Incluir(Mensagem: TReqMensagem);
+function TMensagem.Incluir(Mensagem: TReqMensagem): TRespostaMensagem;
 var
   oMensagem: TJSONObject;
-  Resposta: TRespostaMensagem;
 begin
   with TAPIInternal.Create do
   try
@@ -599,10 +612,9 @@ begin
     Body(oMensagem);
     PUT;
     ValidarErro(Response);
-    Resposta.Status := Response.Status;
-    Resposta.Erro := MensagemErro;
-    Resposta.Dados := TJsonSerializer<Conversa.Proxy.Tipos.TMensagem>.FromStr(Response.ToString);
-    TEnvioMensagem.Send(Resposta);
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+    Result.Dados := TJsonSerializer<Conversa.Proxy.Tipos.TMensagem>.FromStr(Response.ToString);
   finally
     Free;
   end;
@@ -675,33 +687,33 @@ begin
   end;
 end;
 
-procedure TAnexo.Download(sIdentificador: String);
+function TAnexo.Download(sIdentificador: String): TRespostaDownloadAnexo;
 begin
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Resposta: TRespostaDownloadAnexo;
-    begin
+//  TThread.CreateAnonymousThread(
+//    procedure
+//    var
+//      Resposta: TRespostaDownloadAnexo;
+//    begin
       with TAPIInternal.Create do
       try
         Route('anexo');
         Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
         GET;
 
-        Resposta := Default(TRespostaDownloadAnexo);
-        Resposta.Status := Response.Status;
-        Resposta.Erro := MensagemErro;
-        if Resposta.Status = TResponseStatus.Sucess then
-          Resposta.Dados := Response.ToStream.Bytes;
-        TDownloadAnexo.Send(Resposta);
+        Result := Default(TRespostaDownloadAnexo);
+        Result.Status := Response.Status;
+        Result.Erro := MensagemErro;
+        if Result.Status = TResponseStatus.Sucess then
+          Result.Dados := Response.ToStream.Bytes;
+//        TDownloadAnexo.Send(Resposta);
       finally
         Free;
       end;
-    end
-  ).Start;
+//    end
+//  ).Start;
 end;
 
-procedure TAnexo.Incluir(iTipo: Integer; sNome, sExtensao: String; aConteudo: TBytes);
+procedure TAnexo.Incluir(iTipo: Integer; sNome, sExtensao: String; aConteudo: TStringStream);
 begin
   TThread.CreateAnonymousThread(
     procedure
@@ -709,14 +721,17 @@ begin
       with TAPIInternal.Create do
       try
         Route('anexo');
+        Headers(
+          TJSONObject.Create
+            .AddPair('Content-Type', 'application/octet-stream')
+        );
         Query(
-
           TJSONObject.Create
             .AddPair('tipo', iTipo)
             .AddPair('nome', sNome)
             .AddPair('extensao', sExtensao)
         );
-        Body(TStringStream.Create(aConteudo));
+        Body(TStream(aConteudo));
         PUT;
         ValidarErro(Response);
       finally

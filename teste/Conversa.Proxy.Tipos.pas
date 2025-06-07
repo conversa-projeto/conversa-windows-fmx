@@ -5,6 +5,7 @@ interface
 
 uses
   System.SysUtils,
+  System.JSON.Serializers,
   REST.API;
 
 type
@@ -37,6 +38,7 @@ type
     mensagens_sem_visualizar: Integer;
   end;
   TConversas = TArray<TConversa>;
+  TRespostaConversa = TResposta<TConversa>;
   TRespostaConversas = TResposta<TConversas>;
 
   TContato = record
@@ -49,12 +51,16 @@ type
 
   TContatos = TArray<TContato>;
 
-  TDeviceInfo = record
-    DeviceName: String;
-    Model: String;
-    OSVersion: String;
-    Platform: String;
+  TDispositivo = record
+    id: Integer;
+    nome: String;
+    modelo: String;
+    versao_so: String;
+    plataforma: String;
+    usuario_id: Integer;
   end;
+
+  TRespostaDispositivo = TResposta<TDispositivo>;
 
   TReqUsuario = record
     nome: String;
@@ -71,8 +77,9 @@ type
   end;
 
   TReqMensagem = record
+    [JsonIgnoreAttribute]
+    local_id: Integer;
     conversa_id: Integer;
-    inserida: TDateTime;
     conteudos: TArray<TReqMensagemConteudo>;
   end;
 
@@ -86,6 +93,7 @@ type
     nome: String;
     extensao: String;
   end;
+  TMensagemConteudos = TArray<TMensagemConteudo>;
   TMensagem = record
     id: Integer;
     remetente_id: Integer;
@@ -96,12 +104,14 @@ type
     recebida: Boolean;
     visualizada: Boolean;
     reproduzida: Boolean;
-    conteudos: TArray<TMensagemConteudo>;
+    conteudos: TMensagemConteudos;
   end;
   TMensagens = TArray<TMensagem>;
+  TRespostaMensagem = TResposta<TMensagem>;
   TRespostaMensagens = TResposta<TMensagens>;
 
   TMensagemStatus = record
+    conversa_id: Integer;
     mensagem_id: Integer;
     recebida: Boolean;
     visualizada: Boolean;

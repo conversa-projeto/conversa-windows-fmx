@@ -133,6 +133,7 @@ type
   TLadoMensagem = (Esquerdo, Direito);
   TMensagem = class
   private
+    FLocalId: Integer;
     FID: Integer;
     FConversa: TConversa;
     FRemetente: TUsuario;
@@ -149,6 +150,8 @@ type
     Conteudos: TConteudos;
     class function New(ID: Integer): TMensagem;
     destructor Destroy; override;
+    function LocalID: Integer; overload;
+    function LocalID(const Value: Integer): TMensagem; overload;
     function ID: Integer; overload;
     function ID(const Value: Integer): TMensagem; overload;
     function Conversa: TConversa; overload;
@@ -596,6 +599,11 @@ begin
   for I := 0 to High(FMensagens) do
     if FMensagens[I].ID = ID then
       Exit(FMensagens[I]);
+
+  if ID < 0 then
+    for I := 0 to High(FMensagens) do
+      if FMensagens[I].LocalID = ID then
+        Exit(FMensagens[I]);
 end;
 
 function TMensagens.GetList(const Inicio: Integer): TArrayMensagens;
@@ -658,6 +666,7 @@ end;
 class function TMensagem.New(ID: Integer): TMensagem;
 begin
   Result := TMensagem.Create;
+  Result.FLocalId := 0;
   Result.FID := ID;
   Result.FExibida := False;
 end;
@@ -666,6 +675,18 @@ destructor TMensagem.Destroy;
 begin
   Conteudos.Clear;
   inherited;
+end;
+
+function TMensagem.LocalID: Integer;
+begin
+  Result := FLocalId;
+end;
+
+
+function TMensagem.LocalID(const Value: Integer): TMensagem;
+begin
+  Result := Self;
+  FLocalId := Value;
 end;
 
 function TMensagem.ID: Integer;

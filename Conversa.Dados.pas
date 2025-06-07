@@ -33,10 +33,8 @@ type
     FEventosNovasMensagens: TArray<TProc<Integer>>;
     procedure ObterConversas(const Sender: TObject; const M: TObterConversas);
     procedure EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
-    procedure ObterMensagensNovas(const Sender: TObject;
-      const M: TObterMensagensNovas);
-    procedure ObterMensagensStatus(const Sender: TObject;
-      const M: TObterMensagensStatus);
+    procedure ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
+    procedure ObterMensagensStatus(const Sender: TObject; const M: TObterMensagensStatus);
   public
     FTokenJWT: String;
     FDadosApp: TDadosApp;
@@ -53,7 +51,7 @@ type
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
 //    procedure Contatos(Proc: TProc<TJSONArray>);
-    procedure NovoChat(var Conversa: TConversa);
+    procedure NovoChat(var ObjConversa: TConversa);
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
@@ -62,12 +60,6 @@ type
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
     procedure SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);
-  end;
-
-  TAPIConversa = class(TRESTAPI)
-  public
-    constructor Create;
-    function InternalExecute: TRESTAPI; override;
   end;
 
 var
@@ -95,32 +87,6 @@ const
 {%CLASSGROUP 'FMX.Controls.TControl'}
 
 {$R *.dfm}
-
-{ TAPIConversa }
-
-constructor TAPIConversa.Create;
-begin
-  inherited;
-  Host(Configuracoes.Host);
-  if Assigned(Dados) and not Dados.FTokenJWT.IsEmpty then
-    Authorization(TAuthBearer.New(Dados.FTokenJWT));
-end;
-
-function TAPIConversa.InternalExecute: TRESTAPI;
-var
-  vJSON: TJSONValue;
-begin
-  Result := inherited;
-  vJSON := Response.ToJSON;
-  TMessageManager.DefaultManager.SendMessage(nil, TEventoStatusConexao.Create(IfThen(Response.Status = TResponseStatus.Sucess, 1, 0)));
-  if Response.Status <> TResponseStatus.Sucess then
-  begin
-    if Assigned(vJSON) and Assigned(vJSON.FindValue('error')) then
-      raise Exception.Create(vJSON.GetValue<String>('error'))
-    else
-      raise Exception.Create(Response.ToString);
-  end;
-end;
 
 { TDados }
 
@@ -155,29 +121,34 @@ end;
 
 procedure TDados.Login(sLogin, sSenha: String);
 var
-  Dispositivo: Conversa.Proxy.Tipos.TDispositivo;
+  Device: Conversa.Proxy.Tipos.TDispositivo;
 begin
-  with Conversa.Proxy.TAPIConversa.Login(sLogin, sSenha) do
+  Device := Default(Conversa.Proxy.Tipos.TDispositivo);
+  with Conversa.Proxy.TAPIConversa.Login(sLogin, sSenha, Configuracoes.DispositivoId) do
+  begin
     FDadosApp.Usuario :=
       FDadosApp.Usuarios.GetOrAdd(id)
         .Nome(nome)
         .Email(email)
         .Telefone(telefone);
 
+    Device.id := dispositivo.id;
+  end;
+
   FTokenJWT := Conversa.Proxy.TAPIConversa.TokenJWT;
 
-  if Configuracoes.DispositivoId = 0 then
+  if Configuracoes.DispositivoId = Device.id then
+    Exit;
+
+  with GetDeviceInfo do
   begin
-    Dispositivo := Default(Conversa.Proxy.Tipos.TDispositivo);
-    with GetDeviceInfo do
-    begin
-      Dispositivo.nome := DeviceName;
-      Dispositivo.modelo := Model;
-      Dispositivo.versao_so := OSVersion;
-      Dispositivo.plataforma := Platform;
-      Dispositivo.usuario_id := FDadosApp.Usuario.ID;
-    end;
-    Configuracoes.DispositivoId := Conversa.Proxy.TAPIConversa.Dispositivo.Incluir(Dispositivo).Dados.id;
+    Device.nome := DeviceName;
+    Device.modelo := Model;
+    Device.versao_so := OSVersion;
+    Device.plataforma := Platform;
+    Device.usuario_id := FDadosApp.Usuario.ID;
+    Conversa.Proxy.TAPIConversa.Dispositivo.Alterar(Device);
+    Configuracoes.DispositivoId := Device.id;
     Configuracoes.Save;
   end;
 end;
@@ -269,9 +240,9 @@ begin
 
 
     if Msg.inserida <> 0 then
-      Mensagem.Inserida(TTimeZone.Local.ToLocalTime(Msg.inserida));
+      Mensagem.Inserida(Msg.inserida);
     if Msg.alterada <> 0 then
-      Mensagem.Alterada(TTimeZone.Local.ToLocalTime(Msg.alterada));
+      Mensagem.Alterada(Msg.alterada);
 
     Mensagem.Recebida(Msg.recebida);
     Mensagem.Visualizada(Msg.visualizada);
@@ -328,50 +299,8 @@ begin
 end;
 
 procedure TDados.CarregarConversas;
-//var
-//  Conversa: TConversa;
-//  bNova: Boolean;
 begin
   Conversa.Proxy.TApiConversa.Conversas;
-//  with TAPIConversa.Create do
-//  try
-//    Route('conversas');
-//    GET;
-//    for var Item in Response.ToJSONArray do
-//    begin
-//      Conversa := FDadosApp.Conversas.Get(Item.GetValue<Integer>('id'));
-//
-//      if not Assigned(Conversa) then
-//      begin
-//        bNova := True;
-//        Conversa := TConversa.New(Item.GetValue<Integer>('id'));
-//      end
-//      else
-//        bNova := False;
-//
-//      Conversa.Tipo(TTipoConversa(Item.GetValue<Integer>('tipo')));
-//      Conversa.Descricao(Item.GetValue<String>('descricao'));
-//      Conversa.AddUsuario(FDadosApp.Usuario);
-//      Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(Item.GetValue<Integer>('destinatario_id')).Nome(Item.GetValue<String>('nome')));
-//      Conversa.UltimaMensagem(Item.GetValue<String>('ultima_mensagem_texto'));
-//      Conversa.CriadoEm(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('inserida'))));
-//
-//      if not Item.GetValue<String>('ultima_mensagem').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty then
-//        Conversa.UltimaMensagemData(TTimeZone.Local.ToLocalTime(ISO8601ToDate(Item.GetValue<String>('ultima_mensagem'))));
-//
-//      if (Conversa.MensagemSemVisualizar = 0) and (not Item.GetValue<String>('mensagens_sem_visualizar').ToLower.Replace('null', '').ToUpper.Trim.IsEmpty) then
-//        Conversa.MensagemSemVisualizar := StrToIntDef(Item.GetValue<String>('mensagens_sem_visualizar'), 0);
-//
-//      if bNova then
-//        FDadosApp.Conversas.Add(Conversa);
-//
-//      FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, Item.GetValue<Integer>('mensagem_id'));
-//    end;
-//  finally
-//    Free;
-//  end;
-//  AtualizarContador(nil, nil);
-//  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 procedure TDados.ObterConversas(const Sender: TObject; const M: TObterConversas);
@@ -418,31 +347,14 @@ begin
 end;
 
 function TDados.DownloadAnexo(sIdentificador: String): String;
-var
-  sLocal: String;
 begin
-  if TFile.Exists(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador) then
-    Exit(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
-
-  with TAPIConversa.Create do
+  Result := PastaDados + PASTA_ANEXO + PathDelim + sIdentificador;
+  if TFile.Exists(Result) then
+    Exit;
+  with TStringStream.Create(TAPIConversa.Anexo.Download(sIdentificador).Dados) do
   try
-    Route('anexo');
-    Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
-
-    try
-      GET;
-    except
-      Exit(EmptyStr);
-    end;
-
-    sLocal := PastaDados + PASTA_ANEXO;
-
-    if not TDirectory.Exists(sLocal) then
-      TDirectory.CreateDirectory(sLocal);
-
-    Result := sLocal + PathDelim + sIdentificador;
-
-    Response.ToStream.SaveToFile(Result);
+    TDirectory.CreateDirectory(TPath.GetDirectoryName(Result));
+    SaveToFile(Result);
   finally
     Free;
   end;
@@ -450,31 +362,25 @@ end;
 
 procedure TDados.EnviarMensagem(Mensagem: TMensagem);
 var
-  oJSON: TJSONObject;
-  aConteudos: TJSONArray;
-  oConteudo: TJSONObject;
+  oReqCtd: Conversa.Proxy.Tipos.TReqMensagemConteudo;
+  oReqMsg: TReqMensagem;
   ss: TStringStream;
   sIdentificador: String;
-  bEnviar: Boolean;
   iConteudo: Integer;
 begin
-  bEnviar := True;
-
-  oJSON := TJSONObject.Create;
-  oJSON.AddPair('conversa_id', Mensagem.Conversa.ID);
-  aConteudos := TJSONArray.Create;
-  oJSON.AddPair('conteudos', aConteudos);
+  oReqMsg := Default(Conversa.Proxy.Tipos.TReqMensagem);
+  oReqMsg.conversa_id := Mensagem.Conversa.ID;
 
   for iConteudo := 0 to Pred(Length(Mensagem.conteudos)) do
   begin
-    oConteudo := TJSONObject.Create;
-    oConteudo.AddPair('ordem', Mensagem.conteudos[iConteudo].ordem);
-    oConteudo.AddPair('tipo', Integer(Mensagem.conteudos[iConteudo].tipo));
+    oReqCtd := Default(Conversa.Proxy.Tipos.TReqMensagemConteudo);
+    oReqCtd.ordem := Mensagem.conteudos[iConteudo].Ordem;
+    oReqCtd.tipo := Integer(Mensagem.conteudos[iConteudo].tipo);
 
     case Mensagem.conteudos[iConteudo].tipo of
       TTipoConteudo.Texto:
       begin
-        oConteudo.AddPair('conteudo', Mensagem.conteudos[iConteudo].conteudo);
+        oReqCtd.conteudo := Mensagem.conteudos[iConteudo].conteudo;
       end;
       TTipoConteudo.Imagem, TTipoConteudo.Arquivo, TTipoConteudo.MensagemAudio:
       begin
@@ -484,61 +390,31 @@ begin
         ss := TStringStream.Create;
         try
           ss.LoadFromFile(Mensagem.conteudos[iConteudo].conteudo);
-
           sIdentificador := THashSHA2.GetHashString(ss);
           ss.Position := 0;
           ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+          ss.Position := 0;
           Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
-          oConteudo.AddPair('conteudo', sIdentificador);
+          oReqCtd.conteudo := sIdentificador;
 
-          // verifica se já não existe no servidor
-          with TAPIConversa.Create do
-          try
-            Route('anexo/existe');
-            Query(TJSONObject.Create.AddPair('identificador', sIdentificador));
-            GET;
-            bEnviar := not Response.ToJSON.GetValue<Boolean>('existe');
-          finally
-            Free;
-          end;
-
-          // faz o envio
-          if bEnviar then
-          begin
-            with TAPIConversa.Create do
-            try
-              Route('anexo');
-              Headers(
-                TJSONObject.Create
-                  .AddPair('Content-Type', 'application/octet-stream')
-                  .AddPair('nome', Mensagem.conteudos[iConteudo].Nome)
-                  .AddPair('extensao', Mensagem.conteudos[iConteudo].Extensao)
-              );
-              Body(ss);
-              PUT;
-            finally
-              Free;
-            end;
-          end;
+          if not TAPIConversa.Anexo.Existe(sIdentificador) then
+            TAPIConversa.Anexo.Incluir(
+              0,
+              Mensagem.conteudos[iConteudo].Nome,
+              Mensagem.conteudos[iConteudo].Extensao,
+              ss
+            );
         finally
-          if not bEnviar then
-            FreeAndNil(ss);
+//          FreeAndNil(ss);
         end;
       end;
     end;
-    aConteudos.Add(oConteudo);
+    oReqMsg.conteudos := oReqMsg.conteudos + [oReqCtd];
   end;
 
-  with TAPIConversa.Create do
-  try
-    Route('mensagem');
-    Body(oJSON);
-    PUT;
-    Mensagem.ID(Response.ToJSON.GetValue<Integer>('id'));
-    Mensagem.Conversa.Mensagens.Add(Mensagem);
-  finally
-    Free;
-  end;
+  Mensagem.Conversa.Mensagens.Add(Mensagem);
+  with Conversa.Proxy.TAPIConversa.Mensagem.Incluir(oReqMsg) do
+    Mensagem.ID(Dados.id);
 end;
 
 function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
@@ -591,54 +467,36 @@ begin
   Result := FDadosApp.UltimaMensagemNotificada;
 end;
 
-procedure TDados.NovoChat(var Conversa: TConversa);
+procedure TDados.NovoChat(var ObjConversa: TConversa);
 var
   Usuario: TUsuario;
+  RespConversa: TRespostaConversa;
 begin
-  with TAPIConversa.Create do
-  try
-    Route('conversa');
-    if Conversa.Tipo = TTipoConversa.Chat then
-      Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', TJSONNull.Create))
-    else
-      Body(TJSONObject.Create.AddPair('tipo', Integer(Conversa.Tipo)).AddPair('descricao', Conversa.Descricao));
+  if ObjConversa.Tipo = TTipoConversa.Chat then
+    RespConversa := Conversa.Proxy.TAPIConversa.Conversa.Incluir('', Integer(ObjConversa.Tipo))
+  else
+    RespConversa := Conversa.Proxy.TAPIConversa.Conversa.Incluir(ObjConversa.Descricao, Integer(ObjConversa.Tipo));
 
-    PUT;
-
-    if Response.Status <> TResponseStatus.Sucess then
-      raise Exception.Create('Falha ao inserir nova conversa');
-
-    Conversa.ID(Response.ToJSON.GetValue<Integer>('id'));
-
-    for Usuario in Conversa.Usuarios do
-    begin
-      Conversa.AddUsuario(Usuario);
-      Route('conversa/usuario');
-      Body(TJSONObject.Create.AddPair('conversa_id', Conversa.ID).AddPair('usuario_id', Usuario.ID));
-      PUT;
-
-      if Response.Status <> TResponseStatus.Sucess then
-        raise Exception.Create('Falha ao inserir usuário em nova conversa');
-    end;
-  finally
-    Free;
-  end;
+  ObjConversa.ID(RespConversa.Dados.id);
+  for Usuario in ObjConversa.Usuarios do
+    Conversa.Proxy.TAPIConversa.Conversa.Usuario.Incluir(RespConversa.Dados.id, Usuario.ID);
 end;
 
 function TDados.ServerOnline: Boolean;
 begin
-  try
-    with TAPIConversa.Create do
-    try
-      Route('status');
-      GET;
-      Result := True;
-    finally
-      Free;
-    end;
-  except
-    Result := False;
-  end;
+  Result := True;
+//  try
+//    with TAPIConversa.Create do
+//    try
+//      Route('status');
+//      GET;
+//      Result := True;
+//    finally
+//      Free;
+//    end;
+//  except
+//    Result := False;
+//  end;
 end;
 
 procedure TDados.AtualizarContador(const Sender: TObject; const M: TMessage);
@@ -648,7 +506,8 @@ end;
 
 procedure TDados.VisualizarMensagem(Mensagem: TMensagem);
 begin
-  Conversa.Proxy.TAPIConversa.Mensagem.Visualizar(Mensagem.Conversa.ID, Mensagem.ID);
+  if Mensagem.ID > 0 then
+    Conversa.Proxy.TAPIConversa.Mensagem.Visualizar(Mensagem.Conversa.ID, Mensagem.ID);
 end;
 
 procedure TDados.SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);

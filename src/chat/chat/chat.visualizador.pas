@@ -127,8 +127,13 @@ var
   frmMsgAudio: TChatConteudoMensagemAudio;
   iTop: Integer;
 begin
+  {TODO -oDaniel -cValidar : Inclusão Repetida}
   if FMensagens.ContainsKey(ID) then
-    raise Exception.Create('Mensagem já inserida!');
+  begin
+    Sleep(0);
+    Exit;
+  end;
+    //raise Exception.Create('Mensagem já inserida!');
 
   frmMensagem := TChatMensagem.Create(Self, ID);
   frmMensagem.Nome := Usuario;

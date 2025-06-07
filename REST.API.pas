@@ -136,7 +136,7 @@ type
     class function New(const Method: TFunc<String>): TAuthBearer; overload;
   end;
 
-  TRESTMethod = (None, GET, POST, PUT, DELETE);
+  TRESTMethod = (None, GET, POST, PUT, DELETE, PATCH);
 
   TRESTAPI = class
   private type
@@ -185,6 +185,7 @@ type
     function POST: TRESTAPI; overload; virtual;
     function PUT: TRESTAPI; overload; virtual;
     function DELETE: TRESTAPI; overload; virtual;
+    function PATCH: TRESTAPI; overload; virtual;
   end;
 
 implementation
@@ -356,6 +357,11 @@ begin
   Result := Method(TRESTMethod.DELETE).InternalExecute;
 end;
 
+function TRESTAPI.PATCH: TRESTAPI;
+begin
+  Result := Method(TRESTMethod.PATCH).InternalExecute;
+end;
+
 function TRESTAPI.InternalExecute: TRESTAPI;
 begin
   Result := Self;
@@ -378,6 +384,7 @@ begin
       TRESTMethod.POST  : PrepareResponse(Client.Post(URI, FBody.ToStream, nil, FHeaders.ToHeaders));
       TRESTMethod.PUT   : PrepareResponse(Client.Put(URI, FBody.ToStream, nil, FHeaders.ToHeaders));
       TRESTMethod.DELETE: PrepareResponse(Client.Delete(URI, nil, FHeaders.ToHeaders));
+      TRESTMethod.PATCH : PrepareResponse(Client.Patch(URI, FBody.ToStream, nil, FHeaders.ToHeaders));
     end;
   except on E: Exception do
     begin

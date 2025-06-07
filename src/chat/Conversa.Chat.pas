@@ -222,7 +222,7 @@ end;
 procedure TChat.AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
 var
   Mensagem: TMensagem;
-  Cont: chat.tipos.TConteudo;
+  I: Integer;
 begin
   if not Assigned(Conversa) then
     Exit;
@@ -236,13 +236,14 @@ begin
     .Remetente(Dados.FDadosApp.Usuario)
     .Conversa(Conversa);
 
-  for Cont in Conteudos do
+  for I := 0 to Pred(Length(Conteudos)) do
     Mensagem.Conteudos.Add(
       TConteudo.New(0)
-        .Tipo(TTipoConteudo(Succ(Integer(Cont.Tipo))))
-        .Conteudo(Cont.Conteudo)
-        .Nome(Cont.Nome)
-        .Extensao(Cont.Extensao)
+        .Tipo(TTipoConteudo(Succ(Integer(Conteudos[I].Tipo))))
+        .Conteudo(Conteudos[I].Conteudo)
+        .Nome(Conteudos[I].Nome)
+        .Extensao(Conteudos[I].Extensao)
+        .Ordem(I)
     );
 
   if Assigned(AoEnviarMensagem) then

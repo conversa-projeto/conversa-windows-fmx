@@ -109,7 +109,8 @@ end;
 procedure TPrincipal.ObterMensagens(const Sender: TObject; const M: TObterMensagens);
 begin
   for var Item in M.Value.Dados do
-    edtMensagem.Text := Item.remetente;
+    if Item.alterada <> 0 then
+      edtMensagem.Text := Item.id.ToString;
 end;
 
 procedure TPrincipal.ObterMensagemStatus(const Sender: TObject; const M: TObterMensagensStatus);
@@ -126,7 +127,7 @@ procedure TPrincipal.btnLoginClick(Sender: TObject);
 var
   RespostaLogin: TRespostaLogin;
 begin
-  RespostaLogin := TAPIConversa.Login('37409-eduardo', '123');
+  RespostaLogin := TAPIConversa.Login('daniel', '123');
   edtLogin.Text := RespostaLogin.nome;
 end;
 
@@ -148,7 +149,7 @@ end;
 
 procedure TPrincipal.btnMensagensClick(Sender: TObject);
 begin
-  TAPIConversa.Mensagens(1, 0, 10, 10, 0, 0);
+  TAPIConversa.Mensagens(1, 0, 10, 10);
 end;
 
 procedure TPrincipal.btnEnviarClick(Sender: TObject);
@@ -157,7 +158,6 @@ var
 begin
   req := Default(TReqMensagem);
   req.conversa_id := 1;
-  req.inserida := Now;
   req.conteudos := [];
   TAPIConversa.Mensagem.Incluir(req);
 end;

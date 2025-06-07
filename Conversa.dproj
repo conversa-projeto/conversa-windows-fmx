@@ -316,6 +316,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
         <DCCReference Include="src\Conversa.Proxy.pas"/>
         <DCCReference Include="src\Conversa.Proxy.Tipos.pas"/>
         <DCCReference Include="src\Conversa.Evento.Base.pas"/>
+        <DCCReference Include="src\Conversa.Serializer.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

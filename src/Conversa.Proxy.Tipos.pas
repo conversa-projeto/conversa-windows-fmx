@@ -17,12 +17,24 @@ type
 
   TRespostaErro = TResposta<Integer>;
 
+  TDispositivo = record
+    id: Integer;
+    nome: String;
+    modelo: String;
+    versao_so: String;
+    plataforma: String;
+    usuario_id: Integer;
+  end;
+
+  TRespostaDispositivo = TResposta<TDispositivo>;
+
   TRespostaLogin = record
     id: Integer;
     nome: String;
     email: String;
     telefone: String;
     token: String;
+    dispositivo: TDispositivo;
   end;
 
   TConversa = record
@@ -51,16 +63,7 @@ type
 
   TContatos = TArray<TContato>;
 
-  TDispositivo = record
-    id: Integer;
-    nome: String;
-    modelo: String;
-    versao_so: String;
-    plataforma: String;
-    usuario_id: Integer;
-  end;
 
-  TRespostaDispositivo = TResposta<TDispositivo>;
 
   TReqUsuario = record
     nome: String;
@@ -77,8 +80,8 @@ type
   end;
 
   TReqMensagem = record
-    [JsonIgnoreAttribute]
-    local_id: Integer;
+//    [JsonIgnoreAttribute]
+//    local_id: Integer;
     conversa_id: Integer;
     conteudos: TArray<TReqMensagemConteudo>;
   end;
@@ -95,6 +98,7 @@ type
   end;
   TMensagemConteudos = TArray<TMensagemConteudo>;
   TMensagem = record
+//    local_id: Integer;
     id: Integer;
     remetente_id: Integer;
     remetente: String;

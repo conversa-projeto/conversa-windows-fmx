@@ -9,9 +9,9 @@ uses
   Conversa.Proxy.Tipos;
 
 type
-  TDispositivo = record
-    procedure Incluir(DeviceInfo: TDeviceInfo);
-    procedure Alterar(DeviceInfo: TDeviceInfo);
+  TDispositivoProxy = record
+    function Incluir(DeviceInfo: TDispositivo): TRespostaDispositivo;
+    procedure Alterar(DeviceInfo: TDispositivo);
     procedure Usuario(DispositivoID: Integer);
   end;
 
@@ -34,7 +34,8 @@ type
   end;
 
   TConversa = record
-    procedure Incluir(sDescricao: String; iTipo: Integer);
+    class var Usuario: TConversaUsuario;
+    function Incluir(sDescricao: String; iTipo: Integer): TRespostaConversa;
     procedure Alterar(ID: Integer; sDescricao: String; iTipo: Integer);
     procedure Excluir(ID: Integer);
   end;
@@ -43,7 +44,7 @@ type
     procedure Incluir(Mensagem: TReqMensagem);
     procedure Excluir(ID: Integer);
     procedure Visualizar(iConversa, iMensagem: Integer);
-    procedure Status(iConversa, iMensagem: Integer);
+    procedure Status(iConversa: Integer; sMensagensId: String);
   end;
 
   TAnexo = record
@@ -54,14 +55,15 @@ type
 
   TAPIConversa = record
   public
+    class function TokenJWT: String; static;
     class var Usuario: TUsuario;
     class var Mensagem: TMensagem;
-    class var Dispositivo: TDispositivo;
+    class var Dispositivo: TDispositivoProxy;
     class var Conversa: TConversa;
     class var Anexo: TAnexo;
     class function Login(sLogin, sSenha: String): TRespostaLogin; static;
     class procedure Conversas; static;
-    class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes, OffSetAnterior, OffSetPosterior: Integer); static;
+    class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer); static;
     class procedure MensagensNovas(UltimaMensagem: Integer); static;
   end;
 
@@ -209,7 +211,7 @@ begin
   ).Start;
 end;
 
-class procedure TAPIConversa.Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes, OffSetAnterior, OffSetPosterior: Integer);
+class procedure TAPIConversa.Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer);
 begin
   TThread.CreateAnonymousThread(
     procedure
@@ -224,8 +226,6 @@ begin
             .AddPair('mensagemreferencia', MensagemReferencia)
             .AddPair('mensagensprevias', MensagensPrevias)
             .AddPair('mensagensseguintes', MensagensSeguintes)
-            .AddPair('offsetanterior', OffSetAnterior)
-            .AddPair('offsetposterior', OffSetPosterior)
         );
         Route('mensagens');
         GET;
@@ -285,6 +285,11 @@ begin
   ).Start;
 end;
 
+class function TAPIConversa.TokenJWT: String;
+begin
+  Result := TAPIInternal.FToken;
+end;
+
 { TUsuario }
 
 procedure TUsuario.Incluir(Usuario: TReqUsuario);
@@ -324,7 +329,7 @@ begin
 
     Route('usuario');
     Body(oUsuario);
-    PATH;
+//    PATH;
     ValidarErro(Response);
   finally
     Free;
@@ -346,6 +351,7 @@ end;
 
 function TUsuario.Contatos: TContatos;
 begin
+  {TODO -oDaniel -cEventos : Refatorar usuario/contatos para utilizar eventos}
   with TAPIInternal.Create do
   try
     Route('usuario/contatos');
@@ -390,45 +396,57 @@ end;
 
 { TDispositivo }
 
-procedure TDispositivo.Incluir(DeviceInfo: TDeviceInfo);
+function TDispositivoProxy.Incluir(DeviceInfo: TDispositivo): TRespostaDispositivo;
 begin
   with TAPIInternal.Create do
   try
     Route('dispositivo');
     Body(
       TJSONObject.Create
-        .AddPair('nome', DeviceInfo.DeviceName)
-        .AddPair('modelo', DeviceInfo.Model)
-        .AddPair('versao_so', DeviceInfo.OSVersion)
-        .AddPair('plataforma', DeviceInfo.Platform)
+        .AddPair('nome', DeviceInfo.nome)
+        .AddPair('modelo', DeviceInfo.modelo)
+        .AddPair('versao_so', DeviceInfo.versao_so)
+        .AddPair('plataforma', DeviceInfo.plataforma)
+        .AddPair('usuario_id', DeviceInfo.usuario_id)
     );
     PUT;
     ValidarErro(Response);
+    Result.Status := Response.Status;
+
+    if Result.Status <> TResponseStatus.Sucess then
+      Result.Erro := Response.ToString;
+
+    with TJsonSerializer.Create do
+    try
+      Result.Dados := Deserialize<TDispositivo>(Response.ToString);
+    finally
+      Free;
+    end;
   finally
     Free;
   end;
 end;
 
-procedure TDispositivo.Alterar(DeviceInfo: TDeviceInfo);
+procedure TDispositivoProxy.Alterar(DeviceInfo: TDispositivo);
 begin
   with TAPIInternal.Create do
   try
     Route('dispositivo');
       Body(
         TJSONObject.Create
-          .AddPair('nome', DeviceInfo.DeviceName)
-          .AddPair('modelo', DeviceInfo.Model)
-          .AddPair('versao_so', DeviceInfo.OSVersion)
-          .AddPair('plataforma', DeviceInfo.Platform)
+          .AddPair('nome', DeviceInfo.nome)
+          .AddPair('modelo', DeviceInfo.modelo)
+          .AddPair('versao_so', DeviceInfo.versao_so)
+          .AddPair('plataforma', DeviceInfo.plataforma)
       );
-    PATH;
+//    PATH;
     ValidarErro(Response);
   finally
     Free;
   end;
 end;
 
-procedure TDispositivo.Usuario(DispositivoID: Integer);
+procedure TDispositivoProxy.Usuario(DispositivoID: Integer);
 begin
   with TAPIInternal.Create do
   try
@@ -471,7 +489,7 @@ end;
 
 { TConversa }
 
-procedure TConversa.Incluir(sDescricao: String; iTipo: Integer);
+function TConversa.Incluir(sDescricao: String; iTipo: Integer): TRespostaConversa;
 begin
   with TAPIInternal.Create do
   try
@@ -484,6 +502,14 @@ begin
     );
     PUT;
     ValidarErro(Response);
+
+    Result.Status := Response.Status;
+    with TJsonSerializer.Create do
+    try
+      Result.Dados := Deserialize<Conversa.Proxy.Tipos.TConversa>(Response.ToString);
+    finally
+      Free;
+    end;
   finally
     Free;
   end;
@@ -500,7 +526,7 @@ begin
         .AddPair('descricao', sDescricao)
         .AddPair('tipo', iTipo)
     );
-    PATH;
+//    PATH;
     ValidarErro(Response);
   finally
     Free;
@@ -529,8 +555,8 @@ begin
     Route('conversa/usuario');
     Body(
       TJSONObject.Create
-        .AddPair('usuario_id', Conversa)
-        .AddPair('conversa_id', Usuario)
+        .AddPair('conversa_id', Conversa)
+        .AddPair('usuario_id', Usuario)
     );
     PUT;
     ValidarErro(Response);
@@ -557,6 +583,7 @@ end;
 procedure TMensagem.Incluir(Mensagem: TReqMensagem);
 var
   oMensagem: TJSONObject;
+  Resposta: TRespostaMensagem;
 begin
   with TAPIInternal.Create do
   try
@@ -571,12 +598,16 @@ begin
     Body(oMensagem);
     PUT;
     ValidarErro(Response);
+    Resposta.Status := Response.Status;
+    Resposta.Erro := MensagemErro;
+//    Resposta.Dados := TJsonSerializer<Conversa.Proxy.Tipos.TMensagem>.FromStr(Response.ToString);
+//    TEnvioMensagem.Send(Resposta);
   finally
     Free;
   end;
 end;
 
-procedure TMensagem.Status(iConversa, iMensagem: Integer);
+procedure TMensagem.Status(iConversa: Integer; sMensagensId: String);
 begin
   TThread.CreateAnonymousThread(
     procedure
@@ -589,7 +620,7 @@ begin
         Query(
           TJSONObject.Create
             .AddPair('conversa', iConversa)
-            .AddPair('mensagem', iMensagem)
+            .AddPair('mensagem', sMensagensId)
         );
         GET;
 
@@ -678,6 +709,7 @@ begin
       try
         Route('anexo');
         Query(
+
           TJSONObject.Create
             .AddPair('tipo', iTipo)
             .AddPair('nome', sNome)
