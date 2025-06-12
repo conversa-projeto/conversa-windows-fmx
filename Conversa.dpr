@@ -7,6 +7,7 @@ uses
   MidasLib,
   System.StartUpCopy,
   FMX.Forms,
+  System.SysUtils,
   Conversa.Tipos in 'src\Conversa.Tipos.pas',
   Conversa.Login in 'Conversa.Login.pas' {Login: TFrame},
   Conversa.Dados in 'Conversa.Dados.pas' {Dados: TDataModule},
@@ -51,9 +52,16 @@ begin
   if not Iniciar then
     Exit;
 
-  Application.Initialize;
-  Application.CreateForm(TDados, Dados);
-  Application.CreateForm(TTelaInicial, TelaInicial);
-  Application.Run;
-  Finalizar;
+  try
+    Application.Initialize;
+    Application.CreateForm(TDados, Dados);
+    try
+      Application.CreateForm(TTelaInicial, TelaInicial);
+      Application.Run;
+    finally
+      FreeAndNil(Dados);
+    end;
+  finally
+    Finalizar;
+  end;
 end.

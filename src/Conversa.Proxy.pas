@@ -56,7 +56,6 @@ type
 
   TAPIConversa = record
   public
-    class function TokenJWT: String; static;
     class var Usuario: TUsuario;
     class var Mensagem: TMensagem;
     class var Dispositivo: TDispositivoProxy;
@@ -267,42 +266,32 @@ begin
 end;
 
 class procedure TAPIConversa.MensagensNovas(UltimaMensagem: Integer);
+var
+  Resposta: TRespostaMensagensNovas;
 begin
-  TThread.CreateAnonymousThread(
-    procedure
-    var
-      Resposta: TRespostaMensagensNovas;
+  with TAPIInternal.Create do
+  try
+    Query(TJSONObject.Create.AddPair('ultima', UltimaMensagem));
+    Route('mensagens/novas');
+    GET;
+
+    Resposta.Status := Response.Status;
+    Resposta.Erro := MensagemErro;
+
+    if Response.Status = TResponseStatus.Sucess then
     begin
-      with TAPIInternal.Create do
+      with TJsonSerializer.Create do
       try
-        Query(TJSONObject.Create.AddPair('ultima', UltimaMensagem));
-        Route('mensagens/novas');
-        GET;
-
-        Resposta.Status := Response.Status;
-        Resposta.Erro := MensagemErro;
-
-        if Response.Status = TResponseStatus.Sucess then
-        begin
-          with TJsonSerializer.Create do
-          try
-            Resposta.Dados := Deserialize<TMensagensNovas>(Response.ToString);
-          finally
-            Free;
-          end;
-        end;
-
-        TObterMensagensNovas.Send(Resposta);
+        Resposta.Dados := Deserialize<TMensagensNovas>(Response.ToString);
       finally
         Free;
       end;
-    end
-  ).Start;
-end;
+    end;
 
-class function TAPIConversa.TokenJWT: String;
-begin
-  Result := TAPIInternal.FToken;
+    TObterMensagensNovas.Send(Resposta);
+  finally
+    Free;
+  end;
 end;
 
 { TUsuario }

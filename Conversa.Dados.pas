@@ -10,6 +10,7 @@ uses
   System.StrUtils,
   System.Generics.Collections,
   System.Messaging,
+  System.Threading,
   Data.DB,
   Datasnap.DBClient,
   FMX.Types,
@@ -25,24 +26,23 @@ uses
 
 type
   TDados = class(TDataModule)
-    tmrAtualizarMensagens: TTimer;
     procedure DataModuleCreate(Sender: TObject);
-    procedure tmrAtualizarMensagensTimer(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
   private
+    FMonitorarAtualizacoesAtivo: Boolean;
+    FMonitoraAtualizacoes: ITask;
     FEventosNovasMensagens: TArray<TProc<Integer>>;
     procedure ObterConversas(const Sender: TObject; const M: TObterConversas);
     procedure EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
     procedure ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
     procedure ObterMensagensStatus(const Sender: TObject; const M: TObterMensagensStatus);
+    procedure MonitoraAtualizacoes;
   public
-    FTokenJWT: String;
     FDadosApp: TDadosApp;
-
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-
     procedure Login(sLogin, sSenha: String);
+    procedure IniciarMonitoramento;
     function ServerOnline: Boolean;
     procedure CarregarContatos;
     procedure CarregarConversas;
@@ -50,7 +50,6 @@ type
     function Mensagens(iConversa: Integer; iInicio: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
-//    procedure Contatos(Proc: TProc<TJSONArray>);
     procedure NovoChat(var ObjConversa: TConversa);
     procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
@@ -93,6 +92,8 @@ const
 constructor TDados.Create(AOwner: TComponent);
 begin
   inherited;
+  FMonitorarAtualizacoesAtivo := True;
+  FMonitoraAtualizacoes := TTask.Create(MonitoraAtualizacoes);
   TObterConversas.Subscribe(ObterConversas);
   TObterMensagens.Subscribe(EventoObterMensagens);
   TObterMensagensNovas.Subscribe(ObterMensagensNovas);
@@ -101,6 +102,8 @@ end;
 
 destructor TDados.Destroy;
 begin
+  FMonitorarAtualizacoesAtivo := False;
+  TTask.WaitForAll([FMonitoraAtualizacoes]);
   TObterMensagensStatus.Unsubscribe(ObterMensagensStatus);
   TObterMensagensNovas.Unsubscribe(ObterMensagensNovas);
   TObterMensagens.Unsubscribe(EventoObterMensagens);
@@ -135,8 +138,6 @@ begin
     Device.id := dispositivo.id;
   end;
 
-  FTokenJWT := Conversa.Proxy.TAPIConversa.TokenJWT;
-
   if Configuracoes.DispositivoId = Device.id then
     Exit;
 
@@ -150,6 +151,37 @@ begin
     Conversa.Proxy.TAPIConversa.Dispositivo.Alterar(Device);
     Configuracoes.DispositivoId := Device.id;
     Configuracoes.Save;
+  end;
+end;
+
+procedure TDados.MonitoraAtualizacoes;
+var
+  I: Integer;
+  ObjConversa: TConversa;
+  Mensagens: TArrayMensagens;
+  sIDMensagens: String;
+begin
+  while FMonitorarAtualizacoesAtivo do
+  try
+    try
+      for ObjConversa in FDadosApp.Conversas.Items do
+      begin
+        Mensagens := ObjConversa.Mensagens.ParaAtualizar;
+        if Length(Mensagens) = 0 then
+          Continue;
+
+        sIDMensagens := EmptyStr;
+        for I := 0 to Pred(Length(Mensagens)) do
+          sIDMensagens := sIDMensagens + IfThen(not sIDMensagens.Trim.IsEmpty, ',') + Mensagens[I].ID.ToString;
+
+        Conversa.Proxy.TAPIConversa.Mensagem.Status(ObjConversa.ID, sIDMensagens);
+      end;
+
+      Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
+    except
+    end;
+  finally
+    Sleep(500);
   end;
 end;
 
@@ -177,7 +209,7 @@ var
   IDMsg: Integer;
   Msgs: TArrayMensagens;
 begin
-  ObjConversa := FDadosApp.Conversas.Get(iConversa);
+  ObjConversa := FDadosApp.Conversas.GetOrAdd(iConversa);
   // Melhorar aqui
   if not Assigned(ObjConversa) then
   begin
@@ -314,7 +346,7 @@ begin
 
   for prxConversa in M.Value.Dados do
   begin
-    Conversa := FDadosApp.Conversas.Get(prxConversa.id);
+    Conversa := FDadosApp.Conversas.GetOrAdd(prxConversa.id);
 
     if not Assigned(Conversa) then
     begin
@@ -429,37 +461,14 @@ begin
   Result := Conversa.Mensagens.ParaExibir(ApenasPendente);
 end;
 
+procedure TDados.IniciarMonitoramento;
+begin
+  FMonitoraAtualizacoes.Start;
+end;
+
 procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
 begin
   FEventosNovasMensagens := FEventosNovasMensagens + [Evento];
-end;
-
-procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
-var
-  I: Integer;
-  ObjConversa: TConversa;
-  Mensagens: TArrayMensagens;
-  sIDMensagens: String;
-begin
-  Dados.tmrAtualizarMensagens.Enabled := False;
-  try
-    for ObjConversa in FDadosApp.Conversas.Items do
-    begin
-      Mensagens := ObjConversa.Mensagens.ParaAtualizar;
-      if Length(Mensagens) = 0 then
-        Continue;
-
-      sIDMensagens := EmptyStr;
-      for I := 0 to Pred(Length(Mensagens)) do
-        sIDMensagens := sIDMensagens + IfThen(not sIDMensagens.Trim.IsEmpty, ',') + Mensagens[I].ID.ToString;
-
-      Conversa.Proxy.TAPIConversa.Mensagem.Status(ObjConversa.ID, sIDMensagens);
-    end;
-
-    Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
-  finally
-    Dados.tmrAtualizarMensagens.Enabled := True;
-  end;
 end;
 
 function TDados.UltimaMensagemNotificada: Integer;

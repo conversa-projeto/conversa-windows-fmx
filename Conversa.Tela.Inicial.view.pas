@@ -223,7 +223,7 @@ begin
   end;
   Dados.CarregarContatos;
   Dados.CarregarConversas;
-  Dados.tmrAtualizarMensagens.Enabled := True;
+  Dados.IniciarMonitoramento;
 end;
 
 procedure TTelaInicial.AdicionarTrayIcon;
