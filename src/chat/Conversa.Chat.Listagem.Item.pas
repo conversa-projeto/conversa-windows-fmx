@@ -81,6 +81,7 @@ begin
   Result.Parent := TFmxObject(AOwner);
   Result.Align := TAlignLayout.Client;
   Result.FConversa := Conversa;
+  Result.rctCount.Visible := False;
   Result.AtualizarContador(0);
   Result.Configurar;
   Result.Selecionado(False);
@@ -192,10 +193,10 @@ begin
   try
     if FConversa.MensagemSemVisualizar <= 0 then
     begin
+      rctCount.Visible := False;
       lblNome.TextSettings.Font.Style := lblNome.TextSettings.Font.Style - [TFontStyle.fsBold];
       txtMensagem.TextSettings.Font.Style := txtMensagem.TextSettings.Font.Style - [TFontStyle.fsBold];
       txtDataHora.TextSettings.Font.Style := txtDataHora.TextSettings.Font.Style - [TFontStyle.fsBold];
-      rctCount.Visible := False;
       Exit;
     end;
 

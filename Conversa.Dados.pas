@@ -177,7 +177,8 @@ begin
         Conversa.Proxy.TAPIConversa.Mensagem.Status(ObjConversa.ID, sIDMensagens);
       end;
 
-      Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
+      if Length(FDadosApp.Conversas.Items) > 0 then
+        Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
     except
     end;
   finally
@@ -209,7 +210,7 @@ var
   IDMsg: Integer;
   Msgs: TArrayMensagens;
 begin
-  ObjConversa := FDadosApp.Conversas.GetOrAdd(iConversa);
+  ObjConversa := FDadosApp.Conversas.Get(iConversa);
   // Melhorar aqui
   if not Assigned(ObjConversa) then
   begin
@@ -346,8 +347,7 @@ begin
 
   for prxConversa in M.Value.Dados do
   begin
-    Conversa := FDadosApp.Conversas.GetOrAdd(prxConversa.id);
-
+    Conversa := FDadosApp.Conversas.Get(prxConversa.id);
     if not Assigned(Conversa) then
     begin
       bNova := True;
@@ -361,10 +361,10 @@ begin
     Conversa.AddUsuario(FDadosApp.Usuario);
     Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(prxConversa.destinatario_id).Nome(prxConversa.nome));
     Conversa.UltimaMensagem(prxConversa.ultima_mensagem_texto);
-    Conversa.CriadoEm(TTimeZone.Local.ToLocalTime(prxConversa.inserida));
+    Conversa.CriadoEm((prxConversa.inserida));
 
     if prxConversa.ultima_mensagem <> 0 then
-      Conversa.UltimaMensagemData(TTimeZone.Local.ToLocalTime(prxConversa.ultima_mensagem));
+      Conversa.UltimaMensagemData((prxConversa.ultima_mensagem));
 
     if (Conversa.MensagemSemVisualizar = 0) and (prxConversa.mensagens_sem_visualizar <> 0) then
       Conversa.MensagemSemVisualizar := prxConversa.mensagens_sem_visualizar;
@@ -373,6 +373,7 @@ begin
       FDadosApp.Conversas.Add(Conversa);
 
     FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, prxConversa.mensagem_id);
+    TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoListaConversa.Create(0));
   end;
   AtualizarContador(nil, nil);
   TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));

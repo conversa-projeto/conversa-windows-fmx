@@ -130,7 +130,7 @@ begin
     if Msg.Conteudos.Count > 0 then
     begin
       case Msg.Conteudos[0].tipo of
-        TTipoConteudo.Texto:   sConteudo := Msg.Conteudos[0].conteudo;
+        TTipoConteudo.Texto:   sConteudo := IfThen(Msg.Lado = TLadoMensagem.Direito, 'Você: ', '') + Msg.Conteudos[0].conteudo;
         TTipoConteudo.Imagem:  sConteudo := 'Imagem';
         TTipoConteudo.Arquivo: sConteudo := 'Arquivo';
       end;

@@ -27,7 +27,8 @@ uses
   Conversa.FrameBase,
   Conversa.Tipos,
   Conversa.Eventos,
-  Conversa.Chat.Listagem.Item;
+  Conversa.Chat.Listagem.Item,
+  Conversa.Loading.Pontos.frame;
 
 type
   TChat = class(TFrameBase)
@@ -41,6 +42,10 @@ type
     lblNome: TLabel;
     lytClient: TLayout;
     pthFotoDefault: TPath;
+    lytActionDigitandoClient: TLayout;
+    txtNomeDigitando: TText;
+    LoadingAction: TConversaLoadingPontosFrame;
+    lytActionDigitando: TLayout;
   private
     FConversa: TConversa;
     FVisualizador: TChatVisualizador;
@@ -97,6 +102,7 @@ begin
   Visible := True;
   lytFoto.Visible := False;
   lblNome.Visible := True;
+  lytActionDigitandoClient.Visible := False;
 
   CriarControles;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoMensagem, AoAtualizarMensagem);
@@ -124,7 +130,7 @@ begin
 
   Editor := TChatEditor.Create(lytClient);
   lytClient.AddObject(Editor);
-  Editor.Align := TAlignLayout.Bottom;
+  Editor.Align := TAlignLayout.MostBottom;
   Editor.AoEnviar := AoEnviar;
   Editor.LarguraMaximaConteudo := 800;
 end;

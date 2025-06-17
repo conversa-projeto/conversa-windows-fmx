@@ -1,0 +1,76 @@
+object ConversaLoadingPontosFrame: TConversaLoadingPontosFrame
+  Size.Width = 200.000000000000000000
+  Size.Height = 100.000000000000000000
+  Size.PlatformDefault = False
+  object lytgCentro: TGridLayout
+    Align = Center
+    ItemHeight = 10.000000000000000000
+    ItemWidth = 10.000000000000000000
+    Orientation = Horizontal
+    Size.Width = 30.000000000000000000
+    Size.Height = 10.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object crclA: TCircle
+      Align = Left
+      Fill.Color = claBlack
+      Margins.Right = 5.000000000000000000
+      Size.Width = 5.000000000000000000
+      Size.Height = 10.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      object aniA: TColorAnimation
+        AutoReverse = True
+        Enabled = True
+        Duration = 0.400000005960464500
+        Inverse = True
+        Loop = True
+        PropertyName = 'Fill.Color'
+        StartValue = claBlue
+        StopValue = claWhite
+      end
+    end
+    object crclB: TCircle
+      Align = Left
+      Fill.Color = claBlack
+      Margins.Right = 5.000000000000000000
+      Position.X = 10.000000000000000000
+      Size.Width = 5.000000000000000000
+      Size.Height = 10.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      object aniB: TColorAnimation
+        AutoReverse = True
+        Enabled = True
+        Delay = 0.200000002980232200
+        Duration = 0.400000005960464500
+        Inverse = True
+        Loop = True
+        PropertyName = 'Fill.Color'
+        StartValue = claBlue
+        StopValue = claWhite
+      end
+    end
+    object crclC: TCircle
+      Align = Left
+      Fill.Color = claBlack
+      Margins.Right = 5.000000000000000000
+      Position.X = 20.000000000000000000
+      Size.Width = 5.000000000000000000
+      Size.Height = 10.000000000000000000
+      Size.PlatformDefault = False
+      Stroke.Kind = None
+      object aniC: TColorAnimation
+        AutoReverse = True
+        Enabled = True
+        Delay = 0.400000005960464500
+        Duration = 0.400000005960464500
+        Inverse = True
+        Loop = True
+        PropertyName = 'Fill.Color'
+        StartValue = claBlue
+        StopValue = claWhite
+      end
+    end
+  end
+end

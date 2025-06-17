@@ -96,7 +96,8 @@ type
 constructor TAPIInternal.Create;
 begin
   inherited;
-  Host('http://localhost:90');
+  Host(Configuracoes.Host);
+
   if not FToken.IsEmpty then
     Authorization(TAuthBearer.New(FToken));
   FMensagemErro := EmptyStr;

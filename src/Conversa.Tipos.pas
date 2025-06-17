@@ -364,7 +364,7 @@ begin
     FConversas[High(FConversas)] := Conversa;
   end;
 
-  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoListaConversa.Create(0));
+//  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizacaoListaConversa.Create(0));
 end;
 
 function TConversas.Get(const ID: Integer): TConversa;

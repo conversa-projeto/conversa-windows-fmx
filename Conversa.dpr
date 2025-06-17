@@ -43,7 +43,8 @@ uses
   Conversa.Proxy in 'src\Conversa.Proxy.pas',
   Conversa.Proxy.Tipos in 'src\Conversa.Proxy.Tipos.pas',
   Conversa.Evento.Base in 'src\Conversa.Evento.Base.pas',
-  Conversa.Serializer in 'src\Conversa.Serializer.pas';
+  Conversa.Serializer in 'src\Conversa.Serializer.pas',
+  Conversa.Loading.Pontos.frame in 'src\Conversa.Loading.Pontos.frame.pas' {ConversaLoadingPontosFrame: TFrame};
 
 {$R *.res}
 begin
@@ -55,7 +56,7 @@ begin
   try
     Application.Initialize;
     Application.CreateForm(TDados, Dados);
-    try
+  try
       Application.CreateForm(TTelaInicial, TelaInicial);
       Application.Run;
     finally

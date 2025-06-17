@@ -215,13 +215,13 @@ end;
 
 procedure TTelaInicial.ExibirTelaPrincipal;
 begin
+  Dados.CarregarContatos;
   with TPrincipalView.New(lytClientForm) do
   begin
     lytTitleBarClient.Parent := Self.lytTitleBarClient;
     lytTitleBarClient.Align := TAlignLayout.Client;
     txtUserLetra.Text := Dados.FDadosApp.Usuario.Abreviatura;
   end;
-  Dados.CarregarContatos;
   Dados.CarregarConversas;
   Dados.IniciarMonitoramento;
 end;

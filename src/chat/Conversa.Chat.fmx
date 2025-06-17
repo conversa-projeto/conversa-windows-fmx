@@ -123,6 +123,44 @@ inherited Chat: TChat
       Size.Height = 658.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 0
+      object lytActionDigitando: TLayout
+        Align = Bottom
+        Position.Y = 638.000000000000000000
+        Size.Width = 622.000000000000000000
+        Size.Height = 20.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object lytActionDigitandoClient: TLayout
+          Align = Bottom
+          Padding.Left = 8.000000000000000000
+          Padding.Right = 8.000000000000000000
+          Size.Width = 622.000000000000000000
+          Size.Height = 20.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          object txtNomeDigitando: TText
+            Align = VertCenter
+            AutoSize = True
+            Position.X = 48.000000000000000000
+            Position.Y = 2.000000000000000000
+            Size.Width = 57.576335906982420000
+            Size.Height = 14.630859375000000000
+            Size.PlatformDefault = False
+            Text = 'digitando...'
+            TextSettings.Font.Size = 11.000000000000000000
+            TextSettings.FontColor = claGray
+            TextSettings.WordWrap = False
+            TextSettings.HorzAlign = Leading
+          end
+          inline LoadingAction: TConversaLoadingPontosFrame
+            Align = Left
+            Position.X = 8.000000000000000000
+            Size.Width = 40.000000000000000000
+            Size.Height = 20.000000000000000000
+            Size.PlatformDefault = False
+          end
+        end
+      end
     end
   end
 end
