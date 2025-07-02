@@ -46,7 +46,6 @@ type
     procedure tmrExibirTimer(Sender: TObject);
     procedure tmrUltimaTimer(Sender: TObject);
   private
-    procedure AoReceberMensagem(ConversaId: Integer);
     procedure btnAbrirChat(Item: TConversasItemFrame);
     procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
     procedure AtualizarChat(Mensagem: TMensagem);
@@ -54,6 +53,7 @@ type
 
     procedure AdicionarItemListagem(Conversa: TConversa; iPosicao: Integer = -1);
     procedure SelecionarItemListagem(AConversa: TConversa);
+    procedure EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
   public
     Chat: TChat;
     class function New(AOwner: TFmxObject): TChatListagem; static;
@@ -77,18 +77,19 @@ begin
   Chats.lytClient.Visible := True;
   Chats.Visible := True;
   Chats.lytClient.Align := TAlignLayout.Client;
-  Dados.ReceberNovasMensagens(Chats.AoReceberMensagem);
   Result := Chats;
 end;
 
 constructor TChatListagem.Create(AOwner: TComponent);
 begin
   inherited;
+  TExibirMensagem.Subscribe(EventoExibirMensagens);
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoAtualizacaoListaConversa, AtualizarListagem);
 end;
 
 destructor TChatListagem.Destroy;
 begin
+  TExibirMensagem.Unsubscribe(EventoExibirMensagens);
   TMessageManager.DefaultManager.Unsubscribe(TEventoAtualizacaoListaConversa, AtualizarListagem);
   if Assigned(Chat) then
     FreeAndNil(Chat);
@@ -106,53 +107,6 @@ begin
   Dados.EnviarMensagem(Mensagem);
   Chat.AdicionarMensagens([Mensagem]{Dados.ExibirMensagem(Conteudo.Conversa.ID, True)});
   AtualizarChat(Mensagem);
-end;
-
-procedure TChatListagem.AoReceberMensagem(ConversaId: Integer);
-var
-  Mensagens: TArrayMensagens;
-  Msg: TMensagem;
-  AConteudos: TArray<TMensagemNotificacao>;
-  Conversa: TConversa;
-  sConteudo: String;
-begin
-  Conversa  := Dados.FDadosApp.Conversas.Get(ConversaId);
-  Mensagens := Dados.MensagensParaNotificar(ConversaId);
-  AdicionarItemListagem(Conversa);
-
-  if Length(Mensagens) = 0 then
-    Exit;
-
-  Msg := Mensagens[Pred(Length(Mensagens))];
-  if not Assigned(Chat) or (Chat.Conversa.ID <> ConversaId) or not Self.IsFormActive then
-  begin
-    AConteudos := [];
-    if Msg.Conteudos.Count > 0 then
-    begin
-      case Msg.Conteudos[0].tipo of
-        TTipoConteudo.Texto:   sConteudo := IfThen(Msg.Lado = TLadoMensagem.Direito, 'Você: ', '') + Msg.Conteudos[0].conteudo;
-        TTipoConteudo.Imagem:  sConteudo := 'Imagem';
-        TTipoConteudo.Arquivo: sConteudo := 'Arquivo';
-      end;
-      AConteudos := [
-        TMensagemNotificacao.New
-          .ID(Msg.Conteudos[0].id)
-          .Usuario(IfThen(Conversa.Tipo = TTipoConversa.Chat, '', Msg.Remetente.Nome))
-          .Mensagem(sConteudo)
-      ];
-    end;
-    TNotificacaoManager.Apresentar(
-      TNotificacao.New
-        .ChatId(ConversaId)
-        .Nome(Conversa.Descricao)
-        .Hora(Now)
-        .Conteudo(AConteudos)
-    );
-  end;
-  if Assigned(Chat) and (Chat.Conversa.ID = ConversaId) then
-    Chat.AdicionarMensagens(Dados.ExibirMensagem(ConversaId, True));
-  PlayResource('nova_mensagem');
-  AtualizarChat(Msg);
 end;
 
 procedure TChatListagem.AtualizarChat(Mensagem: TMensagem);
@@ -284,6 +238,73 @@ begin
   finally
     // Posicionar na ultima mensagem
     tmrUltima.Enabled := True;
+  end;
+end;
+
+procedure TChatListagem.EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
+var
+  Conversas: TArrayConversas;
+  Conversa: TConversa;
+  Mensagens: TArrayMensagens;
+  Msg: TMensagem;
+  sConteudo: String;
+  AConteudos: TArray<TMensagemNotificacao>;
+begin
+  Conversas := [];
+  Conversa := nil;
+  for Msg in M.Value do
+  begin
+    for Conversa in Conversas do
+      if Conversa = Msg.Conversa then
+        Break;
+
+    if Conversa = Msg.Conversa then
+      Continue;
+
+    Conversas := Conversas + [Msg.Conversa];
+  end;
+
+  for Conversa in Conversas do
+  begin
+    if Assigned(Chat) and Assigned(Chat.Conversa) and (Chat.Conversa.ID = Conversa.ID) and Self.IsFormActive then
+      Continue;
+
+    Mensagens := Dados.MensagensParaNotificar(Conversa.ID);
+    AdicionarItemListagem(Conversa);
+
+    if Length(Mensagens) = 0 then
+      Exit;
+
+    Msg := Mensagens[Pred(Length(Mensagens))];
+    if not Assigned(Chat) or (Chat.Conversa.ID <> Conversa.ID) or not Self.IsFormActive then
+    begin
+      AConteudos := [];
+      if Msg.Conteudos.Count > 0 then
+      begin
+        case Msg.Conteudos[0].tipo of
+          TTipoConteudo.Texto:   sConteudo := IfThen(Msg.Lado = TLadoMensagem.Direito, 'Você: ', '') + Msg.Conteudos[0].conteudo;
+          TTipoConteudo.Imagem:  sConteudo := 'Imagem';
+          TTipoConteudo.Arquivo: sConteudo := 'Arquivo';
+        end;
+        AConteudos := [
+          TMensagemNotificacao.New
+            .ID(Msg.Conteudos[0].id)
+            .Usuario(IfThen(Conversa.Tipo = TTipoConversa.Chat, '', Msg.Remetente.Nome))
+            .Mensagem(sConteudo)
+        ];
+      end;
+      TNotificacaoManager.Apresentar(
+        TNotificacao.New
+          .ChatId(Conversa.ID)
+          .Nome(Conversa.Descricao)
+          .Hora(Now)
+          .Conteudo(AConteudos)
+      );
+    end;
+    if Assigned(Chat) and (Chat.Conversa.ID = Conversa.ID) then
+      Chat.AdicionarMensagens(Dados.ExibirMensagem(Conversa.ID, True));
+    PlayResource('nova_mensagem');
+    AtualizarChat(Msg);
   end;
 end;
 

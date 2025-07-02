@@ -26,12 +26,9 @@ uses
 
 type
   TDados = class(TDataModule)
-    procedure DataModuleCreate(Sender: TObject);
-    procedure DataModuleDestroy(Sender: TObject);
   private
     FMonitorarAtualizacoesAtivo: Boolean;
     FMonitoraAtualizacoes: ITask;
-    FEventosNovasMensagens: TArray<TProc<Integer>>;
     procedure ObterConversas(const Sender: TObject; const M: TObterConversas);
     procedure EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
     procedure ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
@@ -51,7 +48,6 @@ type
     procedure EnviarMensagem(Mensagem: TMensagem);
     function DownloadAnexo(sIdentificador: String): String;
     procedure NovoChat(var ObjConversa: TConversa);
-    procedure ReceberNovasMensagens(Evento: TProc<Integer>);
     function UltimaMensagemNotificada: Integer;
     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
     function MensagensSemVisualizar: Integer; overload;
@@ -94,6 +90,10 @@ begin
   inherited;
   FMonitorarAtualizacoesAtivo := True;
   FMonitoraAtualizacoes := TTask.Create(MonitoraAtualizacoes);
+
+  FDadosApp := TDadosApp.New;
+  TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
+
   TObterConversas.Subscribe(ObterConversas);
   TObterMensagens.Subscribe(EventoObterMensagens);
   TObterMensagensNovas.Subscribe(ObterMensagensNovas);
@@ -108,18 +108,8 @@ begin
   TObterMensagensNovas.Unsubscribe(ObterMensagensNovas);
   TObterMensagens.Unsubscribe(EventoObterMensagens);
   TObterConversas.Unsubscribe(ObterConversas);
-  inherited;
-end;
-
-procedure TDados.DataModuleCreate(Sender: TObject);
-begin
-  FDadosApp := TDadosApp.New;
-  TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
-end;
-
-procedure TDados.DataModuleDestroy(Sender: TObject);
-begin
   FreeAndNil(FDadosApp);
+  inherited;
 end;
 
 procedure TDados.Login(sLogin, sSenha: String);
@@ -231,7 +221,7 @@ begin
     if (MsgRef - 1) <= 0 then
       Exit;
 
-    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, MsgRef, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0);
+    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, MsgRef - 1, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0);
   end
   else
   if ObjConversa.Mensagens.UltimaMensagemSincronizada = 0 then
@@ -465,11 +455,6 @@ end;
 procedure TDados.IniciarMonitoramento;
 begin
   FMonitoraAtualizacoes.Start;
-end;
-
-procedure TDados.ReceberNovasMensagens(Evento: TProc<Integer>);
-begin
-  FEventosNovasMensagens := FEventosNovasMensagens + [Evento];
 end;
 
 function TDados.UltimaMensagemNotificada: Integer;

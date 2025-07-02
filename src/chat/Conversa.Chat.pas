@@ -212,6 +212,9 @@ begin
   try
     for Mensagem in aMensagem do
     begin
+      if Mensagem.Conversa.ID <> FConversa.ID then
+        Continue;
+
       UltimaMensagem := Max(UltimaMensagem, Mensagem.id);
       AdicionarMensagem(Mensagem);
     end;
@@ -370,7 +373,7 @@ end;
 
 procedure TChat.EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
 begin
-  AdicionarMensagens(M.Value);
+  AdicionarMensagens(M.Value.FiltrarConversa(FConversa.ID));
 end;
 
 end.

@@ -217,6 +217,7 @@ type
 
   THArrayMensagens = record Helper for TArrayMensagens
     function OrdemTempo: TArrayMensagens;
+    function FiltrarConversa(const ConversaId: Integer): TArrayMensagens;
   end;
 
   THArrayUsuarios = record Helper for TArrayUsuarios
@@ -574,7 +575,13 @@ begin
 end;
 
 procedure TMensagens.Add(const Mensagem: TMensagem);
+var
+  MsgValid: TMensagem;
 begin
+  for MsgValid in FMensagens do
+    if MsgValid = Mensagem then
+      raise Exception.Create('Mensagem já adicionada! [TMensagens].FMensagens');
+
   FMensagens := FMensagens + [Mensagem];
   FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
 
@@ -669,6 +676,7 @@ begin
   Result.FLocalId := 0;
   Result.FID := ID;
   Result.FExibida := False;
+  Result.FNotificada := False;
 end;
 
 destructor TMensagem.Destroy;
@@ -681,7 +689,6 @@ function TMensagem.LocalID: Integer;
 begin
   Result := FLocalId;
 end;
-
 
 function TMensagem.LocalID(const Value: Integer): TMensagem;
 begin
@@ -769,6 +776,9 @@ begin
     PrimeiraExibicao(not FExibida);
 
   FExibida := Value;
+  if FExibida then
+    Notificada(True);
+
   Result := Self;
 end;
 
@@ -815,7 +825,8 @@ end;
 
 function TMensagem.Notificada: Boolean;
 begin
-  Result := FNotificada;
+  // Se a mensagem já foi Visualizada então já foi "notificada"
+  Result := FNotificada or FVisualizada;
 end;
 
 function TMensagem.Notificada(const Value: Boolean): TMensagem;
@@ -1000,6 +1011,16 @@ begin
 end;
 
 { THArrayMensagens }
+
+function THArrayMensagens.FiltrarConversa(const ConversaId: Integer): TArrayMensagens;
+var
+  Msg: TMensagem;
+begin
+  Result := [];
+  for Msg in Self do
+    if Assigned(Msg.FConversa) and (Msg.Conversa.ID = ConversaId) then
+      Result := Result + [Msg];
+end;
 
 function THArrayMensagens.OrdemTempo: TArrayMensagens;
 begin
