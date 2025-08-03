@@ -580,11 +580,10 @@ var
 begin
   for MsgValid in FMensagens do
     if MsgValid = Mensagem then
-      raise Exception.Create('Mensagem já adicionada! [TMensagens].FMensagens');
+      raise Exception.Create('Mensagem já adicionada! [TMensagens].FMensagens: '+ Mensagem.FID.ToString);
 
   FMensagens := FMensagens + [Mensagem];
   FUltimaMensagemSincronizada := Max(FUltimaMensagemSincronizada, Mensagem.ID);
-
 
   if Assigned(FConversa) then
   begin

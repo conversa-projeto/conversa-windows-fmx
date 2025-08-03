@@ -14,29 +14,31 @@ uses
   Data.DB,
   Datasnap.DBClient,
   FMX.Types,
+  FMX.Dialogs,
   REST.API,
-
+  Bird.Socket.Client,
+  System.Net.URLClient,
   Conversa.Proxy,
   Conversa.Proxy.Tipos,
-
   Conversa.Eventos,
   Conversa.Tipos,
-  Conversa.Memoria,
-  FMX.Dialogs;
+  Conversa.Memoria;
 
 type
-  TDados = class(TDataModule)
+  TSocketMessageType = (Erro, Login, NovaMensagem, AtualizacaoStatusMensagem);
+
+  TDados = class
   private
-    FMonitorarAtualizacoesAtivo: Boolean;
-    FMonitoraAtualizacoes: ITask;
     procedure ObterConversas(const Sender: TObject; const M: TObterConversas);
     procedure EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
     procedure ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
     procedure ObterMensagensStatus(const Sender: TObject; const M: TObterMensagensStatus);
-    procedure MonitoraAtualizacoes;
+    procedure NotificacaoSocket(const AText: String);
   public
     FDadosApp: TDadosApp;
-    constructor Create(AOwner: TComponent); override;
+    FBirdSocket: TBirdSocketClient;
+    FToken: String;
+    constructor Create;
     destructor Destroy; override;
     procedure Login(sLogin, sSenha: String);
     procedure IniciarMonitoramento;
@@ -62,8 +64,6 @@ var
 
 implementation
 
-{%CLASSGROUP 'FMX.Controls.TControl'}
-
 uses
   System.IOUtils,
   System.DateUtils,
@@ -79,21 +79,13 @@ const
   PASTA_ANEXO = 'anexos';
   QUANTIDADE_MENSAGENS_CARREGAMENTO = 50;
 
-{%CLASSGROUP 'FMX.Controls.TControl'}
-
-{$R *.dfm}
-
 { TDados }
 
-constructor TDados.Create(AOwner: TComponent);
+constructor TDados.Create;
 begin
   inherited;
-  FMonitorarAtualizacoesAtivo := True;
-  FMonitoraAtualizacoes := TTask.Create(MonitoraAtualizacoes);
-
   FDadosApp := TDadosApp.New;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoContadorMensagemVisualizar, AtualizarContador);
-
   TObterConversas.Subscribe(ObterConversas);
   TObterMensagens.Subscribe(EventoObterMensagens);
   TObterMensagensNovas.Subscribe(ObterMensagensNovas);
@@ -102,8 +94,8 @@ end;
 
 destructor TDados.Destroy;
 begin
-  FMonitorarAtualizacoesAtivo := False;
-  TTask.WaitForAll([FMonitoraAtualizacoes]);
+  FBirdSocket.Disconnect;
+  FreeAndNil(FBirdSocket);
   TObterMensagensStatus.Unsubscribe(ObterMensagensStatus);
   TObterMensagensNovas.Unsubscribe(ObterMensagensNovas);
   TObterMensagens.Unsubscribe(EventoObterMensagens);
@@ -126,6 +118,9 @@ begin
         .Telefone(telefone);
 
     Device.id := dispositivo.id;
+
+    // Armazena o token para usar no WebSocket
+    FToken := token;
   end;
 
   if Configuracoes.DispositivoId = Device.id then
@@ -144,38 +139,6 @@ begin
   end;
 end;
 
-procedure TDados.MonitoraAtualizacoes;
-var
-  I: Integer;
-  ObjConversa: TConversa;
-  Mensagens: TArrayMensagens;
-  sIDMensagens: String;
-begin
-  while FMonitorarAtualizacoesAtivo do
-  try
-    try
-      for ObjConversa in FDadosApp.Conversas.Items do
-      begin
-        Mensagens := ObjConversa.Mensagens.ParaAtualizar;
-        if Length(Mensagens) = 0 then
-          Continue;
-
-        sIDMensagens := EmptyStr;
-        for I := 0 to Pred(Length(Mensagens)) do
-          sIDMensagens := sIDMensagens + IfThen(not sIDMensagens.Trim.IsEmpty, ',') + Mensagens[I].ID.ToString;
-
-        Conversa.Proxy.TAPIConversa.Mensagem.Status(ObjConversa.ID, sIDMensagens);
-      end;
-
-      if Length(FDadosApp.Conversas.Items) > 0 then
-        Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
-    except
-    end;
-  finally
-    Sleep(500);
-  end;
-end;
-
 function TDados.MensagensSemVisualizar: Integer;
 begin
   Result := FDadosApp.Conversas.MensagensSemVisualizar;
@@ -191,118 +154,6 @@ end;
 function TDados.MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
 begin
   Result := FDadosApp.Conversas.Get(iConversa).Mensagens.ParaNotificar;
-end;
-
-procedure TDados.ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean);
-var
-  ObjConversa: TConversa;
-  MsgRef: Integer;
-  IDMsg: Integer;
-  Msgs: TArrayMensagens;
-begin
-  ObjConversa := FDadosApp.Conversas.Get(iConversa);
-  // Melhorar aqui
-  if not Assigned(ObjConversa) then
-  begin
-    CarregarConversas;
-    ObjConversa := FDadosApp.Conversas.Get(iConversa);
-  end;
-
-  if ObjConversa.Usuarios.Count = 0 then
-    ObjConversa.AddUsuario(FDadosApp.Usuario);
-
-  if MensagemPrevia then
-  begin
-    Msgs := ObjConversa.Mensagens.Items;
-    MsgRef := ObjConversa.Mensagens.UltimaMensagemSincronizada;
-    for IDMsg := Pred(Length(Msgs)) downto 0 do
-      MsgRef := Min(Msgs[IDMsg].ID, MsgRef);
-
-    if (MsgRef - 1) <= 0 then
-      Exit;
-
-    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, MsgRef - 1, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0);
-  end
-  else
-  if ObjConversa.Mensagens.UltimaMensagemSincronizada = 0 then
-    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, 0, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0)
-  else
-    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, ObjConversa.Mensagens.UltimaMensagemSincronizada + 1, 0, QUANTIDADE_MENSAGENS_CARREGAMENTO)
-end;
-
-procedure TDados.EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
-var
-  ObjConversa: TConversa;
-  Msg: Conversa.Proxy.Tipos.TMensagem;
-  Remetente: Conversa.Tipos.TUsuario;
-  Mensagem: TMensagem;
-  Ctd: Conversa.Proxy.Tipos.TMensagemConteudo;
-  MensagemConteudo: TConteudo;
-  MsgsEvento: TArrayMensagens;
-begin
-  if M.Value.Status <> TResponseStatus.Sucess then
-    Exit;
-
-  for Msg in M.Value.Dados do
-  begin
-    ObjConversa := FDadosApp.Conversas.Get(Msg.conversa_id);
-    Remetente := FDadosApp.Usuarios.GetOrAdd(Msg.remetente_id);
-    ObjConversa.AddUsuario(Remetente);
-
-    Mensagem := ObjConversa.Mensagens.Get(Msg.id);
-
-    if not Assigned(Mensagem) then
-      Mensagem := TMensagem.New(Msg.id)
-        .Remetente(FDadosApp.Usuarios.GetOrAdd(msg.remetente_id))
-        .Conversa(ObjConversa);
-
-    if Mensagem.Remetente = FDadosApp.Usuario then
-      Mensagem.Lado(TLadoMensagem.Direito)
-    else
-      Mensagem.Lado(TLadoMensagem.Esquerdo);
-
-
-    if Msg.inserida <> 0 then
-      Mensagem.Inserida(Msg.inserida);
-    if Msg.alterada <> 0 then
-      Mensagem.Alterada(Msg.alterada);
-
-    Mensagem.Recebida(Msg.recebida);
-    Mensagem.Visualizada(Msg.visualizada);
-    Mensagem.PrimeiraExibicao((Mensagem.Lado = TLadoMensagem.Esquerdo) and not Mensagem.Visualizada);
-
-    for Ctd in Msg.conteudos do
-    begin
-      MensagemConteudo := TConteudo.New(Ctd.id);
-      MensagemConteudo.Ordem(Ctd.ordem);
-
-      if not (Ctd.tipo in [1,2,3]) then
-        Sleep(0);
-
-      MensagemConteudo.Tipo(TTipoConteudo(Ctd.tipo));
-      MensagemConteudo.Nome(Ctd.nome);
-      MensagemConteudo.Extensao(Ctd.extensao);
-      case MensagemConteudo.Tipo of
-        TTipoConteudo.Texto: MensagemConteudo.Conteudo(Ctd.conteudo);
-        TTipoConteudo.Imagem: MensagemConteudo.Conteudo(DownloadAnexo(Ctd.conteudo));
-        TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(Ctd.conteudo);
-        TTipoConteudo.MensagemAudio: MensagemConteudo.Conteudo(DownloadAnexo(Ctd.conteudo));
-      end;
-      Mensagem.conteudos.Add(MensagemConteudo);
-    end;
-    ObjConversa.Mensagens.Add(Mensagem);
-
-    if not Mensagem.Visualizada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
-      Inc(ObjConversa.MensagemSemVisualizar);
-
-    if not Mensagem.Exibida then
-      MsgsEvento := MsgsEvento + [Mensagem];
-  end;
-
-  TExibirMensagem.Send(MsgsEvento);
-
-  AtualizarContador(nil, nil);
-  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 procedure TDados.CarregarContatos;
@@ -411,33 +262,25 @@ begin
           TDirectory.CreateDirectory(PastaDados + PASTA_ANEXO + PathDelim);
 
         ss := TStringStream.Create;
-        try
-          ss.LoadFromFile(Mensagem.conteudos[iConteudo].conteudo);
-          sIdentificador := THashSHA2.GetHashString(ss);
-          ss.Position := 0;
-          ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
-          ss.Position := 0;
-          Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
-          oReqCtd.conteudo := sIdentificador;
+        ss.LoadFromFile(Mensagem.conteudos[iConteudo].conteudo);
+        sIdentificador := THashSHA2.GetHashString(ss);
+        ss.Position := 0;
+        ss.SaveToFile(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+        ss.Position := 0;
+        Mensagem.conteudos[iConteudo].conteudo(PastaDados + PASTA_ANEXO + PathDelim + sIdentificador);
+        oReqCtd.conteudo := sIdentificador;
 
-          if not TAPIConversa.Anexo.Existe(sIdentificador) then
-            TAPIConversa.Anexo.Incluir(
-              0,
-              Mensagem.conteudos[iConteudo].Nome,
-              Mensagem.conteudos[iConteudo].Extensao,
-              ss
-            );
-        finally
-//          FreeAndNil(ss);
-        end;
+        if not TAPIConversa.Anexo.Existe(sIdentificador) then
+          TAPIConversa.Anexo.Incluir(0, Mensagem.conteudos[iConteudo].Nome, Mensagem.conteudos[iConteudo].Extensao, ss);
       end;
     end;
     oReqMsg.conteudos := oReqMsg.conteudos + [oReqCtd];
   end;
 
-  Mensagem.Conversa.Mensagens.Add(Mensagem);
   with Conversa.Proxy.TAPIConversa.Mensagem.Incluir(oReqMsg) do
     Mensagem.ID(Dados.id);
+
+  Mensagem.Conversa.Mensagens.Add(Mensagem);
 end;
 
 function TDados.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TArrayMensagens;
@@ -450,11 +293,6 @@ begin
     ObterMensagens(iConversa);
 
   Result := Conversa.Mensagens.ParaExibir(ApenasPendente);
-end;
-
-procedure TDados.IniciarMonitoramento;
-begin
-  FMonitoraAtualizacoes.Start;
 end;
 
 function TDados.UltimaMensagemNotificada: Integer;
@@ -529,7 +367,7 @@ begin
     raise Exception.Create('Anexo não encontrado!');
 
 
-  SaveDlg := TSaveDialog.Create(Self);
+  SaveDlg := TSaveDialog.Create(nil);
   try
     SaveDlg.Title      := 'Salvar Arquivo';
     SaveDlg.InitialDir := TPath.GetDownloadsPath;
@@ -573,6 +411,66 @@ begin
   end;
 end;
 
+procedure TDados.IniciarMonitoramento;
+var
+  URI: TURI;
+  oJSON: TJSONObject;
+begin
+  if Assigned(FBirdSocket) then
+    Exit;
+
+  // Inicia WebSocket
+  URI := TURI.Create(Configuracoes.Host);
+  URI.Scheme := 'ws';
+  URI.Port := 8000 + URI.Port;
+  FBirdSocket := TBirdSocketClient.New(URI.ToString);
+  FBirdSocket.AddEventListener(TEventType.MESSAGE, NotificacaoSocket);
+  FBirdSocket.Connect;
+
+  // Enviar o token para se registrar no servidor
+  oJSON := TJSONObject.Create;
+  try
+    oJSON.AddPair('tipo', Integer(TSocketMessageType.Login));
+    oJSON.AddPair('token', FToken);
+    FBirdSocket.Send(oJSON.ToJSON);
+  finally
+    oJSON.Free;
+  end;
+end;
+
+procedure TDados.NotificacaoSocket(const AText: String);
+var
+  oJSON: TJSONObject;
+  aMensagens: TArray<Integer>;
+begin
+  oJSON := TJSONObject.ParseJSONValue(AText) as TJSONObject;
+  try
+    if not Assigned(oJSON) or not Assigned(oJSON.GetValue('tipo')) then
+      Exit;
+
+    case TSocketMessageType(oJSON.GetValue<Integer>('tipo')) of
+      TSocketMessageType.NovaMensagem:
+      begin
+        if Length(FDadosApp.Conversas.Items) > 0 then
+          Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
+      end;
+      TSocketMessageType.AtualizacaoStatusMensagem:
+      begin
+        aMensagens := [];
+        for var Item in oJSON.GetValue<String>('mensagens').Split([',']) do
+          aMensagens := aMensagens + [Item.ToInteger];
+        Conversa.Proxy.TAPIConversa.Mensagem.Status(oJSON.GetValue<Integer>('grupo'), aMensagens);
+      end;
+      TSocketMessageType.Erro:
+      begin
+        raise Exception.Create(oJSON.GetValue<String>('message'));
+      end;
+    end;
+  finally
+    oJSON.Free;
+  end;
+end;
+
 procedure TDados.ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
 var
   MsgNova: TMensagemNova;
@@ -585,6 +483,117 @@ begin
     FDadosApp.UltimaMensagemNotificada := Max(FDadosApp.UltimaMensagemNotificada, MsgNova.mensagem_id);
     ObterMensagens(MsgNova.conversa_id, False);
   end;
+end;
+
+procedure TDados.ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean);
+var
+  ObjConversa: TConversa;
+  MsgRef: Integer;
+  IDMsg: Integer;
+  Msgs: TArrayMensagens;
+begin
+  ObjConversa := FDadosApp.Conversas.Get(iConversa);
+  // Melhorar aqui
+  if not Assigned(ObjConversa) then
+  begin
+    CarregarConversas;
+    ObjConversa := FDadosApp.Conversas.Get(iConversa);
+  end;
+
+  if ObjConversa.Usuarios.Count = 0 then
+    ObjConversa.AddUsuario(FDadosApp.Usuario);
+
+  if MensagemPrevia then
+  begin
+    Msgs := ObjConversa.Mensagens.Items;
+    MsgRef := ObjConversa.Mensagens.UltimaMensagemSincronizada;
+    for IDMsg := Pred(Length(Msgs)) downto 0 do
+      MsgRef := Min(Msgs[IDMsg].ID, MsgRef);
+
+    if (MsgRef - 1) <= 0 then
+      Exit;
+
+    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, MsgRef - 1, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0);
+  end
+  else
+  if ObjConversa.Mensagens.UltimaMensagemSincronizada = 0 then
+    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, 0, QUANTIDADE_MENSAGENS_CARREGAMENTO, 0)
+  else
+    Conversa.Proxy.TAPIConversa.Mensagens(iConversa, ObjConversa.Mensagens.UltimaMensagemSincronizada + 1, 0, QUANTIDADE_MENSAGENS_CARREGAMENTO)
+end;
+
+procedure TDados.EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
+var
+  ObjConversa: TConversa;
+  Msg: Conversa.Proxy.Tipos.TMensagem;
+  Remetente: Conversa.Tipos.TUsuario;
+  Mensagem: TMensagem;
+  Ctd: Conversa.Proxy.Tipos.TMensagemConteudo;
+  MensagemConteudo: TConteudo;
+  MsgsEvento: TArrayMensagens;
+begin
+  if M.Value.Status <> TResponseStatus.Sucess then
+    Exit;
+
+  for Msg in M.Value.Dados do
+  begin
+    ObjConversa := FDadosApp.Conversas.Get(Msg.conversa_id);
+    Remetente := FDadosApp.Usuarios.GetOrAdd(Msg.remetente_id);
+    ObjConversa.AddUsuario(Remetente);
+
+    Mensagem := ObjConversa.Mensagens.Get(Msg.id);
+
+    if not Assigned(Mensagem) then
+      Mensagem := TMensagem.New(Msg.id)
+        .Remetente(FDadosApp.Usuarios.GetOrAdd(msg.remetente_id))
+        .Conversa(ObjConversa);
+
+    if Mensagem.Remetente = FDadosApp.Usuario then
+      Mensagem.Lado(TLadoMensagem.Direito)
+    else
+      Mensagem.Lado(TLadoMensagem.Esquerdo);
+
+    if Msg.inserida <> 0 then
+      Mensagem.Inserida(Msg.inserida);
+    if Msg.alterada <> 0 then
+      Mensagem.Alterada(Msg.alterada);
+
+    Mensagem.Recebida(Msg.recebida);
+    Mensagem.Visualizada(Msg.visualizada);
+    Mensagem.PrimeiraExibicao((Mensagem.Lado = TLadoMensagem.Esquerdo) and not Mensagem.Visualizada);
+
+    for Ctd in Msg.conteudos do
+    begin
+      MensagemConteudo := TConteudo.New(Ctd.id);
+      MensagemConteudo.Ordem(Ctd.ordem);
+
+      if not (Ctd.tipo in [1,2,3]) then
+        Sleep(0);
+
+      MensagemConteudo.Tipo(TTipoConteudo(Ctd.tipo));
+      MensagemConteudo.Nome(Ctd.nome);
+      MensagemConteudo.Extensao(Ctd.extensao);
+      case MensagemConteudo.Tipo of
+        TTipoConteudo.Texto: MensagemConteudo.Conteudo(Ctd.conteudo);
+        TTipoConteudo.Imagem: MensagemConteudo.Conteudo(DownloadAnexo(Ctd.conteudo));
+        TTipoConteudo.Arquivo: MensagemConteudo.Conteudo(Ctd.conteudo);
+        TTipoConteudo.MensagemAudio: MensagemConteudo.Conteudo(DownloadAnexo(Ctd.conteudo));
+      end;
+      Mensagem.conteudos.Add(MensagemConteudo);
+    end;
+    ObjConversa.Mensagens.Add(Mensagem);
+
+    if not Mensagem.Visualizada and (Mensagem.Lado = TLadoMensagem.Esquerdo) then
+      Inc(ObjConversa.MensagemSemVisualizar);
+
+    if not Mensagem.Exibida then
+      MsgsEvento := MsgsEvento + [Mensagem];
+  end;
+
+  TExibirMensagem.Send(MsgsEvento);
+
+  AtualizarContador(nil, nil);
+  TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
 end;
 
 end.

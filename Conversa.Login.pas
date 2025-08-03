@@ -18,7 +18,8 @@ uses
   FMX.Controls.Presentation,
   FMX.Edit,
   FMX.Objects,
-  Conversa.FrameBase, FMX.Layouts;
+  FMX.Layouts,
+  Conversa.FrameBase;
 
 type
   TLogin = class(TFrameBase)
@@ -33,8 +34,7 @@ type
     txtBotaoEntrar: TText;
     procedure edtSenhaKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
     procedure rctBotaoEntrarClick(Sender: TObject);
-    procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
-      Shift: TShiftState);
+    procedure edtUsuarioKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
   private
     FClose: TProc;
   public
@@ -85,8 +85,7 @@ begin
   Visible := False;
 end;
 
-procedure TLogin.edtUsuarioKeyDown(Sender: TObject; var Key: Word;
-  var KeyChar: Char; Shift: TShiftState);
+procedure TLogin.edtUsuarioKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
 begin
   if Key in [vkReturn, vkTab] then
   begin

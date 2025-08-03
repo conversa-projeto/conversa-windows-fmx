@@ -10,7 +10,6 @@ uses
   System.SysUtils,
   Conversa.Tipos in 'src\Conversa.Tipos.pas',
   Conversa.Login in 'Conversa.Login.pas' {Login: TFrame},
-  Conversa.Dados in 'Conversa.Dados.pas' {Dados: TDataModule},
   REST.API in 'REST.API.pas',
   Conversa.Tela.Inicial.view in 'Conversa.Tela.Inicial.view.pas' {TelaInicial},
   Conversa.Principal in 'src\principal\Conversa.Principal.pas' {PrincipalView: TFrame},
@@ -44,25 +43,19 @@ uses
   Conversa.Proxy.Tipos in 'src\Conversa.Proxy.Tipos.pas',
   Conversa.Evento.Base in 'src\Conversa.Evento.Base.pas',
   Conversa.Serializer in 'src\Conversa.Serializer.pas',
-  Conversa.Loading.Pontos.frame in 'src\Conversa.Loading.Pontos.frame.pas' {ConversaLoadingPontosFrame: TFrame};
+  Conversa.Loading.Pontos.frame in 'src\Conversa.Loading.Pontos.frame.pas' {ConversaLoadingPontosFrame: TFrame},
+  Conversa.Dados in 'Conversa.Dados.pas';
 
 {$R *.res}
+
 begin
   Application.Title := 'Conversa';
 
   if not Iniciar then
     Exit;
 
-  try
-    Application.Initialize;
-    Application.CreateForm(TDados, Dados);
-  try
-      Application.CreateForm(TTelaInicial, TelaInicial);
-      Application.Run;
-    finally
-      FreeAndNil(Dados);
-    end;
-  finally
-    Finalizar;
-  end;
+  Application.Initialize;
+  Application.CreateForm(TTelaInicial, TelaInicial);
+  Application.Run;
+  Finalizar;
 end.

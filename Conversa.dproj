@@ -100,7 +100,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <SanitizedProjectName>Conversa</SanitizedProjectName>
-        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;.\lib\bird-socket-client;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PreBuildEvent><![CDATA[taskkill /f /t /im Conversa.exe
 $(PreBuildEvent)]]></PreBuildEvent>
         <PreBuildEventCancelOnError>false</PreBuildEventCancelOnError>
@@ -229,10 +229,6 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <Form>Login</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="Conversa.Dados.pas">
-            <Form>Dados</Form>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
         <DCCReference Include="REST.API.pas"/>
         <DCCReference Include="Conversa.Tela.Inicial.view.pas">
             <Form>TelaInicial</Form>
@@ -322,6 +318,7 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="Conversa.Dados.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>

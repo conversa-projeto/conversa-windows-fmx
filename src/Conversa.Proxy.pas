@@ -45,7 +45,7 @@ type
     function Incluir(Mensagem: TReqMensagem): TRespostaMensagem;
     procedure Excluir(ID: Integer);
     procedure Visualizar(iConversa, iMensagem: Integer);
-    procedure Status(iConversa: Integer; sMensagensId: String);
+    procedure Status(iConversa: Integer; aMensagensId: TArray<Integer>);
   end;
 
   TAnexo = record
@@ -73,6 +73,7 @@ uses
   System.JSON,
   System.JSON.Serializers,
   System.DateUtils,
+  System.StrUtils,
   Conversa.Configuracoes,
   Conversa.Eventos,
   Conversa.Serializer;
@@ -610,20 +611,26 @@ begin
   end;
 end;
 
-procedure TMensagem.Status(iConversa: Integer; sMensagensId: String);
+procedure TMensagem.Status(iConversa: Integer; aMensagensId: TArray<Integer>);
 begin
   TThread.CreateAnonymousThread(
     procedure
     var
       Resposta: TRespostaMensagensStatus;
+      I: Integer;
+      sIDMensagens: String;
     begin
+      sIDMensagens := EmptyStr;
+      for I := 0 to Pred(Length(aMensagensId)) do
+        sIDMensagens := sIDMensagens + IfThen(not sIDMensagens.Trim.IsEmpty, ',') + aMensagensId[I].ToString;
+
       with TAPIInternal.Create do
       try
         Route('mensagem/status');
         Query(
           TJSONObject.Create
             .AddPair('conversa', iConversa)
-            .AddPair('mensagem', sMensagensId)
+            .AddPair('mensagem', sIDMensagens)
         );
         GET;
 

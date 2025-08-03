@@ -85,6 +85,8 @@ const
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin
   inherited;
+  Dados := TDados.Create;
+
   rctAvisoConexao.Visible := False;
   TMessageManager.DefaultManager.SubscribeToMessage(TEventoStatusConexao, StatusConexao);
   AdicionarTrayIcon;
@@ -101,6 +103,7 @@ begin
   SalvarPosicaoFormulario(Self);
   RemoverTrayIcon;
   TMessageManager.DefaultManager.Unsubscribe(TEventoStatusConexao, StatusConexao);
+  FreeAndNil(Dados);
   inherited;
 end;
 
