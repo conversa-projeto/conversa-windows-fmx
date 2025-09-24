@@ -30,6 +30,7 @@ uses
   Conversa.ModalView,
   Conversa.Visualizador.Midia,
   Conversa.Eventos,
+  Conversa.Chamada.view,
   PascalStyleScript;
 
 type
@@ -37,6 +38,7 @@ type
     tmrShow: TTimer;
     rctAvisoConexao: TRectangle;
     txtAvisoConexao: TText;
+    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -75,7 +77,9 @@ uses
   Conversa.Configurar.Conexao,
   Conversa.Notificacao,
   Conversa.Windows.UserActivity,
-  Conversa.Chat.Listagem;
+  Conversa.Chat.Listagem,
+  Conversa.Chamada,
+  Conversa.Chamada.BarraTitulo;
 
 {$R *.fmx}
 
@@ -100,6 +104,7 @@ end;
 
 destructor TTelaInicial.Destroy;
 begin
+  TConversaChamadas.Instance.FinalizarTodas;
   SalvarPosicaoFormulario(Self);
   RemoverTrayIcon;
   TMessageManager.DefaultManager.Unsubscribe(TEventoStatusConexao, StatusConexao);

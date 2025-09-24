@@ -318,6 +318,21 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="src\chamada\Conversa.Chamada.BarraTitulo.pas">
+            <Form>ConversaChamadaBarraTitulo</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\chamada\Conversa.Chamada.pas"/>
+        <DCCReference Include="src\chamada\Conversa.Chamada.view.pas">
+            <Form>ConversaChamadaView</Form>
+            <FormType>fmx</FormType>
+        </DCCReference>
+        <DCCReference Include="src\chamada\Conversa.Chamada.Participante.view.pas">
+            <Form>ConversaChamadaParticipanteView</Form>
+            <FormType>fmx</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="Conversa.Dados.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>

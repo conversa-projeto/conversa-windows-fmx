@@ -44,6 +44,10 @@ uses
   Conversa.Evento.Base in 'src\Conversa.Evento.Base.pas',
   Conversa.Serializer in 'src\Conversa.Serializer.pas',
   Conversa.Loading.Pontos.frame in 'src\Conversa.Loading.Pontos.frame.pas' {ConversaLoadingPontosFrame: TFrame},
+  Conversa.Chamada.BarraTitulo in 'src\chamada\Conversa.Chamada.BarraTitulo.pas' {ConversaChamadaBarraTitulo: TFrame},
+  Conversa.Chamada in 'src\chamada\Conversa.Chamada.pas',
+  Conversa.Chamada.view in 'src\chamada\Conversa.Chamada.view.pas' {ConversaChamadaView},
+  Conversa.Chamada.Participante.view in 'src\chamada\Conversa.Chamada.Participante.view.pas' {ConversaChamadaParticipanteView: TFrame},
   Conversa.Dados in 'Conversa.Dados.pas';
 
 {$R *.res}
@@ -54,8 +58,15 @@ begin
   if not Iniciar then
     Exit;
 
-  Application.Initialize;
-  Application.CreateForm(TTelaInicial, TelaInicial);
-  Application.Run;
-  Finalizar;
+  try
+    Application.Initialize;
+    try
+      Application.CreateForm(TTelaInicial, TelaInicial);
+      Application.Run;
+    finally
+      FreeAndNil(Dados);
+    end;
+  finally
+    Finalizar;
+  end;
 end.

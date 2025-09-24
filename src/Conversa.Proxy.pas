@@ -4,6 +4,9 @@ unit Conversa.Proxy;
 interface
 
 uses
+  System.JSON,
+  System.JSON.Serializers,
+
   System.Classes,
   System.SysUtils,
   REST.API,
@@ -65,13 +68,13 @@ type
     class procedure Conversas; static;
     class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer); static;
     class procedure MensagensNovas(UltimaMensagem: Integer); static;
+
+    class function ChamadaIncluir(joParam: TJSONObject): TRespostaChamada; static;
   end;
 
 implementation
 
 uses
-  System.JSON,
-  System.JSON.Serializers,
   System.DateUtils,
   System.StrUtils,
   Conversa.Configuracoes,
@@ -291,6 +294,31 @@ begin
     end;
 
     TObterMensagensNovas.Send(Resposta);
+  finally
+    Free;
+  end;
+end;
+
+class function TAPIConversa.ChamadaIncluir(joParam: TJSONObject): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(joParam);
+    Route('chamada');
+    PUT;
+
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+
+    if Response.Status = TResponseStatus.Sucess then
+    begin
+      with TJsonSerializer.Create do
+      try
+        Result.Dados := Deserialize<TChamada>(Response.ToString);
+      finally
+        Free;
+      end;
+    end;
   finally
     Free;
   end;

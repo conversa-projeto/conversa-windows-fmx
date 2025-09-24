@@ -131,6 +131,14 @@ type
   TMensagensNovas = TArray<TMensagemNova>;
   TRespostaMensagensNovas = TResposta<TMensagensNovas>;
 
+  TChamada = record
+    id: Integer;
+    iniciada: TDateTime;
+    finalizada: TDateTime;
+    conversa_id: Integer;
+  end;
+  TRespostaChamada = TResposta<TChamada>;
+
 implementation
 
 end.

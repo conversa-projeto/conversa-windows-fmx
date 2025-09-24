@@ -46,6 +46,9 @@ type
     txtNomeDigitando: TText;
     LoadingAction: TConversaLoadingPontosFrame;
     lytActionDigitando: TLayout;
+    lytIniciarChamada: TLayout;
+    pthIniciarChamada: TPath;
+    procedure lytIniciarChamadaClick(Sender: TObject);
   private
     FConversa: TConversa;
     FVisualizador: TChatVisualizador;
@@ -86,6 +89,7 @@ uses
   chat.conteudo.imagem,
   chat.conteudo.anexo,
   Conversa.Visualizador.Midia,
+  Conversa.Chamada,
   PopupMenu;
 
 { TChat }
@@ -141,6 +145,12 @@ begin
   FreeAndNil(Editor);
   FreeAndNil(FVisualizador);
   CriarControles;
+end;
+
+procedure TChat.lytIniciarChamadaClick(Sender: TObject);
+begin
+  inherited;
+  TConversaChamadas.Instance.Iniciar(Conversa.Usuarios);
 end;
 
 procedure TChat.ValidarVisualizacao;

@@ -13,6 +13,23 @@ uses
   System.Messaging;
 
 type
+  {$SCOPEDENUMS ON}
+  TStatusChamada = (
+    Desconhecido,
+    IniciandoChamada,
+    RecebentoChamada,
+    ChamadaEmAndamento,
+    ChamadaFinalizada,
+    ChamadaPerdida,
+    Recusada
+  );
+
+  TStatusChamadaH = record Helper for TStatusChamada
+    const StatusAtiva = [TStatusChamada.IniciandoChamada, TStatusChamada.RecebentoChamada, TStatusChamada.ChamadaEmAndamento];
+    function Ativa: Boolean;
+  end;
+
+
   TUsuario = class;
   TUsuarios = class;
   TConversa = class;
@@ -1039,6 +1056,13 @@ begin
         Result := CompareValue(Atual.Alterada, Anterior.Alterada);
     end
   ));
+end;
+
+{ TStatusChamadaH }
+
+function TStatusChamadaH.Ativa: Boolean;
+begin
+  Result := Self in StatusAtiva;
 end;
 
 end.

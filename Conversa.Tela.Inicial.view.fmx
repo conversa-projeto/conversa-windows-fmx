@@ -11,7 +11,7 @@ inherited TelaInicial: TTelaInicial
       ClipChildren = True
       inherited lytClientForm: TLayout
         ClipChildren = True
-        Size.Height = 430.000000000000000000
+        Size.Height = 408.000000000000000000
       end
       inherited rctTitleBar: TRectangle
         inherited lytLogo: TLayout
@@ -2484,6 +2484,16 @@ inherited TelaInicial: TTelaInicial
           Text = 'Falha na conex'#227'o com o servidor!'
           TextSettings.FontColor = claWhite
         end
+      end
+      object Button1: TButton
+        Align = Top
+        Position.Y = 70.000000000000000000
+        Size.Width = 500.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        Text = 'Button1'
+        TextSettings.Trimming = None
       end
     end
   end
