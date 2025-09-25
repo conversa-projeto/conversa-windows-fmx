@@ -84,13 +84,13 @@ type
 
 procedure TConversaChamadaView.crclAtenderChamadaClick(Sender: TObject);
 begin
-  Chamada.Atender;
+  Chamada.Entrar;
 end;
 
 procedure TConversaChamadaView.crclFinalizarChamadaClick(Sender: TObject);
 begin
   inherited;
-  Chamada.Finalizar;
+  Chamada.Sair;
 end;
 
 constructor TConversaChamadaView.Create(AOwner: TComponent; AChamada: TObject);

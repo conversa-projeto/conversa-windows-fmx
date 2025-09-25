@@ -57,6 +57,15 @@ type
     procedure Incluir(iTipo: Integer; sNome, sExtensao: String; aConteudo: TStringStream);
   end;
 
+  TChamada = record
+    function Iniciar(joParam: TJSONObject): TRespostaChamada;
+    function Cancelar(ID: Integer): TRespostaChamada;
+    function Rejeitar(ID: Integer): TRespostaChamada;
+    function Entrar(ID: Integer): TRespostaChamada;
+    function Sair(ID: Integer): TRespostaChamada;
+    function Finalizar(ID: Integer): TRespostaChamada;
+  end;
+
   TAPIConversa = record
   public
     class var Usuario: TUsuario;
@@ -64,12 +73,11 @@ type
     class var Dispositivo: TDispositivoProxy;
     class var Conversa: TConversa;
     class var Anexo: TAnexo;
+    class var Chamada: TChamada;
     class function Login(sLogin, sSenha: String; Dispositivo: Integer): TRespostaLogin; static;
     class procedure Conversas; static;
     class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer); static;
     class procedure MensagensNovas(UltimaMensagem: Integer); static;
-
-    class function ChamadaIncluir(joParam: TJSONObject): TRespostaChamada; static;
   end;
 
 implementation
@@ -294,31 +302,6 @@ begin
     end;
 
     TObterMensagensNovas.Send(Resposta);
-  finally
-    Free;
-  end;
-end;
-
-class function TAPIConversa.ChamadaIncluir(joParam: TJSONObject): TRespostaChamada;
-begin
-  with TAPIInternal.Create do
-  try
-    Body(joParam);
-    Route('chamada');
-    PUT;
-
-    Result.Status := Response.Status;
-    Result.Erro := MensagemErro;
-
-    if Response.Status = TResponseStatus.Sucess then
-    begin
-      with TJsonSerializer.Create do
-      try
-        Result.Dados := Deserialize<TChamada>(Response.ToString);
-      finally
-        Free;
-      end;
-    end;
   finally
     Free;
   end;
@@ -764,6 +747,114 @@ begin
       end;
     end
   ).Start;
+end;
+
+{ TChamada }
+
+function TChamada.Iniciar(joParam: TJSONObject): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(joParam);
+    Route('chamada/iniciar');
+    PUT;
+
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+
+    if Response.Status = TResponseStatus.Sucess then
+    begin
+      with TJsonSerializer.Create do
+      try
+        Result.Dados := Deserialize<Conversa.Proxy.Tipos.TChamada>(Response.ToString);
+      finally
+        Free;
+      end;
+    end;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Cancelar(ID: Integer): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/cancelar');
+    POST;
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Rejeitar(ID: Integer): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/rejeitar');
+    POST;
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Entrar(ID: Integer): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/entrar');
+    POST;
+
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+
+//    if Response.Status = TResponseStatus.Sucess then
+//    begin
+//      with TJsonSerializer.Create do
+//      try
+//        Result.Dados := Deserialize<Conversa.Proxy.Tipos.TChamada>(Response.ToString);
+//      finally
+//        Free;
+//      end;
+//    end;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Sair(ID: Integer): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/sair');
+    POST;
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Finalizar(ID: Integer): TRespostaChamada;
+begin
+  with TAPIInternal.Create do
+  try
+    Body(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/finalizar');
+    POST;
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+  finally
+    Free;
+  end;
 end;
 
 end.

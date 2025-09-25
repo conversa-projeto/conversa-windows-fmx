@@ -41,9 +41,10 @@ type
     class function EventoChamada(Method: TMethod): Boolean;
     procedure ProcessarEvento(Method: TMethod; Tamanho: Integer; Bytes: TIdBytes);
 
-    procedure OnChamadaAtendida;
-    procedure OnChamadaRecusada;
-    procedure OnChamadaCancelada;
+    procedure OnChamadaFinalizada;
+    procedure OnUsuarioRejeitou;
+    procedure OnUsuarioEntrou;
+    procedure OnUsuarioSaiu;
 
     procedure ChamadaAtendida;
     procedure ChamadaFinalizada;
@@ -60,11 +61,12 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Atender;
     procedure Cancelar;
-    procedure Recusar;
+    procedure Rejeitar;
+    procedure Entrar;
+    procedure Sair;
     procedure Finalizar;
-    procedure OnReceberChamada;
+    procedure OnChamadaRecebida;
     function GetParticipantes: TArrayUsuarios;
   end;
 
@@ -118,13 +120,91 @@ end;
 
 destructor TConversaChamada.Destroy;
 begin
-  Finalizar;
+  Sair;
 
   if Assigned(FBarraTitulo) then
     FreeAndNil(FBarraTitulo);
   if Assigned(FChamadaView) then
     FreeAndNil(FChamadaView);
   inherited;
+end;
+
+procedure TConversaChamada.Cancelar;
+begin
+  Conversa.Proxy.TAPIConversa.Chamada.Cancelar(FID);
+  Status := TStatusChamada.ChamadaFinalizada;
+//  TConversaConexao.Instance.TCPSendCommand(TMethod.CancelarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
+//  ChamadaFinalizada;
+end;
+
+procedure TConversaChamada.Rejeitar;
+begin
+  Conversa.Proxy.TAPIConversa.Chamada.Rejeitar(FID);
+  Status := TStatusChamada.ChamadaFinalizada;
+//  TConversaConexao.Instance.TCPSendCommand(TMethod.RecusarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
+//  ChamadaFinalizada;
+end;
+
+procedure TConversaChamada.Entrar;
+begin
+  Conversa.Proxy.TAPIConversa.Chamada.Entrar(FID);
+  Status := TStatusChamada.ChamadaEmAndamento;
+//  TConversaConexao.Instance.TCPSendCommand(TMethod.AtenderChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
+//  ChamadaAtendida;
+end;
+
+procedure TConversaChamada.Sair;
+begin
+  if not FStatus.Ativa then
+    Exit;
+
+  Conversa.Proxy.TAPIConversa.Chamada.Sair(FID);
+  Status := TStatusChamada.ChamadaFinalizada;
+end;
+
+procedure TConversaChamada.Finalizar;
+begin
+  Conversa.Proxy.TAPIConversa.Chamada.Finalizar(FID);
+  Status := TStatusChamada.ChamadaFinalizada;
+end;
+
+procedure TConversaChamada.OnChamadaFinalizada;
+begin
+  //
+end;
+
+procedure TConversaChamada.OnChamadaRecebida;
+begin
+  ExibirChamada;
+  FChamadaView.Status := TStatusChamada.RecebentoChamada;
+  FBarraTitulo.Status(TStatusChamada.RecebentoChamada);
+//  with TChamadaBarraTitulo.Instance do
+//  begin
+//    Exibir;
+//    Status(TMethod.ReceberChamada);
+//    with TJSONValue.ParseJSONValue(FRemetente.Identificador) as TJSONObject do
+//    try
+//      txtTempoLigacao.Text := GetValue<String>('nome');
+//    finally
+//      Free;
+//    end;
+//  end;
+end;
+
+procedure TConversaChamada.OnUsuarioRejeitou;
+begin
+  Status := TStatusChamada.Recusada;
+//  TChamadaBarraTitulo.Instance.Status(TMethod.RecusarChamada);
+end;
+
+procedure TConversaChamada.OnUsuarioEntrou;
+begin
+  ChamadaAtendida;
+end;
+
+procedure TConversaChamada.OnUsuarioSaiu;
+begin
+  ChamadaFinalizada;
 end;
 
 class function TConversaChamada.EventoChamada(Method: TMethod): Boolean;
@@ -141,15 +221,6 @@ begin
 //    TMethod.DestinatarioOcupado: Exit(True);
 //  end;
 //  Result := False;
-end;
-
-procedure TConversaChamada.Finalizar;
-begin
-  if not FStatus.Ativa then
-    Exit;
-
-  FChamadaView.Hide;
-  FBarraTitulo.Ocultar;
 end;
 
 function TConversaChamada.GetParticipantes: TArrayUsuarios;
@@ -182,40 +253,6 @@ begin
 //  end;
 end;
 
-procedure TConversaChamada.OnReceberChamada;
-begin
-  ExibirChamada;
-  FChamadaView.Status := TStatusChamada.RecebentoChamada;
-  FBarraTitulo.Status(TStatusChamada.RecebentoChamada);
-//  with TChamadaBarraTitulo.Instance do
-//  begin
-//    Exibir;
-//    Status(TMethod.ReceberChamada);
-//    with TJSONValue.ParseJSONValue(FRemetente.Identificador) as TJSONObject do
-//    try
-//      txtTempoLigacao.Text := GetValue<String>('nome');
-//    finally
-//      Free;
-//    end;
-//  end;
-end;
-
-procedure TConversaChamada.OnChamadaAtendida;
-begin
-  ChamadaAtendida;
-end;
-
-procedure TConversaChamada.OnChamadaCancelada;
-begin
-  ChamadaFinalizada;
-end;
-
-procedure TConversaChamada.OnChamadaRecusada;
-begin
-  Status := TStatusChamada.Recusada;
-//  TChamadaBarraTitulo.Instance.Status(TMethod.RecusarChamada);
-end;
-
 procedure TConversaChamada.IniciarChamada(AParticipantes: TArrayUsuarios);
 var
   jo: TJSONObject;
@@ -233,30 +270,12 @@ begin
   for P in AParticipantes do
     ja.Add(TJSONObject.Create.AddPair('id', P.ID));
 
-  FID := Conversa.Proxy.TAPIConversa.ChamadaIncluir(jo).Dados.id;
+  FID := Conversa.Proxy.TAPIConversa.Chamada.Iniciar(jo).Dados.id;
+
+  Entrar;
+  ChamadaFinalizada;
 
 //  TConversaConexao.Instance.TCPSendCommand(TMethod.IniciarChamada, TSerializer<Integer>.ParaBytes(ID));
-end;
-
-procedure TConversaChamada.Atender;
-begin
-  Status := TStatusChamada.ChamadaEmAndamento;
-//  TConversaConexao.Instance.TCPSendCommand(TMethod.AtenderChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-//  ChamadaAtendida;
-end;
-
-procedure TConversaChamada.Recusar;
-begin
-  Status := TStatusChamada.ChamadaFinalizada;
-//  TConversaConexao.Instance.TCPSendCommand(TMethod.RecusarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-//  ChamadaFinalizada;
-end;
-
-procedure TConversaChamada.Cancelar;
-begin
-  Status := TStatusChamada.ChamadaFinalizada;
-//  TConversaConexao.Instance.TCPSendCommand(TMethod.CancelarChamada, TSerializer<Integer>.ParaBytes(FRemetente.ID));
-//  ChamadaFinalizada;
 end;
 
 procedure TConversaChamada.ChamadaAtendida;
@@ -267,6 +286,7 @@ end;
 
 procedure TConversaChamada.ChamadaFinalizada;
 begin
+  Conversa.Proxy.TAPIConversa.Chamada.Sair(FID);
   Status := TStatusChamada.ChamadaFinalizada;
 //  TChamadaBarraTitulo.Instance.Ocultar;
 end;

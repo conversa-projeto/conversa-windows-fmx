@@ -72,7 +72,7 @@ end;
 procedure TConversaChamadaBarraTitulo.lytAtenderChamadaClick(Sender: TObject);
 begin
   inherited;
-  Chamada.Atender;
+  Chamada.Entrar;
 end;
 
 procedure TConversaChamadaBarraTitulo.lytFinalizarChamadaClick(Sender: TObject);

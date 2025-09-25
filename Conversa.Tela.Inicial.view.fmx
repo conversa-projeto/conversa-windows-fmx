@@ -2494,6 +2494,7 @@ inherited TelaInicial: TTelaInicial
         TabOrder = 1
         Text = 'Button1'
         TextSettings.Trimming = None
+        OnClick = Button1Click
       end
     end
   end
