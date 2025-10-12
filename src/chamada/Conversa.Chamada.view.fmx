@@ -422,6 +422,15 @@ inherited ConversaChamadaView: TConversaChamadaView
         end
         inherited lytTitleBarClient: TLayout
           Size.Width = 465.000000000000000000
+          object txtStatusChamada: TText
+            Align = Left
+            Margins.Left = 8.000000000000000000
+            Position.X = 8.000000000000000000
+            Size.Width = 200.000000000000000000
+            Size.Height = 40.000000000000000000
+            Size.PlatformDefault = False
+            Text = '[Status]'
+          end
         end
       end
     end

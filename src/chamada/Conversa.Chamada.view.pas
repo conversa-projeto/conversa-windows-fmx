@@ -1,4 +1,4 @@
-unit Conversa.Chamada.view;
+ï»¿unit Conversa.Chamada.view;
 
 interface
 
@@ -41,6 +41,7 @@ type
     pthFinalizarChamada: TPath;
     crclAtenderChamada: TCircle;
     pthAtenderChamada: TPath;
+    txtStatusChamada: TText;
     procedure crclFinalizarChamadaClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure crclAtenderChamadaClick(Sender: TObject);
@@ -90,12 +91,24 @@ end;
 procedure TConversaChamadaView.crclFinalizarChamadaClick(Sender: TObject);
 begin
   inherited;
-  Chamada.Sair;
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Sleep(100);
+      TThread.Synchronize(
+        nil,
+        procedure
+        begin
+          Chamada.Sair;
+        end
+      );
+    end
+  ).Start;
 end;
 
 constructor TConversaChamadaView.Create(AOwner: TComponent; AChamada: TObject);
 begin
-  inherited Create(AOwner);
+  inherited Create(Application);
   FChamada := AChamada;
 
   AudioStatus := TAudioStatus.Indisposivel;
@@ -106,9 +119,9 @@ procedure TConversaChamadaView.CreateHandle;
 begin
   inherited;
   // Resolve Problemas do FMX
-  //   Mover ícone entre monitores na barra de tarefa | https://stackoverflow.com/questions/54184950/icon-on-the-taskbar-does-not-move-to-second-monitor
-  //   Form aparecer no "Disponível para SNAP" | https://en.delphipraxis.net/topic/10601-firemonkey-form-not-included-in-also-snap-to-screen/
-  // Referência
+  //   Mover Ã­cone entre monitores na barra de tarefa | https://stackoverflow.com/questions/54184950/icon-on-the-taskbar-does-not-move-to-second-monitor
+  //   Form aparecer no "DisponÃ­vel para SNAP" | https://en.delphipraxis.net/topic/10601-firemonkey-form-not-included-in-also-snap-to-screen/
+  // ReferÃªncia
   //   https://stackoverflow.com/questions/63423266/whats-the-difference-between-setwindowlongptrgwl-hwndparent-and-setparent
   FOldHWND := SetWindowLongPtr(FormToHWND(Self), GWL_HWNDPARENT, 0);
   ShowWindow(Fmx.Platform.Win.ApplicationHWND, SW_HIDE);
@@ -127,12 +140,13 @@ begin
 
   for var Participante in Chamada.GetParticipantes do
   begin
-    if Participante = Dados.FDadosApp.Usuario then
+    if Participante.usuario_id = Dados.FDadosApp.Usuario.ID then
       Continue;
 
     FParticipante := TConversaChamadaParticipanteView.Create(lytParticipantes, Participante);
     FParticipante.Parent := lytParticipantes;
     FParticipante.Align := TAlignLayout.Client;
+    FParticipante.Visible := True;
   end;
 end;
 
@@ -160,8 +174,9 @@ begin
       crclAtenderChamada.Visible := False;
       crclFinalizarChamada.Visible := True;
       crclAudio.Visible := True;
-      crclVideo.Visible := True;
-      lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
+      crclVideo.Visible := False;
+      lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
+      txtStatusChamada.Text := 'Iniciando...';
     end;
     TStatusChamada.RecebentoChamada:
     begin
@@ -170,6 +185,7 @@ begin
       crclAudio.Visible := False;
       crclVideo.Visible := False;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
+      txtStatusChamada.Text := 'Recebendo Chamada';
     end;
     TStatusChamada.ChamadaEmAndamento:
     begin
@@ -178,6 +194,7 @@ begin
       crclAudio.Visible := True;
       crclVideo.Visible := True;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
+      txtStatusChamada.Text := 'Em Andamento...';
     end;
     TStatusChamada.ChamadaFinalizada:
     begin
@@ -186,6 +203,7 @@ begin
       crclAudio.Visible := False;
       crclVideo.Visible := False;
       lytBotoes.Width := 0;
+      Self.Hide;
     end;
     TStatusChamada.ChamadaPerdida:
     begin

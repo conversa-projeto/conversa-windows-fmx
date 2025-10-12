@@ -60,10 +60,11 @@ type
   TChamada = record
     function Iniciar(joParam: TJSONObject): TRespostaChamada;
     function Cancelar(ID: Integer): TRespostaChamada;
-    function Rejeitar(ID: Integer): TRespostaChamada;
+    function Recusar(ID: Integer): TRespostaChamada;
     function Entrar(ID: Integer): TRespostaChamada;
     function Sair(ID: Integer): TRespostaChamada;
     function Finalizar(ID: Integer): TRespostaChamada;
+    function Dados(ID: Integer): TRespostaChamadaDados;
   end;
 
   TAPIConversa = record
@@ -388,29 +389,6 @@ begin
   end;
 end;
 
-procedure TMensagem.Visualizar(iConversa, iMensagem: Integer);
-begin
-  TThread.CreateAnonymousThread(
-    procedure
-    begin
-      with TAPIInternal.Create do
-      try
-        Route('mensagem/visualizar');
-        Query(
-          TJSONObject.Create
-            .AddPair('conversa', iConversa)
-            .AddPair('mensagem', iMensagem)
-        );
-        Method(TRESTMethod.GET);
-        Tentativa(5);
-        ValidarErro(Response);
-      finally
-        Free;
-      end;
-    end
-  ).Start;
-end;
-
 { TDispositivo }
 
 function TDispositivoProxy.Incluir(DeviceInfo: TDispositivo): TRespostaDispositivo;
@@ -679,6 +657,29 @@ begin
   end;
 end;
 
+procedure TMensagem.Visualizar(iConversa, iMensagem: Integer);
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      with TAPIInternal.Create do
+      try
+        Route('mensagem/visualizar');
+        Query(
+          TJSONObject.Create
+            .AddPair('conversa', iConversa)
+            .AddPair('mensagem', iMensagem)
+        );
+        Method(TRESTMethod.GET);
+        Tentativa(5);
+        ValidarErro(Response);
+      finally
+        Free;
+      end;
+    end
+  ).Start;
+end;
+
 { TAnexo }
 
 function TAnexo.Existe(sIdentificador: String): Boolean;
@@ -790,12 +791,12 @@ begin
   end;
 end;
 
-function TChamada.Rejeitar(ID: Integer): TRespostaChamada;
+function TChamada.Recusar(ID: Integer): TRespostaChamada;
 begin
   with TAPIInternal.Create do
   try
     Body(TJSONObject.Create.AddPair('id', ID));
-    Route('chamada/rejeitar');
+    Route('chamada/recusar');
     POST;
     Result.Status := Response.Status;
     Result.Erro := MensagemErro;
@@ -852,6 +853,21 @@ begin
     POST;
     Result.Status := Response.Status;
     Result.Erro := MensagemErro;
+  finally
+    Free;
+  end;
+end;
+
+function TChamada.Dados(ID: Integer): TRespostaChamadaDados;
+begin
+  with TAPIInternal.Create do
+  try
+    Query(TJSONObject.Create.AddPair('id', ID));
+    Route('chamada/dados');
+    GET;
+    Result.Status := Response.Status;
+    Result.Erro := MensagemErro;
+    Result.Dados := TJsonSerializer<Conversa.Proxy.Tipos.TChamadaDados>.FromStr(Response.ToString);
   finally
     Free;
   end;

@@ -1,4 +1,4 @@
-unit Conversa.Chamada.BarraTitulo;
+﻿unit Conversa.Chamada.BarraTitulo;
 
 interface
 
@@ -124,6 +124,8 @@ begin
     begin
       lytAtenderChamada.Visible := False;
       lytFinalizarChamada.Visible := False;
+      Self.Visible := False;
+      Self.Hide;
     end;
   end;
 end;

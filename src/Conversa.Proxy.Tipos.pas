@@ -139,6 +139,25 @@ type
   end;
   TRespostaChamada = TResposta<TChamada>;
 
+  TChamadaDadosUsuario = record
+    usuario_id: Integer;
+    usuario_nome: string;
+    status: Integer;
+    adicionado_por: Integer;
+    adicinoado_em: TDateTime;
+    recusou_em: TDateTime;
+    entrou_em: TDateTime;
+    saiu_em: TDateTime;
+  end;
+  TChamadaDados = record
+    id: Integer;
+    iniciada: TDateTime;
+    finalizada: TDateTime;
+    conversa_id: Integer;
+    usuarios: TArray<TChamadaDadosUsuario>;
+  end;
+  TRespostaChamadaDados = TResposta<TChamadaDados>;
+
 implementation
 
 end.

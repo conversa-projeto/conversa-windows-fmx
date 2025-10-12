@@ -25,7 +25,7 @@ uses
   Conversa.Memoria;
 
 type
-  TSocketMessageType = (Erro, Login, NovaMensagem, AtualizacaoStatusMensagem);
+
 
   TDados = class
   private
@@ -73,7 +73,8 @@ uses
   Conversa.Notificacao,
   Conversa.Windows.Overlay,
   Conversa.Login,
-  Conversa.DeviceInfo.Utils;
+  Conversa.DeviceInfo.Utils,
+  Conversa.Chamada;
 
 const
   PASTA_ANEXO = 'anexos';
@@ -442,13 +443,19 @@ procedure TDados.NotificacaoSocket(const AText: String);
 var
   oJSON: TJSONObject;
   aMensagens: TArray<Integer>;
+  Tipo: TSocketMessageType;
 begin
   oJSON := TJSONObject.ParseJSONValue(AText) as TJSONObject;
   try
     if not Assigned(oJSON) or not Assigned(oJSON.GetValue('tipo')) then
       Exit;
 
-    case TSocketMessageType(oJSON.GetValue<Integer>('tipo')) of
+    Tipo := TSocketMessageType(oJSON.GetValue<Integer>('tipo', 0));
+
+    if TConversaChamadas.Instance.ProcessarSocket(Tipo, oJSON) then
+      Exit;
+
+    case Tipo of
       TSocketMessageType.NovaMensagem:
       begin
         if Length(FDadosApp.Conversas.Items) > 0 then

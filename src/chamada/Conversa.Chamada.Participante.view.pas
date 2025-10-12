@@ -1,4 +1,4 @@
-unit Conversa.Chamada.Participante.view;
+﻿unit Conversa.Chamada.Participante.view;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Objects,
-  Conversa.Tipos;
+  Conversa.Proxy.Tipos;
 
 type
   TConversaChamadaParticipanteView = class(TFrame)
@@ -14,9 +14,9 @@ type
     pthContatos: TPath;
     txtNome: TText;
   private
-    FUsuario: TUsuario;
+    FUsuario: TChamadaDadosUsuario;
   public
-    constructor Create(AOwner: TComponent; AUsuario: TUsuario); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
   end;
 
 implementation
@@ -25,11 +25,11 @@ implementation
 
 { TConversaChamadaParticipanteView }
 
-constructor TConversaChamadaParticipanteView.Create(AOwner: TComponent; AUsuario: TUsuario);
+constructor TConversaChamadaParticipanteView.Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario);
 begin
   inherited Create(AOwner);
   FUsuario := AUsuario;
-  txtNome.Text := AUsuario.Nome;
+  txtNome.Text := AUsuario.usuario_nome;
 //  txtNome.Text := 'Fulano'+ AUsuario.ID.ToString;
 end;
 

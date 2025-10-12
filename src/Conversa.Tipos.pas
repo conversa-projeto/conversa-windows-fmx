@@ -14,6 +14,18 @@ uses
 
 type
   {$SCOPEDENUMS ON}
+  TSocketMessageType = (
+    Erro,
+    Login,
+    NovaMensagem,
+    AtualizacaoStatusMensagem,
+    ChamadaRecebida = 51, // Usuário inicia uma chamada
+    ChamadaFinalizada = 52, // Usuário que criou, cancela a chamada antes mesmo de algum usuário entrar ou finaliza a chamada de modo forçado
+    UsuarioRecusou = 53,
+    UsuarioEntrou = 54,
+    UsuarioSaiu = 55
+  );
+
   TStatusChamada = (
     Desconhecido,
     IniciandoChamada,
@@ -315,6 +327,7 @@ end;
 function TUsuario.Nome: String;
 begin
   Result := FNome;
+//  Result := 'Fulado ['+ ID.ToString +']'
 end;
 
 function TUsuario.Nome(const Value: String): TUsuario;
