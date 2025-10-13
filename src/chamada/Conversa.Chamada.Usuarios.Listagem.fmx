@@ -1,0 +1,38 @@
+inherited ConversaChamadaUsuariosListagem: TConversaChamadaUsuariosListagem
+  Size.Height = 500.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Top = 8.000000000000000000
+    Padding.Bottom = 8.000000000000000000
+    Size.Width = 320.000000000000000000
+    Size.Height = 500.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object lstContatos: TListBox
+      Align = Client
+      Size.Width = 320.000000000000000000
+      Size.Height = 484.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'transparentlistboxstyle'
+      TabOrder = 0
+      DisableFocusEffect = True
+      DefaultItemStyles.ItemStyle = ''
+      DefaultItemStyles.GroupHeaderStyle = ''
+      DefaultItemStyles.GroupFooterStyle = ''
+      Viewport.Width = 320.000000000000000000
+      Viewport.Height = 484.000000000000000000
+    end
+  end
+  object Text1: TText
+    Position.X = 56.000000000000000000
+    Position.Y = 48.000000000000000000
+    Size.Width = 33.000000000000000000
+    Size.Height = 25.000000000000000000
+    Size.PlatformDefault = False
+    Text = '1'
+    TextSettings.FontColor = claRed
+  end
+end

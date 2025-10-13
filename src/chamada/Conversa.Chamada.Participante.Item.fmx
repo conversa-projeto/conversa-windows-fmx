@@ -1,0 +1,90 @@
+object ConversaChamadaParticipanteView: TConversaChamadaParticipanteView
+  Size.Width = 320.000000000000000000
+  Size.Height = 60.000000000000000000
+  Size.PlatformDefault = False
+  object rctFundo: TRectangle
+    Align = Client
+    Cursor = crHandPoint
+    Fill.Color = claWhite
+    Size.Width = 320.000000000000000000
+    Size.Height = 60.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    object lytClient: TLayout
+      Align = Client
+      Padding.Left = 10.000000000000000000
+      Padding.Top = 5.000000000000000000
+      Padding.Right = 10.000000000000000000
+      Padding.Bottom = 5.000000000000000000
+      Size.Width = 320.000000000000000000
+      Size.Height = 60.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object lytFoto: TLayout
+        Align = Left
+        Position.X = 10.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclFoto: TCircle
+          Align = Client
+          Fill.Color = claWhitesmoke
+          HitTest = False
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object txtAbreviatura: TText
+            Align = Center
+            Text = 'D'
+            TextSettings.Font.Family = 'Consolas'
+            TextSettings.Font.Size = 30.000000000000000000
+            TextSettings.FontColor = xFF007DFF
+            TextSettings.WordWrap = False
+          end
+        end
+      end
+      object lytInformacoes: TLayout
+        Align = Client
+        Margins.Left = 5.000000000000000000
+        Margins.Top = 3.000000000000000000
+        Margins.Bottom = 3.000000000000000000
+        Size.Width = 245.000000000000000000
+        Size.Height = 44.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object txtMensagem: TText
+          Align = Bottom
+          HitTest = False
+          Position.Y = 27.000000000000000000
+          Size.Width = 245.000000000000000000
+          Size.Height = 17.000000000000000000
+          Size.PlatformDefault = False
+          Text = '[Informa'#231#227'o]'
+          TextSettings.FontColor = xFF646464
+          TextSettings.Trimming = Character
+          TextSettings.WordWrap = False
+          TextSettings.HorzAlign = Leading
+        end
+        object txtNome: TText
+          Align = Client
+          Size.Width = 245.000000000000000000
+          Size.Height = 27.000000000000000000
+          Size.PlatformDefault = False
+          Text = '[Nome]'
+          TextSettings.HorzAlign = Leading
+        end
+      end
+    end
+    object ColorAnimation1: TColorAnimation
+      AnimationType = InOut
+      Duration = 0.200000002980232200
+      Interpolation = Cubic
+      PropertyName = 'Fill.Color'
+      StartValue = claWhite
+      StopValue = xFFE6E6E6
+    end
+  end
+end

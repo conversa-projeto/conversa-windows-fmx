@@ -284,9 +284,9 @@ var
   InstAux: TPSSObject;
   I: Integer;
   Value: TValue;
-  titypeInfo: PTypeInfo;
-  tibaseTypeInfo: PTypeInfo;
-  iSetValue: Integer;
+//  titypeInfo: PTypeInfo;
+//  tibaseTypeInfo: PTypeInfo;
+//  iSetValue: Integer;
 begin
   if not Assigned(Inst.Obj) then Exit;
   try

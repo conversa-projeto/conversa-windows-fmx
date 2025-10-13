@@ -47,8 +47,10 @@ uses
   Conversa.Chamada.BarraTitulo in 'src\chamada\Conversa.Chamada.BarraTitulo.pas' {ConversaChamadaBarraTitulo: TFrame},
   Conversa.Chamada in 'src\chamada\Conversa.Chamada.pas',
   Conversa.Chamada.view in 'src\chamada\Conversa.Chamada.view.pas' {ConversaChamadaView},
-  Conversa.Chamada.Participante.view in 'src\chamada\Conversa.Chamada.Participante.view.pas' {ConversaChamadaParticipanteView: TFrame},
-  Conversa.Dados in 'Conversa.Dados.pas';
+  Conversa.Chamada.Usuario.view in 'src\chamada\Conversa.Chamada.Usuario.view.pas' {ConversaChamadaUsuarioView: TFrame},
+  Conversa.Dados in 'Conversa.Dados.pas',
+  Conversa.Chamada.Usuarios.Listagem in 'src\chamada\Conversa.Chamada.Usuarios.Listagem.pas' {ConversaChamadaUsuariosListagem: TFrame},
+  Conversa.Chamada.Usuarios.Listagem.Item in 'src\chamada\Conversa.Chamada.Usuarios.Listagem.Item.pas' {ConversaChamadaUsuariosListItem: TFrame};
 
 {$R *.res}
 

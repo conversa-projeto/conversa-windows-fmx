@@ -1,6 +1,6 @@
-object ConversaChamadaParticipanteView: TConversaChamadaParticipanteView
-  Size.Width = 320.000000000000000000
-  Size.Height = 240.000000000000000000
+object ConversaChamadaUsuarioView: TConversaChamadaUsuarioView
+  Size.Width = 250.000000000000000000
+  Size.Height = 300.000000000000000000
   Size.PlatformDefault = False
   object crclParticipante: TCircle
     Align = Center

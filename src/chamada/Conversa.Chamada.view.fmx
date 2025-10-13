@@ -1,28 +1,28 @@
 inherited ConversaChamadaView: TConversaChamadaView
   Caption = 'Form1'
   ClientHeight = 480
-  ClientWidth = 640
+  ClientWidth = 300
   OnDestroy = FormDestroy
   DesignerMasterStyle = 0
   inherited rctFundo: TRectangle
-    Size.Width = 640.000000000000000000
+    Size.Width = 300.000000000000000000
     Size.Height = 480.000000000000000000
     inherited lytClient: TLayout
-      Size.Width = 640.000000000000000000
+      Size.Width = 300.000000000000000000
       Size.Height = 480.000000000000000000
       inherited lytClientForm: TLayout
-        Size.Width = 640.000000000000000000
+        Size.Width = 300.000000000000000000
         Size.Height = 440.000000000000000000
         object rtgBarraInferior: TRectangle
           Align = Bottom
           Position.Y = 400.000000000000000000
-          Size.Width = 640.000000000000000000
+          Size.Width = 300.000000000000000000
           Size.Height = 40.000000000000000000
           Size.PlatformDefault = False
           Stroke.Kind = None
           object lytBotoes: TLayout
             Align = HorzCenter
-            Position.X = 240.000000000000000000
+            Position.X = 70.000000000000000000
             Size.Width = 160.000000000000000000
             Size.Height = 40.000000000000000000
             Size.PlatformDefault = False
@@ -401,18 +401,18 @@ inherited ConversaChamadaView: TConversaChamadaView
             end
           end
         end
-        object lytParticipantes: TLayout
+        object lytUsuarios: TLayout
           Align = Client
-          Size.Width = 640.000000000000000000
+          Size.Width = 300.000000000000000000
           Size.Height = 400.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 1
         end
       end
       inherited rctTitleBar: TRectangle
-        Size.Width = 640.000000000000000000
+        Size.Width = 300.000000000000000000
         inherited lytBotoesSistema: TLayout
-          Position.X = 505.000000000000000000
+          Position.X = 165.000000000000000000
         end
         inherited lytLogo: TLayout
           inherited imgLogo: TImage
@@ -421,7 +421,7 @@ inherited ConversaChamadaView: TConversaChamadaView
           end
         end
         inherited lytTitleBarClient: TLayout
-          Size.Width = 465.000000000000000000
+          Size.Width = 125.000000000000000000
           object txtStatusChamada: TText
             Align = Left
             Margins.Left = 8.000000000000000000

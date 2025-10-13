@@ -17,9 +17,12 @@ uses
   FMX.Objects,
   FMX.Layouts,
   FMX.Platform.Win,
+  Conversa.Proxy.Tipos,
   Conversa.Tipos,
   Conversa.FormularioBase,
-  Conversa.Chamada.Participante.view;
+  Conversa.Chamada.Usuario.view,
+  Conversa.Chamada.Usuarios.Listagem,
+  FMX.ListBox;
 
 type
   {$SCOPEDENUMS ON}
@@ -27,7 +30,7 @@ type
   TVideoStatus = (Desconhecido, Indisposivel, Desativado, Ativo);
   TConversaChamadaView = class(TFormularioBase)
     rtgBarraInferior: TRectangle;
-    lytParticipantes: TLayout;
+    lytUsuarios: TLayout;
     lytBotoes: TLayout;
     crclAudio: TCircle;
     pthMicrofoneAtivo: TPath;
@@ -50,7 +53,8 @@ type
     FOldHWND: HWND;
     FAudioStatus: TAudioStatus;
     FVideoStatus: TVideoStatus;
-    FParticipante: TConversaChamadaParticipanteView;
+    FUsuario: TConversaChamadaUsuarioView;
+    FListaUsuarios: TConversaChamadaUsuariosListagem;
     FStatus: TStatusChamada;
     procedure SetAudioStatus(const Value: TAudioStatus);
     procedure SetVideoStatus(const Value: TVideoStatus);
@@ -134,19 +138,34 @@ begin
 end;
 
 procedure TConversaChamadaView.AtualizarListaParticipante;
+var
+  Usuarios : TArray<TChamadaDadosUsuario>;
+  Usuario: TChamadaDadosUsuario;
 begin
-  if Assigned(FParticipante) then
-    FreeAndNil(FParticipante);
+  Usuarios := Chamada.GetUsuarios;
 
-  for var Participante in Chamada.GetParticipantes do
+  if (Length(Usuarios) = 2) then
   begin
-    if Participante.usuario_id = Dados.FDadosApp.Usuario.ID then
-      Continue;
+    if Assigned(FUsuario) then
+      FreeAndNil(FUsuario);
 
-    FParticipante := TConversaChamadaParticipanteView.Create(lytParticipantes, Participante);
-    FParticipante.Parent := lytParticipantes;
-    FParticipante.Align := TAlignLayout.Client;
-    FParticipante.Visible := True;
+    for Usuario in Usuarios do
+    begin
+      if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
+        Continue;
+
+      FUsuario := TConversaChamadaUsuarioView.Create(lytUsuarios, Usuario);
+      FUsuario.Parent := lytUsuarios;
+      FUsuario.Align := TAlignLayout.Client;
+      FUsuario.Visible := True;
+    end;
+  end
+  else
+  begin
+    if not Assigned(FListaUsuarios) then
+      FListaUsuarios := TConversaChamadaUsuariosListagem.Create(lytUsuarios, FChamada);
+
+    FListaUsuarios.AtualizarListaUsuarios;
   end;
 end;
 

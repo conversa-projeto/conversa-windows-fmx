@@ -79,7 +79,7 @@ type
     procedure Finalizar;
     procedure AtualizarDados;
     procedure OnChamadaRecebida;
-    function GetParticipantes: TArray<TChamadaDadosUsuario>;
+    function GetUsuarios: TArray<TChamadaDadosUsuario>;
   end;
 
 implementation
@@ -273,7 +273,7 @@ begin
   FUsuarios := Conversa.Proxy.TAPIConversa.Chamada.Dados(FID).Dados.usuarios;
 end;
 
-function TConversaChamada.GetParticipantes: TArray<TChamadaDadosUsuario>;
+function TConversaChamada.GetUsuarios: TArray<TChamadaDadosUsuario>;
 begin
   Result := FUsuarios;
 end;
@@ -290,6 +290,7 @@ begin
   begin
     Usu := Default(TChamadaDadosUsuario);
     Usu.usuario_id := U.ID;
+    Usu.usuario_nome := U.Nome;
     FUsuarios := FUsuarios + [Usu];
   end;
   FStatus := TStatusChamada.IniciandoChamada;

@@ -1,4 +1,4 @@
-﻿unit Conversa.Chamada.Participante.view;
+﻿unit Conversa.Chamada.Usuario.view;
 
 interface
 
@@ -9,7 +9,7 @@ uses
   Conversa.Proxy.Tipos;
 
 type
-  TConversaChamadaParticipanteView = class(TFrame)
+  TConversaChamadaUsuarioView = class(TFrame)
     crclParticipante: TCircle;
     pthContatos: TPath;
     txtNome: TText;
@@ -25,7 +25,7 @@ implementation
 
 { TConversaChamadaParticipanteView }
 
-constructor TConversaChamadaParticipanteView.Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario);
+constructor TConversaChamadaUsuarioView.Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario);
 begin
   inherited Create(AOwner);
   FUsuario := AUsuario;

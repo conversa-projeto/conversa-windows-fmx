@@ -98,7 +98,7 @@ var
   ANConteudos: TArray<TConteudoNotify>;
   Layout: TTextLayout;
   Text: string;
-  Attributes: TArray<TTextAttributedRange>;
+//  Attributes: TArray<TTextAttributedRange>;
   BoldFont: TFont;
   bNome: Boolean;
   I: Integer;
