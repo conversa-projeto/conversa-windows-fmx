@@ -25,14 +25,15 @@ type
     procedure lytAtenderChamadaClick(Sender: TObject);
     procedure lytFinalizarChamadaClick(Sender: TObject);
   private
-    FStatus: TStatusChamada;
+    FStatus: TChamadaStatusLocal;
     FChamada: TObject;
+    procedure SetStatus(const Value: TChamadaStatusLocal);
   public
     constructor Create(AOwner: TComponent; AChamada: TObject); reintroduce; overload;
     destructor Destroy; override;
     procedure Exibir;
-    function Status(Method: TStatusChamada): TConversaChamadaBarraTitulo;
     procedure Ocultar;
+    property Status: TChamadaStatusLocal read FStatus write SetStatus;
   end;
 
 implementation
@@ -53,6 +54,7 @@ type
 constructor TConversaChamadaBarraTitulo.Create(AOwner: TComponent; AChamada: TObject);
 begin
   inherited Create(AOwner);
+  Name := 'TConversaChamadaBarraTitulo_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
   FChamada := AChamada;
 end;
 
@@ -103,24 +105,23 @@ begin
   Self.Parent := nil;
 end;
 
-function TConversaChamadaBarraTitulo.Status(Method: TStatusChamada): TConversaChamadaBarraTitulo;
+procedure TConversaChamadaBarraTitulo.SetStatus(const Value: TChamadaStatusLocal);
 begin
-  Result := Self;
-  FStatus := Method;
-  pthIconeChamada_Realizada.Visible := Method in [TStatusChamada.IniciandoChamada];
-  pthIconeChamada_Recebida.Visible := Method in [TStatusChamada.RecebentoChamada];
-  pthIconeChamada_Recusada.Visible := Method in [TStatusChamada.ChamadaPerdida];
+  FStatus := Value;
+  pthIconeChamada_Realizada.Visible := FStatus in [TChamadaStatusLocal.IniciandoChamada];
+  pthIconeChamada_Recebida.Visible := FStatus in [TChamadaStatusLocal.RecebentoChamada];
+  pthIconeChamada_Recusada.Visible := FStatus in [TChamadaStatusLocal.ChamadaPerdida];
 
-  case Method of
-    TStatusChamada.IniciandoChamada:
+  case FStatus of
+    TChamadaStatusLocal.IniciandoChamada:
     begin
       lytAtenderChamada.Visible := False;
     end;
-    TStatusChamada.ChamadaEmAndamento:
+    TChamadaStatusLocal.ChamadaEmAndamento:
     begin
       lytAtenderChamada.Visible := False;
     end;
-    TStatusChamada.ChamadaFinalizada:
+    TChamadaStatusLocal.ChamadaFinalizada:
     begin
       lytAtenderChamada.Visible := False;
       lytFinalizarChamada.Visible := False;

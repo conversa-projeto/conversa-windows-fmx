@@ -26,18 +26,18 @@ type
     UsuarioSaiu = 55
   );
 
-  TStatusChamada = (
-    Desconhecido,
-    IniciandoChamada,
-    RecebentoChamada,
-    ChamadaEmAndamento,
-    ChamadaFinalizada,
-    ChamadaPerdida,
-    Recusada
+  TChamadaStatusLocal = (
+    Desconhecido = 0,
+    IniciandoChamada = 1,
+    RecebentoChamada = 2,
+    ChamadaEmAndamento = 3,
+    ChamadaFinalizada = 4,
+    ChamadaPerdida = 5,
+    Recusada = 6
   );
 
-  TStatusChamadaH = record Helper for TStatusChamada
-    const StatusAtiva = [TStatusChamada.IniciandoChamada, TStatusChamada.RecebentoChamada, TStatusChamada.ChamadaEmAndamento];
+  TChamadaStatusLocalH = record Helper for TChamadaStatusLocal
+    const StatusAtiva = [TChamadaStatusLocal.IniciandoChamada, TChamadaStatusLocal.RecebentoChamada, TChamadaStatusLocal.ChamadaEmAndamento];
     function Ativa: Boolean;
   end;
 
@@ -1071,9 +1071,9 @@ begin
   ));
 end;
 
-{ TStatusChamadaH }
+{ TChamadaStatusLocalH }
 
-function TStatusChamadaH.Ativa: Boolean;
+function TChamadaStatusLocalH.Ativa: Boolean;
 begin
   Result := Self in StatusAtiva;
 end;

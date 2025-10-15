@@ -9,6 +9,7 @@ uses
   REST.API;
 
 type
+  {$SCOPEDENUMS ON}
   TResposta<T> = record
     Status: TResponseStatus;
     Erro: String;
@@ -131,18 +132,41 @@ type
   TMensagensNovas = TArray<TMensagemNova>;
   TRespostaMensagensNovas = TResposta<TMensagensNovas>;
 
+  TChamadaStatus = (
+    Desconhecido = 0,
+    Iniciada = 1,
+    Recusada = 2,
+    EmAndamento = 3,
+    Finalizada = 4,
+    Perdida = 5
+  );
+  TChamadaTipo = (
+    Desconhecido = 0,
+    Simples = 1,
+    Grupo = 2
+  );
   TChamada = record
     id: Integer;
     iniciada: TDateTime;
     finalizada: TDateTime;
     conversa_id: Integer;
+    status: TChamadaStatus;
+    tipo: TChamadaTipo;
   end;
   TRespostaChamada = TResposta<TChamada>;
 
+  TChamadaStatusUsuario = (
+    Desconhecido = 0,
+    Pendente = 1,
+    Recusou = 2,
+    Entrou = 3,
+    Saiu = 4,
+    Desconectou = 5
+  );
   TChamadaDadosUsuario = record
     usuario_id: Integer;
     usuario_nome: string;
-    status: Integer;
+    status: TChamadaStatusUsuario;
     adicionado_por: Integer;
     adicinoado_em: TDateTime;
     recusou_em: TDateTime;

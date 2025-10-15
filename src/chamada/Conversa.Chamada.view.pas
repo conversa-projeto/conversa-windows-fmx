@@ -55,10 +55,10 @@ type
     FVideoStatus: TVideoStatus;
     FUsuario: TConversaChamadaUsuarioView;
     FListaUsuarios: TConversaChamadaUsuariosListagem;
-    FStatus: TStatusChamada;
+    FStatus: TChamadaStatusLocal;
     procedure SetAudioStatus(const Value: TAudioStatus);
     procedure SetVideoStatus(const Value: TVideoStatus);
-    procedure SetStatus(const Value: TStatusChamada);
+    procedure SetStatus(const Value: TChamadaStatusLocal);
   protected
     procedure CreateHandle; override;
     procedure DestroyHandle; override;
@@ -66,7 +66,7 @@ type
     constructor Create(AOwner: TComponent; AChamada: TObject); reintroduce; overload;
     property AudioStatus: TAudioStatus read FAudioStatus write SetAudioStatus;
     property VideoStatus: TVideoStatus read FVideoStatus write SetVideoStatus;
-    property Status: TStatusChamada read FStatus write SetStatus;
+    property Status: TChamadaStatusLocal read FStatus write SetStatus;
     procedure AtualizarListaParticipante;
   end;
 
@@ -113,6 +113,7 @@ end;
 constructor TConversaChamadaView.Create(AOwner: TComponent; AChamada: TObject);
 begin
   inherited Create(Application);
+  Name := 'TConversaChamadaView_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
   FChamada := AChamada;
 
   AudioStatus := TAudioStatus.Indisposivel;
@@ -183,12 +184,12 @@ begin
   pthMicrofoneDesativado.Visible := Value in [TAudioStatus.Desativado];
 end;
 
-procedure TConversaChamadaView.SetStatus(const Value: TStatusChamada);
+procedure TConversaChamadaView.SetStatus(const Value: TChamadaStatusLocal);
 begin
   FStatus := Value;
   case FStatus of
-    TStatusChamada.Desconhecido: ;
-    TStatusChamada.IniciandoChamada:
+    TChamadaStatusLocal.Desconhecido: ;
+    TChamadaStatusLocal.IniciandoChamada:
     begin
       crclAtenderChamada.Visible := False;
       crclFinalizarChamada.Visible := True;
@@ -197,7 +198,7 @@ begin
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
       txtStatusChamada.Text := 'Iniciando...';
     end;
-    TStatusChamada.RecebentoChamada:
+    TChamadaStatusLocal.RecebentoChamada:
     begin
       crclAtenderChamada.Visible := True;
       crclFinalizarChamada.Visible := True;
@@ -206,7 +207,7 @@ begin
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
       txtStatusChamada.Text := 'Recebendo Chamada';
     end;
-    TStatusChamada.ChamadaEmAndamento:
+    TChamadaStatusLocal.ChamadaEmAndamento:
     begin
       crclAtenderChamada.Visible := False;
       crclFinalizarChamada.Visible := True;
@@ -215,7 +216,7 @@ begin
       lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
       txtStatusChamada.Text := 'Em Andamento...';
     end;
-    TStatusChamada.ChamadaFinalizada:
+    TChamadaStatusLocal.ChamadaFinalizada:
     begin
       crclAtenderChamada.Visible := False;
       crclFinalizarChamada.Visible := False;
@@ -224,7 +225,7 @@ begin
       lytBotoes.Width := 0;
       Self.Hide;
     end;
-    TStatusChamada.ChamadaPerdida:
+    TChamadaStatusLocal.ChamadaPerdida:
     begin
       crclAtenderChamada.Visible := False;
       crclFinalizarChamada.Visible := False;
