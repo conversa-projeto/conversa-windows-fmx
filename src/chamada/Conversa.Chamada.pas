@@ -46,15 +46,22 @@ type
   TConversaChamada = class
   private
     FID: Integer;
-    FStatus: TChamadaStatusLocal;
+    FTipo: TChamadaTipo;
+    FStatus: TChamadaStatus;
+    FStatusLocal: TChamadaStatusLocal;
     FChamadaView: TConversaChamadaView;
     FBarraTitulo: TConversaChamadaBarraTitulo;
     FUsuarios: TArray<TChamadaDadosUsuario>;
+    FIniciada: TDateTime;
+    FFinalizada: TDateTime;
     procedure SetStatus(const Value: TChamadaStatusLocal);
     procedure AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
 
     procedure OnChamadaFinalizada;
-    procedure ChamadaFinalizada;
+    procedure OnUsuarioRecusou(const Usuario: Integer);
+    procedure OnUsuarioEntrou(const Usuario: Integer);
+    procedure OnUsuarioSaiu(const Usuario: Integer);
+    procedure FinalizarLocalmente;
   protected
     function ProcessarSocket(Tipo: TSocketMessageType; jo: TJSONObject): Boolean;
 
@@ -67,7 +74,7 @@ type
 
     procedure IniciarChamada(AParticipantes: TArrayUsuarios);
 
-    property Status: TChamadaStatusLocal read FStatus write SetStatus;
+    property StatusLocal: TChamadaStatusLocal read FStatusLocal write SetStatus;
   public
     constructor Create(const AID: Integer);
     destructor Destroy; override;
@@ -79,6 +86,8 @@ type
     procedure AtualizarDados;
     procedure OnChamadaRecebida;
     function GetUsuarios: TArray<TChamadaDadosUsuario>;
+    property Iniciada: TDateTime read FIniciada;
+    function TempoDecorrido: string;
   end;
 
 implementation
@@ -187,13 +196,14 @@ end;
 constructor TConversaChamada.Create(const AID: Integer);
 begin
   FID := AID;
-  FStatus := TChamadaStatusLocal.Desconhecido;
+  FStatusLocal := TChamadaStatusLocal.Desconhecido;
+  FTipo := TChamadaTipo.Simples;
+  FIniciada := 0;
 end;
 
 destructor TConversaChamada.Destroy;
 begin
-  if FStatus.Ativa then
-    Sair;
+  Sair;
 
   if Assigned(FBarraTitulo) then
     FreeAndNil(FBarraTitulo);
@@ -208,9 +218,9 @@ begin
   case Tipo of
     TSocketMessageType.ChamadaRecebida: OnChamadaRecebida;
     TSocketMessageType.ChamadaFinalizada: OnChamadaFinalizada;
-    TSocketMessageType.UsuarioRecusou: AtualizarStatusUsuario(jo.GetValue<Integer>('usuario_id', 0), TChamadaStatusUsuario.Recusou);
-    TSocketMessageType.UsuarioEntrou: AtualizarStatusUsuario(jo.GetValue<Integer>('usuario_id', 0), TChamadaStatusUsuario.Entrou);
-    TSocketMessageType.UsuarioSaiu: AtualizarStatusUsuario(jo.GetValue<Integer>('usuario_id', 0), TChamadaStatusUsuario.Saiu);
+    TSocketMessageType.UsuarioRecusou: OnUsuarioRecusou(jo.GetValue<Integer>('usuario_id', 0));
+    TSocketMessageType.UsuarioEntrou: OnUsuarioEntrou(jo.GetValue<Integer>('usuario_id', 0));
+    TSocketMessageType.UsuarioSaiu: OnUsuarioSaiu(jo.GetValue<Integer>('usuario_id', 0));
   end;
 end;
 
@@ -227,8 +237,9 @@ end;
 procedure TConversaChamada.Entrar;
 begin
   Conversa.Proxy.TAPIConversa.Chamada.Entrar(FID);
+  FIniciada := Now;
   AtualizarDados;
-  Status := TChamadaStatusLocal.ChamadaEmAndamento;
+  StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
 end;
 
 procedure TConversaChamada.Finalizar;
@@ -238,7 +249,7 @@ end;
 
 procedure TConversaChamada.Sair(const AFinalizar: Boolean = False);
 begin
-  case FStatus of
+  case FStatusLocal of
     TChamadaStatusLocal.IniciandoChamada: Conversa.Proxy.TAPIConversa.Chamada.Cancelar(FID);
     TChamadaStatusLocal.RecebentoChamada: Conversa.Proxy.TAPIConversa.Chamada.Recusar(FID);
     TChamadaStatusLocal.ChamadaEmAndamento:
@@ -247,11 +258,10 @@ begin
         Conversa.Proxy.TAPIConversa.Chamada.Finalizar(FID)
       else
         Conversa.Proxy.TAPIConversa.Chamada.Sair(FID);
-    end
-  else
-    Exit;
+    end;
+    TChamadaStatusLocal.ChamadaFinalizada: Exit;
   end;
-  ChamadaFinalizada;
+  FinalizarLocalmente;
 end;
 
 procedure TConversaChamada.OnChamadaFinalizada;
@@ -259,19 +269,69 @@ begin
   // Não fecha a tela, para exibir quem finalizou
   AtualizarDados;
   ExibirChamada;
-  Status := TChamadaStatusLocal.ChamadaFinalizada;
+  StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
 end;
 
 procedure TConversaChamada.OnChamadaRecebida;
 begin
-  Status := TChamadaStatusLocal.RecebentoChamada;
+  StatusLocal := TChamadaStatusLocal.RecebentoChamada;
   AtualizarDados;
   ExibirChamada;
 end;
 
+procedure TConversaChamada.OnUsuarioRecusou(const Usuario: Integer);
+begin
+  AtualizarStatusUsuario(Usuario, TChamadaStatusUsuario.Recusou);
+
+  if StatusLocal = TChamadaStatusLocal.RecebentoChamada then
+    Exit;
+
+  if (StatusLocal = TChamadaStatusLocal.IniciandoChamada) and (FTipo = TChamadaTipo.Simples) then
+  begin
+    StatusLocal := TChamadaStatusLocal.Recusada;
+    FinalizarLocalmente;
+    Exit;
+  end;
+end;
+
+procedure TConversaChamada.OnUsuarioEntrou(const Usuario: Integer);
+begin
+  AtualizarStatusUsuario(Usuario, TChamadaStatusUsuario.Entrou);
+  if StatusLocal = TChamadaStatusLocal.RecebentoChamada then
+    Exit;
+
+  StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
+end;
+
+procedure TConversaChamada.OnUsuarioSaiu(const Usuario: Integer);
+begin
+  AtualizarStatusUsuario(Usuario, TChamadaStatusUsuario.Saiu);
+
+  if StatusLocal = TChamadaStatusLocal.RecebentoChamada then
+    Exit;
+
+  if (StatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) and (FTipo = TChamadaTipo.Simples) then
+  begin
+    // esta errado aqui, quando A liga, B atende, A finaliza
+    StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
+    FinalizarLocalmente;
+    Exit;
+  end;
+end;
+
 procedure TConversaChamada.AtualizarDados;
 begin
-  FUsuarios := Conversa.Proxy.TAPIConversa.Chamada.Dados(FID).Dados.usuarios;
+  with Conversa.Proxy.TAPIConversa.Chamada.Dados(FID) do
+  begin
+    FTipo := Dados.tipo;
+    FStatus := Dados.status;
+    FIniciada := Dados.iniciada;
+    FFinalizada := Dados.finalizada;
+    FUsuarios := Dados.usuarios;
+  end;
+
+  if Assigned(FChamadaView) then
+    FChamadaView.AtualizarListaParticipante;
 end;
 
 function TConversaChamada.GetUsuarios: TArray<TChamadaDadosUsuario>;
@@ -298,7 +358,7 @@ begin
       Usu.status := TChamadaStatusUsuario.Pendente;
     FUsuarios := FUsuarios + [Usu];
   end;
-  FStatus := TChamadaStatusLocal.IniciandoChamada;
+  FStatusLocal := TChamadaStatusLocal.IniciandoChamada;
   ExibirChamada;
 
   ja := TJSONArray.Create;
@@ -308,12 +368,17 @@ begin
   for P in AParticipantes do
     ja.Add(TJSONObject.Create.AddPair('id', P.ID));
 
-  FID := Conversa.Proxy.TAPIConversa.Chamada.Iniciar(jo).Dados.id;
+  with Conversa.Proxy.TAPIConversa.Chamada.Iniciar(jo).Dados do
+  begin
+    FID := id;
+    FTipo := tipo;
+    FStatus := status;
+  end;
 end;
 
-procedure TConversaChamada.ChamadaFinalizada;
+procedure TConversaChamada.FinalizarLocalmente;
 begin
-  Status := TChamadaStatusLocal.ChamadaFinalizada;
+  StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
   TConversaChamadas.Instance.FChamadas.Remove(FID);
   FreeAndNil(Self);
 end;
@@ -335,9 +400,10 @@ begin
     FChamadaView := TConversaChamadaView.Create(nil, Self);
     FChamadaView.AtualizarListaParticipante;
     FChamadaView.Show;
+    FChamadaView.CentralizarNoDisplayDoMainForm;
   end;
 
-  FChamadaView.Status := Status;
+  FChamadaView.Status := StatusLocal;
 
   if not Assigned(FBarraTitulo) then
   begin
@@ -347,7 +413,7 @@ begin
     FBarraTitulo.txtTempoLigacao.AutoSize := False;
   end;
 
-  FBarraTitulo.Status := FStatus;
+  FBarraTitulo.Status := FStatusLocal;
 end;
 
 procedure TConversaChamada.NotificarChamada;
@@ -357,20 +423,34 @@ end;
 
 procedure TConversaChamada.SetStatus(const Value: TChamadaStatusLocal);
 begin
-  FStatus := Value;
+  if FStatusLocal = Value then
+    Exit;
+
+  FStatusLocal := Value;
+  case FStatusLocal of
+    TChamadaStatusLocal.Desconhecido: ;
+    TChamadaStatusLocal.IniciandoChamada: ;
+    TChamadaStatusLocal.RecebentoChamada: ;
+    TChamadaStatusLocal.ChamadaEmAndamento:
+    begin
+      FIniciada := Now;
+    end;
+    TChamadaStatusLocal.ChamadaFinalizada: ;
+    TChamadaStatusLocal.ChamadaPerdida: ;
+    TChamadaStatusLocal.Recusada: ;
+  end;
 
   if Assigned(FChamadaView) then
-    FChamadaView.Status := FStatus;
+    FChamadaView.Status := FStatusLocal;
 
   if Assigned(FBarraTitulo) then
-    FBarraTitulo.Status := FStatus;
+    FBarraTitulo.Status := FStatusLocal;
 end;
 
 procedure TConversaChamada.AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
 var
   I: Integer;
   Usr: TChamadaDadosUsuario;
-  QtdAtivos: Integer;
 begin
   for I := 0 to Pred(Length(FUsuarios)) do
   begin
@@ -382,16 +462,27 @@ begin
     FUsuarios[I] := Usr;
   end;
 
-  QtdAtivos := -1;
-  for I := 0 to Pred(Length(FUsuarios)) do
-    if FUsuarios[I].status = TChamadaStatusUsuario.Entrou then
-      Inc(QtdAtivos);
+  if Assigned(FChamadaView) then
+    FChamadaView.AtualizarListaParticipante;
+end;
 
-  if QtdAtivos = 0 then
-    Sair
+function TConversaChamada.TempoDecorrido: string;
+var
+  Diferenca: TDateTime;
+  Horas, Minutos, Segundos, Milisegundos: Word;
+begin
+  // Claude Sonnet 4.5
+  // Calcula a diferença entre as datas
+  Diferenca := Now - FIniciada;
+
+  // Extrai horas, minutos, segundos e milisegundos
+  DecodeTime(Diferenca, Horas, Minutos, Segundos, Milisegundos);
+
+  // Formata a string de acordo com a regra
+  if Horas > 0 then
+    Result := Format('%2.2d:%2.2d:%2.2d.%3.3d', [Horas, Minutos, Segundos, Milisegundos])
   else
-  if FStatus = TChamadaStatusLocal.IniciandoChamada then
-    Self.Status := TChamadaStatusLocal.ChamadaEmAndamento;
+    Result := Format('%2.2d:%2.2d.%3.3d', [Minutos, Segundos, Milisegundos]);
 end;
 
 end.

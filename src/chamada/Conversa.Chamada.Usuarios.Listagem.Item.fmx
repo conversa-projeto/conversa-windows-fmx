@@ -55,7 +55,7 @@ object ConversaChamadaUsuariosListItem: TConversaChamadaUsuariosListItem
         Size.Height = 44.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
-        object txtMensagem: TText
+        object txtStatus: TText
           Align = Bottom
           HitTest = False
           Position.Y = 27.000000000000000000

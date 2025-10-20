@@ -13,24 +13,49 @@ type
     crclParticipante: TCircle;
     pthContatos: TPath;
     txtNome: TText;
+    txtTempoDecorrido: TText;
+    tmrTempoDecorrido: TTimer;
+    procedure tmrTempoDecorridoTimer(Sender: TObject);
   private
+    FChamada: TObject;
     FUsuario: TChamadaDadosUsuario;
   public
-    constructor Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
+    constructor Create(AOwner: TComponent; AChamada: TObject; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
   end;
 
 implementation
 
 {$R *.fmx}
 
+uses
+  Conversa.Chamada;
+
+type
+  TConversaChamadaUsuarioViewH = class Helper for TConversaChamadaUsuarioView
+    function Chamada: TConversaChamada;
+  end;
+
 { TConversaChamadaParticipanteView }
 
-constructor TConversaChamadaUsuarioView.Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario);
+constructor TConversaChamadaUsuarioView.Create(AOwner: TComponent; AChamada: TObject; AUsuario: TChamadaDadosUsuario);
 begin
   inherited Create(AOwner);
+  FChamada := AChamada;
   FUsuario := AUsuario;
   txtNome.Text := AUsuario.usuario_nome;
-//  txtNome.Text := 'Fulano'+ AUsuario.ID.ToString;
+  txtTempoDecorrido.Text := '';
+end;
+
+procedure TConversaChamadaUsuarioView.tmrTempoDecorridoTimer(Sender: TObject);
+begin
+  txtTempoDecorrido.Text := Chamada.TempoDecorrido;
+end;
+
+{ TConversaChamadaUsuarioViewH }
+
+function TConversaChamadaUsuarioViewH.Chamada: TConversaChamada;
+begin
+  Result := TConversaChamada(FChamada);
 end;
 
 end.

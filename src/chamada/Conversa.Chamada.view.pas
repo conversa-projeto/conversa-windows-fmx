@@ -155,7 +155,7 @@ begin
       if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
         Continue;
 
-      FUsuario := TConversaChamadaUsuarioView.Create(lytUsuarios, Usuario);
+      FUsuario := TConversaChamadaUsuarioView.Create(lytUsuarios, FChamada, Usuario);
       FUsuario.Parent := lytUsuarios;
       FUsuario.Align := TAlignLayout.Client;
       FUsuario.Visible := True;
@@ -215,6 +215,8 @@ begin
       crclVideo.Visible := True;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
       txtStatusChamada.Text := 'Em Andamento...';
+      if Assigned(FUsuario) then
+        FUsuario.tmrTempoDecorrido.Enabled := True;
     end;
     TChamadaStatusLocal.ChamadaFinalizada:
     begin

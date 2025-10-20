@@ -138,7 +138,8 @@ type
     Recusada = 2,
     EmAndamento = 3,
     Finalizada = 4,
-    Perdida = 5
+    Perdida = 5,
+    Cancelada = 6
   );
   TChamadaTipo = (
     Desconhecido = 0,
@@ -178,6 +179,8 @@ type
     iniciada: TDateTime;
     finalizada: TDateTime;
     conversa_id: Integer;
+    status: TChamadaStatus;
+    tipo: TChamadaTipo;
     usuarios: TArray<TChamadaDadosUsuario>;
   end;
   TRespostaChamadaDados = TResposta<TChamadaDados>;

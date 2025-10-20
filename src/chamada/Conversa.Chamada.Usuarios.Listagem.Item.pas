@@ -17,7 +17,7 @@ type
     crclFoto: TCircle;
     txtAbreviatura: TText;
     lytInformacoes: TLayout;
-    txtMensagem: TText;
+    txtStatus: TText;
     ColorAnimation1: TColorAnimation;
     txtNome: TText;
   public

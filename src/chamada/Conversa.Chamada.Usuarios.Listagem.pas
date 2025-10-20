@@ -17,7 +17,6 @@ type
   TConversaChamadaUsuariosListagem = class(TFrameBase)
     rctFundo: TRectangle;
     lstContatos: TListBox;
-    Text1: TText;
   private
     FChamada: TObject;
   public
@@ -60,6 +59,9 @@ var
 begin
   for Usuario in Chamada.GetUsuarios do
   begin
+    if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
+      Continue;
+
     Item := nil;
 
     for I := 0 to Pred(lstContatos.Count) do
@@ -77,17 +79,27 @@ begin
       Break;
     end;
 
-    if Assigned(Item) then
-      Continue;
+    if not Assigned(Item) then
+    begin
+      Item := TListBoxItem.Create(nil);
+      Item.Text := '';
+      Item.Height := 60;
+      Item.Selectable := False;
+      Item.Usuario := TConversaChamadaUsuariosListItem.Create(Item, Usuario);
+      lstContatos.AddObject(Item);
+    end;
 
-    Item := TListBoxItem.Create(nil);
-    Item.Text := '';
-    Item.Height := 60;
-    Item.Selectable := False;
-    Item.Usuario := TConversaChamadaUsuariosListItem.Create(Item, Usuario);
     Item.Usuario.txtNome.Text := Usuario.usuario_nome;
     Item.Usuario.txtAbreviatura.Text := Usuario.usuario_nome[1];
-    lstContatos.AddObject(Item);
+
+    case Usuario.status of
+      TChamadaStatusUsuario.Desconhecido: Item.Usuario.txtStatus.Text := '[Desconhecido]';
+      TChamadaStatusUsuario.Pendente: Item.Usuario.txtStatus.Text := 'Aguardando...';
+      TChamadaStatusUsuario.Recusou: Item.Usuario.txtStatus.Text := 'Recusou';
+      TChamadaStatusUsuario.Entrou: Item.Usuario.txtStatus.Text := 'Entrou';
+      TChamadaStatusUsuario.Saiu: Item.Usuario.txtStatus.Text := 'Saiu';
+      TChamadaStatusUsuario.Desconectou: Item.Usuario.txtStatus.Text := 'Desconectado';
+    end;
   end;
   Self.Visible := True;
   Self.Show;

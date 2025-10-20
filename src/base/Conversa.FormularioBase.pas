@@ -72,6 +72,10 @@ type
     procedure HideOfTaskBar;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure CentralizarComReferencia(FormReferencia: TForm);
+    procedure CentralizarNoDisplay(Display: TDisplay);
+    procedure CentralizarNoDisplayDoMainForm;
+    procedure CentralizarNoDisplayPrincipal;
   end;
 
 implementation
@@ -430,6 +434,62 @@ begin
   H := FormToHWND(Self);
   SetWindowLongPtr(H, GWL_EXSTYLE, (GetWindowLong(H, GWL_EXSTYLE) and not WS_EX_TOOLWINDOW));
   ShowWindow(H, SW_SHOW);
+end;
+
+procedure TFormularioBase.CentralizarNoDisplay(Display: TDisplay);
+var
+  WorkArea: TRectF;
+  PosX, PosY: Single;
+begin
+  // Obtém a área de trabalho do display (excluindo barra de tarefas)
+  WorkArea := Display.WorkareaRect;
+
+  if WorkArea.IsEmpty then
+    Exit;
+
+  // Calcula a posição centralizada
+  PosX := WorkArea.Left + ((WorkArea.Width - Self.Width) / 2);
+  PosY := WorkArea.Top + ((WorkArea.Height - Self.Height) / 2);
+
+  HideOfTaskBar;
+  Self.Left := Round(PosX);
+  Self.Top := Round(PosY);
+  ShowOnTaskBar;
+end;
+
+
+procedure TFormularioBase.CentralizarNoDisplayPrincipal;
+begin
+  CentralizarNoDisplay(Screen.Displays[0]);
+end;
+
+procedure TFormularioBase.CentralizarNoDisplayDoMainForm;
+begin
+  if Assigned(Application.MainForm) then
+    CentralizarNoDisplay(Screen.DisplayFromForm(Application.MainForm))
+  else
+    CentralizarNoDisplayPrincipal;
+end;
+
+procedure TFormularioBase.CentralizarComReferencia(FormReferencia: TForm);
+var
+  PosX, PosY: Single;
+begin
+  // Se foi passado um formulário de referência válido e visível
+  if Assigned(FormReferencia) and (FormReferencia.Visible) then
+  begin
+    // Centraliza em relação ao formulário de referência
+    PosX := FormReferencia.Left + ((FormReferencia.Width - Self.Width) / 2);
+    PosY := FormReferencia.Top + ((FormReferencia.Height - Self.Height) / 2);
+
+    HideOfTaskBar;
+    Self.Left := Round(PosX);
+    Self.Top := Round(PosY);
+    ShowOnTaskBar;
+  end
+  else
+    // Se não houver referência válida, centraliza no display do MainForm
+    CentralizarNoDisplayDoMainForm;
 end;
 
 end.
