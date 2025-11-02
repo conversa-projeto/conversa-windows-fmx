@@ -6,15 +6,17 @@ uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Objects,
-  Conversa.Proxy.Tipos;
+  Conversa.Proxy.Tipos, FMX.Layouts;
 
 type
   TConversaChamadaUsuarioView = class(TFrame)
-    crclParticipante: TCircle;
-    pthContatos: TPath;
+    tmrTempoDecorrido: TTimer;
+    Layout1: TLayout;
+    txtStatusChamada: TText;
     txtNome: TText;
     txtTempoDecorrido: TText;
-    tmrTempoDecorrido: TTimer;
+    crclParticipante: TCircle;
+    pthContatos: TPath;
     procedure tmrTempoDecorridoTimer(Sender: TObject);
   private
     FChamada: TObject;

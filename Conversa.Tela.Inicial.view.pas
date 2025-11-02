@@ -38,12 +38,10 @@ type
     tmrShow: TTimer;
     rctAvisoConexao: TRectangle;
     txtAvisoConexao: TText;
-    Button1: TButton;
     procedure FormShow(Sender: TObject);
     procedure tmrShowTimer(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
-    procedure Button1Click(Sender: TObject);
   private
     FOldHWND: HWND;
     TrayWnd: HWND;
@@ -86,12 +84,6 @@ uses
 
 const
   WM_ICONTRAY = WM_USER + 1;
-
-procedure TTelaInicial.Button1Click(Sender: TObject);
-begin
-  inherited;
-//  TConversaChamadas.Instance.Atender();
-end;
 
 constructor TTelaInicial.Create(AOwner: TComponent);
 begin

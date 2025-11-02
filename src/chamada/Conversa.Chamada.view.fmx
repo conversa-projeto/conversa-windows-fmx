@@ -29,6 +29,7 @@ inherited ConversaChamadaView: TConversaChamadaView
             TabOrder = 0
             object crclAudio: TCircle
               Align = Left
+              Cursor = crHandPoint
               Fill.Color = claWhite
               Margins.Left = 2.500000000000000000
               Margins.Top = 2.500000000000000000
@@ -170,6 +171,7 @@ inherited ConversaChamadaView: TConversaChamadaView
             end
             object crclVideo: TCircle
               Align = Left
+              Cursor = crHandPoint
               Fill.Color = claWhite
               Margins.Left = 2.500000000000000000
               Margins.Top = 2.500000000000000000
@@ -287,6 +289,7 @@ inherited ConversaChamadaView: TConversaChamadaView
             end
             object crclFinalizarChamada: TCircle
               Align = Left
+              Cursor = crHandPoint
               Fill.Color = xFFD44242
               Margins.Left = 2.500000000000000000
               Margins.Top = 2.500000000000000000
@@ -339,6 +342,7 @@ inherited ConversaChamadaView: TConversaChamadaView
             end
             object crclAtenderChamada: TCircle
               Align = Left
+              Cursor = crHandPoint
               Fill.Color = claGreen
               Margins.Left = 2.500000000000000000
               Margins.Top = 2.500000000000000000
@@ -422,16 +426,6 @@ inherited ConversaChamadaView: TConversaChamadaView
         end
         inherited lytTitleBarClient: TLayout
           Size.Width = 125.000000000000000000
-          object txtStatusChamada: TText
-            Align = Left
-            HitTest = False
-            Margins.Left = 8.000000000000000000
-            Position.X = 8.000000000000000000
-            Size.Width = 200.000000000000000000
-            Size.Height = 40.000000000000000000
-            Size.PlatformDefault = False
-            Text = '[Status]'
-          end
         end
       end
     end

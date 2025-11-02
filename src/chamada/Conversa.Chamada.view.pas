@@ -44,7 +44,6 @@ type
     pthFinalizarChamada: TPath;
     crclAtenderChamada: TCircle;
     pthAtenderChamada: TPath;
-    txtStatusChamada: TText;
     procedure crclFinalizarChamadaClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure crclAtenderChamadaClick(Sender: TObject);
@@ -196,7 +195,8 @@ begin
       crclAudio.Visible := True;
       crclVideo.Visible := False;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
-      txtStatusChamada.Text := 'Iniciando...';
+      if Assigned(FUsuario) then
+        FUsuario.txtStatusChamada.Text := 'Iniciando...';
     end;
     TChamadaStatusLocal.RecebentoChamada:
     begin
@@ -205,7 +205,8 @@ begin
       crclAudio.Visible := False;
       crclVideo.Visible := False;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
-      txtStatusChamada.Text := 'Recebendo Chamada';
+      if Assigned(FUsuario) then
+        FUsuario.txtStatusChamada.Text := 'Recebendo Chamada';
     end;
     TChamadaStatusLocal.ChamadaEmAndamento:
     begin
@@ -214,7 +215,8 @@ begin
       crclAudio.Visible := True;
       crclVideo.Visible := True;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
-      txtStatusChamada.Text := 'Em Andamento...';
+      if Assigned(FUsuario) then
+        FUsuario.txtStatusChamada.Text := 'Em Andamento...';
       if Assigned(FUsuario) then
         FUsuario.tmrTempoDecorrido.Enabled := True;
     end;

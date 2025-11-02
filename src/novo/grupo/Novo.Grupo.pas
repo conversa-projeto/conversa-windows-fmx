@@ -117,6 +117,7 @@ begin
   try
     Dados.NovoChat(Conversa);
     Dados.FDadosApp.Conversas.Add(Conversa);
+    Dados.CarregarConversas;
     TelaInicial.ModalView.Ocultar;
   except
     FreeAndNil(Conversa);

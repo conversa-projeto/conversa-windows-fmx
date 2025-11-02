@@ -19,6 +19,9 @@ type
     Login,
     NovaMensagem,
     AtualizacaoStatusMensagem,
+
+    ConversaNova = 40, // Nova conversa
+
     ChamadaRecebida = 51, // Usuário inicia uma chamada
     ChamadaFinalizada = 52, // Usuário que criou, cancela a chamada antes mesmo de algum usuário entrar ou finaliza a chamada de modo forçado
     UsuarioRecusou = 53,

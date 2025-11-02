@@ -456,9 +456,13 @@ begin
       Exit;
 
     case Tipo of
+      TSocketMessageType.ConversaNova:
+      begin
+        Conversa.Proxy.TAPIConversa.Conversas;
+      end;
       TSocketMessageType.NovaMensagem:
       begin
-        if Length(FDadosApp.Conversas.Items) > 0 then
+//        if Length(FDadosApp.Conversas.Items) > 0 then
           Conversa.Proxy.TAPIConversa.MensagensNovas(FDadosApp.UltimaMensagemNotificada);
       end;
       TSocketMessageType.AtualizacaoStatusMensagem:
@@ -506,6 +510,10 @@ begin
     CarregarConversas;
     ObjConversa := FDadosApp.Conversas.Get(iConversa);
   end;
+
+  {TODO -oDaniel -cCarregamentoInicial : Carregar dados de conversa "Síncrono" para nova conversa}
+  if not Assigned(ObjConversa) then
+    Exit;
 
   if ObjConversa.Usuarios.Count = 0 then
     ObjConversa.AddUsuario(FDadosApp.Usuario);
