@@ -38,6 +38,15 @@ type
     dispositivo: TDispositivo;
   end;
 
+  TContato = record
+    id: Integer;
+    nome: String;
+    login: String;
+    email: String;
+    telefone: String;
+  end;
+  TContatos = TArray<TContato>;
+
   TConversa = record
     id: Integer;
     descricao: String;
@@ -49,22 +58,11 @@ type
     ultima_mensagem: TDatetime;
     ultima_mensagem_texto: String;
     mensagens_sem_visualizar: Integer;
+    usuarios: TContatos;
   end;
   TConversas = TArray<TConversa>;
   TRespostaConversa = TResposta<TConversa>;
   TRespostaConversas = TResposta<TConversas>;
-
-  TContato = record
-    id: Integer;
-    nome: String;
-    login: String;
-    email: String;
-    telefone: String;
-  end;
-
-  TContatos = TArray<TContato>;
-
-
 
   TReqUsuario = record
     nome: String;

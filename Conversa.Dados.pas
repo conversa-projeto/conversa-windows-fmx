@@ -33,6 +33,7 @@ type
     procedure EventoObterMensagens(const Sender: TObject; const M: TObterMensagens);
     procedure ObterMensagensNovas(const Sender: TObject; const M: TObterMensagensNovas);
     procedure ObterMensagensStatus(const Sender: TObject; const M: TObterMensagensStatus);
+    procedure ObterDadosConversasMessage(const Sender: TObject; const M: TObterDadosConversa);
     procedure NotificacaoSocket(const AText: String);
   public
     FDadosApp: TDadosApp;
@@ -57,6 +58,7 @@ type
     function MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
     procedure VisualizarMensagem(Mensagem: TMensagem);
     procedure SalvarAnexo(const Mensagem: TMensagem; const Identificador: String);
+    procedure ObterDadosConversa(ConversaId: Integer);
   end;
 
 var
@@ -91,12 +93,14 @@ begin
   TObterMensagens.Subscribe(EventoObterMensagens);
   TObterMensagensNovas.Subscribe(ObterMensagensNovas);
   TObterMensagensStatus.Subscribe(ObterMensagensStatus);
+  TObterDadosConversa.Subscribe(ObterDadosConversasMessage);
 end;
 
 destructor TDados.Destroy;
 begin
   FBirdSocket.Disconnect;
   FreeAndNil(FBirdSocket);
+  TObterDadosConversa.Unsubscribe(ObterDadosConversasMessage);
   TObterMensagensStatus.Unsubscribe(ObterMensagensStatus);
   TObterMensagensNovas.Unsubscribe(ObterMensagensNovas);
   TObterMensagens.Unsubscribe(EventoObterMensagens);
@@ -201,7 +205,8 @@ begin
     Conversa.Tipo(TTipoConversa(prxConversa.tipo));
     Conversa.Descricao(prxConversa.descricao);
     Conversa.AddUsuario(FDadosApp.Usuario);
-    Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(prxConversa.destinatario_id).Nome(prxConversa.nome));
+    if prxConversa.destinatario_id <> 0 then
+      Conversa.AddUsuario(FDadosApp.Usuarios.GetOrAdd(prxConversa.destinatario_id).Nome(prxConversa.nome));
     Conversa.UltimaMensagem(prxConversa.ultima_mensagem_texto);
     Conversa.CriadoEm((prxConversa.inserida));
 
@@ -609,6 +614,43 @@ begin
 
   AtualizarContador(nil, nil);
   TMessageManager.DefaultManager.SendMessage(nil, TEventoAtualizarContadorConversa.Create(0));
+end;
+
+procedure TDados.ObterDadosConversa(ConversaId: Integer);
+begin
+  Conversa.Proxy.TApiConversa.Conversa.Dados(ConversaId);
+end;
+
+procedure TDados.ObterDadosConversasMessage(const Sender: TObject; const M: TObterDadosConversa);
+var
+  Cont: TContato;
+  Usu: TUsuario;
+  bLocalizou: Boolean;
+begin
+  if M.Value.Status <> TResponseStatus.Sucess then
+    Exit;
+
+  with FDadosApp.Conversas.Get(M.Value.Dados.id) do
+  begin
+    for Cont in M.Value.Dados.usuarios do
+    begin
+      bLocalizou := False;
+      for Usu in Usuarios do
+      begin
+        if Usu.ID <> Cont.id then
+          Continue;
+        bLocalizou := True;
+        Break;
+      end;
+      if bLocalizou then
+        Continue;
+
+      Usu := TUsuario.New(Cont.ID);
+      Usu.Nome(Cont.nome);
+      Usu.Login(Cont.login);
+      AddUsuario(Usu);
+    end;
+  end;
 end;
 
 end.

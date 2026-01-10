@@ -21,6 +21,7 @@ type
   TEventoStatusConexao = class(TEventoBase);
 
   TObterConversas = class(TEventBase<TObterConversas, TRespostaConversas>);
+  TObterDadosConversa = class(TEventBase<TObterDadosConversa, TRespostaConversa>);
   TErroServidor = class(TEventBase<TErroServidor, TRespostaErro>);
   TDownloadAnexo = class(TEventBase<TDownloadAnexo, TRespostaDownloadAnexo>);
   TObterMensagens = class(TEventBase<TObterMensagens, TRespostaMensagens>);

@@ -64,12 +64,13 @@ type
     procedure AoClicarDownloadAnexo(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
     procedure Copiar;
     procedure EventoExibirMensagens(const Sender: TObject; const M: TExibirMensagem);
+    procedure SetConversa(const Value: TConversa);
   public
     UltimaMensagem: Integer;
     AoEnviarMensagem: TProc<TChat, TMensagem>;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Conversa: TConversa read FConversa write FConversa;
+    property Conversa: TConversa read FConversa write SetConversa;
     property Visualizador: TChatVisualizador read FVisualizador;
     procedure AdicionarMensagem(Mensagem: TMensagem);
     procedure AdicionarMensagens(aMensagem: TArrayMensagens; IrParaUltima: Boolean = True);
@@ -167,6 +168,13 @@ end;
 procedure TChat.PosicionarUltima;
 begin
   Visualizador.Posicionar;
+end;
+
+procedure TChat.SetConversa(const Value: TConversa);
+begin
+  FConversa := Value;
+  if FConversa.ID <> 0 then
+    Dados.ObterDadosConversa(FConversa.ID);
 end;
 
 procedure TChat.AdicionarMensagem(Mensagem: TMensagem);

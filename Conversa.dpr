@@ -64,7 +64,7 @@ begin
     Application.Initialize;
     try
       Application.CreateForm(TTelaInicial, TelaInicial);
-      Application.Run;
+  Application.Run;
     finally
       FreeAndNil(Dados);
     end;

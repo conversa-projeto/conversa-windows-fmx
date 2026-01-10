@@ -42,6 +42,7 @@ type
     function Incluir(sDescricao: String; iTipo: Integer): TRespostaConversa;
     procedure Alterar(ID: Integer; sDescricao: String; iTipo: Integer);
     procedure Excluir(ID: Integer);
+    procedure Dados(ID: Integer);
   end;
 
   TMensagem = record
@@ -539,6 +540,41 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TConversa.Dados(ID: Integer);
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      Resposta: TRespostaConversa;
+    begin
+      with TAPIInternal.Create do
+      try
+        Query(TJSONObject.Create.AddPair('id', ID));
+        Route('conversa/dados');
+        Method(TRESTMethod.GET);
+        Tentativa(3);
+        ValidarErro(Response);
+
+        Resposta.Status := Response.Status;
+
+        if Response.Status = TResponseStatus.Sucess then
+        begin
+          with TJsonSerializer.Create do
+          try
+            Resposta.Dados := Deserialize<Conversa.Proxy.Tipos.TConversa>(Response.ToString);
+          finally
+            Free;
+          end;
+        end;
+
+        TObterDadosConversa.Send(Resposta);
+      finally
+        Free;
+      end;
+    end
+  ).Start;
 end;
 
 { TConversaUsuario }
