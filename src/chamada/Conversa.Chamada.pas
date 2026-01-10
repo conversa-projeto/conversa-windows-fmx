@@ -18,7 +18,15 @@ uses
   Conversa.Tipos,
   Conversa.Proxy.Tipos,
   Conversa.Chamada.BarraTitulo,
-  Conversa.Chamada.view;
+  Conversa.Chamada.view,
+  tcp,
+  AudioTypes,
+  AudioPlayer,
+  AudioCapture,
+  AudioMixer,
+  System.Classes,
+  Winapi.MMSystem,
+  Winapi.Windows;
 
 type
   TConversaChamada = class;
@@ -54,17 +62,30 @@ type
     FUsuarios: TArray<TChamadaDadosUsuario>;
     FIniciada: TDateTime;
     FFinalizada: TDateTime;
-    procedure SetStatus(const Value: TChamadaStatusLocal);
-    procedure AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
+    FTCPAudio: TTCPClient;
+    FClientStreams: TList<TClientAudioStream>;
 
+    FCaptureThread: TAudioCaptureThread;
+    FPlayerThread: TAudioPlayerThread;
+    FMixerThread: TAudioMixerThread;
+    FCaptureAudioBuffer: TAudioBuffer;
+    FPlayerAudioBuffer: TAudioBuffer;
+    FAudioThreadsStarted: Boolean;
+
+    procedure SetStatusLocal(const Value: TChamadaStatusLocal);
+    procedure AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
     procedure OnChamadaFinalizada;
     procedure OnUsuarioRecusou(const Usuario: Integer);
     procedure OnUsuarioEntrou(const Usuario: Integer);
     procedure OnUsuarioSaiu(const Usuario: Integer);
     procedure FinalizarLocalmente;
+    procedure ConectarTCPAudio;
+    procedure TCPAudioError(const sError: String);
+    procedure TCPAudioReceive(const Data: TBytes);
+    procedure TCPAudioConnected;
+    procedure TCPAudioDisconnected;
   protected
     function ProcessarSocket(Tipo: TSocketMessageType; jo: TJSONObject): Boolean;
-
 
     procedure IniciarCapturaAudio;
     procedure IniciarReproducaoAudio;
@@ -74,7 +95,7 @@ type
 
     procedure IniciarChamada(AParticipantes: TArrayUsuarios);
 
-    property StatusLocal: TChamadaStatusLocal read FStatusLocal write SetStatus;
+    property StatusLocal: TChamadaStatusLocal read FStatusLocal write SetStatusLocal;
   public
     constructor Create(const AID: Integer);
     destructor Destroy; override;
@@ -96,6 +117,20 @@ uses
   Conversa.Dados,
   Conversa.Proxy,
   Conversa.Tela.Inicial.view;
+
+function IntToBytes(const Value: Integer): TBytes;
+begin
+  SetLength(Result, SizeOf(Value));
+  Move(Value, Result[0], SizeOf(Value));
+end;
+
+function BytesToInt(const Bytes: TBytes): Integer;
+begin
+  if Length(Bytes) <> 4 then
+    raise Exception.Create('Invalid byte array size. Expected 4 bytes.');
+  Move(Bytes[0], Result, SizeOf(Result));
+end;
+
 
 { TConversaChamadas }
 
@@ -199,16 +234,61 @@ begin
   FStatusLocal := TChamadaStatusLocal.Desconhecido;
   FTipo := TChamadaTipo.Simples;
   FIniciada := 0;
+  FAudioThreadsStarted := False;
 end;
 
 destructor TConversaChamada.Destroy;
 begin
-  Sair;
+  try
+    if Assigned(FMixerThread) then
+    begin
+      FMixerThread.Finalizar;
+      FMixerThread.WaitFor;
+      FreeAndNil(FMixerThread);
+    end;
 
-  if Assigned(FBarraTitulo) then
-    FreeAndNil(FBarraTitulo);
-  if Assigned(FChamadaView) then
-    FreeAndNil(FChamadaView);
+    if Assigned(FCaptureThread) then
+    begin
+      FCaptureThread.Finalizar;
+      FCaptureThread.WaitFor;
+      FreeAndNil(FCaptureThread);
+    end;
+
+    if Assigned(FPlayerThread) then
+    begin
+      FPlayerThread.Finalizar;
+      FPlayerThread.WaitFor;
+      FreeAndNil(FPlayerThread);
+    end;
+
+    if Assigned(FCaptureAudioBuffer) then
+      FreeAndNil(FCaptureAudioBuffer);
+
+    if Assigned(FPlayerAudioBuffer) then
+      FreeAndNil(FPlayerAudioBuffer);
+
+    if Assigned(FTCPAudio) then
+      FreeAndNil(FTCPAudio);
+
+    if Assigned(FClientStreams) then
+    begin
+      for var Stream in FClientStreams do
+      begin
+        if Assigned(Stream.Buffer) then
+          Stream.Buffer.Free;
+        Stream.Free;
+      end;
+      FreeAndNil(FClientStreams);
+    end;
+
+    if Assigned(FBarraTitulo) then
+      FreeAndNil(FBarraTitulo);
+
+    if Assigned(FChamadaView) then
+      FreeAndNil(FChamadaView);
+  except
+  end;
+
   inherited;
 end;
 
@@ -240,6 +320,7 @@ begin
   FIniciada := Now;
   AtualizarDados;
   StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
+  ConectarTCPAudio;
 end;
 
 procedure TConversaChamada.Finalizar;
@@ -266,10 +347,10 @@ end;
 
 procedure TConversaChamada.OnChamadaFinalizada;
 begin
-  // Não fecha a tela, para exibir quem finalizou
   AtualizarDados;
-  ExibirChamada;
   StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
+  FinalizarLocalmente;
+  TConversaChamadas.Instance.FChamadas.Remove(FID);
 end;
 
 procedure TConversaChamada.OnChamadaRecebida;
@@ -290,6 +371,7 @@ begin
   begin
     StatusLocal := TChamadaStatusLocal.Recusada;
     FinalizarLocalmente;
+    TConversaChamadas.Instance.FChamadas.Remove(FID);
     Exit;
   end;
 end;
@@ -301,6 +383,7 @@ begin
     Exit;
 
   StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
+  AtualizarDados;
 end;
 
 procedure TConversaChamada.OnUsuarioSaiu(const Usuario: Integer);
@@ -312,9 +395,9 @@ begin
 
   if (StatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) and (FTipo = TChamadaTipo.Simples) then
   begin
-    // esta errado aqui, quando A liga, B atende, A finaliza
     StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
     FinalizarLocalmente;
+    TConversaChamadas.Instance.FChamadas.Remove(FID);
     Exit;
   end;
 end;
@@ -374,6 +457,8 @@ begin
     FTipo := tipo;
     FStatus := status;
   end;
+
+  ConectarTCPAudio;
 end;
 
 procedure TConversaChamada.FinalizarLocalmente;
@@ -421,7 +506,7 @@ begin
   //
 end;
 
-procedure TConversaChamada.SetStatus(const Value: TChamadaStatusLocal);
+procedure TConversaChamada.SetStatusLocal(const Value: TChamadaStatusLocal);
 begin
   if FStatusLocal = Value then
     Exit;
@@ -435,7 +520,15 @@ begin
     begin
       FIniciada := Now;
     end;
-    TChamadaStatusLocal.ChamadaFinalizada: ;
+    TChamadaStatusLocal.ChamadaFinalizada:
+    begin
+      if Assigned(FCaptureThread) then
+        FCaptureThread.Finalizar;
+      if Assigned(FPlayerThread) then
+        FPlayerThread.Finalizar;
+      if Assigned(FMixerThread) then
+        FMixerThread.Finalizar;
+    end;
     TChamadaStatusLocal.ChamadaPerdida: ;
     TChamadaStatusLocal.Recusada: ;
   end;
@@ -483,6 +576,109 @@ begin
     Result := Format('%2.2d:%2.2d:%2.2d.%3.3d', [Horas, Minutos, Segundos, Milisegundos])
   else
     Result := Format('%2.2d:%2.2d.%3.3d', [Minutos, Segundos, Milisegundos]);
+end;
+
+procedure TConversaChamada.ConectarTCPAudio;
+var
+  RegistrationData: TBytes;
+begin
+  FClientStreams := TList<TClientAudioStream>.Create;
+  FCaptureAudioBuffer := TAudioBuffer.Create(1024 * 1024);
+  FPlayerAudioBuffer := TAudioBuffer.Create(1024 * 1024);
+
+  FMixerThread := TAudioMixerThread.Create(
+    FClientStreams,
+    FPlayerAudioBuffer,
+    function: Boolean
+    begin
+      Result := FStatus = TChamadaStatus.EmAndamento;
+    end
+  );
+  FMixerThread.Start;
+
+  FCaptureThread := TAudioCaptureThread.Create(FCaptureAudioBuffer);
+  FPlayerThread := TAudioPlayerThread.Create(FPlayerAudioBuffer);
+
+  FCaptureThread.OnNewAudioData :=
+    procedure(Data: TBytes)
+    begin
+      if (FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) then
+        if Assigned(FTCPAudio) and (FTCPAudio.State = TTCPClientState.Connected) then
+          FTCPAudio.Send([1] + IntToBytes(FID) + Data);
+    end;
+
+  RegistrationData := [0] + IntToBytes(Dados.FDadosApp.Usuario.ID);
+
+  FTCPAudio := TTCPClient.Create('localhost', 9090);
+  FTCPAudio.SetRegistrationData(RegistrationData);
+  FTCPAudio.OnClientReceive := TCPAudioReceive;
+  FTCPAudio.OnError := TCPAudioError;
+  FTCPAudio.OnConnected := TCPAudioConnected;
+  FTCPAudio.OnDisconnected := TCPAudioDisconnected;
+end;
+
+procedure TConversaChamada.TCPAudioConnected;
+begin
+  if FAudioThreadsStarted then
+    Exit;
+
+  FAudioThreadsStarted := True;
+  if Assigned(FCaptureThread) then
+    FCaptureThread.Start;
+  if Assigned(FPlayerThread) then
+    FPlayerThread.Start;
+end;
+
+procedure TConversaChamada.TCPAudioDisconnected;
+begin
+  // Reconexão é automática pelo TTCPClient
+end;
+
+procedure TConversaChamada.TCPAudioError(const sError: String);
+begin
+  {TODO -oDaniel -cChamada: Melhorar exibição de erros}
+  raise Exception.Create(sError);
+end;
+
+procedure TConversaChamada.TCPAudioReceive(const Data: TBytes);
+var
+  iRemetente: Integer;
+  ClientStream: TClientAudioStream;
+  AudioData: TBytes;
+begin
+  try
+    if FStatusLocal <> TChamadaStatusLocal.ChamadaEmAndamento then
+      Exit;
+
+    // Valida tamanho mínimo: 4 (remetente) + 4 (chamada) + 1 (áudio)
+    if Length(Data) < 9 then
+      Exit;
+
+    iRemetente := BytesToInt(Copy(Data, 0, 4));
+    AudioData := Copy(Data, 8);
+
+    // Procura ou cria buffer para este cliente
+    ClientStream := nil;
+    for var Stream in FClientStreams do
+    begin
+      if Stream.ClientID = iRemetente then
+      begin
+        ClientStream := Stream;
+        Break;
+      end;
+    end;
+
+    if ClientStream = nil then
+    begin
+      ClientStream := TClientAudioStream.Create;
+      ClientStream.ClientID := iRemetente;
+      ClientStream.Buffer := TAudioBuffer.Create(512 * 1024);
+      FClientStreams.Add(ClientStream);
+    end;
+
+    ClientStream.Buffer.Write(AudioData);
+  except
+  end;
 end;
 
 end.

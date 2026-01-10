@@ -102,7 +102,10 @@ begin
         nil,
         procedure
         begin
-          Chamada.Sair;
+          try
+            Chamada.Sair;
+          except
+          end;
         end
       );
     end
@@ -227,7 +230,7 @@ begin
       crclAudio.Visible := False;
       crclVideo.Visible := False;
       lytBotoes.Width := 0;
-      Self.Hide;
+      // Não faz nada aqui - o form será fechado pela chamada principal
     end;
     TChamadaStatusLocal.ChamadaPerdida:
     begin
