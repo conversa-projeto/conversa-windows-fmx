@@ -587,9 +587,6 @@ begin
       MensagemConteudo := TConteudo.New(Ctd.id);
       MensagemConteudo.Ordem(Ctd.ordem);
 
-      if not (Ctd.tipo in [1,2,3]) then
-        Sleep(0);
-
       MensagemConteudo.Tipo(TTipoConteudo(Ctd.tipo));
       MensagemConteudo.Nome(Ctd.nome);
       MensagemConteudo.Extensao(Ctd.extensao);
