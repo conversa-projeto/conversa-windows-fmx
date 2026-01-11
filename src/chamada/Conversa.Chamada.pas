@@ -591,7 +591,7 @@ begin
     FPlayerAudioBuffer,
     function: Boolean
     begin
-      Result := FStatus = TChamadaStatus.EmAndamento;
+      Result := FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento;
     end
   );
   FMixerThread.Start;
