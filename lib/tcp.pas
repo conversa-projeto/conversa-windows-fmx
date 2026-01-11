@@ -54,7 +54,6 @@ type
     FControle: Int64;
     FState: TTCPClientState;
     FRegistrationData: TBytes;
-    FLastPongTime: TDateTime;
     FReconnectAttempt: Integer;
     FMaxReconnectTimeMs: Integer;
     FOnClientReceive: TOnClientReceive;
@@ -65,8 +64,6 @@ type
     procedure SetState(const Value: TTCPClientState);
     procedure DoReconnect;
     function GetBackoffMs: Integer;
-    procedure SendPing;
-    procedure HandlePong;
   public
     constructor Create(const AHost: String; const APort: Word);
     destructor Destroy; override;
@@ -84,7 +81,6 @@ implementation
 uses
   System.Classes,
   System.NetEncoding,
-  System.DateUtils,
   IdIOHandler,
   IdGlobal;
 
@@ -178,7 +174,6 @@ begin
   FState := TTCPClientState.Disconnected;
   FReconnectAttempt := 0;
   FMaxReconnectTimeMs := 5000;
-  FLastPongTime := Now;
   FTask := TTask.Run(Execute);
 end;
 
@@ -203,7 +198,6 @@ begin
     TTCPClientState.Connected:
     begin
       FReconnectAttempt := 0;
-      FLastPongTime := Now;
       if Assigned(FOnConnected) then
         TThread.Queue(nil,
           procedure
@@ -272,41 +266,19 @@ begin
   FRegistrationData := Copy(Data);
 end;
 
-procedure TTCPClient.SendPing;
-begin
-  if (FState = TTCPClientState.Connected) and Self.Connected then
-  try
-    WriteIOHandler(IOHandler, [2]);
-  except
-  end;
-end;
-
-procedure TTCPClient.HandlePong;
-begin
-  FLastPongTime := Now;
-end;
-
 procedure TTCPClient.Execute;
 var
   Data: TBytes;
   DataCopy: TBytes;
-  LastPingTime: TDateTime;
-const
-  PING_INTERVAL_SEC = 2;
-  PONG_TIMEOUT_SEC = 3;
 begin
-  LastPingTime := Now;
-
   while TInterlocked.Read(FControle) = 0 do
   try
-    // Aguarda callback estar configurado
     if not Assigned(OnClientReceive) then
     begin
       Sleep(100);
       Continue;
     end;
 
-    // Tenta conectar se desconectado
     if not Self.Connected then
     begin
       if FState = TTCPClientState.Connected then
@@ -318,33 +290,8 @@ begin
       Continue;
     end;
 
-    // Heartbeat: envia ping a cada 2s
-    if SecondsBetween(Now, LastPingTime) >= PING_INTERVAL_SEC then
-    begin
-      SendPing;
-      LastPingTime := Now;
-    end;
-
-    // Verifica timeout do pong (3s sem resposta = reconecta)
-    if SecondsBetween(Now, FLastPongTime) > PONG_TIMEOUT_SEC then
-    begin
-      try
-        Self.Disconnect;
-      except
-      end;
-      Continue;
-    end;
-
-    // Lê dados
     if ReadIOHandler(Self.IOHandler, Data) then
     begin
-      // Pong recebido
-      if (Length(Data) = 1) and (Data[0] = 3) then
-      begin
-        HandlePong;
-        Continue;
-      end;
-
       DataCopy := Copy(Data);
       TThread.Queue(nil,
         procedure
