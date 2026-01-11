@@ -1,66 +1,72 @@
-﻿unit Conversa.Notificacao;
+unit Conversa.Notificacao;
 
 interface
 
 uses
   System.Generics.Collections,
   System.SysUtils,
-  FMX.Types;
+  FMX.Types,
+  Conversa.Notificacao.Tipos;
 
 type
-  TMensagemNotificacao = record
-  private
-    FID: Integer;
-    FUsuario: string;
-    FMensagem: string;
-  public
-    class function New: TMensagemNotificacao; static;
-    function ID: String; overload;
-    function ID(const Value: Integer): TMensagemNotificacao; overload;
-    function Usuario: String; overload;
-    function Usuario(const Value: string): TMensagemNotificacao; overload;
-    function Mensagem: String; overload;
-    function Mensagem(const Value: string): TMensagemNotificacao; overload;
-  end;
+  TTipoNotificacao = Conversa.Notificacao.Tipos.TTipoNotificacao;
+  TMensagemNotificacao = Conversa.Notificacao.Tipos.TMensagemNotificacao;
+  TNotificacaoChamadaDados = Conversa.Notificacao.Tipos.TNotificacaoChamadaDados;
 
   TNotificacao = record
   private
     FView: TFmxObject;
+    FTipo: TTipoNotificacao;
+    FChave: String;
     FChatId: Integer;
+    FChamadaId: Integer;
     FNome: string;
     FHora: TDateTime;
     FConteudo: TArray<TMensagemNotificacao>;
+    FChamadaDados: TNotificacaoChamadaDados;
+    function GerarChave: String;
   public
     class function New: TNotificacao; static;
+    function Tipo: TTipoNotificacao; overload;
+    function Tipo(const ATipo: TTipoNotificacao): TNotificacao; overload;
+    function Chave: String;
     function ChatId: Integer; overload;
     function ChatId(const AChatId: Integer): TNotificacao; overload;
+    function ChamadaId: Integer; overload;
+    function ChamadaId(const AChamadaId: Integer): TNotificacao; overload;
     function Nome(const ANome: string): TNotificacao;
     function Hora(const AHora: TDateTime): TNotificacao;
     function Conteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao; overload;
     function AddConteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao; overload;
     function Conteudo(const Texto: string): TNotificacao; overload;
+    function ChamadaDados(const ADados: TNotificacaoChamadaDados): TNotificacao; overload;
+    function ChamadaDados: TNotificacaoChamadaDados; overload;
   end;
 
   TNotificacaoManager = class
   private
     FVisualizador: TFmxObject;
-    FNotificacoes: TList<TNotificacao>;
+    FNotificacoes: TDictionary<String, TNotificacao>;
     constructor Create;
     procedure AtualizarVisualizador;
     function InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
-    function InternalFechar(ChatId: Integer): TNotificacaoManager;
+    function InternalFechar(const AChave: String): TNotificacaoManager;
   public
     destructor Destroy; override;
     class function Instance: TNotificacaoManager;
-    class function Apresentar(Value: TNotificacao): TNotificacaoManager; overload;
-    class function Fechar(ChatId: Integer): TNotificacaoManager;
+    class function Apresentar(Value: TNotificacao): TNotificacaoManager;
+    class function Fechar(ATipo: TTipoNotificacao; AId: Integer): TNotificacaoManager;
     function Count: Integer;
     class procedure Finalizar;
   end;
+
 implementation
+
 uses
   Conversa.Notificacao.Visualizador,
-  Conversa.Notificacao.Item,
+  Conversa.Notificacao.Item.Base,
+  Conversa.Notificacao.Item.Mensagem,
+  Conversa.Notificacao.Item.Chamada,
   FMX.Forms;
 
 var
@@ -80,7 +86,7 @@ end;
 
 constructor TNotificacaoManager.Create;
 begin
-  FNotificacoes := TList<TNotificacao>.Create;
+  FNotificacoes := TDictionary<String, TNotificacao>.Create;
 end;
 
 destructor TNotificacaoManager.Destroy;
@@ -90,9 +96,9 @@ begin
   inherited;
 end;
 
-class function TNotificacaoManager.Fechar(ChatId: Integer): TNotificacaoManager;
+class function TNotificacaoManager.Fechar(ATipo: TTipoNotificacao; AId: Integer): TNotificacaoManager;
 begin
-  Result := Instance.InternalFechar(ChatId);
+  Result := Instance.InternalFechar(GerarChaveNotificacao(ATipo, AId));
 end;
 
 class procedure TNotificacaoManager.Finalizar;
@@ -116,101 +122,81 @@ end;
 
 function TNotificacaoManager.InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
 var
-  I: Integer;
+  Chave: String;
+  NotifExistente: TNotificacao;
+  ItemMensagem: TNotificacaoItemMensagem;
+  ItemChamada: TNotificacaoItemChamada;
 begin
   Result := Self;
+  Chave := ANotificacao.GerarChave;
 
-  for I := 0 to Pred(FNotificacoes.Count) do
+  if FNotificacoes.TryGetValue(Chave, NotifExistente) then
   begin
-    if FNotificacoes[I].ChatId = ANotificacao.ChatId then
+    if ANotificacao.Tipo = TTipoNotificacao.Mensagem then
     begin
-      FNotificacoes[I] := FNotificacoes[I].AddConteudo(ANotificacao.FConteudo);
-      Exit;
+      NotifExistente := NotifExistente.AddConteudo(ANotificacao.FConteudo);
+      FNotificacoes[Chave] := NotifExistente;
+      if Assigned(NotifExistente.FView) and (NotifExistente.FView is TNotificacaoItemMensagem) then
+        TNotificacaoItemMensagem(NotifExistente.FView).AtualizarConteudo(
+          NotifExistente.FChatId, NotifExistente.FConteudo);
+    end;
+    Exit;
+  end;
+
+  case ANotificacao.Tipo of
+    TTipoNotificacao.Mensagem:
+    begin
+      ItemMensagem := TNotificacaoItemMensagem.New(Visualizador);
+      ItemMensagem.txtNome.Text := ANotificacao.FNome;
+      ItemMensagem.txtHora.Text := TimeToStr(ANotificacao.FHora);
+      ItemMensagem.AtualizarConteudo(ANotificacao.FChatId, ANotificacao.FConteudo);
+      ANotificacao.FView := ItemMensagem;
+    end;
+    TTipoNotificacao.Chamada:
+    begin
+      ItemChamada := TNotificacaoItemChamada.New(Visualizador);
+      ItemChamada.Configurar(
+        ANotificacao.FChamadaId,
+        ANotificacao.FChamadaDados.Nome,
+        ANotificacao.FChamadaDados.TipoChamada,
+        ANotificacao.FChamadaDados.Descricao,
+        ANotificacao.FChamadaDados.OnAtender,
+        ANotificacao.FChamadaDados.OnRecusar
+      );
+      ANotificacao.FView := ItemChamada;
     end;
   end;
 
-  ANotificacao.FView := TNotificacaoItem.New(Visualizador);
-  with TNotificacaoItem(ANotificacao.FView) do
-  begin
-    txtNome.Text := ANotificacao.FNome;
-    txtHora.Text := TimeToStr(ANotificacao.FHora);
-    AtualizarConteudo(ANotificacao.ChatId, ANotificacao.FConteudo);
-  end;
-
-  FNotificacoes.Add(ANotificacao);
-
+  ANotificacao.FChave := Chave;
+  FNotificacoes.Add(Chave, ANotificacao);
   AtualizarVisualizador;
 end;
 
-function TNotificacaoManager.InternalFechar(ChatId: Integer): TNotificacaoManager;
+function TNotificacaoManager.InternalFechar(const AChave: String): TNotificacaoManager;
 var
-  I: Integer;
+  Notif: TNotificacao;
 begin
   Result := Self;
-  for I := 0 to Pred(FNotificacoes.Count) do
+  if FNotificacoes.TryGetValue(AChave, Notif) then
   begin
-    if FNotificacoes[I].ChatId = ChatId then
-    begin
-      FNotificacoes[I].FView.Free;
-      FNotificacoes.Delete(I);
-      Break;
-    end;
+    if Assigned(Notif.FView) then
+      Notif.FView.Free;
+    FNotificacoes.Remove(AChave);
   end;
-
   AtualizarVisualizador;
 end;
 
 procedure TNotificacaoManager.AtualizarVisualizador;
 var
-  I: Integer;
+  Notif: TNotificacao;
   Altura: Single;
 begin
   Altura := 0;
-  for I := 0 to Pred(FNotificacoes.Count) do
-    if Assigned(FNotificacoes[I].FView) then
-      Altura := Altura + TFrame(FNotificacoes[I].FView).Height;
+  for Notif in FNotificacoes.Values do
+    if Assigned(Notif.FView) then
+      Altura := Altura + TNotificacaoItemBase(Notif.FView).GetAltura;
 
   Visualizador.Exibir(Altura);
-end;
-
-{ TConteudo }
-
-class function TMensagemNotificacao.New: TMensagemNotificacao;
-begin
-  Result := Default(TMensagemNotificacao);
-end;
-
-function TMensagemNotificacao.ID: String;
-begin
-  Result := Self.FUsuario;
-end;
-
-function TMensagemNotificacao.ID(const Value: Integer): TMensagemNotificacao;
-begin
-  Result := Self;
-  Result.FID := Value;
-end;
-
-function TMensagemNotificacao.Usuario: String;
-begin
-  Result := Self.FUsuario;
-end;
-
-function TMensagemNotificacao.Usuario(const Value: string): TMensagemNotificacao;
-begin
-  Result := Self;
-  Result.FUsuario := Value;
-end;
-
-function TMensagemNotificacao.Mensagem: String;
-begin
-  Result := Self.FMensagem;
-end;
-
-function TMensagemNotificacao.Mensagem(const Value: string): TMensagemNotificacao;
-begin
-  Result := Self;
-  Result.FMensagem := Value;
 end;
 
 { TNotificacao }
@@ -218,6 +204,31 @@ end;
 class function TNotificacao.New: TNotificacao;
 begin
   Result := Default(TNotificacao);
+  Result.FTipo := TTipoNotificacao.Mensagem;
+end;
+
+function TNotificacao.GerarChave: String;
+begin
+  case FTipo of
+    TTipoNotificacao.Mensagem: Result := GerarChaveNotificacao(FTipo, FChatId);
+    TTipoNotificacao.Chamada: Result := GerarChaveNotificacao(FTipo, FChamadaId);
+  end;
+end;
+
+function TNotificacao.Tipo: TTipoNotificacao;
+begin
+  Result := FTipo;
+end;
+
+function TNotificacao.Tipo(const ATipo: TTipoNotificacao): TNotificacao;
+begin
+  Result := Self;
+  Result.FTipo := ATipo;
+end;
+
+function TNotificacao.Chave: String;
+begin
+  Result := FChave;
 end;
 
 function TNotificacao.ChatId(const AChatId: Integer): TNotificacao;
@@ -226,29 +237,44 @@ begin
   Result.FChatId := AChatId;
 end;
 
+function TNotificacao.ChatId: Integer;
+begin
+  Result := FChatId;
+end;
+
+function TNotificacao.ChamadaId(const AChamadaId: Integer): TNotificacao;
+begin
+  Result := Self;
+  Result.FChamadaId := AChamadaId;
+end;
+
+function TNotificacao.ChamadaId: Integer;
+begin
+  Result := FChamadaId;
+end;
+
 function TNotificacao.Nome(const ANome: string): TNotificacao;
 begin
   Result := Self;
   Result.FNome := ANome;
-  if Assigned(FView) then
-    TNotificacaoItem(FView).txtNome.Text := Result.FNome;
+  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
+    TNotificacaoItemMensagem(FView).txtNome.Text := Result.FNome;
 end;
 
 function TNotificacao.Hora(const AHora: TDateTime): TNotificacao;
 begin
   Result := Self;
   Result.FHora := AHora;
-  if Assigned(FView) then
-    TNotificacaoItem(FView).txtHora.Text := TimeToStr(Result.FHora);
+  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
+    TNotificacaoItemMensagem(FView).txtHora.Text := TimeToStr(Result.FHora);
 end;
 
 function TNotificacao.Conteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao;
 begin
   Result := Self;
   Result.FConteudo := AConteudo;
-
-  if Assigned(FView) then
-    TNotificacaoItem(FView).AtualizarConteudo(Result.ChatId, Result.FConteudo);
+  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
+    TNotificacaoItemMensagem(FView).AtualizarConteudo(Result.ChatId, Result.FConteudo);
 end;
 
 function TNotificacao.AddConteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao;
@@ -256,16 +282,22 @@ begin
   Result := Self.Conteudo(Self.FConteudo + AConteudo);
 end;
 
-function TNotificacao.ChatId: Integer;
-begin
-  Result := FChatId;
-end;
-
 function TNotificacao.Conteudo(const Texto: string): TNotificacao;
 begin
   Result := Self;
   SetLength(Result.FConteudo, Length(Result.FConteudo) + 1);
   Result.FConteudo[High(Result.FConteudo)] := TMensagemNotificacao.New.Mensagem(Texto);
+end;
+
+function TNotificacao.ChamadaDados(const ADados: TNotificacaoChamadaDados): TNotificacao;
+begin
+  Result := Self;
+  Result.FChamadaDados := ADados;
+end;
+
+function TNotificacao.ChamadaDados: TNotificacaoChamadaDados;
+begin
+  Result := FChamadaDados;
 end;
 
 { TNotificacaoManagerH }

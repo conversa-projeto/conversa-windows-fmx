@@ -116,7 +116,8 @@ implementation
 uses
   Conversa.Dados,
   Conversa.Proxy,
-  Conversa.Tela.Inicial.view;
+  Conversa.Tela.Inicial.view,
+  Conversa.Notificacao;
 
 function IntToBytes(const Value: Integer): TBytes;
 begin
@@ -357,6 +358,7 @@ procedure TConversaChamada.OnChamadaRecebida;
 begin
   StatusLocal := TChamadaStatusLocal.RecebentoChamada;
   AtualizarDados;
+  NotificarChamada;
   ExibirChamada;
 end;
 
@@ -463,6 +465,7 @@ end;
 
 procedure TConversaChamada.FinalizarLocalmente;
 begin
+  TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, FID);
   StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
   TConversaChamadas.Instance.FChamadas.Remove(FID);
   FreeAndNil(Self);
@@ -502,8 +505,43 @@ begin
 end;
 
 procedure TConversaChamada.NotificarChamada;
+var
+  DadosChamada: TNotificacaoChamadaDados;
+  Usuario: TChamadaDadosUsuario;
 begin
-  //
+
+  for Usuario in FUsuarios do
+  begin
+    if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
+      Continue;
+
+    DadosChamada.Nome := Usuario.usuario_nome;
+    Break;
+  end;
+
+  if Length(FUsuarios) = 2 then
+    DadosChamada.TipoChamada := 'Chamada de Voz'
+  else
+    DadosChamada.TipoChamada := 'Chamada de Voz em Grupo';
+
+//  DadosChamada.Descricao := 'Teste - 2';
+  DadosChamada.OnAtender :=
+    procedure(AID: Integer)
+    begin
+      TConversaChamadas.FChamadas.Items[AID].Entrar;
+    end;
+  DadosChamada.OnRecusar :=
+    procedure(AID: Integer)
+    begin
+      TConversaChamadas.FChamadas.Items[AID].Recusar;
+    end;
+
+  TNotificacaoManager.Apresentar(
+    TNotificacao.New
+      .ChamadaId(FID)
+      .Tipo(TTipoNotificacao.Chamada)
+      .ChamadaDados(DadosChamada)
+  );
 end;
 
 procedure TConversaChamada.SetStatusLocal(const Value: TChamadaStatusLocal);
@@ -518,6 +556,7 @@ begin
     TChamadaStatusLocal.RecebentoChamada: ;
     TChamadaStatusLocal.ChamadaEmAndamento:
     begin
+      TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, FID);
       FIniciada := Now;
     end;
     TChamadaStatusLocal.ChamadaFinalizada:
@@ -530,7 +569,10 @@ begin
         FMixerThread.Finalizar;
     end;
     TChamadaStatusLocal.ChamadaPerdida: ;
-    TChamadaStatusLocal.Recusada: ;
+    TChamadaStatusLocal.Recusada:
+    begin
+      TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, FID);
+    end;
   end;
 
   if Assigned(FChamadaView) then

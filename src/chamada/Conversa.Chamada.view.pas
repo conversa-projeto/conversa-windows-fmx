@@ -149,15 +149,14 @@ begin
 
   if (Length(Usuarios) = 2) then
   begin
-    if Assigned(FUsuario) then
-      FreeAndNil(FUsuario);
-
     for Usuario in Usuarios do
     begin
       if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
         Continue;
 
-      FUsuario := TConversaChamadaUsuarioView.Create(lytUsuarios, FChamada, Usuario);
+      if not Assigned(FUsuario) then
+        FUsuario := TConversaChamadaUsuarioView.Create(lytUsuarios, FChamada, Usuario);
+
       FUsuario.Parent := lytUsuarios;
       FUsuario.Align := TAlignLayout.Client;
       FUsuario.Visible := True;

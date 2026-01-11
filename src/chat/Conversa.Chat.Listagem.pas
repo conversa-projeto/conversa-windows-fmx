@@ -234,7 +234,7 @@ begin
 
     Chat.FocoEditor;
 
-    TNotificacaoManager.Fechar(Conversa.ID);
+    TNotificacaoManager.Fechar(TTipoNotificacao.Mensagem, Conversa.ID);
   finally
     // Posicionar na ultima mensagem
     tmrUltima.Enabled := True;
@@ -295,6 +295,7 @@ begin
       end;
       TNotificacaoManager.Apresentar(
         TNotificacao.New
+          .Tipo(TTipoNotificacao.Mensagem)
           .ChatId(Conversa.ID)
           .Nome(Conversa.Descricao)
           .Hora(Now)

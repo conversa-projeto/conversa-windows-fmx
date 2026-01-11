@@ -1,0 +1,6 @@
+object NotificacaoItemBase: TNotificacaoItemBase
+  Margins.Bottom = 5.000000000000000000
+  Size.Width = 300.000000000000000000
+  Size.Height = 150.000000000000000000
+  Size.PlatformDefault = False
+end
