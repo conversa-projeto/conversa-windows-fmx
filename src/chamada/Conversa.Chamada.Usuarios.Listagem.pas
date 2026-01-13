@@ -90,7 +90,7 @@ begin
     end;
 
     Item.Usuario.txtNome.Text := Usuario.usuario_nome;
-    Item.Usuario.txtAbreviatura.Text := Usuario.usuario_nome.Substring(1, 1);
+    Item.Usuario.txtAbreviatura.Text := Usuario.usuario_nome.Substring(0, 1);
 
     case Usuario.status of
       TChamadaStatusUsuario.Desconhecido: Item.Usuario.txtStatus.Text := '[Desconhecido]';

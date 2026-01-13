@@ -82,7 +82,7 @@ begin
   txtTipoChamada.Text := ATipoChamada;
   txtDescricao.Text := ADescricao;
   if ANome.Length > 0 then
-    txtUserLetra.Text := ANome.Substring(1, 1).ToUpper
+    txtUserLetra.Text := ANome.Substring(0, 1).ToUpper
   else
     txtUserLetra.Text := '?';
 end;

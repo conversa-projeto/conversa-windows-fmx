@@ -1,0 +1,50 @@
+inherited ConversaSobre: TConversaSobre
+  Size.Width = 280.000000000000000000
+  Size.Height = 120.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Left = 16.000000000000000000
+    Padding.Top = 16.000000000000000000
+    Padding.Right = 16.000000000000000000
+    Padding.Bottom = 16.000000000000000000
+    Size.Width = 280.000000000000000000
+    Size.Height = 120.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object txtNomeApp: TText
+      Align = Top
+      Position.X = 16.000000000000000000
+      Position.Y = 16.000000000000000000
+      Size.Width = 248.000000000000000000
+      Size.Height = 35.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Conversa'
+      TextSettings.Font.Size = 20.000000000000000000
+      TextSettings.Font.StyleExt = {00070000000000000004000000}
+      TextSettings.FontColor = xFF333333
+    end
+    object txtVersao: TText
+      Align = Top
+      Position.X = 16.000000000000000000
+      Position.Y = 51.000000000000000000
+      Size.Width = 248.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Vers'#227'o: 0.0.0.0'
+      TextSettings.FontColor = xFF666666
+    end
+    object txtDataBuild: TText
+      Align = Top
+      Position.X = 16.000000000000000000
+      Position.Y = 76.000000000000000000
+      Size.Width = 248.000000000000000000
+      Size.Height = 25.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Build: 00/00/0000'
+      TextSettings.FontColor = xFF666666
+    end
+  end
+end
