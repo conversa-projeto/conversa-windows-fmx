@@ -17,8 +17,8 @@ type
   TSocketMessageType = (
     Erro,
     Login,
-    NovaMensagem,
-    AtualizacaoStatusMensagem,
+    NovaMensagem = 20,
+    AtualizacaoStatusMensagem = 21,
 
     ConversaNova = 40, // Nova conversa
 
