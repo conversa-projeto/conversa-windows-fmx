@@ -41,6 +41,7 @@ inherited ConversaChamadaView: TConversaChamadaView
               Size.Height = 35.000000000000000000
               Size.PlatformDefault = False
               Stroke.Kind = None
+              OnClick = crclAudioClick
               object pthMicrofoneAtivo: TPath
                 Align = Center
                 Data.Path = {

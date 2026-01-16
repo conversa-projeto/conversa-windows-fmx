@@ -47,6 +47,7 @@ type
     procedure crclFinalizarChamadaClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure crclAtenderChamadaClick(Sender: TObject);
+    procedure crclAudioClick(Sender: TObject);
   private
     FChamada: TObject;
     FOldHWND: HWND;
@@ -89,6 +90,15 @@ type
 procedure TConversaChamadaView.crclAtenderChamadaClick(Sender: TObject);
 begin
   Chamada.Entrar;
+end;
+
+procedure TConversaChamadaView.crclAudioClick(Sender: TObject);
+begin
+  Chamada.ToggleMute;
+  if Chamada.Muted then
+    AudioStatus := TAudioStatus.Desativado
+  else
+    AudioStatus := TAudioStatus.Ativo;
 end;
 
 procedure TConversaChamadaView.crclFinalizarChamadaClick(Sender: TObject);
@@ -217,6 +227,7 @@ begin
       crclAudio.Visible := True;
       crclVideo.Visible := True;
       lytBotoes.Width := crclVideo.AbsoluteWidth * 3;
+      AudioStatus := TAudioStatus.Ativo;
       if Assigned(FUsuario) then
         FUsuario.txtStatusChamada.Text := 'Em Andamento...';
       if Assigned(FUsuario) then

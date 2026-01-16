@@ -71,6 +71,7 @@ type
     FCaptureAudioBuffer: TAudioBuffer;
     FPlayerAudioBuffer: TAudioBuffer;
     FAudioThreadsStarted: Boolean;
+    FMuted: Boolean;
 
     procedure SetStatusLocal(const Value: TChamadaStatusLocal);
     procedure AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
@@ -108,6 +109,8 @@ type
     procedure OnChamadaRecebida;
     function GetUsuarios: TArray<TChamadaDadosUsuario>;
     property Iniciada: TDateTime read FIniciada;
+    property Muted: Boolean read FMuted;
+    procedure ToggleMute;
     function TempoDecorrido: string;
   end;
 
@@ -236,6 +239,7 @@ begin
   FTipo := TChamadaTipo.Simples;
   FIniciada := 0;
   FAudioThreadsStarted := False;
+  FMuted := False;
 end;
 
 destructor TConversaChamada.Destroy;
@@ -620,6 +624,11 @@ begin
     Result := Format('%2.2d:%2.2d.%3.3d', [Minutos, Segundos, Milisegundos]);
 end;
 
+procedure TConversaChamada.ToggleMute;
+begin
+  FMuted := not FMuted;
+end;
+
 procedure TConversaChamada.ConectarTCPAudio;
 var
   RegistrationData: TBytes;
@@ -644,7 +653,7 @@ begin
   FCaptureThread.OnNewAudioData :=
     procedure(Data: TBytes)
     begin
-      if (FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) then
+      if (FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) and (not FMuted) then
         if Assigned(FTCPAudio) and (FTCPAudio.State = TTCPClientState.Connected) then
           FTCPAudio.Send([1] + IntToBytes(FID) + Data);
     end;
