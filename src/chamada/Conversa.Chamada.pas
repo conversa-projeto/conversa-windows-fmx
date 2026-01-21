@@ -19,6 +19,7 @@ uses
   Conversa.Proxy.Tipos,
   Conversa.Chamada.BarraTitulo,
   Conversa.Chamada.view,
+  Conversa.Chamada.Waveform,
   tcp,
   AudioTypes,
   AudioPlayer,
@@ -70,6 +71,7 @@ type
     FMixerThread: TAudioMixerThread;
     FCaptureAudioBuffer: TAudioBuffer;
     FPlayerAudioBuffer: TAudioBuffer;
+    FWaveformDataGeral: TWaveformData;
     FAudioThreadsStarted: Boolean;
     FMuted: Boolean;
 
@@ -108,8 +110,10 @@ type
     procedure AtualizarDados;
     procedure OnChamadaRecebida;
     function GetUsuarios: TArray<TChamadaDadosUsuario>;
+    function GetClientStreams: TList<TClientAudioStream>;
     property Iniciada: TDateTime read FIniciada;
     property Muted: Boolean read FMuted;
+    property WaveformDataGeral: TWaveformData read FWaveformDataGeral;
     procedure ToggleMute;
     function TempoDecorrido: string;
   end;
@@ -272,6 +276,9 @@ begin
     if Assigned(FPlayerAudioBuffer) then
       FreeAndNil(FPlayerAudioBuffer);
 
+    if Assigned(FWaveformDataGeral) then
+      FreeAndNil(FWaveformDataGeral);
+
     if Assigned(FTCPAudio) then
       FreeAndNil(FTCPAudio);
 
@@ -281,6 +288,8 @@ begin
       begin
         if Assigned(Stream.Buffer) then
           Stream.Buffer.Free;
+        if Assigned(Stream.WaveformData) then
+          Stream.WaveformData.Free;
         Stream.Free;
       end;
       FreeAndNil(FClientStreams);
@@ -426,6 +435,11 @@ end;
 function TConversaChamada.GetUsuarios: TArray<TChamadaDadosUsuario>;
 begin
   Result := FUsuarios;
+end;
+
+function TConversaChamada.GetClientStreams: TList<TClientAudioStream>;
+begin
+  Result := FClientStreams;
 end;
 
 procedure TConversaChamada.IniciarChamada(AParticipantes: TArrayUsuarios);
@@ -636,6 +650,7 @@ begin
   FClientStreams := TList<TClientAudioStream>.Create;
   FCaptureAudioBuffer := TAudioBuffer.Create(1024 * 1024);
   FPlayerAudioBuffer := TAudioBuffer.Create(1024 * 1024);
+  FWaveformDataGeral := TWaveformData.Create;
 
   FMixerThread := TAudioMixerThread.Create(
     FClientStreams,
@@ -724,10 +739,13 @@ begin
       ClientStream := TClientAudioStream.Create;
       ClientStream.ClientID := iRemetente;
       ClientStream.Buffer := TAudioBuffer.Create(512 * 1024);
+      ClientStream.WaveformData := TWaveformData.Create;
       FClientStreams.Add(ClientStream);
     end;
 
     ClientStream.Buffer.Write(AudioData);
+    ClientStream.WaveformData.AddSamples(AudioData);
+    FWaveformDataGeral.AddSamples(AudioData);
   except
   end;
 end;

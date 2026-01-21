@@ -22,6 +22,7 @@ uses
   Conversa.FormularioBase,
   Conversa.Chamada.Usuario.view,
   Conversa.Chamada.Usuarios.Listagem,
+  Conversa.Chamada.Waveform,
   FMX.ListBox;
 
 type
@@ -56,6 +57,7 @@ type
     FUsuario: TConversaChamadaUsuarioView;
     FListaUsuarios: TConversaChamadaUsuariosListagem;
     FStatus: TChamadaStatusLocal;
+    FWaveformGeral: TWaveformView;
     procedure SetAudioStatus(const Value: TAudioStatus);
     procedure SetVideoStatus(const Value: TVideoStatus);
     procedure SetStatus(const Value: TChamadaStatusLocal);
@@ -130,6 +132,14 @@ begin
 
   AudioStatus := TAudioStatus.Indisposivel;
   VideoStatus := TVideoStatus.Indisposivel;
+
+  FWaveformGeral := TWaveformView.Create(Self);
+  FWaveformGeral.Parent := lytUsuarios;
+  FWaveformGeral.Align := TAlignLayout.Bottom;
+  FWaveformGeral.Height := 60;
+  FWaveformGeral.Margins.Left := 10;
+  FWaveformGeral.Margins.Right := 10;
+  FWaveformGeral.Margins.Bottom := 5;
 end;
 
 procedure TConversaChamadaView.CreateHandle;
@@ -209,6 +219,8 @@ begin
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
       if Assigned(FUsuario) then
         FUsuario.txtStatusChamada.Text := 'Iniciando...';
+      if Assigned(FWaveformGeral) then
+        FWaveformGeral.Iniciar;
     end;
     TChamadaStatusLocal.RecebentoChamada:
     begin
@@ -219,6 +231,8 @@ begin
       lytBotoes.Width := crclVideo.AbsoluteWidth * 2;
       if Assigned(FUsuario) then
         FUsuario.txtStatusChamada.Text := 'Recebendo Chamada';
+      if Assigned(FWaveformGeral) then
+        FWaveformGeral.Iniciar;
     end;
     TChamadaStatusLocal.ChamadaEmAndamento:
     begin
@@ -232,6 +246,11 @@ begin
         FUsuario.txtStatusChamada.Text := 'Em Andamento...';
       if Assigned(FUsuario) then
         FUsuario.tmrTempoDecorrido.Enabled := True;
+      if Assigned(FWaveformGeral) and Assigned(Chamada.WaveformDataGeral) then
+      begin
+        FWaveformGeral.Vincular(Chamada.WaveformDataGeral);
+        FWaveformGeral.Iniciar;
+      end;
     end;
     TChamadaStatusLocal.ChamadaFinalizada:
     begin
@@ -240,7 +259,8 @@ begin
       crclAudio.Visible := False;
       crclVideo.Visible := False;
       lytBotoes.Width := 0;
-      // Não faz nada aqui - o form será fechado pela chamada principal
+      if Assigned(FWaveformGeral) then
+        FWaveformGeral.Parar;
     end;
     TChamadaStatusLocal.ChamadaPerdida:
     begin

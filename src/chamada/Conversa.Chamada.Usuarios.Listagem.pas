@@ -3,7 +3,8 @@
 interface
 
 uses
-  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  System.Generics.Collections,
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   Conversa.FrameBase, FMX.Objects, FMX.Layouts, FMX.ListBox, Conversa.Dados,
   System.JSON,
@@ -19,6 +20,7 @@ type
     lstContatos: TListBox;
   private
     FChamada: TObject;
+    procedure VincularWaveformUsuario(AItem: TConversaChamadaUsuariosListItem; AUsuarioId: Integer);
   public
     constructor Create(AOwner: TComponent; AChamada: TObject); reintroduce; overload;
     procedure AtualizarListaUsuarios;
@@ -33,7 +35,8 @@ implementation
 
 uses
   Conversa.Proxy.Tipos,
-  Conversa.Chamada;
+  Conversa.Chamada,
+  AudioMixer;
 
 type
   TConversaChamadaUsuariosListagemH = class Helper for TConversaChamadaUsuariosListagem
@@ -49,6 +52,26 @@ begin
   Parent := TFmxObject(AOwner);
   Align := TAlignLayout.Client;
   Visible := True;
+end;
+
+procedure TConversaChamadaUsuariosListagem.VincularWaveformUsuario(AItem: TConversaChamadaUsuariosListItem; AUsuarioId: Integer);
+var
+  ClientStreams: TList<TClientAudioStream>;
+  Stream: TClientAudioStream;
+begin
+  ClientStreams := Chamada.GetClientStreams;
+  if Assigned(ClientStreams) then
+  begin
+    for Stream in ClientStreams do
+    begin
+      if Stream.ClientID = AUsuarioId then
+      begin
+        AItem.VincularWaveform(Stream.WaveformData);
+        Exit;
+      end;
+    end;
+  end;
+  AItem.VincularWaveform(nil);
 end;
 
 procedure TConversaChamadaUsuariosListagem.AtualizarListaUsuarios;
@@ -96,7 +119,11 @@ begin
       TChamadaStatusUsuario.Desconhecido: Item.Usuario.txtStatus.Text := '[Desconhecido]';
       TChamadaStatusUsuario.Pendente: Item.Usuario.txtStatus.Text := 'Aguardando...';
       TChamadaStatusUsuario.Recusou: Item.Usuario.txtStatus.Text := 'Recusou';
-      TChamadaStatusUsuario.Entrou: Item.Usuario.txtStatus.Text := 'Entrou';
+      TChamadaStatusUsuario.Entrou:
+      begin
+        Item.Usuario.txtStatus.Text := 'Entrou';
+        VincularWaveformUsuario(Item.Usuario, Usuario.usuario_id);
+      end;
       TChamadaStatusUsuario.Saiu: Item.Usuario.txtStatus.Text := 'Saiu';
       TChamadaStatusUsuario.Desconectou: Item.Usuario.txtStatus.Text := 'Desconectado';
     end;

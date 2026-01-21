@@ -14,6 +14,7 @@ type
   TClientAudioStream = class
     ClientID: Integer;
     Buffer: TAudioBuffer;
+    WaveformData: TWaveformData;
   end;
 
   TAudioMixerThread = class(TThread)
@@ -77,7 +78,7 @@ var
   SleepTime: Integer;
   ProcessInterval: Integer;
 begin
-  // Aumenta precisão do timer para 1ms
+  // Aumenta precisï¿½o do timer para 1ms
   timeBeginPeriod(1);
   try
     // Aguarda estar ativo
@@ -88,7 +89,7 @@ begin
       Sleep(10);
     end;
 
-    ChunkSize := 2048; // 23ms de áudio a 44.1kHz
+    ChunkSize := 2048; // 23ms de ï¿½udio a 44.1kHz
     MaxBufferThreshold := ChunkSize * 10; // ~230ms
     ProcessInterval := 23; // ms entre processamentos
     NextProcessTime := GetTickCount64;
@@ -97,14 +98,14 @@ begin
     begin
       CurrentTime := GetTickCount64;
 
-      // Só processa se chegou a hora
+      // Sï¿½ processa se chegou a hora
       if CurrentTime >= NextProcessTime then
       begin
         SetLength(MixedData, ChunkSize);
         SetLength(ClientData, FClientStreams.Count);
         ActiveClients := 0;
 
-        // Lê dados de clientes que têm dados SUFICIENTES
+        // Lï¿½ dados de clientes que tï¿½m dados SUFICIENTES
         for i := 0 to FClientStreams.Count - 1 do
         begin
           if FClientStreams[i].Buffer.Available >= ChunkSize then
@@ -126,7 +127,7 @@ begin
             SetLength(ClientData[i], 0);
         end;
 
-        // Só processa se houver pelo menos 1 cliente ativo
+        // Sï¿½ processa se houver pelo menos 1 cliente ativo
         if ActiveClients > 0 then
         begin
           // Mixa os samples (16-bit PCM)
@@ -156,10 +157,10 @@ begin
             PSmallInt(@MixedData[j * 2])^ := SmallInt(MixedSample);
           end;
 
-          // Envia para o buffer de reprodução
+          // Envia para o buffer de reproduï¿½ï¿½o
           FOutputBuffer.Write(MixedData);
 
-          // Agenda próximo processamento
+          // Agenda prï¿½ximo processamento
           NextProcessTime := NextProcessTime + ProcessInterval;
 
           // Se atrasou muito (>100ms), ressincroniza
@@ -167,25 +168,25 @@ begin
             NextProcessTime := CurrentTime + ProcessInterval;
         end
         else
-          // Sem dados - agenda próximo check
+          // Sem dados - agenda prï¿½ximo check
           NextProcessTime := CurrentTime + 10;
       end;
 
-      // Calcula quanto tempo esperar até próximo processamento
+      // Calcula quanto tempo esperar atï¿½ prï¿½ximo processamento
       CurrentTime := GetTickCount64;
       SleepTime := Integer(NextProcessTime - CurrentTime);
 
       if SleepTime > 0 then
       begin
         if SleepTime > 50 then
-          SleepTime := 50; // Limita sleep máximo
+          SleepTime := 50; // Limita sleep mï¿½ximo
         Sleep(SleepTime);
       end
       else
-        Sleep(1); // Yield mínimo
+        Sleep(1); // Yield mï¿½nimo
     end;
   finally
-        // Restaura precisão normal do timer
+        // Restaura precisï¿½o normal do timer
     timeEndPeriod(1);
   end;
 end;

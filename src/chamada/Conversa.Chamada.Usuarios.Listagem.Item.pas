@@ -7,7 +7,9 @@ uses
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Ani, FMX.Controls.Presentation, FMX.Objects,
   FMX.Layouts,
-  Conversa.Proxy.Tipos, Conversa.FrameBase;
+  Conversa.Proxy.Tipos, Conversa.FrameBase,
+  Conversa.Chamada.Waveform,
+  AudioTypes;
 
 type
   TConversaChamadaUsuariosListItem = class(TFrame)
@@ -20,9 +22,12 @@ type
     txtStatus: TText;
     ColorAnimation1: TColorAnimation;
     txtNome: TText;
+  private
+    FWaveform: TWaveformView;
   public
     Usuario: TChamadaDadosUsuario;
     constructor Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
+    procedure VincularWaveform(AWaveformData: TWaveformData);
   end;
 
 implementation
@@ -38,7 +43,18 @@ begin
   Align := TAlignLayout.Client;
   Usuario := AUsuario;
   txtNome.Text := AUsuario.usuario_nome;
-//  txtNome.Text := 'Fulano'+ AUsuario.ID.ToString;
+
+  FWaveform := TWaveformView.Create(Self);
+  FWaveform.Parent := lytInformacoes;
+  FWaveform.Align := TAlignLayout.Bottom;
+  FWaveform.Height := 30;
+end;
+
+procedure TConversaChamadaUsuariosListItem.VincularWaveform(AWaveformData: TWaveformData);
+begin
+  if Assigned(AWaveformData) then
+    FWaveform.Vincular(AWaveformData);
+  FWaveform.Iniciar;
 end;
 
 end.
