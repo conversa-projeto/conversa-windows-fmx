@@ -100,7 +100,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <SanitizedProjectName>Conversa</SanitizedProjectName>
-        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;.\lib\bird-socket-client;.\lib\audio;.\src\sobre;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;.\lib\bird-socket-client;.\lib\audio;.\src\sobre;.\src\chamada;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PreBuildEvent><![CDATA[taskkill /f /t /im Conversa.exe
 $(PreBuildEvent)]]></PreBuildEvent>
         <PreBuildEventCancelOnError>false</PreBuildEventCancelOnError>

@@ -10,7 +10,8 @@ uses
   System.Generics.Collections,
   IdContext,
   IdTCPServer,
-  IdTCPClient;
+  IdTCPClient,
+  IdWinsock2;
 
 type
   TOnClientReceive = procedure(const Data: TBytes) of object;
@@ -252,6 +253,11 @@ begin
   try
     SetState(TTCPClientState.Connecting);
     Self.Connect;
+
+    // QoS: Desabilita Nagle e marca pacotes com prioridade VoIP
+    Self.Socket.UseNagle := False;
+    Self.Socket.Binding.SetSockOpt(IPPROTO_IP, IP_TOS, $B8); // DSCP EF
+
     SetState(TTCPClientState.Connected);
 
     if Length(FRegistrationData) > 0 then
@@ -366,6 +372,10 @@ procedure TTCPServer.Connect(AContext: TIdContext);
 begin
   if not Assigned(AContext.Data) then
     AContext.Data := TClientData.Create(TInterlocked.Increment(FClientCounter));
+
+  // QoS: Desabilita Nagle e marca pacotes com prioridade VoIP
+  AContext.Connection.Socket.UseNagle := False;
+  AContext.Connection.Socket.Binding.SetSockOpt(IPPROTO_IP, IP_TOS, $B8); // DSCP EF
 end;
 
 procedure TTCPServer.Send(const iClient: Int64; const Data: TBytes);
