@@ -128,7 +128,7 @@ begin
     txtDuracao.Text := '';
 
   // Data/Hora
-  txtDataHora.Text := FormatarDataHora(FChamada.criado_em);
+  txtDataHora.Text := FormatarDataHora(FChamada.adicionado_em);
 end;
 
 function TConversaChamadaListagemItem.FormatarDataHora(AData: TDateTime): String;
