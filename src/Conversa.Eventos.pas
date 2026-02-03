@@ -31,6 +31,8 @@ type
   TExibirMensagem = class(TEventBase<TExibirMensagem, TArrayMensagens>);
   TEnvioMensagem = class(TEventBase<TEnvioMensagem, TRespostaMensagem>);
 
+  TObterChamadasHistorico = class(TEventBase<TObterChamadasHistorico, TRespostaChamadasHistorico>);
+
 implementation
 
 end.

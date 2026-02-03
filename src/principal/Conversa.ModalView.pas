@@ -63,6 +63,8 @@ begin
     FModalList[Pred(Length(FModalList))].Visible := False;
     FModalList[Pred(Length(FModalList))].Free;
     SetLength(FModalList, Pred(Length(FModalList)));
+    if Length(FModalList) > 0 then
+      FModalList[Pred(Length(FModalList))].Visible := True;
   end;
 
   if Length(FModalList) = 0 then

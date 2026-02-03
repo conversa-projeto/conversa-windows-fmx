@@ -80,6 +80,7 @@ type
     class procedure Conversas; static;
     class procedure Mensagens(Conversa, MensagemReferencia, MensagensPrevias, MensagensSeguintes: Integer); static;
     class procedure MensagensNovas(UltimaMensagem: Integer); static;
+    class procedure Chamadas; static;
   end;
 
 implementation
@@ -307,6 +308,32 @@ begin
   finally
     Free;
   end;
+end;
+
+class procedure TAPIConversa.Chamadas;
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    var
+      Resposta: TRespostaChamadasHistorico;
+    begin
+      with TAPIInternal.Create do
+      try
+        Route('chamadas');
+        GET;
+
+        Resposta.Status := Response.Status;
+        Resposta.Erro := MensagemErro;
+
+        if Response.Status = TResponseStatus.Sucess then
+          Resposta.Dados := TJsonSerializer<TChamadasHistorico>.FromStr(Response.ToString);
+
+        TObterChamadasHistorico.Send(Resposta);
+      finally
+        Free;
+      end;
+    end
+  ).Start;
 end;
 
 { TUsuario }

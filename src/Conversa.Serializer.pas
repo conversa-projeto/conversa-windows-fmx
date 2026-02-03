@@ -59,7 +59,7 @@ end;
 
 function TDateTimeConverter.CanConvert(ATypeInf: PTypeInfo): Boolean;
 begin
-  // Verifica se é um TDateTime (tkFloat para tipos de data)
+  // Verifica se ï¿½ um TDateTime (tkFloat para tipos de data)
   Result :=
     (ATypeInf = TypeInfo(TDateTime)) or
     (ATypeInf = TypeInfo(TDate)) or

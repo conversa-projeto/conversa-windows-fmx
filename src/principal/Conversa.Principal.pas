@@ -24,12 +24,16 @@ type
     rctBotaoNovoGrupo: TRectangle;
     txtBotaoNovoGrupo: TText;
     pthBotaoNovoGrupo: TPath;
+    rctBotaoChamadas: TRectangle;
+    txtBotaoChamadas: TText;
+    pthBotaoChamadas: TPath;
     rctBotaoSobre: TRectangle;
     txtBotaoSobre: TText;
     pthBotaoSobre: TPath;
     procedure Layout2Click(Sender: TObject);
     procedure rctBotaoContatosClick(Sender: TObject);
     procedure rctBotaoNovoGrupoClick(Sender: TObject);
+    procedure rctBotaoChamadasClick(Sender: TObject);
     procedure rctBotaoSobreClick(Sender: TObject);
   public
     class function New(AOwner: TFmxObject): TPrincipalView;
@@ -44,6 +48,7 @@ uses
   Conversa.Tela.Inicial.view,
   Conversa.Contatos,
   Conversa.Sobre,
+  Conversa.Chamada.Listagem,
   Novo.Grupo;
 
 class function TPrincipalView.New(AOwner: TFmxObject): TPrincipalView;
@@ -65,6 +70,11 @@ end;
 procedure TPrincipalView.rctBotaoNovoGrupoClick(Sender: TObject);
 begin
   TNovoGrupo.CriarGrupo;
+end;
+
+procedure TPrincipalView.rctBotaoChamadasClick(Sender: TObject);
+begin
+  TConversaChamadaListagem.Exibir;
 end;
 
 procedure TPrincipalView.rctBotaoSobreClick(Sender: TObject);

@@ -183,6 +183,39 @@ type
   end;
   TRespostaChamadaDados = TResposta<TChamadaDados>;
 
+  // Tipos para Histórico de Chamadas
+  TChamadaHistoricoTipoAcao = (
+    Desconhecido = 0,
+    Realizada = 1,
+    Recebida = 2,
+    Perdida = 3
+  );
+
+  TChamadaHistorico = record
+    chamada_id: Integer;
+    iniciada: TDateTime;
+    finalizada: TDateTime;
+    conversa_id: Integer;
+    tipo_chamada: TChamadaTipo;
+    status_chamada: TChamadaStatus;
+    criado_em: TDateTime;
+    criado_por_id: Integer;
+    criado_por: String;
+    usuario_exibido_id: Integer;
+    usuario_exibido_nome: String;
+    recusou_em: TDateTime;
+    entrou_em: TDateTime;
+    saiu_em: TDateTime;
+    status_usuario: TChamadaStatusUsuario;
+    adicionado_em: TDateTime;
+    adicionado_por_id: Integer;
+    adicionado_por: String;
+    tipo_acao: TChamadaHistoricoTipoAcao;
+    quantidade_outros_usuarios: Integer;
+  end;
+  TChamadasHistorico = TArray<TChamadaHistorico>;
+  TRespostaChamadasHistorico = TResposta<TChamadasHistorico>;
+
 implementation
 
 end.

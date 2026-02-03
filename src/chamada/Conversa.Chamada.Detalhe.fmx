@@ -1,0 +1,230 @@
+inherited ConversaChamadaDetalhe: TConversaChamadaDetalhe
+  Size.Width = 320.000000000000000000
+  Size.Height = 400.000000000000000000
+  object rctFundo: TRectangle
+    Align = Client
+    Fill.Color = claWhitesmoke
+    Padding.Left = 16.000000000000000000
+    Padding.Top = 16.000000000000000000
+    Padding.Right = 16.000000000000000000
+    Padding.Bottom = 16.000000000000000000
+    Size.Width = 320.000000000000000000
+    Size.Height = 400.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+    XRadius = 10.000000000000000000
+    YRadius = 10.000000000000000000
+    object lytHeader: TLayout
+      Align = Top
+      Size.Width = 288.000000000000000000
+      Size.Height = 100.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object lytIcone: TLayout
+        Align = Top
+        Size.Width = 288.000000000000000000
+        Size.Height = 60.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 0
+        object crclIcone: TCircle
+          Align = Center
+          Fill.Color = xFF007DFF
+          HitTest = False
+          Size.Width = 54.000000000000000000
+          Size.Height = 54.000000000000000000
+          Size.PlatformDefault = False
+          Stroke.Kind = None
+          object pthIcone: TPath
+            Align = Center
+            Data.Path = {
+              07000000000000000000E04100000041010000000000A0410000A04101000000
+              0000004100000041010000000000A04100000041010000000000A0410000A041
+              010000000000004100000041030000000000E04100000041}
+            Fill.Color = claWhite
+            HitTest = False
+            Size.Width = 24.000000000000000000
+            Size.Height = 24.000000000000000000
+            Size.PlatformDefault = False
+            Stroke.Color = claWhite
+            Stroke.Thickness = 2.000000000000000000
+            WrapMode = Fit
+          end
+        end
+      end
+      object txtNome: TText
+        Align = Top
+        Position.Y = 60.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+        Text = '[Nome do Contato]'
+        TextSettings.Font.Size = 18.000000000000000000
+        TextSettings.Font.StyleExt = {00070000000000000004000000}
+        TextSettings.FontColor = xFF333333
+        TextSettings.HorzAlign = Center
+      end
+      object txtTipo: TText
+        Align = Top
+        Position.Y = 85.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 15.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Chamada Individual'
+        TextSettings.Font.Size = 12.000000000000000000
+        TextSettings.FontColor = xFF666666
+        TextSettings.HorzAlign = Center
+      end
+    end
+    object lytDados: TLayout
+      Align = Client
+      Margins.Top = 16.000000000000000000
+      Size.Width = 288.000000000000000000
+      Size.Height = 200.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      object txtLabelIniciada: TText
+        Align = Top
+        Size.Width = 288.000000000000000000
+        Size.Height = 18.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Iniciada em:'
+        TextSettings.Font.Size = 12.000000000000000000
+        TextSettings.FontColor = xFF999999
+        TextSettings.HorzAlign = Leading
+      end
+      object txtIniciada: TText
+        Align = Top
+        Position.Y = 18.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'dd/mm/yyyy hh:nn:ss'
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.FontColor = xFF333333
+        TextSettings.HorzAlign = Leading
+      end
+      object txtLabelFinalizada: TText
+        Align = Top
+        Margins.Top = 12.000000000000000000
+        Position.Y = 52.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 18.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Finalizada em:'
+        TextSettings.Font.Size = 12.000000000000000000
+        TextSettings.FontColor = xFF999999
+        TextSettings.HorzAlign = Leading
+      end
+      object txtFinalizada: TText
+        Align = Top
+        Position.Y = 70.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'dd/mm/yyyy hh:nn:ss'
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.FontColor = xFF333333
+        TextSettings.HorzAlign = Leading
+      end
+      object txtLabelDuracao: TText
+        Align = Top
+        Margins.Top = 12.000000000000000000
+        Position.Y = 104.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 18.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Duracao:'
+        TextSettings.Font.Size = 12.000000000000000000
+        TextSettings.FontColor = xFF999999
+        TextSettings.HorzAlign = Leading
+      end
+      object txtDuracao: TText
+        Align = Top
+        Position.Y = 122.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        Text = '00:00:00'
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.FontColor = xFF333333
+        TextSettings.HorzAlign = Leading
+      end
+      object txtLabelStatus: TText
+        Align = Top
+        Margins.Top = 12.000000000000000000
+        Position.Y = 156.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 18.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Status:'
+        TextSettings.Font.Size = 12.000000000000000000
+        TextSettings.FontColor = xFF999999
+        TextSettings.HorzAlign = Leading
+      end
+      object txtStatus: TText
+        Align = Top
+        Position.Y = 174.000000000000000000
+        Size.Width = 288.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        Text = 'Finalizada'
+        TextSettings.Font.Size = 14.000000000000000000
+        TextSettings.FontColor = xFF333333
+        TextSettings.HorzAlign = Leading
+      end
+    end
+    object lytBotoes: TLayout
+      Align = Bottom
+      Position.Y = 320.000000000000000000
+      Size.Width = 288.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 2
+      object rctBtnVoltar: TRectangle
+        Align = Left
+        Cursor = crHandPoint
+        Fill.Color = xFFE0E0E0
+        Margins.Right = 8.000000000000000000
+        Size.Width = 136.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 8.000000000000000000
+        YRadius = 8.000000000000000000
+        OnClick = rctBtnVoltarClick
+        object txtBtnVoltar: TText
+          Align = Client
+          HitTest = False
+          Size.Width = 136.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Voltar'
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.FontColor = xFF333333
+        end
+      end
+      object rctBtnChamar: TRectangle
+        Align = Client
+        Cursor = crHandPoint
+        Fill.Color = xFF007DFF
+        Size.Width = 144.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+        XRadius = 8.000000000000000000
+        YRadius = 8.000000000000000000
+        OnClick = rctBtnChamarClick
+        object txtBtnChamar: TText
+          Align = Client
+          HitTest = False
+          Size.Width = 144.000000000000000000
+          Size.Height = 48.000000000000000000
+          Size.PlatformDefault = False
+          Text = 'Ligar'
+          TextSettings.Font.Size = 14.000000000000000000
+          TextSettings.FontColor = claWhite
+        end
+      end
+    end
+  end
+end
