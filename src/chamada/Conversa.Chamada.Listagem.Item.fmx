@@ -3,7 +3,7 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
   object rctFundo: TRectangle
     Align = Client
     Cursor = crHandPoint
-    Fill.Color = claWhite
+    Fill.Color = claWhitesmoke
     Size.Width = 320.000000000000000000
     Size.Height = 60.000000000000000000
     Size.PlatformDefault = False
@@ -11,29 +11,28 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
     OnClick = rctFundoClick
     object lytClient: TLayout
       Align = Client
-      Padding.Left = 10.000000000000000000
-      Padding.Top = 8.000000000000000000
-      Padding.Right = 10.000000000000000000
-      Padding.Bottom = 8.000000000000000000
+      Padding.Left = 8.000000000000000000
+      Padding.Top = 5.000000000000000000
+      Padding.Right = 8.000000000000000000
+      Padding.Bottom = 5.000000000000000000
       Size.Width = 320.000000000000000000
       Size.Height = 60.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 0
       object lytColuna1: TLayout
         Align = Left
-        Position.X = 10.000000000000000000
-        Position.Y = 8.000000000000000000
-        Size.Width = 70.000000000000000000
-        Size.Height = 44.000000000000000000
+        Position.X = 8.000000000000000000
+        Position.Y = 5.000000000000000000
+        Size.Width = 50.000000000000000000
+        Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 0
         object crclAvatar: TCircle
           Align = Client
           Fill.Color = claWhitesmoke
           HitTest = False
-          Margins.Left = 4.000000000000000000
-          Size.Width = 46.000000000000000000
-          Size.Height = 44.000000000000000000
+          Size.Width = 50.000000000000000000
+          Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           Stroke.Kind = None
           object txtAbreviatura: TText
@@ -44,7 +43,7 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
             Size.PlatformDefault = False
             Text = 'D'
             TextSettings.Font.Family = 'Consolas'
-            TextSettings.Font.Size = 22.000000000000000000
+            TextSettings.Font.Size = 30.000000000000000000
             TextSettings.FontColor = xFF007DFF
           end
           object pthGrupo: TPath
@@ -137,7 +136,7 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
         object lytTipoChamada: TLayout
           Align = Left
           Size.Width = 20.000000000000000000
-          Size.Height = 44.000000000000000000
+          Size.Height = 50.000000000000000000
           Size.PlatformDefault = False
           TabOrder = 0
           object pthIconeChamada_Realizada: TPath
@@ -228,9 +227,9 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
       end
       object lytColuna2: TLayout
         Align = Client
-        Margins.Left = 8.000000000000000000
-        Size.Width = 222.000000000000000000
-        Size.Height = 44.000000000000000000
+        Margins.Left = 5.000000000000000000
+        Size.Width = 249.000000000000000000
+        Size.Height = 50.000000000000000000
         Size.PlatformDefault = False
         TabOrder = 1
         object txtNome: TText
@@ -302,8 +301,8 @@ inherited ConversaChamadaListagemItem: TConversaChamadaListagemItem
       Duration = 0.200000002980232200
       Interpolation = Cubic
       PropertyName = 'Fill.Color'
-      StartValue = claWhite
-      StopValue = xFFE6E6E6
+      StartValue = claWhitesmoke
+      StopValue = claWhite
       Trigger = 'IsMouseOver=true'
       TriggerInverse = 'IsMouseOver=false'
     end
