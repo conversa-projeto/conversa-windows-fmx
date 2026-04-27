@@ -20,12 +20,11 @@ uses
   Conversa.Chamada.BarraTitulo,
   Conversa.Chamada.view,
   Conversa.Chamada.Waveform,
-  tcp,
+  Conversa.Chamada.WebRTC,
   AudioTypes,
-  AudioPlayer,
-  AudioCapture,
   AudioMixer,
   System.Classes,
+  FMX.Objects,
   Winapi.MMSystem,
   Winapi.Windows;
 
@@ -63,17 +62,10 @@ type
     FUsuarios: TArray<TChamadaDadosUsuario>;
     FIniciada: TDateTime;
     FFinalizada: TDateTime;
-    FTCPAudio: TTCPClient;
     FClientStreams: TList<TClientAudioStream>;
-
-    FCaptureThread: TAudioCaptureThread;
-    FPlayerThread: TAudioPlayerThread;
-    FMixerThread: TAudioMixerThread;
-    FCaptureAudioBuffer: TAudioBuffer;
-    FPlayerAudioBuffer: TAudioBuffer;
     FWaveformDataGeral: TWaveformData;
-    FAudioThreadsStarted: Boolean;
     FMuted: Boolean;
+    FWebRTCAtivo: Boolean;
 
     procedure SetStatusLocal(const Value: TChamadaStatusLocal);
     procedure AtualizarStatusUsuario(const Usuario: Integer; Status: TChamadaStatusUsuario);
@@ -82,16 +74,10 @@ type
     procedure OnUsuarioEntrou(const Usuario: Integer);
     procedure OnUsuarioSaiu(const Usuario: Integer);
     procedure FinalizarLocalmente;
-    procedure ConectarTCPAudio;
-    procedure TCPAudioError(const sError: String);
-    procedure TCPAudioReceive(const Data: TBytes);
-    procedure TCPAudioConnected;
-    procedure TCPAudioDisconnected;
+    procedure IniciarWebRTC;
+    procedure AssinarPeersExistentes;
   protected
     function ProcessarSocket(Tipo: TSocketMessageType; jo: TJSONObject): Boolean;
-
-    procedure IniciarCapturaAudio;
-    procedure IniciarReproducaoAudio;
 
     procedure NotificarChamada;
     procedure ExibirChamada;
@@ -124,6 +110,7 @@ uses
   Conversa.Dados,
   Conversa.Proxy,
   Conversa.Tela.Inicial.view,
+  Conversa.Configuracoes,
   Conversa.Notificacao;
 
 function IntToBytes(const Value: Integer): TBytes;
@@ -242,45 +229,21 @@ begin
   FStatusLocal := TChamadaStatusLocal.Desconhecido;
   FTipo := TChamadaTipo.Simples;
   FIniciada := 0;
-  FAudioThreadsStarted := False;
   FMuted := False;
+  FWebRTCAtivo := False;
 end;
 
 destructor TConversaChamada.Destroy;
 begin
   try
-    if Assigned(FMixerThread) then
+    if FWebRTCAtivo then
     begin
-      FMixerThread.Finalizar;
-      FMixerThread.WaitFor;
-      FreeAndNil(FMixerThread);
+      TConversaWebRTC.Instance.Desligar;
+      FWebRTCAtivo := False;
     end;
-
-    if Assigned(FCaptureThread) then
-    begin
-      FCaptureThread.Finalizar;
-      FCaptureThread.WaitFor;
-      FreeAndNil(FCaptureThread);
-    end;
-
-    if Assigned(FPlayerThread) then
-    begin
-      FPlayerThread.Finalizar;
-      FPlayerThread.WaitFor;
-      FreeAndNil(FPlayerThread);
-    end;
-
-    if Assigned(FCaptureAudioBuffer) then
-      FreeAndNil(FCaptureAudioBuffer);
-
-    if Assigned(FPlayerAudioBuffer) then
-      FreeAndNil(FPlayerAudioBuffer);
 
     if Assigned(FWaveformDataGeral) then
       FreeAndNil(FWaveformDataGeral);
-
-    if Assigned(FTCPAudio) then
-      FreeAndNil(FTCPAudio);
 
     if Assigned(FClientStreams) then
     begin
@@ -334,7 +297,8 @@ begin
   FIniciada := Now;
   AtualizarDados;
   StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
-  ConectarTCPAudio;
+  IniciarWebRTC;
+  AssinarPeersExistentes;
 end;
 
 procedure TConversaChamada.Finalizar;
@@ -392,6 +356,9 @@ begin
 end;
 
 procedure TConversaChamada.OnUsuarioEntrou(const Usuario: Integer);
+var
+  Img: FMX.Objects.TImage;
+  PeerId: Integer;
 begin
   AtualizarStatusUsuario(Usuario, TChamadaStatusUsuario.Entrou);
   if StatusLocal = TChamadaStatusLocal.RecebentoChamada then
@@ -399,11 +366,32 @@ begin
 
   StatusLocal := TChamadaStatusLocal.ChamadaEmAndamento;
   AtualizarDados;
+
+  if not FWebRTCAtivo then
+    Exit;
+
+  if Usuario = Dados.FDadosApp.Usuario.ID then
+    Exit;
+
+  PeerId := Usuario;
+  Img := nil;
+  if Assigned(FChamadaView) then
+    Img := FChamadaView.GetVideoTarget(PeerId);
+
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      TConversaWebRTC.Instance.AssinarDePeer(PeerId, Img);
+    end
+  ).Start;
 end;
 
 procedure TConversaChamada.OnUsuarioSaiu(const Usuario: Integer);
 begin
   AtualizarStatusUsuario(Usuario, TChamadaStatusUsuario.Saiu);
+
+  if FWebRTCAtivo and (Usuario <> Dados.FDadosApp.Usuario.ID) then
+    TConversaWebRTC.Instance.DesconectarPeer(Usuario);
 
   if StatusLocal = TChamadaStatusLocal.RecebentoChamada then
     Exit;
@@ -478,25 +466,73 @@ begin
     FStatus := status;
   end;
 
-  ConectarTCPAudio;
+  IniciarWebRTC;
 end;
 
 procedure TConversaChamada.FinalizarLocalmente;
 begin
   TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, FID);
+  if FWebRTCAtivo then
+  begin
+    TConversaWebRTC.Instance.Desligar;
+    FWebRTCAtivo := False;
+  end;
   StatusLocal := TChamadaStatusLocal.ChamadaFinalizada;
   TConversaChamadas.Instance.FChamadas.Remove(FID);
   FreeAndNil(Self);
 end;
 
-procedure TConversaChamada.IniciarCapturaAudio;
+procedure TConversaChamada.IniciarWebRTC;
+var
+  ChamadaId, MeuId: Integer;
 begin
-  //
+  if FWebRTCAtivo then
+    Exit;
+
+  TConversaWebRTC.Instance.MediaMtxBase := Configuracoes.MediaMtxBase;
+  FWebRTCAtivo := True;
+
+  ChamadaId := FID;
+  MeuId := Dados.FDadosApp.Usuario.ID;
+
+  // WhipConnect bloqueia durante negociacao ICE/DTLS — rodar em thread.
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      TConversaWebRTC.Instance.PublicarLocalNaSala(ChamadaId, MeuId, True, True);
+    end
+  ).Start;
 end;
 
-procedure TConversaChamada.IniciarReproducaoAudio;
+procedure TConversaChamada.AssinarPeersExistentes;
+var
+  Usuario: TChamadaDadosUsuario;
+  MeuId, PeerId: Integer;
+  Img: FMX.Objects.TImage;
 begin
-  //
+  if not FWebRTCAtivo then
+    Exit;
+
+  MeuId := Dados.FDadosApp.Usuario.ID;
+  for Usuario in FUsuarios do
+  begin
+    if Usuario.usuario_id = MeuId then
+      Continue;
+    if Usuario.status <> TChamadaStatusUsuario.Entrou then
+      Continue;
+
+    PeerId := Usuario.usuario_id;
+    Img := nil;
+    if Assigned(FChamadaView) then
+      Img := FChamadaView.GetVideoTarget(PeerId);
+
+    TThread.CreateAnonymousThread(
+      procedure
+      begin
+        TConversaWebRTC.Instance.AssinarDePeer(PeerId, Img);
+      end
+    ).Start;
+  end;
 end;
 
 procedure TConversaChamada.ExibirChamada;
@@ -579,12 +615,11 @@ begin
     end;
     TChamadaStatusLocal.ChamadaFinalizada:
     begin
-      if Assigned(FCaptureThread) then
-        FCaptureThread.Finalizar;
-      if Assigned(FPlayerThread) then
-        FPlayerThread.Finalizar;
-      if Assigned(FMixerThread) then
-        FMixerThread.Finalizar;
+      if FWebRTCAtivo then
+      begin
+        TConversaWebRTC.Instance.Desligar;
+        FWebRTCAtivo := False;
+      end;
     end;
     TChamadaStatusLocal.ChamadaPerdida: ;
     TChamadaStatusLocal.Recusada:
@@ -641,113 +676,8 @@ end;
 procedure TConversaChamada.ToggleMute;
 begin
   FMuted := not FMuted;
-end;
-
-procedure TConversaChamada.ConectarTCPAudio;
-var
-  RegistrationData: TBytes;
-begin
-  FClientStreams := TList<TClientAudioStream>.Create;
-  FCaptureAudioBuffer := TAudioBuffer.Create(1024 * 1024);
-  FPlayerAudioBuffer := TAudioBuffer.Create(1024 * 1024);
-  FWaveformDataGeral := TWaveformData.Create;
-
-  FMixerThread := TAudioMixerThread.Create(
-    FClientStreams,
-    FPlayerAudioBuffer,
-    function: Boolean
-    begin
-      Result := FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento;
-    end
-  );
-  FMixerThread.Start;
-
-  FCaptureThread := TAudioCaptureThread.Create(FCaptureAudioBuffer);
-  FPlayerThread := TAudioPlayerThread.Create(FPlayerAudioBuffer);
-
-  FCaptureThread.OnNewAudioData :=
-    procedure(Data: TBytes)
-    begin
-      if (FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) and (not FMuted) then
-        if Assigned(FTCPAudio) and (FTCPAudio.State = TTCPClientState.Connected) then
-          FTCPAudio.Send([1] + IntToBytes(FID) + Data);
-    end;
-
-  RegistrationData := [0] + IntToBytes(Dados.FDadosApp.Usuario.ID);
-
-  FTCPAudio := TTCPClient.Create('localhost', 9090);
-  FTCPAudio.SetRegistrationData(RegistrationData);
-  FTCPAudio.OnClientReceive := TCPAudioReceive;
-  FTCPAudio.OnError := TCPAudioError;
-  FTCPAudio.OnConnected := TCPAudioConnected;
-  FTCPAudio.OnDisconnected := TCPAudioDisconnected;
-end;
-
-procedure TConversaChamada.TCPAudioConnected;
-begin
-  if FAudioThreadsStarted then
-    Exit;
-
-  FAudioThreadsStarted := True;
-  if Assigned(FCaptureThread) then
-    FCaptureThread.Start;
-  if Assigned(FPlayerThread) then
-    FPlayerThread.Start;
-end;
-
-procedure TConversaChamada.TCPAudioDisconnected;
-begin
-  // Reconexão é automática pelo TTCPClient
-end;
-
-procedure TConversaChamada.TCPAudioError(const sError: String);
-begin
-  {TODO -oDaniel -cChamada: Melhorar exibição de erros}
-  raise Exception.Create(sError);
-end;
-
-procedure TConversaChamada.TCPAudioReceive(const Data: TBytes);
-var
-  iRemetente: Integer;
-  ClientStream: TClientAudioStream;
-  AudioData: TBytes;
-begin
-  try
-    if FStatusLocal <> TChamadaStatusLocal.ChamadaEmAndamento then
-      Exit;
-
-    // Valida tamanho mínimo: 4 (remetente) + 4 (chamada) + 1 (áudio)
-    if Length(Data) < 9 then
-      Exit;
-
-    iRemetente := BytesToInt(Copy(Data, 0, 4));
-    AudioData := Copy(Data, 8);
-
-    // Procura ou cria buffer para este cliente
-    ClientStream := nil;
-    for var Stream in FClientStreams do
-    begin
-      if Stream.ClientID = iRemetente then
-      begin
-        ClientStream := Stream;
-        Break;
-      end;
-    end;
-
-    if ClientStream = nil then
-    begin
-      ClientStream := TClientAudioStream.Create;
-      ClientStream.ClientID := iRemetente;
-      ClientStream.Buffer := TAudioBuffer.Create(512 * 1024);
-      ClientStream.WaveformData := TWaveformData.Create;
-      FClientStreams.Add(ClientStream);
-    end;
-
-    ClientStream.Buffer.Write(AudioData);
-    ClientStream.WaveformData.AddSamples(AudioData);
-    FWaveformDataGeral.AddSamples(AudioData);
-  except
-  end;
+  if FWebRTCAtivo then
+    TConversaWebRTC.Instance.AlternarMicrofone(FMuted);
 end;
 
 end.

@@ -184,6 +184,7 @@ inherited ConversaChamadaView: TConversaChamadaView
               Size.Height = 35.000000000000000000
               Size.PlatformDefault = False
               Stroke.Kind = None
+              OnClick = crclVideoClick
               object pthVideoAtivo: TPath
                 Align = Center
                 Data.Path = {

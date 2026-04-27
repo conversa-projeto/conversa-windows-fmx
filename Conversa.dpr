@@ -53,7 +53,16 @@ uses
   Conversa.Chamada.Usuario.view in 'src\chamada\Conversa.Chamada.Usuario.view.pas' {ConversaChamadaUsuarioView: TFrame},
   Conversa.Dados in 'Conversa.Dados.pas',
   Conversa.Chamada.Usuarios.Listagem in 'src\chamada\Conversa.Chamada.Usuarios.Listagem.pas' {ConversaChamadaUsuariosListagem: TFrame},
-  Conversa.Chamada.Usuarios.Listagem.Item in 'src\chamada\Conversa.Chamada.Usuarios.Listagem.Item.pas' {ConversaChamadaUsuariosListItem: TFrame};
+  Conversa.Chamada.Usuarios.Listagem.Item in 'src\chamada\Conversa.Chamada.Usuarios.Listagem.Item.pas' {ConversaChamadaUsuariosListItem: TFrame},
+  Conversa.Chamada.WebRTC in 'src\chamada\Conversa.Chamada.WebRTC.pas',
+  Pion.Whep.Binding in 'conversa-webrtc\Pion.Whep.Binding.pas',
+  FFmpeg.Binding in 'conversa-webrtc\FFmpeg.Binding.pas',
+  Video.Encoder in 'conversa-webrtc\Video.Encoder.pas',
+  Video.Decoder in 'conversa-webrtc\Video.Decoder.pas',
+  Audio.Encoder in 'conversa-webrtc\Audio.Encoder.pas',
+  Audio.Player in 'conversa-webrtc\Audio.Player.pas',
+  Screen.Capture in 'conversa-webrtc\Screen.Capture.pas',
+  Mic.Capture in 'conversa-webrtc\Mic.Capture.pas';
 
 {$R *.res}
 

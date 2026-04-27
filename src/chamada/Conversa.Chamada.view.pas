@@ -22,6 +22,7 @@ uses
   Conversa.FormularioBase,
   Conversa.Chamada.Usuario.view,
   Conversa.Chamada.Usuarios.Listagem,
+  Conversa.Chamada.Usuarios.Listagem.Item,
   Conversa.Chamada.Waveform,
   FMX.ListBox;
 
@@ -49,6 +50,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure crclAtenderChamadaClick(Sender: TObject);
     procedure crclAudioClick(Sender: TObject);
+    procedure crclVideoClick(Sender: TObject);
   private
     FChamada: TObject;
     FOldHWND: HWND;
@@ -70,6 +72,7 @@ type
     property VideoStatus: TVideoStatus read FVideoStatus write SetVideoStatus;
     property Status: TChamadaStatusLocal read FStatus write SetStatus;
     procedure AtualizarListaParticipante;
+    function GetVideoTarget(AUsuarioId: Integer): FMX.Objects.TImage;
   end;
 
 var
@@ -79,7 +82,8 @@ implementation
 
 uses
   Conversa.Dados,
-  Conversa.Chamada;
+  Conversa.Chamada,
+  Conversa.Chamada.WebRTC;
 
 {$R *.fmx}
 
@@ -101,6 +105,18 @@ begin
     AudioStatus := TAudioStatus.Desativado
   else
     AudioStatus := TAudioStatus.Ativo;
+end;
+
+procedure TConversaChamadaView.crclVideoClick(Sender: TObject);
+var
+  Ativar: Boolean;
+begin
+  Ativar := FVideoStatus <> TVideoStatus.Ativo;
+  TConversaWebRTC.Instance.AlternarCompartilhamentoTela(Ativar);
+  if Ativar then
+    VideoStatus := TVideoStatus.Ativo
+  else
+    VideoStatus := TVideoStatus.Desativado;
 end;
 
 procedure TConversaChamadaView.crclFinalizarChamadaClick(Sender: TObject);
@@ -158,6 +174,22 @@ procedure TConversaChamadaView.DestroyHandle;
 begin
   SetWindowLongPtr(FormToHWND(Self), GWL_HWNDPARENT, FOldHWND);
   inherited;
+end;
+
+function TConversaChamadaView.GetVideoTarget(AUsuarioId: Integer): FMX.Objects.TImage;
+var
+  Item: TConversaChamadaUsuariosListItem;
+begin
+  Result := nil;
+  if Assigned(FUsuario) and (FUsuario.UsuarioId = AUsuarioId) then
+    Exit(FUsuario.VideoTarget);
+
+  if Assigned(FListaUsuarios) then
+  begin
+    Item := FListaUsuarios.ObterItemUsuario(AUsuarioId);
+    if Assigned(Item) then
+      Exit(Item.VideoTarget);
+  end;
 end;
 
 procedure TConversaChamadaView.AtualizarListaParticipante;

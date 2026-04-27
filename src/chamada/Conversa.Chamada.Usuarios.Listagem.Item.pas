@@ -24,10 +24,12 @@ type
     txtNome: TText;
   private
     FWaveform: TWaveformView;
+    FImgVideo: TImage;
   public
     Usuario: TChamadaDadosUsuario;
     constructor Create(AOwner: TComponent; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
     procedure VincularWaveform(AWaveformData: TWaveformData);
+    function VideoTarget: TImage;
   end;
 
 implementation
@@ -48,6 +50,18 @@ begin
   FWaveform.Parent := lytInformacoes;
   FWaveform.Align := TAlignLayout.Bottom;
   FWaveform.Height := 30;
+
+  FImgVideo := TImage.Create(Self);
+  FImgVideo.Parent := lytClient;
+  FImgVideo.Align := TAlignLayout.Right;
+  FImgVideo.Width := 80;
+  FImgVideo.WrapMode := TImageWrapMode.Fit;
+  FImgVideo.Visible := False;
+end;
+
+function TConversaChamadaUsuariosListItem.VideoTarget: TImage;
+begin
+  Result := FImgVideo;
 end;
 
 procedure TConversaChamadaUsuariosListItem.VincularWaveform(AWaveformData: TWaveformData);

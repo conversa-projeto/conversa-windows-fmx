@@ -14,6 +14,7 @@ type
     Host: String;
     Usuario: String;
     Senha: String;
+    MediaMtxBase: String;
     Notificacoes: TNotificacao;
     Escala: Single;
     DispositivoId: Integer;
@@ -46,7 +47,11 @@ begin
   end;
 
   if not TFile.Exists(PastaDados +'conversa.json') then
+  begin
+    if Configuracoes.MediaMtxBase = '' then
+      Configuracoes.MediaMtxBase := 'http://localhost:8889';
     Exit;
+  end;
 
   with TJsonSerializer.Create do
   try
@@ -57,6 +62,9 @@ begin
 
   if Configuracoes.Notificacoes.Timeout = 0 then
     Configuracoes.Notificacoes.Timeout := 5;
+
+  if Configuracoes.MediaMtxBase = '' then
+    Configuracoes.MediaMtxBase := 'http://localhost:8889';
 end;
 
 class procedure TConfiguracoes.Save;

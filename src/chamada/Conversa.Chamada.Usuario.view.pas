@@ -21,8 +21,11 @@ type
   private
     FChamada: TObject;
     FUsuario: TChamadaDadosUsuario;
+    FImgVideo: TImage;
   public
     constructor Create(AOwner: TComponent; AChamada: TObject; AUsuario: TChamadaDadosUsuario); reintroduce; overload;
+    function VideoTarget: TImage;
+    function UsuarioId: Integer;
   end;
 
 implementation
@@ -46,6 +49,23 @@ begin
   FUsuario := AUsuario;
   txtNome.Text := AUsuario.usuario_nome;
   txtTempoDecorrido.Text := '';
+
+  FImgVideo := TImage.Create(Self);
+  FImgVideo.Parent := Layout1;
+  FImgVideo.Align := TAlignLayout.Client;
+  FImgVideo.WrapMode := TImageWrapMode.Fit;
+  FImgVideo.Visible := False;
+  FImgVideo.SendToBack;
+end;
+
+function TConversaChamadaUsuarioView.VideoTarget: TImage;
+begin
+  Result := FImgVideo;
+end;
+
+function TConversaChamadaUsuarioView.UsuarioId: Integer;
+begin
+  Result := FUsuario.usuario_id;
 end;
 
 procedure TConversaChamadaUsuarioView.tmrTempoDecorridoTimer(Sender: TObject);

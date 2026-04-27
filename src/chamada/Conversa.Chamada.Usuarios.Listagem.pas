@@ -24,6 +24,7 @@ type
   public
     constructor Create(AOwner: TComponent; AChamada: TObject); reintroduce; overload;
     procedure AtualizarListaUsuarios;
+    function ObterItemUsuario(AUsuarioId: Integer): TConversaChamadaUsuariosListItem;
   end;
 
 var
@@ -130,6 +131,22 @@ begin
   end;
   Self.Visible := True;
   Self.Show;
+end;
+
+function TConversaChamadaUsuariosListagem.ObterItemUsuario(AUsuarioId: Integer): TConversaChamadaUsuariosListItem;
+var
+  I: Integer;
+  Item: TListBoxItem;
+begin
+  Result := nil;
+  for I := 0 to Pred(lstContatos.Count) do
+  begin
+    Item := TListBoxItem(lstContatos.ListItems[I]);
+    if not Assigned(Item.Usuario) then
+      Continue;
+    if Item.Usuario.Usuario.usuario_id = AUsuarioId then
+      Exit(Item.Usuario);
+  end;
 end;
 
 { TConversaChamadaUsuariosListagemH }

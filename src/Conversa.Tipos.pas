@@ -15,18 +15,26 @@ uses
 type
   {$SCOPEDENUMS ON}
   TSocketMessageType = (
-    Erro,
-    Login,
-    NovaMensagem = 20,
-    AtualizacaoStatusMensagem = 21,
+    Erro = 0,
+    Login = 1,
+    // ATENCAO: alinhado com backend (src/conversa/WebSocket.pas TSocketMessageType) e web (types/api.ts).
+    // Anteriormente NovaMensagem estava como 20 (divergente); corrigido para 2.
+    NovaMensagem = 2,
+    AtualizacaoStatusMensagem = 3,
+    Digitando = 4,
+    GravandoAudio = 5,
+    ReacaoMensagem = 7,
 
-    ConversaNova = 40, // Nova conversa
+    ConversaNova = 40, // Nova conversa / conversa atualizada
 
-    ChamadaRecebida = 51, // Usuário inicia uma chamada
-    ChamadaFinalizada = 52, // Usuário que criou, cancela a chamada antes mesmo de algum usuário entrar ou finaliza a chamada de modo forçado
+    ChamadaRecebida = 51,
+    ChamadaFinalizada = 52,
     UsuarioRecusou = 53,
     UsuarioEntrou = 54,
-    UsuarioSaiu = 55
+    UsuarioSaiu = 55,
+    VideoAtivado = 56,
+
+    StatusUsuario = 60
   );
 
   TChamadaStatusLocal = (

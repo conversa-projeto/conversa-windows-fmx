@@ -1,0 +1,174 @@
+object FormWhip: TFormWhip
+  Left = 0
+  Top = 0
+  Caption = 'WHIP Transmissor'
+  ClientHeight = 210
+  ClientWidth = 820
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object PnlTop: TPanel
+    Align = Top
+    Size.Width = 820.000000000000000000
+    Size.Height = 100.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    object LblHost: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 35.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Host:'
+    end
+    object EdtHost: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 0
+      Text = 'localhost'
+      Position.X = 46.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 160.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object LblPort: TLabel
+      Position.X = 212.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 38.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Porta:'
+    end
+    object EdtPort: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 1
+      Text = '8889'
+      Position.X = 254.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 70.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object LblPath: TLabel
+      Position.X = 330.000000000000000000
+      Position.Y = 10.000000000000000000
+      Size.Width = 35.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Path:'
+    end
+    object EdtPath: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 2
+      Text = '/live'
+      Position.X = 368.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 140.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object LblUser: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 46.000000000000000000
+      Size.Width = 52.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Usu&#225;rio:'
+    end
+    object EdtUser: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 3
+      Position.X = 64.000000000000000000
+      Position.Y = 44.000000000000000000
+      Size.Width = 120.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object LblPass: TLabel
+      Position.X = 190.000000000000000000
+      Position.Y = 46.000000000000000000
+      Size.Width = 40.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Senha:'
+    end
+    object EdtPass: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 4
+      Password = True
+      Position.X = 234.000000000000000000
+      Position.Y = 44.000000000000000000
+      Size.Width = 120.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object ChkVideo: TCheckBox
+      IsChecked = True
+      Position.X = 364.000000000000000000
+      Position.Y = 46.000000000000000000
+      Size.Width = 70.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 5
+      Text = 'V&#237;deo'
+    end
+    object ChkAudio: TCheckBox
+      IsChecked = True
+      Position.X = 440.000000000000000000
+      Position.Y = 46.000000000000000000
+      Size.Width = 70.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 6
+      Text = '&#193;udio'
+    end
+    object LblFps: TLabel
+      Position.X = 520.000000000000000000
+      Position.Y = 46.000000000000000000
+      Size.Width = 60.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'FPS: --'
+    end
+  end
+  object PnlBottom: TPanel
+    Align = Top
+    Position.Y = 100.000000000000000000
+    Size.Width = 820.000000000000000000
+    Size.Height = 60.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object BtnTransmitir: TButton
+      Position.X = 8.000000000000000000
+      Position.Y = 14.000000000000000000
+      Size.Width = 100.000000000000000000
+      Size.Height = 32.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      Text = 'Transmitir'
+      OnClick = BtnTransmitirClick
+    end
+    object BtnParar: TButton
+      Enabled = False
+      Position.X = 118.000000000000000000
+      Position.Y = 14.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 32.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      Text = 'Parar'
+      OnClick = BtnPararClick
+    end
+    object LblStatus: TLabel
+      Position.X = 210.000000000000000000
+      Position.Y = 20.000000000000000000
+      Size.Width = 400.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Status: Desconectado'
+    end
+  end
+end

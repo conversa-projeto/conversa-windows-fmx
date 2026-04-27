@@ -100,7 +100,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <SanitizedProjectName>Conversa</SanitizedProjectName>
-        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;.\lib\bird-socket-client;.\lib\audio;.\src\sobre;.\src\chamada;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\lib\popupmenu;.\lib\windows;.\lib;.\src\chat\chat;.\src\chat\chat\frames;.\src\chat\chat\skia;.\src\chat\chat\skia\FMX;.\lib\bird-socket-client;.\lib\audio;.\src\sobre;.\src\chamada;.\conversa-webrtc;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <PreBuildEvent><![CDATA[taskkill /f /t /im Conversa.exe
 $(PreBuildEvent)]]></PreBuildEvent>
         <PreBuildEventCancelOnError>false</PreBuildEventCancelOnError>
@@ -359,6 +359,15 @@ $(PreBuildEvent)]]></PreBuildEvent>
             <FormType>fmx</FormType>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="src\chamada\Conversa.Chamada.WebRTC.pas"/>
+        <DCCReference Include="conversa-webrtc\Pion.Whep.Binding.pas"/>
+        <DCCReference Include="conversa-webrtc\FFmpeg.Binding.pas"/>
+        <DCCReference Include="conversa-webrtc\Video.Encoder.pas"/>
+        <DCCReference Include="conversa-webrtc\Video.Decoder.pas"/>
+        <DCCReference Include="conversa-webrtc\Audio.Encoder.pas"/>
+        <DCCReference Include="conversa-webrtc\Audio.Player.pas"/>
+        <DCCReference Include="conversa-webrtc\Screen.Capture.pas"/>
+        <DCCReference Include="conversa-webrtc\Mic.Capture.pas"/>
         <RcItem Include="res\nova_mensagem.wav">
             <ContainerId>ResourceItem</ContainerId>
             <ResourceType>RCDATA</ResourceType>
