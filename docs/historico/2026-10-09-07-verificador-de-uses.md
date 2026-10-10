@@ -4,7 +4,7 @@
 - **Tipo:** ferramenta
 - **Itens:** ADR 0001 (decisão de build); `CLAUDE.md` (regra de revisão sem compilar); FC-950
 - **Branch:** `chamada`
-- **Commits:** — (preencher)
+- **Commits:** `9b796ef` (1ª versão); correção (`.Pas` maiúsculo, `TX` × `TX<T>`) — (preencher)
 
 ## Contexto
 Sem compilação por linha de comando e sem o `DelphiLSP` fora do IDE, o código da nova base vai ser escrito sem compilar. O responsável pediu "sempre revise bem, uses, etc...". O verificador cobre os erros que mais aparecem num build sem teste prévio:
@@ -21,13 +21,15 @@ Sem compilação por linha de comando e sem o `DelphiLSP` fora do IDE, o código
 - `ferramentas/verificar-uses/LEIA.md`: uso, o que confere, limites e a calibração.
 
 ## Como foi verificado
-- **Calibração contra o código do app atual**, que compila no IDE (`src`, `lib`, `conversa-webrtc` e as units da raiz):
+- **Calibração contra o código do app atual**, que compila no IDE (153 arquivos: `src`, `lib`, `conversa-webrtc` e as units da raiz):
   - a 1ª versão apontou 1.963 erros, todos analisados;
-  - cada falso positivo virou uma regra: parâmetro `const` tratado como seção, BOM, `SCOPEDENUMS`, tipos embutidos, `Self` implícito, `with`, rotina local aninhada, `record` aninhado com métodos, tipo com atributo, compilação condicional e nomes curtos de unit.
-- **Sobraram só acertos reais:**
-  - `src/chat/Conversa.Conteudo.pas` (fora do projeto) usa 4 units inexistentes;
-  - `Conversa.Inicializacoes.pas` e `Conversa.Memoria.pas` usam `Conversa.Log`, que não está no repositório.
-- **Avisos:** nomes curtos de unit e objetos do `.fmx` sem campo publicado.
+  - cada falso positivo virou uma regra: parâmetro `const` tratado como seção, BOM, `SCOPEDENUMS`, tipos embutidos, `Self` implícito, `with`, rotina local aninhada, `record` aninhado com métodos, tipo com atributo, compilação condicional, nomes curtos de unit, `TX` × `TX<T>` e a extensão `.Pas` em maiúsculas (o `Conversa.Log.Pas` chegou a ser dado como inexistente).
+- **Sobraram 7 erros, todos acertos reais**, em units que não estão no `Conversa.dproj`:
+  - `src/chat/Conversa.Conteudo.pas`: 4 units inexistentes;
+  - `lib/tcp.pas`: `IPPROTO_IP`/`IP_TOS` sem `Winapi.WinSock`;
+  - `src/chamada/Conversa.Audio.Windows.pas`: `ECaptureDeviceException` com o `FMX.Media` comentado.
+- **Avisos (76):** nomes curtos de unit e objetos do `.fmx` sem campo publicado.
+- **Conferência inversa:** numa unit com 11 erros plantados, todos foram apontados, e o método `abstract` não foi.
 - **Desempenho:** o índice leva ~3 s e fica em cache no `%TEMP%`.
 
 ## Decisões

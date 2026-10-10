@@ -224,6 +224,22 @@ function pularParenteses(tk, i, abre = '(', fecha = ')') {
   return i;
 }
 
+// Em `Nome<...>`, j aponta para `<`: devolve o índice depois do `>` e o número de parâmetros genéricos
+// (restrições como `<T: class, constructor>` não contam como parâmetros).
+function generico(tk, j) {
+  if (!ehP(tk[j], '<')) return { fim: j, sufixo: '' };
+  let n = 0;
+  let emRestricao = false;
+  let k = j + 1;
+  for (; k < tk.length && !ehP(tk[k], '>'); k++) {
+    const t = tk[k];
+    if (ehP(t, ':')) emRestricao = true;
+    else if (ehP(t, ';')) emRestricao = false;
+    else if (t.k === 'i' && !ehPalavra(t) && (ehP(tk[k - 1], '<') || ehP(tk[k - 1], ';') || (ehP(tk[k - 1], ',') && !emRestricao))) n++;
+  }
+  return { fim: k + 1, sufixo: `<${n}>` };
+}
+
 // pula até o `;` no mesmo nível de parênteses/colchetes; devolve o índice do `;`
 function ateFimDeclaracao(tk, i) {
   let d = 0;
@@ -353,9 +369,15 @@ function declaracoes(tk, ini, fim, { coletarMetodos = false, membros = null } = 
         let j = a.lv === 'class' ? i + 2 : i + 1;
         const partes = [];
         while (tk[j] && tk[j].k === 'i') {
-          partes.push(tk[j]);
+          const parte = { ...tk[j] };
           j++;
-          if (ehP(tk[j], '<')) { while (j < tk.length && !ehP(tk[j], '>')) j++; j++; }
+          if (ehP(tk[j], '<')) {
+            const g = generico(tk, j);
+            // só o tipo (antes de um `.`) leva a aridade; o método genérico não
+            if (ehP(tk[g.fim], '.')) { parte.lv += g.sufixo; parte.v += g.sufixo; }
+            j = g.fim;
+          }
+          partes.push(parte);
           if (ehP(tk[j], '.')) { j++; continue; }
           break;
         }
@@ -399,39 +421,41 @@ function declaracoes(tk, ini, fim, { coletarMetodos = false, membros = null } = 
       }
     }
     if (secao === 'type' && a.k === 'i' && !ehPalavra(a)) {
-      // Nome [<T,...>] = ...
-      let j = i + 1;
-      if (ehP(tk[j], '<')) { while (j < tk.length && !ehP(tk[j], '>')) j++; j++; }
+      // Nome [<T,...>] = ...   (genéricos entram no mapa com a aridade: TLista<1>)
+      const g = generico(tk, i + 1);
+      const j = g.fim;
       if (ehP(tk[j], '=')) {
         add(a);
+        const chave = a.lv + g.sufixo;
+        const nomeTipo = a.v + g.sufixo;
         let k = j + 1;
         if (eh(tk[k], 'type')) k++;
         if (eh(tk[k], 'packed')) k++;
         const b = tk[k];
         if (eh(b, 'class') && classeTemCorpo(tk, k)) {
-          const info = { nome: a.v, tipo: 'class', metodos: new Map(), linha: a.l };
-          tipos.set(a.lv, info);
+          const info = { nome: nomeTipo, tipo: 'class', metodos: new Map(), linha: a.l };
+          tipos.set(chave, info);
           let m = k + 1;
           while (eh(tk[m], 'abstract') || eh(tk[m], 'sealed')) m++;
           if (eh(tk[m], 'helper')) m += 3;
           if (ehP(tk[m], '(')) m = pularParenteses(tk, m);
-          i = lerCorpo(m, info, a.v);
+          i = lerCorpo(m, info, nomeTipo);
           continue;
         }
         if (eh(b, 'record') || eh(b, 'object')) {
-          const info = { nome: a.v, tipo: b.lv, metodos: new Map(), linha: a.l };
-          tipos.set(a.lv, info);
+          const info = { nome: nomeTipo, tipo: b.lv, metodos: new Map(), linha: a.l };
+          tipos.set(chave, info);
           let m = k + 1;
           if (eh(tk[m], 'helper')) m += 3;
-          i = lerCorpo(m, info, a.v);
+          i = lerCorpo(m, info, nomeTipo);
           continue;
         }
         if ((eh(b, 'interface') || eh(b, 'dispinterface')) && interfaceTemCorpo(tk, k)) {
-          const info = { nome: a.v, tipo: 'interface', metodos: new Map(), linha: a.l };
-          tipos.set(a.lv, info);
+          const info = { nome: nomeTipo, tipo: 'interface', metodos: new Map(), linha: a.l };
+          tipos.set(chave, info);
           let m = k + 1;
           if (ehP(tk[m], '(')) m = pularParenteses(tk, m);
-          i = lerCorpo(m, info, a.v);
+          i = lerCorpo(m, info, nomeTipo);
           continue;
         }
         if (ehP(b, '(')) {
@@ -520,7 +544,7 @@ function construirIndice() {
   const unidades = new Set();
   const plataformaAlheia = /\.(Android|iOS|Mac|Linux|Posix|OSX|Macapi|Androidapi|iOSapi)\b|^(Androidapi|Macapi|iOSapi|Posix|Linuxapi)\./i;
   for (const arq of arquivos) {
-    const unidade = path.basename(arq, '.pas');
+    const unidade = path.basename(arq).replace(/\.pas$/i, '');
     unidades.add(unidade.toLowerCase());
     if (plataformaAlheia.test(unidade)) continue;
     let texto;
@@ -771,11 +795,11 @@ function main() {
       for (const e of fs.readdirSync(dd, { withFileTypes: true })) {
         const q = path.join(dd, e.name);
         if (e.isDirectory()) { if (!/^(__history|__recovery|__astcache|Win32|Win64|Android64|bin|dcu|.git|node_modules|docs|Serializer)$/i.test(e.name)) andar(q); }
-        else if (/\.pas$/i.test(e.name)) projeto.set(path.basename(e.name, '.pas').toLowerCase(), q);
+        else if (/\.pas$/i.test(e.name)) projeto.set(e.name.replace(/\.pas$/i, '').toLowerCase(), q);
       }
     })(p);
   }
-  for (const a of arquivos) if (/\.pas$/i.test(a)) projeto.set(path.basename(a, '.pas').toLowerCase(), a);
+  for (const a of arquivos) if (/\.pas$/i.test(a)) projeto.set(path.basename(a).replace(/\.pas$/i, '').toLowerCase(), a);
 
   // declarações de nível de unit de cada unit do projeto (para o mesmo teste de uses)
   const analises = new Map();

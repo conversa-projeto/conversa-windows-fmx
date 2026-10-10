@@ -78,15 +78,15 @@
 - [ ] **Teste:** nenhum doc antigo fora de `docs/legado/` (✔ ccc8138); um clone limpo, seguindo o README, sabe como compilar ⛔ depende da nova base (1.1) e do build no IDE
 
 ### 0.7 Protótipo de tempo real (doc 07 §10, D9)
-- [x] Projeto descartável `ferramentas/prototipo-ws` (console Win64): WebSocket do WinHTTP (`WinHttpWebSocketCompleteUpgrade`) ✔ PROTO (PowerShell + C# com as mesmas chamadas do WinHTTP, porque não há compilação Delphi por linha de comando)
-- [x] Conectar em `wss://localhost/ws/` (a CA do mkcert já está no repositório do usuário nesta máquina) ✔ PROTO (101 em 25 ms)
-- [x] Login: `POST https://localhost/api/login` com `teste.android.a` (senha em `../conversa-android-kotlin/docs/desenvolvimento/emulador.md`); logar **só o tamanho** do token ✔ PROTO
-- [x] Enviar `{"tipo":1,"token":"…"}` (`tipo` como número JSON) ✔ PROTO
-- [x] Mandar uma mensagem pelo web (usuário B) e conferir o WS 2 no console ✔ PROTO (B por REST, `PUT /api/mensagem`)
-- [x] Ficar 5 minutos ocioso (*ping*) e conferir que a conexão continua ✔ PROTO (280 s e 325 s; *keepalive* do WinHTTP)
-- [x] `docker restart api` e conferir que o protótipo reconecta com *backoff* ✔ PROTO (erro 12030 em ~1,2 s; 502 do nginx; reconectou em 3,2 s)
-- [x] Anotar: tempo de conexão, comportamento do *ping*, erros; registrar no histórico ✔ PROTO (`ferramentas/prototipo-ws/LEIA.md`; *keepalive* só no *handle* do WebSocket)
-- [x] **Teste:** WS 2 recebido depois de 5 minutos ocioso e depois de reiniciar a API ✔ PROTO
+- [x] Projeto descartável `ferramentas/prototipo-ws` (console Win64): WebSocket do WinHTTP (`WinHttpWebSocketCompleteUpgrade`) ✔ 9b796ef (PowerShell + C# com as mesmas chamadas do WinHTTP, porque não há compilação Delphi por linha de comando)
+- [x] Conectar em `wss://localhost/ws/` (a CA do mkcert já está no repositório do usuário nesta máquina) ✔ 9b796ef (101 em 25 ms)
+- [x] Login: `POST https://localhost/api/login` com `teste.android.a` (senha em `../conversa-android-kotlin/docs/desenvolvimento/emulador.md`); logar **só o tamanho** do token ✔ 9b796ef
+- [x] Enviar `{"tipo":1,"token":"…"}` (`tipo` como número JSON) ✔ 9b796ef
+- [x] Mandar uma mensagem pelo web (usuário B) e conferir o WS 2 no console ✔ 9b796ef (B por REST, `PUT /api/mensagem`)
+- [x] Ficar 5 minutos ocioso (*ping*) e conferir que a conexão continua ✔ 9b796ef (280 s e 325 s; *keepalive* do WinHTTP)
+- [x] `docker restart api` e conferir que o protótipo reconecta com *backoff* ✔ 9b796ef (erro 12030 em ~1,2 s; 502 do nginx; reconectou em 3,2 s)
+- [x] Anotar: tempo de conexão, comportamento do *ping*, erros; registrar no histórico ✔ 9b796ef (`ferramentas/prototipo-ws/LEIA.md`; *keepalive* só no *handle* do WebSocket)
+- [x] **Teste:** WS 2 recebido depois de 5 minutos ocioso e depois de reiniciar a API ✔ 9b796ef
 
 ### 0.8 Protótipo da mídia de chamada (FC-700, ADR 0002)
 - [ ] Combinar com o web uma rota de "chamada embutida" (página só com o módulo de chamada de `src/stores/call.ts`, recebendo token e chamada) ⛔ mudança no `conversa-web`, com aprovação

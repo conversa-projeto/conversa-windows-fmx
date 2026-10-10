@@ -4,7 +4,7 @@
 - **Tipo:** protótipo / decisão técnica
 - **Itens:** `TODO.md` 0.7; doc 07 §10 item 2 e D9; FC-111
 - **Branch:** `chamada`
-- **Commits:** — (preencher)
+- **Commits:** `9b796ef`
 
 ## Contexto
 A decisão D9 (WebSocket do WinHTTP numa thread própria) precisava ser provada antes da Etapa 1. Os pontos em aberto eram: o certificado do mkcert, o login do socket, o comportamento ocioso (o servidor não tem *ping* de aplicação) e a reconexão. Sem compilação Delphi por linha de comando, o protótipo foi feito com **as mesmas funções do WinHTTP** chamadas de C# (PowerShell `Add-Type`).

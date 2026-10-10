@@ -46,9 +46,30 @@ O verificador avalia `{$IFDEF}`/`{$IF}`/`{$ELSE}` como num build **Win64 Debug**
 
 ## Calibração (2026-10-09)
 
-Rodado contra o código do app atual (`src`, `lib`, `conversa-webrtc` e as units da raiz), que compila no IDE. Os 1.963 apontamentos da primeira versão caíram para os acertos reais:
-- `src/chat/Conversa.Conteudo.pas` usa units inexistentes (`Mensagem.Visualizador`, `Mensagem.Editor`, `Mensagem.Tipos`, `Mensagem.Anexo`). É código morto: a unit não está no projeto.
-- `Conversa.Inicializacoes.pas` e `Conversa.Memoria.pas` usam `Conversa.Log`, que não existe no repositório.
-- Avisos de nome curto de unit (DCPcrypt, `MMSystem`, `Skia`) e de objetos do `.fmx` sem campo publicado.
+Rodado contra o código do app atual (153 arquivos: `src`, `lib`, `conversa-webrtc` e as units da raiz), que compila no IDE. Os 1.963 apontamentos da primeira versão caíram para 7, todos acertos reais, todos em units que **não estão no `Conversa.dproj`** (código morto, que não compilaria):
+- `src/chat/Conversa.Conteudo.pas`: usa units inexistentes (`Mensagem.Visualizador`, `Mensagem.Editor`, `Mensagem.Tipos`, `Mensagem.Anexo`);
+- `lib/tcp.pas`: `IPPROTO_IP`/`IP_TOS` sem `Winapi.WinSock` no `uses`;
+- `src/chamada/Conversa.Audio.Windows.pas`: `ECaptureDeviceException` com o `FMX.Media` comentado no `uses`.
 
-Cada falso positivo encontrado na calibração virou uma regra: `SCOPEDENUMS`, tipos embutidos, `Self` implícito, `with`, rotinas locais aninhadas, `record` aninhado, compilação condicional e parâmetros `const` em cabeçalhos.
+Ficaram também 76 avisos: nomes curtos de unit (DCPcrypt, `MMSystem`, `Skia`) e objetos do `.fmx` sem campo publicado.
+
+Cada falso positivo encontrado na calibração virou uma regra:
+- `SCOPEDENUMS`;
+- tipos embutidos;
+- `Self` implícito;
+- `with`;
+- rotinas locais aninhadas;
+- `record` aninhado;
+- tipo genérico com o mesmo nome de um não genérico (`TX` e `TX<T>`);
+- compilação condicional;
+- parâmetros `const` em cabeçalhos;
+- extensão `.Pas` em maiúsculas.
+
+A conferência inversa também passou: numa unit com erros plantados, todos foram apontados. Os erros plantados foram:
+- unit repetida e inexistente;
+- `TStringList`, `TStream` e `Max` sem a unit;
+- método sem implementação e implementação sem declaração;
+- rotina sem corpo;
+- `finally` fora de `try` e `begin` sem `end`.
+
+O método `abstract` não foi apontado, como devia.
