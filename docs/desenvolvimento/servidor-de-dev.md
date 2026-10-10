@@ -43,30 +43,30 @@ O guia completo (inclusive como comandar o web por *scripts* pelo DevTools Proto
 O app atual foi escrito para o servidor Delphi. Para rodá-lo hoje:
 
 1. **Compilar em Win64** no IDE (a plataforma padrão do `.dproj` é Win32, e as DLLs de mídia são x64).
-2. **Montar a pasta `bin/`** (nada disso está no Git):
-   - `pion_whep.dll`: `conversa-webrtc/bin/` (ou compilar: `conversa-webrtc/pion/DOC_COMPILACAO.md`, Go + GCC 64 bits) → copiar para `bin/`;
-   - FFmpeg 8.x *win64 shared* (`avcodec-62`, `avutil-60`, `swresample-6`, `swscale-9`) → `bin/` (**atenção:** o build atual é GPLv3; ver ADR 0002);
-   - `sk4d.dll` **x64**: `C:\Program Files (x86)\Embarcadero\Studio\23.0\bin64\sk4d.dll` (o `bin/sk4d.dll` versionado é x86);
-   - `bin/tema/default.pss` (o app não abre sem ele; o caminho é relativo ao diretório atual).
+2. **Montar a pasta `legado/bin/`** (na branch `legado/abril-2026`, é `bin/`; nada disso está no Git):
+   - `pion_whep.dll`: `legado/conversa-webrtc/bin/` (ou compilar: `legado/conversa-webrtc/pion/DOC_COMPILACAO.md`, Go + GCC 64 bits) → copiar para `legado/bin/`;
+   - FFmpeg 8.x *win64 shared* (`avcodec-62`, `avutil-60`, `swresample-6`, `swscale-9`) → `legado/bin/` (**atenção:** o build atual é GPLv3; ver ADR 0002);
+   - `sk4d.dll` **x64**: `C:\Program Files (x86)\Embarcadero\Studio\23.0\bin64\sk4d.dll` (o `legado/bin/sk4d.dll` versionado é x86);
+   - `legado/bin/tema/default.pss` (o app não abre sem ele; o caminho é relativo ao diretório atual).
 3. **Endereço:** na primeira execução, o campo "Host" deve ser **`https://localhost/api/`** (com `/api/`). O `conversa.json` de desenvolvimento antigo aponta para `https://localhost:4430/api/`, que não existe mais.
 4. **WebSocket:** com `https`, o Indy precisa de `libeay32.dll` e `ssleay32.dll` (OpenSSL 1.0.2 x64) ao lado do exe — **não estão na máquina**. Sem elas, o app abre e faz login, mas fica **sem tempo real**. Alternativa só para teste: o *proxy* sem TLS do Android (`node ../conversa-android-kotlin/ferramentas/proxy-dev.mjs`, porta 8081, repassa `/api/`, `/ws/`, `/storage/` e `/webrtc/`) e o "Host" `http://localhost:8081/api/` — aí o WebSocket vai em `ws://` e não precisa de OpenSSL.
 5. **Chamadas:** não funcionam contra o servidor atual (sem TURN; doc 04 #12) e **transmitem a tela inteira** (doc 04 #1). Não testar chamadas com o app atual em ambiente com dados reais.
 
 ### 5.1 DLLs presentes nesta máquina (conferidas em 2026-10-09)
 
-Nenhuma é versionada, exceto o `bin/sk4d.dll` x86, que já estava no Git. Arquitetura lida do cabeçalho PE; nenhuma foi executada.
+Nenhuma é versionada, exceto o `legado/bin/sk4d.dll` x86, que já estava no Git. Arquitetura lida do cabeçalho PE; nenhuma foi executada.
 
 | Arquivo | Onde | Arq. | Tamanho (bytes) | Versão | SHA-256 |
 |---|---|---|---|---|---|
-| `pion_whep.dll` | `bin/` (cópia de `conversa-webrtc/bin/`) | x64 | 19.480.956 | — | `195c9ce6de36965dde5b1342ba0e6523d68886575dc585267c0bf839c7c7ee6d` |
-| `avcodec-62.dll` | `bin/` | x64 | 97.576.448 | 62.29.101 | `33ba2e735252b5bfcd30e5c2da326cfde78ee86092fdc12d621814c24421c724` |
-| `avutil-60.dll` | `bin/` | x64 | 2.930.688 | 60.29.100 | `b3b174c399856c59ca7354292098bd77842f5fdb643ab0fcd19f2b97053b43ab` |
-| `swresample-6.dll` | `bin/` | x64 | 722.944 | 6.4.100 | `59ed65b2c16fcf2d4b6b851384b79a2c2c55fa0aa51fb723446c4c2a3cdcc882` |
-| `swscale-9.dll` | `bin/` | x64 | 12.537.344 | 9.7.100 | `9cc8a26e3951ba60859ad29455fa7abb3eb624293f369410a8e6a0be63c7b252` |
-| `sk4d.dll` | `bin/` (versionado) | **x86** | 18.961.920 | — | `6fec995537fb76b6da424229394a80bdf6e4d415b76121c372aa4ca4b6643fca` |
+| `pion_whep.dll` | `legado/bin/` (cópia de `legado/conversa-webrtc/bin/`) | x64 | 19.480.956 | — | `195c9ce6de36965dde5b1342ba0e6523d68886575dc585267c0bf839c7c7ee6d` |
+| `avcodec-62.dll` | `legado/bin/` | x64 | 97.576.448 | 62.29.101 | `33ba2e735252b5bfcd30e5c2da326cfde78ee86092fdc12d621814c24421c724` |
+| `avutil-60.dll` | `legado/bin/` | x64 | 2.930.688 | 60.29.100 | `b3b174c399856c59ca7354292098bd77842f5fdb643ab0fcd19f2b97053b43ab` |
+| `swresample-6.dll` | `legado/bin/` | x64 | 722.944 | 6.4.100 | `59ed65b2c16fcf2d4b6b851384b79a2c2c55fa0aa51fb723446c4c2a3cdcc882` |
+| `swscale-9.dll` | `legado/bin/` | x64 | 12.537.344 | 9.7.100 | `9cc8a26e3951ba60859ad29455fa7abb3eb624293f369410a8e6a0be63c7b252` |
+| `sk4d.dll` | `legado/bin/` (versionado) | **x86** | 18.961.920 | — | `6fec995537fb76b6da424229394a80bdf6e4d415b76121c372aa4ca4b6643fca` |
 | `sk4d.dll` | `Studio\23.0\bin64\` | x64 | 19.870.192 | — | `67f7a4e0bcae89dd9f6d8416281f85cc9ddd6a77de83d6cb7100e8ab4ee024e3` |
 
-A `bin/` do legado **não foi montada em Win64** na Etapa 0: o app atual fica congelado (ADR 0001), e o teste dele depende do build no IDE e de clicar na janela (§7).
+A `legado/bin/` **não foi montada em Win64** na Etapa 0: o app atual fica congelado (ADR 0001), e o teste dele depende do build no IDE e de clicar na janela (§7).
 
 ## 6. Compilar
 

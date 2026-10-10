@@ -22,7 +22,7 @@ _(nada ainda — a auditoria foi feita com o servidor em `779c8ed` e o web em `e
 - 2026-10-09 · [Etapa 0 — preservação, `.gitignore` e documentação antiga](2026-10-09-05-etapa-0-repositorio.md) — *staged* commitado (`9678749`); branch `legado/abril-2026`, tag `legado-v1-final`, 27 *stashes* em tags e patches, tag `legado/alteracao-base`; `.gitignore` revisto; docs antigos em `docs/legado/`; README novo; SHA-256 das DLLs
 
 ## Fundação (etapa 1)
-_(nada ainda)_
+- 2026-10-10 · [Branch `nova-base` e o app atual em `legado/`](2026-10-10-01-nova-base-legado.md) — 261 arquivos com `git mv`; restos locais movidos (nada apagado); `.gitignore` com `**/bin/...` para continuar ignorando os dados do app atual
 
 ## Sessão, conversas, contatos e presença (etapa 2)
 _(nada ainda)_

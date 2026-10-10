@@ -4,7 +4,7 @@
 - **Tipo:** ferramenta
 - **Itens:** ADR 0001 (decisão de build); `CLAUDE.md` (regra de revisão sem compilar); FC-950
 - **Branch:** `chamada`
-- **Commits:** `9b796ef` (1ª versão); correção (`.Pas` maiúsculo, `TX` × `TX<T>`) — (preencher)
+- **Commits:** `9b796ef` (1ª versão); correção (`.Pas` maiúsculo, `TX` × `TX<T>`) `320d524`
 
 ## Contexto
 Sem compilação por linha de comando e sem o `DelphiLSP` fora do IDE, o código da nova base vai ser escrito sem compilar. O responsável pediu "sempre revise bem, uses, etc...". O verificador cobre os erros que mais aparecem num build sem teste prévio:

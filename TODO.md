@@ -126,8 +126,8 @@
 > Depende do ADR 0001 aceito (0.1) e de conseguir compilar (0.4). Detalhe de arquitetura no doc 07.
 
 ### 1.1 Projeto (FC-100)
-- [ ] Criar a branch `nova-base` a partir da `chamada` (depois da Etapa 0)
-- [ ] Mover o app atual para `legado/` com `git mv` (fonte, `.fmx`, `lib/`, `src/`, `conversa-webrtc/`, `.dproj`/`.dpr`), fora do build
+- [x] Criar a branch `nova-base` a partir da `chamada` (depois da Etapa 0) ✔ a partir de 320d524
+- [x] Mover o app atual para `legado/` com `git mv` (fonte, `.fmx`, `lib/`, `src/`, `conversa-webrtc/`, `.dproj`/`.dpr`), fora do build ✔ LEGADO (261 arquivos + `bin/`, `res/`, `teste/`)
 - [ ] Criar `app/Conversa.dpr` + `app/Conversa.dproj`: FMX, **só Win64**, Windows 10 1809+
 - [ ] Manifesto próprio: PerMonitorV2, `asInvoker`, `supportedOS` do Windows 10/11, nome e descrição
 - [ ] Saída por `$(Platform)\$(Config)` (`bin\Win64\Debug`, `bin\Win64\Release`), `.dcu` em pasta própria

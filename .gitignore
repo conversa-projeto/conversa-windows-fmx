@@ -47,12 +47,13 @@ Android64/
 Win32/
 Win64/
 __astcache/
-bin/Conversa/
-bin/clipboard/
-bin/dcu/
-bin/dcp/
-bin/Win32/
-bin/Win64/
+**/bin/Conversa/
+**/bin/clipboard/
+**/bin/dcu/
+**/bin/dcp/
+**/bin/bin-2/
+**/bin/Win32/
+**/bin/Win64/
 *.deployproj
 Serializer/
 
@@ -68,7 +69,7 @@ log.txt
 *.delphilsp.json
 
 # Dados do app atual: anexos baixados e configuração (o conversa.json do legado guarda a senha)
-bin/**/anexos/
+**/bin/**/anexos/
 *.json
 *.png
 # ...com exceção do que é documentação, teste ou recurso da nova base
