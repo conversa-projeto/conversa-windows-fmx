@@ -84,7 +84,7 @@ Leitura sugerida: 00 → 04 (sumário e §8) → 06 → 07, consultando 01/03 co
 - **#15 Desktop × celular:** com o app desktop conectado, o servidor **não manda push para nenhum outro aparelho do usuário** (regra do servidor). Corrigir a reconexão sem tratar isso deixa o celular sem push sempre que o PC estiver ligado.
 - **#16 Build não reprodutível:** o `bin/Conversa.exe` é x86 e as DLLs de mídia são x64 (provavelmente nem abre); as DLLs (133 MB) estão fora do Git; o Delphi instalado é Community e **não compila por linha de comando**.
 
-Além disso: quase toda a rede roda **na thread da interface** (a janela congela), erros do servidor são **silenciados**, há **0 testes**, um objeto global concentra cache, regras, rede e diálogos, e o commit mais importante (`4759ba5`, +8.486 linhas) **só existe nesta máquina**.
+Além disso: quase toda a rede roda **na thread da interface** (a janela congela), erros do servidor são **silenciados**, há **0 testes**, um objeto global concentra cache, regras, rede e diálogos, e o commit mais importante (`4759ba5`, +8.486 linhas) passou meses **só nesta máquina** (o responsável o enviou ao `origin/chamada` em 2026-10-08, depois da varredura; os 27 *stashes* continuam só aqui).
 
 ### 4. Decisão recomendada: **recomeçar o núcleo numa nova base Delphi FMX Win64 e transplantar a interface**
 
@@ -111,7 +111,7 @@ Nem remendar o atual, nem descartar o visual (ADR 0001, **proposto**):
 | 2 | **Como compilar e testar:** o Delphi desta máquina é **12.1 Community**, sem compilação por linha de comando (o MSBuild sai com código 0 sem compilar). Sem licença Professional ou superior (ou um fluxo de build pelo IDE combinado), **não consigo compilar nem rodar testes** para executar o `TODO.md` de forma autônoma, como foi feito no Android | Licença com linha de comando; a licença Community também restringe uso comercial (avaliar) |
 | 3 | **Senha:** não guardar (login uma vez por dia até o servidor ter *refresh token*) ou "Manter conectado" com DPAPI | Não guardar; pedir o S13 no servidor |
 | 4 | **Desktop × celular:** fechar o WebSocket ao bloquear a sessão, ao suspender e depois de N minutos ocioso, enquanto o servidor não tem S2/S18 | Sim, N = 10 min configurável |
-| 5 | **Publicar o `4759ba5`** (`git push` da `chamada`) e as branches/tags de preservação | Fazer já |
+| 5 | **Publicar** os commits da auditoria (`git push` da `chamada`) e as branches/tags de preservação (o `4759ba5` já foi enviado em 2026-10-08) | Fazer já |
 | 6 | **Pilha de mídia** (ADR 0002): autorizar o protótipo da opção A (precisa de uma rota de "chamada embutida" no `conversa-web`) | Autorizar |
 | 7 | **Abrir as pendências no servidor** (S2/S18, S13, S4, S20…) e no web (W1, a pesquisa com `v-html` sem escapar) | Abrir |
 | 8 | Fonte proprietário da Embarcadero no histórico público (`FMX.Platform.Win.pas`, 2024) | Decidir se reescreve o histórico |

@@ -29,7 +29,7 @@
   - Guardar o commit exclusivo da `alteracao-base` numa tag (`legado/alteracao-base`).
   - **CP:** `git status` limpo; 27 tags `legado/stash-*`; patches conferidos (sem segredos).
 - [ ] **FC-003 · P0 · Publicar o que só existe nesta máquina** (#93).
-  - `git push` da `chamada` (o `4759ba5`, +8.486 linhas, nunca foi enviado), da `legado/abril-2026` e das tags.
+  - `git push` da `chamada` (o `4759ba5`, +8.486 linhas, já foi enviado em 2026-10-08; faltam os commits da auditoria e o do *staged*), da `legado/abril-2026` e das tags.
   - **CP:** branch e tags no `origin`. ⛔ O push é feito pelo responsável.
 - [ ] **FC-004 · P0 · `.gitignore`** (#93).
   - Acrescentar: `*.dll` (com exceção explícita para o que for decidido versionar), `bin/Conversa/`, `bin/clipboard/`, `bin/dcu/`, `bin/dcp/`, `Android64/`, `Win32/`, `Win64/`, `__astcache/`, `*.log`, `log.txt`, `.claude/`, `*.deployproj`, `Serializer/`.

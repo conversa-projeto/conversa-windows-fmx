@@ -11,6 +11,7 @@
 - 2026-10-08 · [Auditoria inicial do cliente Windows contra o servidor e o web](2026-10-08-01-auditoria-inicial.md) — docs 00–08 + relatórios de apoio; 137 funcionalidades (1 íntegra), 103 problemas (16 críticos), Q1–Q14, S17–S24 novos; recomendação de nova base FMX Win64 (ADR 0001 e 0002 propostos)
 - 2026-10-09 · [TODO literal por etapas](2026-10-09-01-todo-detalhado.md) — `TODO.md` com 539 passos em 10 etapas + qualidade + remendos opcionais; 14 itens bloqueados com o motivo
 - 2026-10-09 · [Criação do histórico de alterações e do CLAUDE.md](2026-10-09-02-historico-e-claude-md.md) — `docs/historico/` por fluxo + regra obrigatória no `CLAUDE.md`
+- 2026-10-09 · [Commit da auditoria e correção do estado do `4759ba5`](2026-10-09-03-commit-da-auditoria.md) — docs commitados em `6d53c23` sem tocar no *staged*; o `4759ba5` já estava no `origin` (push do responsável em 2026-10-08), docs 00/04/06 e TODO corrigidos
 
 ## Sincronização com servidor e web
 _(nada ainda — a auditoria foi feita com o servidor em `779c8ed` e o web em `e8d82cb`)_

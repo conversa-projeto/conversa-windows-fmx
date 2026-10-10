@@ -44,7 +44,7 @@
 - [ ] **Teste:** 27 patches na pasta, 27 tags `legado/stash-*`, tag `legado/alteracao-base`, `git status` sem nada *staged*
 
 ### 0.3 Publicar (FC-003)
-- [ ] Enviar `chamada` (inclui o `4759ba5`, +8.486 linhas, que **só existe nesta máquina**, e os commits da auditoria a partir do `6d53c23`), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base` e as tags dos *stashes* ⛔ o push é feito pelo responsável:
+- [ ] Enviar `chamada` (o `4759ba5` já foi enviado em 2026-10-08; faltam os commits da auditoria a partir do `6d53c23` e o commit do *staged* da 0.2), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base` e as tags dos *stashes* ⛔ o push é feito pelo responsável:
   `git push origin chamada legado/abril-2026 legado-v1-final legado/alteracao-base` e `git push origin "refs/tags/legado/stash-*"`
 - [ ] Decidir se a `main` avança para a `chamada` (o branch padrão do GitHub está 14 meses atrás) ⛔ decisão do responsável
 - [ ] **Teste:** branch e tags aparecem no GitHub

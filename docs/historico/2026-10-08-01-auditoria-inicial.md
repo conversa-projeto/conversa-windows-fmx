@@ -57,7 +57,7 @@ O responsável pediu para o FMX o mesmo processo feito no Android em 2026-10-06 
 - **Servidor:** com o desktop conectado, o push de todos os aparelhos do usuário é suprimido (S2/S18).
 - **Origem do contrato do FMX** (doc 02 §1.1): o FMX usa o contrato da árvore antiga do servidor (`rest/conversa.rest.dpr`), substituída em `61b7dbe` (2026-03-01) e apagada em `eb59c61` (2026-03-13); por isso várias quebras já existiam em abril (Q1–Q5, Q8, Q13, Q14 são [ABRIL]). A Q9 é mista: a URL do HEAD já não funcionava em abril, e o `wss` obrigatório é novo.
 - **Correção feita na consolidação:** a hipótese de `ERangeError` com os tipos 5–8 no build Debug (relatórios A2/A5b) foi descartada (o `{$R+}` não confere *casts* explícitos para enum); o efeito é só a bolha vazia (doc 04 #22).
-- **Repositório:** o commit `4759ba5` (+8.486 linhas) só existe nesta máquina; 27 *stashes*; `main` 23 commits atrás.
+- **Repositório:** o commit `4759ba5` (+8.486 linhas) só existia nesta máquina (enviado pelo responsável em 2026-10-08 23:58, depois da varredura; ver 2026-10-09-03); 27 *stashes*; `main` 23 commits atrás.
 
 ## Pendências / próximos passos
 - Decisões do responsável (`00-LEIAME.md` §5): ADR 0001, build/licença, senha, desktop × celular, push, protótipo de mídia, *issues* no servidor e no web, histórico com o fonte da Embarcadero.
