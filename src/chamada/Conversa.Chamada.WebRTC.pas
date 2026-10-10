@@ -12,19 +12,21 @@ Arquitetura em mesh, compativel com MediaMTX:
 Encoders em tempo real (H264 + Opus) via FFmpeg — ver arquivos adaptados do exemplo em
   conversa-windows-fmx/conversa-webrtc/.
 
-Arquivos que DEVEM ser copiados do exemplo para o projeto antes de usar:
+Stack WebRTC (JA presente em conversa-windows-fmx/conversa-webrtc/ e incluida no Conversa.dproj —
+nao e mais necessario "copiar"):
   - Pion.Whep.Binding.pas   (cdecl bindings do pion_whep.dll)
   - FFmpeg.Binding.pas      (bindings FFmpeg)
   - Video.Decoder.pas       (H264 -> BGRA)
   - Video.Encoder.pas       (BGRA -> H264 Annex-B)
   - Audio.Encoder.pas       (PCM -> Opus)
   - Audio.Player.pas        (Opus -> PCM + WASAPI)
-  - Screen.Capture.pas      (OU Camera.Capture.pas no futuro)
+  - Screen.Capture.pas      (captura de TELA; webcam ainda NAO implementada)
   - Mic.Capture.pas         (waveIn)
   - bin/*.dll               (pion_whep.dll + FFmpeg dlls)
 
-Eventos WS 51-56 continuam sendo tratados pela camada de Conversa.Eventos.pas; esta
-unit se limita a orquestrar WHIP/WHEP em resposta aos eventos.
+Eventos WS de chamada 51-55 sao tratados por Conversa.Chamada.pas (ProcessarSocket), que aciona
+esta unit para orquestrar WHIP/WHEP. ATENCAO: VideoAtivado(56) ainda NAO tem handler (nem aqui
+nem em Conversa.Dados.NotificacaoSocket) — o upgrade audio->video por evento remoto esta pendente.
 
 Autor: Migracao automatica 2026-04-21
 ----------------------------------------------------------------------------------------------------------------------*)

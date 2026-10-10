@@ -425,10 +425,16 @@ begin
   if Assigned(FBirdSocket) then
     Exit;
 
-  // Inicia WebSocket
+  // Inicia WebSocket pelo MESMO host/porta do proxy usado no REST (como o cliente web:
+  // wss://host/ws/), em vez de ws://host:9090 direto. Requer que Configuracoes.Host aponte
+  // para o proxy (ex.: https://host:4430/api). Caveat: cert self-signed pode exigir confiança
+  // no cliente TLS (TBirdSocketClient/Indy) em ambiente de dev.
   URI := TURI.Create(Configuracoes.Host);
-  URI.Scheme := 'ws';
-  URI.Port := 8000 + URI.Port;
+  if SameText(URI.Scheme, 'https') then
+    URI.Scheme := 'wss'
+  else
+    URI.Scheme := 'ws';
+  URI.Path := '/ws/';
   FBirdSocket := TBirdSocketClient.New(URI.ToString);
   FBirdSocket.AddEventListener(TEventType.MESSAGE, NotificacaoSocket);
   FBirdSocket.Connect;
