@@ -39,7 +39,42 @@ __recovery/
 
 # Castalia statistics file (since XE7 Castalia is distributed with Delphi)
 *.stat
-anexos
+
+### Conversa (revisado em 2026-10-09, Etapa 0.5 do TODO) ###
+
+# Saídas de build e pastas geradas pelo IDE
+Android64/
+Win32/
+Win64/
+__astcache/
+bin/Conversa/
+bin/clipboard/
+bin/dcu/
+bin/dcp/
+bin/Win32/
+bin/Win64/
+*.deployproj
+Serializer/
+
+# Bibliotecas nativas: obtidas com versão e hash (docs/desenvolvimento/servidor-de-dev.md §5).
+# O bin/sk4d.dll já versionado continua versionado (regra só afeta arquivos novos).
+*.dll
+
+# Logs e arquivos locais de ferramentas
+*.log
+log.txt
+.claude/
+.vscode/
+*.delphilsp.json
+
+# Dados do app atual: anexos baixados e configuração (o conversa.json do legado guarda a senha)
+bin/**/anexos/
 *.json
 *.png
-bin/log.txt
+# ...com exceção do que é documentação, teste ou recurso da nova base
+!docs/**/*.json
+!docs/**/*.png
+!testes/fixtures/**/*.json
+!ui/recursos/**
+!app/recursos/**
+!ferramentas/**/*.json

@@ -1,0 +1,349 @@
+diff --git a/Conversa.dproj b/Conversa.dproj
+index 13b5552..235c3a6 100644
+--- a/Conversa.dproj
++++ b/Conversa.dproj
+@@ -23,6 +23,26 @@
+         <CfgParent>Base</CfgParent>
+         <Base>true</Base>
+     </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Base)'=='true') or '$(Base_iOSDevice64)'!=''">
++        <Base_iOSDevice64>true</Base_iOSDevice64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Base)'=='true') or '$(Base_iOSSimARM64)'!=''">
++        <Base_iOSSimARM64>true</Base_iOSSimARM64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='OSX64' and '$(Base)'=='true') or '$(Base_OSX64)'!=''">
++        <Base_OSX64>true</Base_OSX64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='OSXARM64' and '$(Base)'=='true') or '$(Base_OSXARM64)'!=''">
++        <Base_OSXARM64>true</Base_OSXARM64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
+     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+         <Base_Win32>true</Base_Win32>
+         <CfgParent>Base</CfgParent>
+@@ -153,6 +173,68 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <VerInfo_Build>1</VerInfo_Build>
+         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_iOSDevice64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
++        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
++        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
++        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
++        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
++        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
++        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
++        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
++        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
++        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
++        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
++        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
++        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
++        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
++        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
++        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
++        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
++        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
++        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
++        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
++        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
++        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_iOSSimARM64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
++        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
++        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
++        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
++        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
++        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
++        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
++        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
++        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
++        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
++        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
++        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
++        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
++        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
++        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
++        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
++        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
++        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
++        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
++        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
++        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_OSX64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false</VerInfo_Keys>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_OSXARM64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false</VerInfo_Keys>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FmxTeeUI;FireDACCommon;HGMComponents;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;Tee;RESTComponents;DBXSqliteDriver;vcl;vclactnband;TeeUI;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;dsnapcon;soapmidas;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;TMSWEBCorePkgLibDXE14;dbrtl;bindcompvcl;dsnap;fmxdae;TeeDB;TMSWEBCorePkgDXE14;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;FMXTee;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+@@ -1276,6 +1358,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
+             <Platforms>
+                 <Platform value="Android">True</Platform>
+                 <Platform value="Android64">True</Platform>
++                <Platform value="iOSDevice64">False</Platform>
++                <Platform value="iOSSimARM64">False</Platform>
++                <Platform value="OSX64">False</Platform>
++                <Platform value="OSXARM64">False</Platform>
+                 <Platform value="Win32">True</Platform>
+                 <Platform value="Win64">True</Platform>
+             </Platforms>
+@@ -1301,6 +1387,38 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <PostBuildEvent/>
+         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='iOSDevice64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='iOSSimARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='OSX64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='OSXARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
+         <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
+         <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
+@@ -1333,6 +1451,38 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <PostBuildEvent/>
+         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='iOSDevice64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='iOSSimARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='OSX64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='OSXARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
+         <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
+         <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
+diff --git a/src/notificacao/Conversa.Notificacao.Item.fmx b/src/notificacao/Conversa.Notificacao.Item.fmx
+index 59283b1..38b2036 100644
+--- a/src/notificacao/Conversa.Notificacao.Item.fmx
++++ b/src/notificacao/Conversa.Notificacao.Item.fmx
+@@ -1,7 +1,7 @@
+ object NotificacaoItem: TNotificacaoItem
+   Margins.Bottom = 5.000000000000000000
+   Size.Width = 300.000000000000000000
+-  Size.Height = 150.000000000000000000
++  Size.Height = 80.000000000000000000
+   Size.PlatformDefault = False
+   object rctFundo: TRectangle
+     Align = Client
+@@ -11,7 +11,7 @@ object NotificacaoItem: TNotificacaoItem
+     Padding.Right = 5.000000000000000000
+     Padding.Bottom = 5.000000000000000000
+     Size.Width = 300.000000000000000000
+-    Size.Height = 150.000000000000000000
++    Size.Height = 80.000000000000000000
+     Size.PlatformDefault = False
+     Stroke.Kind = None
+     XRadius = 5.000000000000000000
+@@ -86,13 +86,13 @@ object NotificacaoItem: TNotificacaoItem
+     object lytCentro: TLayout
+       Align = Client
+       Size.Width = 290.000000000000000000
+-      Size.Height = 120.000000000000000000
++      Size.Height = 50.000000000000000000
+       Size.PlatformDefault = False
+       TabOrder = 2
+       object lytFoto: TLayout
+         Align = Left
+         Size.Width = 50.000000000000000000
+-        Size.Height = 120.000000000000000000
++        Size.Height = 50.000000000000000000
+         Size.PlatformDefault = False
+         TabOrder = 0
+         object crclFoto: TCircle
+@@ -100,7 +100,7 @@ object NotificacaoItem: TNotificacaoItem
+           Fill.Color = xFF1B8DFF
+           HitTest = False
+           Size.Width = 50.000000000000000000
+-          Size.Height = 120.000000000000000000
++          Size.Height = 50.000000000000000000
+           Size.PlatformDefault = False
+           Stroke.Kind = None
+           object txtUserLetra: TText
+@@ -122,14 +122,14 @@ object NotificacaoItem: TNotificacaoItem
+         Align = Client
+         Margins.Left = 8.000000000000000000
+         Size.Width = 232.000000000000000000
+-        Size.Height = 120.000000000000000000
++        Size.Height = 50.000000000000000000
+         Size.PlatformDefault = False
+         TabOrder = 1
+         object pbTexto: TPaintBox
+           Align = Client
+           HitTest = False
+           Size.Width = 232.000000000000000000
+-          Size.Height = 88.078125000000000000
++          Size.Height = 18.078125000000000000
+           Size.PlatformDefault = False
+           OnPaint = pbTextoPaint
+         end
+@@ -147,7 +147,7 @@ object NotificacaoItem: TNotificacaoItem
+         object txtHora: TText
+           Align = Bottom
+           HitTest = False
+-          Position.Y = 104.039062500000000000
++          Position.Y = 34.039062500000000000
+           Size.Width = 232.000000000000000000
+           Size.Height = 15.960937500000000000
+           Size.PlatformDefault = False
+diff --git a/src/notificacao/Conversa.Notificacao.Item.pas b/src/notificacao/Conversa.Notificacao.Item.pas
+index c0dcf59..30a0d2c 100644
+--- a/src/notificacao/Conversa.Notificacao.Item.pas
++++ b/src/notificacao/Conversa.Notificacao.Item.pas
+@@ -46,12 +46,13 @@ type
+     procedure FloatAnimationFinish(Sender: TObject);
+     procedure rctFundoClick(Sender: TObject);
+   private
++    FAtualizar: TProc;
+     FChatId: Integer;
+     FConteudos: TArray<TMensagemNotificacao>;
+     procedure RegistrarEvento;
+     procedure StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
+   public
+-    class function New(AOwner: TFmxObject): TNotificacaoItem;
++    class function New(AOwner: TFmxObject; Atualizar: TProc): TNotificacaoItem;
+     destructor Destroy; override;
+     procedure AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
+     procedure AtualizarAltura(iTexto: Single);
+@@ -70,10 +71,11 @@ uses
+ 
+ { TNotificacao }
+ 
+-class function TNotificacaoItem.New(AOwner: TFmxObject): TNotificacaoItem;
++class function TNotificacaoItem.New(AOwner: TFmxObject; Atualizar: TProc): TNotificacaoItem;
+ begin
+   Sleep(1);
+   Result := TNotificacaoItem.Create(AOwner);
++  Result.FAtualizar := Atualizar;
+   Result.Name := 'TNotificacaoItem_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
+   Result.Parent := AOwner;
+   Result.Align := TAlignLayout.Top;
+@@ -159,7 +161,6 @@ begin
+       Layout.VerticalAlign := TTextAlign.Leading;
+     finally
+       Layout.EndUpdate;
+-      Layout.TextHeight
+     end;
+     pbTexto.Canvas.BeginScene;
+     try
+@@ -167,6 +168,7 @@ begin
+     finally
+       pbTexto.Canvas.EndScene;
+     end;
++      AtualizarAltura(Layout.TextHeight);
+   finally
+     Layout.Free;
+   end;
+@@ -233,6 +235,9 @@ begin
+   iNova := Min(lytTopo.Height + txtNome.Height + txtHora.Height + iTexto, 200);
+   if Self.Height <> iNova then
+     Self.Height := iNova;
++
++  if Assigned(FAtualizar) then
++    FAtualizar();
+ end;
+ 
+ end.
+diff --git a/src/notificacao/Conversa.Notificacao.pas b/src/notificacao/Conversa.Notificacao.pas
+index c0cf319..0e7b1a9 100644
+--- a/src/notificacao/Conversa.Notificacao.pas
++++ b/src/notificacao/Conversa.Notificacao.pas
+@@ -46,7 +46,6 @@ type
+     FVisualizador: TFmxObject;
+     FNotificacoes: TList<TNotificacao>;
+     constructor Create;
+-    procedure AtualizarVisualizador;
+     function InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
+     function InternalFechar(ChatId: Integer): TNotificacaoManager;
+   public
+@@ -56,6 +55,7 @@ type
+     class function Fechar(ChatId: Integer): TNotificacaoManager;
+     function Count: Integer;
+     class procedure Finalizar;
++    procedure AtualizarVisualizador;
+   end;
+ implementation
+ uses
+@@ -129,7 +129,7 @@ begin
+     end;
+   end;
+ 
+-  ANotificacao.FView := TNotificacaoItem.New(Visualizador);
++  ANotificacao.FView := TNotificacaoItem.New(Visualizador, AtualizarVisualizador);
+   with TNotificacaoItem(ANotificacao.FView) do
+   begin
+     txtNome.Text := ANotificacao.FNome;

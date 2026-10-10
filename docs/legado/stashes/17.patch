@@ -1,0 +1,328 @@
+diff --git a/Conversa.Dados.pas b/Conversa.Dados.pas
+index 9fdb87e..3564cfd 100644
+--- a/Conversa.Dados.pas
++++ b/Conversa.Dados.pas
+@@ -62,7 +62,8 @@ uses
+   System.IOUtils,
+   System.DateUtils,
+   System.Hash,
+-  Conversa.Configuracoes;
++  Conversa.Configuracoes,
++  Notificacao;
+ 
+ const
+   PASTA_ANEXO = 'anexos';
+@@ -126,13 +127,15 @@ end;
+ 
+ function TDados.Mensagens(iConversa: Integer): TArray<TMensagem>;
+ var
++  UltimaID: Integer;
+   Mensagem: TMensagem;
+   MensagemConteudo: TMensagemConteudo;
+ begin
++  UltimaID := FDadosApp.UltimaMensagem(iConversa);
+   with TAPIConversa.Create do
+   try
+     Route('mensagens');
+-    Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagem(iConversa)));
++    Query(TJSONObject.Create.AddPair('ultima', UltimaID));
+     Query(TJSONObject.Create.AddPair('conversa', iConversa));
+     GET;
+ 
+@@ -170,6 +173,17 @@ begin
+ 
+       Result := Result + [Mensagem];
+     end;
++
++    if (UltimaID <> 0) and (Length(Result) > 0) then
++    begin
++      TNotificacaoManager.Apresentar(
++        TNotificacao.New
++          .ChatId(iConversa)
++          .Nome(Fnome)
++          .Hora(Now)
++          .Conteudo([TMensagemNotificacao.New.Mensagem(Mensagem.conteudos[0].conteudo)])
++      );
++    end;
+   finally
+     Free;
+   end;
+diff --git a/Conversa.Memoria.pas b/Conversa.Memoria.pas
+index 48fcdb9..edb08ef 100644
+--- a/Conversa.Memoria.pas
++++ b/Conversa.Memoria.pas
+@@ -26,6 +26,7 @@ type
+     function ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
+   public
+     Conversas: TArray<TDadosConversa>;
++    function Conversa(iConversa: Integer): TPDadosConversa;
+     function UltimaMensagem: Integer; overload;
+     function UltimaMensagem(iConversa: Integer): Integer; overload;
+     procedure AdicionaMensagem(iConversa, iMensagem: Integer);
+@@ -38,6 +39,19 @@ uses
+ 
+ { TDadosApp }
+ 
++function TDadosApp.Conversa(iConversa: Integer): TPDadosConversa;
++var
++  Conversa: TDadosConversa;
++begin
++  if ObtemConversa(iConversa, Result) then
++    Exit;
++
++  Conversa := Default(TDadosConversa);
++  Conversa.ID := iConversa;
++  Conversas := Conversas + [Conversa];
++  Result := @Conversa;
++end;
++
+ function TDadosApp.ObtemConversa(const iConversa: Integer; var Conversa: TPDadosConversa): Boolean;
+ var
+   I: Integer;
+diff --git a/Conversa.dproj b/Conversa.dproj
+index 33a0ce5..6f6d962 100644
+--- a/Conversa.dproj
++++ b/Conversa.dproj
+@@ -23,6 +23,26 @@
+         <CfgParent>Base</CfgParent>
+         <Base>true</Base>
+     </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='iOSDevice64' and '$(Base)'=='true') or '$(Base_iOSDevice64)'!=''">
++        <Base_iOSDevice64>true</Base_iOSDevice64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='iOSSimARM64' and '$(Base)'=='true') or '$(Base_iOSSimARM64)'!=''">
++        <Base_iOSSimARM64>true</Base_iOSSimARM64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='OSX64' and '$(Base)'=='true') or '$(Base_OSX64)'!=''">
++        <Base_OSX64>true</Base_OSX64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
++    <PropertyGroup Condition="('$(Platform)'=='OSXARM64' and '$(Base)'=='true') or '$(Base_OSXARM64)'!=''">
++        <Base_OSXARM64>true</Base_OSXARM64>
++        <CfgParent>Base</CfgParent>
++        <Base>true</Base>
++    </PropertyGroup>
+     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+         <Base_Win32>true</Base_Win32>
+         <CfgParent>Base</CfgParent>
+@@ -153,6 +173,68 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <VerInfo_Build>1</VerInfo_Build>
+         <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_iOSDevice64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
++        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_BundleId>$(MSBuildProjectName)</VerInfo_BundleId>
++        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
++        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
++        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
++        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
++        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
++        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
++        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
++        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
++        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
++        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
++        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
++        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
++        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
++        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
++        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
++        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
++        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
++        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
++        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
++        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_iOSSimARM64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDevelopmentRegion=en;CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleInfoDictionaryVersion=7.1;CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;LSRequiresIPhoneOS=true;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);UIDeviceFamily=iPhone &amp; iPad;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user;NSLocationAlwaysAndWhenInUseUsageDescription=The reason for accessing the location information of the user;UIBackgroundModes=;NSContactsUsageDescription=The reason for accessing the contacts;NSPhotoLibraryUsageDescription=The reason for accessing the photo library;NSPhotoLibraryAddUsageDescription=The reason for adding to the photo library;NSCameraUsageDescription=The reason for accessing the camera;NSFaceIDUsageDescription=The reason for accessing the face id;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSSiriUsageDescription=The reason for accessing Siri;ITSAppUsesNonExemptEncryption=false;NSBluetoothAlwaysUsageDescription=The reason for accessing bluetooth;NSBluetoothPeripheralUsageDescription=The reason for accessing bluetooth peripherals;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSMotionUsageDescription=The reason for accessing the accelerometer;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers</VerInfo_Keys>
++        <VerInfo_UIDeviceFamily>iPhoneAndiPad</VerInfo_UIDeviceFamily>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++        <iOS_AppStore1024>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_1024x1024.png</iOS_AppStore1024>
++        <iPhone_AppIcon120>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_120x120.png</iPhone_AppIcon120>
++        <iPhone_AppIcon180>$(BDS)\bin\Artwork\iOS\iPhone\FM_ApplicationIcon_180x180.png</iPhone_AppIcon180>
++        <iPhone_Launch2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_2x.png</iPhone_Launch2x>
++        <iPhone_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_2x.png</iPhone_LaunchDark2x>
++        <iPhone_Launch3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImage_3x.png</iPhone_Launch3x>
++        <iPhone_LaunchDark3x>$(BDS)\bin\Artwork\iOS\iPhone\FM_LaunchImageDark_3x.png</iPhone_LaunchDark3x>
++        <iPhone_Spotlight80>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_80x80.png</iPhone_Spotlight80>
++        <iPhone_Spotlight120>$(BDS)\bin\Artwork\iOS\iPhone\FM_SpotlightSearchIcon_120x120.png</iPhone_Spotlight120>
++        <iPhone_Setting58>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_58x58.png</iPhone_Setting58>
++        <iPhone_Setting87>$(BDS)\bin\Artwork\iOS\iPhone\FM_SettingIcon_87x87.png</iPhone_Setting87>
++        <iPhone_Notification40>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_40x40.png</iPhone_Notification40>
++        <iPhone_Notification60>$(BDS)\bin\Artwork\iOS\iPhone\FM_NotificationIcon_60x60.png</iPhone_Notification60>
++        <iPad_AppIcon152>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_152x152.png</iPad_AppIcon152>
++        <iPad_AppIcon167>$(BDS)\bin\Artwork\iOS\iPad\FM_ApplicationIcon_167x167.png</iPad_AppIcon167>
++        <iPad_Launch2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImage_2x.png</iPad_Launch2x>
++        <iPad_LaunchDark2x>$(BDS)\bin\Artwork\iOS\iPad\FM_LaunchImageDark_2x.png</iPad_LaunchDark2x>
++        <iPad_SpotLight80>$(BDS)\bin\Artwork\iOS\iPad\FM_SpotlightSearchIcon_80x80.png</iPad_SpotLight80>
++        <iPad_Setting58>$(BDS)\bin\Artwork\iOS\iPad\FM_SettingIcon_58x58.png</iPad_Setting58>
++        <iPad_Notification40>$(BDS)\bin\Artwork\iOS\iPad\FM_NotificationIcon_40x40.png</iPad_Notification40>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_OSX64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false</VerInfo_Keys>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Base_OSXARM64)'!=''">
++        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=1.0.0;CFBundleShortVersionString=1.0.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationUsageDescription=The reason for accessing the location information of the user;NSContactsUsageDescription=The reason for accessing the contacts;NSCalendarsUsageDescription=The reason for accessing the calendar data;NSRemindersUsageDescription=The reason for accessing the reminders;NSCameraUsageDescription=The reason for accessing the camera;NSMicrophoneUsageDescription=The reason for accessing the microphone;NSMotionUsageDescription=The reason for accessing the accelerometer;NSDesktopFolderUsageDescription=The reason for accessing the Desktop folder;NSDocumentsFolderUsageDescription=The reason for accessing the Documents folder;NSDownloadsFolderUsageDescription=The reason for accessing the Downloads folder;NSNetworkVolumesUsageDescription=The reason for accessing files on a network volume;NSRemovableVolumesUsageDescription=The reason for accessing files on a removable volume;NSSpeechRecognitionUsageDescription=The reason for requesting to send user data to Apple&apos;s speech recognition servers;ITSAppUsesNonExemptEncryption=false</VerInfo_Keys>
++        <BT_BuildType>Debug</BT_BuildType>
++        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+         <DCC_UsePackage>soapserver;IndySystem;vclwinx;fmx;vclie;DbxCommonDriver;bindengine;vcldb;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;vclFireDAC;bindcompvclwinx;bindcomp;FmxTeeUI;FireDACCommon;HGMComponents;IndyCore;RESTBackendComponents;bindcompfmx;bindcompdbx;inetdb;rtl;FireDACMySQLDriver;FireDACSqliteDriver;DbxClientDriver;FireDACADSDriver;Tee;RESTComponents;DBXSqliteDriver;vcl;vclactnband;TeeUI;IndyIPServer;fmxFireDAC;dbexpress;dsnapxml;dsnapcon;soapmidas;adortl;DBXMySQLDriver;VclSmp;inet;vclimg;vcltouch;FireDACPgDriver;FireDAC;fmxase;inetdbxpress;xmlrtl;tethering;TMSWEBCorePkgLibDXE14;dbrtl;bindcompvcl;dsnap;fmxdae;TeeDB;TMSWEBCorePkgDXE14;CloudService;FireDACMSAccDriver;CustomIPTransport;fmxobj;bindcompvclsmp;FMXTee;soaprtl;vcldsnap;DBXInterBaseDriver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+@@ -293,10 +375,21 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <DCCReference Include="Conversa.WMI.pas"/>
+         <DCCReference Include="src\conexao\Conversa.Conexao.AvisoInicioSistema.pas">
+             <Form>ConexaoFalhaInicio</Form>
++            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <DCCReference Include="Conversa.Memoria.pas"/>
+         <DCCReference Include="Conversa.Audio.pas"/>
++        <DCCReference Include="src\notificacao\Notificacao.Item.pas">
++            <Form>NotificacaoItem</Form>
++            <FormType>fmx</FormType>
++            <DesignClass>TFrame</DesignClass>
++        </DCCReference>
++        <DCCReference Include="src\notificacao\Notificacao.pas"/>
++        <DCCReference Include="src\notificacao\Notificacao.Visualizador.pas">
++            <Form>NotificacaoVisualizador</Form>
++            <FormType>fmx</FormType>
++        </DCCReference>
+         <RcItem Include="res\nova_mensagem.wav">
+             <ContainerId>ResourceItem</ContainerId>
+             <ResourceType>RCDATA</ResourceType>
+@@ -1181,6 +1274,10 @@ $(PreBuildEvent)]]></PreBuildEvent>
+             <Platforms>
+                 <Platform value="Android">True</Platform>
+                 <Platform value="Android64">True</Platform>
++                <Platform value="iOSDevice64">False</Platform>
++                <Platform value="iOSSimARM64">False</Platform>
++                <Platform value="OSX64">False</Platform>
++                <Platform value="OSXARM64">False</Platform>
+                 <Platform value="Win32">True</Platform>
+                 <Platform value="Win64">True</Platform>
+             </Platforms>
+@@ -1206,6 +1303,38 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <PostBuildEvent/>
+         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='iOSDevice64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='iOSSimARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='OSX64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='OSXARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
+         <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
+         <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
+@@ -1238,6 +1367,38 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <PostBuildEvent/>
+         <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+     </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='iOSDevice64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='iOSSimARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='OSX64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
++    <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='OSXARM64'">
++        <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
++        <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
++        <PreLinkEvent/>
++        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
++        <PostBuildEvent/>
++        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
++    </PropertyGroup>
+     <PropertyGroup Condition="'$(Config)'=='Release' And '$(Platform)'=='Win32'">
+         <PreBuildEvent>taskkill /f /t /im Conversa.exe</PreBuildEvent>
+         <PreBuildEventIgnoreExitCode>True</PreBuildEventIgnoreExitCode>
+diff --git a/bin/tema/default.pss b/bin/tema/default.pss
+index 862552a..f1510f7 100644
+--- a/bin/tema/default.pss
++++ b/bin/tema/default.pss
+@@ -1 +1,29 @@
+-{"tema":{"cores":[{"nome":"fundo","valor":"#FFF0F0F0"},{"nome":"fundo_claro_1","valor":"#FFFAFAFA"},{"nome":"fundo_escuro","valor":"#FFC8C8C8"},{"nome":"primaria","valor":"#FF007FFF"},{"nome":"primaria_clara","valor":"#50007FFF"}]},"schema":[{"id":"TelaInicial.rctFundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo_escuro"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytCloseButton.rctClose","estado":0,"propriedades":[{"nome":"fill.color","valor":"Null"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytCloseButton.rctClose.lytClose.lnClose1","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytCloseButton.rctClose.lytClose.lnClose2","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytMaximizeButton.rctMaximize","estado":0,"propriedades":[{"nome":"fill.color","valor":"Null"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytMaximizeButton.rctMaximize.lytMaximize.rctMazimize2","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytMaximizeButton.rctMaximize.lytMaximize.rctMaximize1","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo_escuro"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytMinimizeButton.rctMinimize","estado":0,"propriedades":[{"nome":"fill.color","valor":"Null"}],"valor":""},{"id":"TelaInicial.rctFundo.lytClient.rctTitleBar.lytBotoesSistema.lytMinimizeButton.rctMinimize.lytMinimize.lnMinimize","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Login.rctFundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo"}],"valor":""},{"id":"Login.rctFundo.lytCenter.rctUsuario","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Login.rctFundo.lytCenter.rctSenha","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Login.rctFundo.lytCenter.lytBotaoEntrar.rctBotaoEntrar","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.primaria"}],"valor":""},{"id":"ChatListagem.lytClient.rctFundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo"}],"valor":""},{"id":"ChatListagem.lytClient.rctFundo.rctListaConversas","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo_claro_1"}],"valor":""},{"id":"ConversasItemFrame.rctFundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo_claro_1"}],"valor":""},{"id":"ConversasItemFrame.rctFundo.lytClient.lytFoto.crclFoto","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo"}],"valor":""},{"id":"ChatListagem.lytClient.rctFundo.lnSeparador","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Chat.rctFundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"Whitesmoke"}],"valor":""},{"id":"Chat.rctFundo.rctTitulo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.fundo"}],"valor":""},{"id":"Chat.rctFundo.rctTitulo.lytTituloClient.lytFoto.crclFoto","estado":0,"propriedades":[{"nome":"fill.color","valor":"Whitesmoke"}],"valor":""},{"id":"Chat.rctFundo.rctTitulo.lytTituloClient.lytFoto.crclFoto.pthFotoDefault","estado":0,"propriedades":[{"nome":"fill.color","valor":"White"}],"valor":""},{"id":"Chat.UltimaMensagem.Fundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Chat.UltimaMensagem.Icone","estado":0,"propriedades":[{"nome":"fill.color","valor":"#FFE0E0E0"}],"valor":""},{"id":"Mensagem.Editor.Fundo","estado":0,"propriedades":[{"nome":"fill.color","valor":"Gainsboro"}],"valor":""},{"id":"Mensagem.Editor.Anexo","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.primaria"}],"valor":""},{"id":"Mensagem.Editor.Emoji","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.primaria"}],"valor":""},{"id":"Mensagem.Editor.Enviar","estado":0,"propriedades":[{"nome":"fill.color","valor":"@cores.primaria"}],"valor":""},{"id":"Chat.UltimaMensagem.Fundo.Path5_20240606231012205","estado":0,"propriedades":[{"nome":"fill.color","valor":"Gainsboro"}],"valor":""},{"id":"Chat.UltimaMensagem.Icone.Path5_20240606231012205","estado":0,"propriedades":[{"nome":"fill.color","valor":"Gainsboro"}],"valor":""}]}
+\ No newline at end of file
++{
++    "tema": {
++        "cores": [
++            {
++                "nome": "fundo",
++                "valor": "#FFF0F0F0"
++            },
++            {
++                "nome": "fundo_claro_1",
++                "valor": "#FFFAFAFA"
++            },
++            {
++                "nome": "fundo_escuro",
++                "valor": "#FFC8C8C8"
++            },
++            {
++                "nome": "primaria",
++                "valor": "#FF007FFF"
++            },
++            {
++                "nome": "primaria_clara",
++                "valor": "#50007FFF"
++            }
++        ],
++        "fontes": []
++    },
++    "schema": [
++    ]
++}

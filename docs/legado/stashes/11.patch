@@ -1,0 +1,114 @@
+diff --git a/Conversa.Dados.pas b/Conversa.Dados.pas
+index 9589520..8182d40 100644
+--- a/Conversa.Dados.pas
++++ b/Conversa.Dados.pas
+@@ -33,8 +33,8 @@ type
+     function ServerOnline: Boolean;
+     procedure CarregarContatos;
+     procedure CarregarConversas;
+-    function ObterMensagens(iConversa: Integer): TArrayMensagens;
+-    function Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
++    function ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
++    function Mensagens(iConversa: Integer; iInicio: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
+     procedure EnviarMensagem(Mensagem: TMensagem);
+     function DownloadAnexo(sIdentificador: String): String;
+     procedure Contatos(Proc: TProc<TJSONArray>);
+@@ -152,11 +152,11 @@ begin
+   Result := FDadosApp.Conversas.MensagensSemVisualizar;
+ end;
+ 
+-function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArrayMensagens;
++function TDados.Mensagens(iConversa: Integer; iInicio: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
+ begin
+   Result := FDadosApp.Conversas.GetOrAdd(iConversa).Mensagens.GetList(iInicio);
+   if Length(Result) = 0 then
+-    Result := ObterMensagens(iConversa);
++    Result := ObterMensagens(iConversa, MensagemPrevia);
+ end;
+ 
+ function TDados.MensagensParaNotificar(iConversa: Integer): TArrayMensagens;
+@@ -164,12 +164,15 @@ begin
+   Result := FDadosApp.Conversas.Get(iConversa).Mensagens.ParaNotificar;
+ end;
+ 
+-function TDados.ObterMensagens(iConversa: Integer): TArrayMensagens;
++function TDados.ObterMensagens(iConversa: Integer; MensagemPrevia: Boolean = False): TArrayMensagens;
+ var
+   Conversa: TConversa;
+   Mensagem: TMensagem;
+   MensagemConteudo: TConteudo;
+   Remetente: TUsuario;
++  MsgRef: Integer;
++  IDMsg: Integer;
++  Msgs: TArrayMensagens;
+ begin
+   Conversa := FDadosApp.Conversas.Get(iConversa);
+ 
+@@ -186,12 +189,23 @@ begin
+   with TAPIConversa.Create do
+   try
+     Route('mensagens');
++    if MensagemPrevia then
++    begin
++      Msgs := Conversa.Mensagens.Items;
++      MsgRef := Conversa.Mensagens.UltimaMensagemSincronizada;
++      for IDMsg := 0 to Pred(Length(Msgs)) do
++        MsgRef := Min(Msgs[IDMsg].ID, MsgRef);
++
++      Query(TJSONObject.Create.AddPair('mensagemreferencia', MsgRef - 1));
++      Query(TJSONObject.Create.AddPair('mensagensprevias', 10))
++    end
++    else
+     if Conversa.Mensagens.UltimaMensagemSincronizada = 0 then
+-      Query(TJSONObject.Create.AddPair('mensagensprevias', 100))
++      Query(TJSONObject.Create.AddPair('mensagensprevias', 10))
+     else
+     begin
+       Query(TJSONObject.Create.AddPair('mensagemreferencia', Conversa.Mensagens.UltimaMensagemSincronizada + 1));
+-      Query(TJSONObject.Create.AddPair('mensagensseguintes', 100));
++      Query(TJSONObject.Create.AddPair('mensagensseguintes', 10));
+     end;
+     Query(TJSONObject.Create.AddPair('conversa', iConversa));
+     Query(TJSONObject.Create.AddPair('usuario', FDadosApp.Usuario.ID));
+diff --git a/bin/.stfolder/syncthing-folder-4f0d79.txt b/bin/.stfolder/syncthing-folder-4f0d79.txt
+new file mode 100644
+index 0000000..46ced40
+--- /dev/null
++++ b/bin/.stfolder/syncthing-folder-4f0d79.txt
+@@ -0,0 +1,5 @@
++# This directory is a Syncthing folder marker.
++# Do not delete.
++
++folderID: wev4w-cwx6h
++created: 2024-08-04T09:52:53-04:00
+diff --git a/src/chat/Conversa.Chat.pas b/src/chat/Conversa.Chat.pas
+index 6213ea3..06fff6c 100644
+--- a/src/chat/Conversa.Chat.pas
++++ b/src/chat/Conversa.Chat.pas
+@@ -52,6 +52,7 @@ type
+     procedure AoEnviar(Conteudos: TArray<chat.tipos.TConteudo>);
+     procedure AoAtualizarMensagem(const Sender: TObject; const M: TMessage);
+     procedure AoClicar(Frame: TFrame; Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
++    procedure AoChegarLimite(Limite: TLimite);
+     procedure CriarControles;
+   public
+     UltimaMensagem: Integer;
+@@ -116,6 +117,7 @@ begin
+   Visualizador.AoVisualizar := AoVisualizar;
+   Visualizador.LarguraMaximaConteudo := 500;
+   Visualizador.AoClicar := AoClicar;
++  Visualizador.AoChegarLimite := AoChegarLimite;
+ 
+   Editor := TChatEditor.Create(lytClient);
+   lytClient.AddObject(Editor);
+@@ -260,4 +262,10 @@ begin
+       TVisualizadorMidia.Exibir(TImage(Sender).Bitmap);
+ end;
+ 
++procedure TChat.AoChegarLimite(Limite: TLimite);
++begin
++  if Limite = TLimite.Superior then
++    AdicionarMensagens(Dados.ObterMensagens(Conversa.ID, True));
++end;
++
+ end.

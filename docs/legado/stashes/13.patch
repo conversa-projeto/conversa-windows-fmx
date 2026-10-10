@@ -1,0 +1,1173 @@
+diff --git a/.gitignore b/.gitignore
+index 4e03638..383ddc7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -42,3 +42,4 @@ __recovery/
+ *.stat
+ anexos
+ *.json
++*.png
+diff --git a/Conversa.Dados.dfm b/Conversa.Dados.dfm
+index a5b3453..380afbb 100644
+--- a/Conversa.Dados.dfm
++++ b/Conversa.Dados.dfm
+@@ -1,13 +1,12 @@
+ object Dados: TDados
+   OnCreate = DataModuleCreate
+-  Height = 578
+-  Width = 729
+-  PixelsPerInch = 144
++  Height = 385
++  Width = 486
+   object cdsConversas: TClientDataSet
+     Aggregates = <>
+     Params = <>
+-    Left = 56
+-    Top = 24
++    Left = 37
++    Top = 16
+     object cdsConversasid: TIntegerField
+       FieldName = 'id'
+     end
+@@ -30,7 +29,7 @@ object Dados: TDados
+     Enabled = False
+     Interval = 5000
+     OnTimer = tmrAtualizarMensagensTimer
+-    Left = 233
+-    Top = 24
++    Left = 155
++    Top = 16
+   end
+ end
+diff --git a/Conversa.Dados.pas b/Conversa.Dados.pas
+index 5001c7b..2b447bc 100644
+--- a/Conversa.Dados.pas
++++ b/Conversa.Dados.pas
+@@ -37,9 +37,9 @@ type
+     procedure Login(sLogin, sSenha: String);
+     function ServerOnline: Boolean;
+     procedure Conversas;
+-    function ObterMensagens(iConversa: Integer): TArray<TMensagem>;
+-    function Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
+-    procedure EnviarMensagem(Mensagem: TMensagem);
++    function ObterMensagens(iConversa: Integer): TPMensagems;
++    function Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
++    procedure EnviarMensagem(Mensagem: TPMensagem);
+     function DownloadAnexo(sIdentificador: String): String;
+     procedure Contatos(Proc: TProc<TJSONArray>);
+     function NovoChat(remetente_id, destinatario_id: Integer): Integer;
+@@ -49,6 +49,8 @@ type
+     function MensagemSemVisualizar: Integer; overload;
+     function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
+     procedure AtualizarContador;
++    function MensagensParaNotificar(iConversa: Integer): TPMensagems;
++    procedure VisualizarMensagem(Mensagem: TPMensagem);
+   end;
+ 
+   TAPIConversa = class(TRESTAPI)
+@@ -143,7 +145,7 @@ begin
+   Result := FDadosApp.MensagemSemVisualizar;
+ end;
+ 
+-function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
++function TDados.Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
+ begin
+   Result := FDadosApp.Mensagens(iConversa, iInicio);
+ 
+@@ -151,7 +153,12 @@ begin
+     Result := ObterMensagens(iConversa);
+ end;
+ 
+-function TDados.ObterMensagens(iConversa: Integer): TArray<TMensagem>;
++function TDados.MensagensParaNotificar(iConversa: Integer): TPMensagems;
++begin
++  Result := FDadosApp.MensagensParaNotificar(iConversa);
++end;
++
++function TDados.ObterMensagens(iConversa: Integer): TPMensagems;
+ var
+   Mensagem: TMensagem;
+   MensagemConteudo: TMensagemConteudo;
+@@ -161,6 +168,7 @@ begin
+     Route('mensagens');
+     Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemConversa(iConversa)));
+     Query(TJSONObject.Create.AddPair('conversa', iConversa));
++    Query(TJSONObject.Create.AddPair('usuario', ID));
+     GET;
+ 
+     Result := [];
+@@ -180,6 +188,12 @@ begin
+       if not (Item.FindValue('alterada') is TJSONNull) then
+         Mensagem.alterada := ISO8601ToDate(Item.GetValue<String>('alterada'));
+ 
++      if Mensagem.Id = 842 then
++        Sleep(0);
++
++      Mensagem.Recebida := Item.GetValue<Boolean>('recebida');
++      Mensagem.Visualizada := Item.GetValue<Boolean>('visualizada');
++
+       for var Conteudo in Item.GetValue<TJSONArray>('conteudos') do
+       begin
+         MensagemConteudo := Default(TMensagemConteudo);
+@@ -193,9 +207,9 @@ begin
+         Mensagem.conteudos := Mensagem.conteudos + [MensagemConteudo];
+       end;
+ 
+-      FDadosApp.AdicionaMensagem(iConversa, Mensagem);
++      FDadosApp.AdicionaMensagem(iConversa, @Mensagem);
+ 
+-      Result := Result + [Mensagem];
++      Result := Result + [@Mensagem];
+     end;
+   finally
+     Free;
+@@ -253,7 +267,7 @@ begin
+   end;
+ end;
+ 
+-procedure TDados.EnviarMensagem(Mensagem: TMensagem);
++procedure TDados.EnviarMensagem(Mensagem: TPMensagem);
+ var
+   oJSON: TJSONObject;
+   aConteudos: TJSONArray;
+@@ -355,11 +369,40 @@ end;
+ procedure TDados.tmrAtualizarMensagensTimer(Sender: TObject);
+ var
+   I: Integer;
++  Conversa: TDadosConversa;
++  sMsgID: String;
+ begin
+   Dados.tmrAtualizarMensagens.Enabled := False;
+   try
+     with TAPIConversa.Create do
+     try
++      for Conversa in FDadosApp.Conversas do
++      begin
++        sMsgID := FDadosApp.MensagensParaAtualizar(Conversa.ID);
++        if sMsgID.Trim.IsEmpty then
++          Continue;
++
++        Route('mensagem/status');
++        Query(
++          TJSONObject.Create
++            .AddPair('conversa', Conversa.ID)
++            .AddPair('mensagem', sMsgID)
++            .AddPair('usuario', ID)
++        );
++        GET;
++        for var Item in Response.ToJSONArray do
++        begin
++          for I := 0 to Pred(Length(Conversa.Mensagens)) do
++          begin
++            if Conversa.Mensagens[I].Id <> Item.GetValue<Integer>('mensagem_id') then
++              Continue;
++
++            Conversa.Mensagens[I].Recebida := Item.GetValue<Boolean>('recebida');
++            Conversa.Mensagens[I].Visualizada := Item.GetValue<Boolean>('visualizada');
++          end;
++        end;
++      end;
++
+       Route('mensagens/novas');
+       Query(TJSONObject.Create.AddPair('ultima', FDadosApp.UltimaMensagemNotificada));
+       GET;
+@@ -452,5 +495,23 @@ begin
+   AtualizarContadorNotificacao(FDadosApp.MensagemSemVisualizar);
+ end;
+ 
++procedure TDados.VisualizarMensagem(Mensagem: TPMensagem);
++begin
++  with TAPIConversa.Create do
++  try
++    Route('mensagem/visualizar');
++    Query(
++      TJSONObject.Create
++        .AddPair('conversa', Mensagem.ConversaId)
++        .AddPair('mensagem', Mensagem.Id)
++        .AddPair('usuario', ID)
++    );
++    GET;
++  finally
++    Free;
++  end;
++end;
++
+ end.
+ 
++
+diff --git a/Conversa.Memoria.pas b/Conversa.Memoria.pas
+index 17348ec..2a174b3 100644
+--- a/Conversa.Memoria.pas
++++ b/Conversa.Memoria.pas
+@@ -12,7 +12,7 @@ type
+     FUltimaMensagem: Integer;
+   public
+     ID: Integer;
+-    Mensagens: TArray<TMensagem>;
++    Mensagens: TMensagens;
+     procedure AdicionaMensagem(Mensagem: TMensagem);
+   end;
+   TPDadosConversa = ^TDadosConversa;
+@@ -24,17 +24,21 @@ type
+     Conversas: TArray<TDadosConversa>;
+     UltimaMensagemNotificada: Integer;
+     function UltimaMensagemConversa(iConversa: Integer): Integer;
+-    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
+-    function Mensagens(iConversa, iInicio: Integer): TArray<TMensagem>;
++    procedure AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
++    function Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
+     function ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+     function MensagemSemVisualizar: Integer; overload;
+     function MensagemSemVisualizar(iConversa: Integer): Integer; overload;
++    function MensagensParaNotificar(iConversa: Integer): TPMensagems;
++    function MensagensParaAtualizar(iConversa: Integer): String;
+   end;
+ 
+ implementation
+ 
+ uses
++  System.SysUtils,
+   System.Math,
++  System.StrUtils,
+   Winapi.Windows,
+   Conversa.Dados;
+ 
+@@ -55,13 +59,11 @@ begin
+   end;
+ end;
+ 
+-procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TMensagem);
++procedure TDadosApp.AdicionaMensagem(iConversa: Integer; Mensagem: TPMensagem);
+ var
+   P: TPDadosConversa;
+   Conversa: TDadosConversa;
+ begin
+-  if Mensagem.id <= 0 then
+-    Sleep(0);
+   if not ObtemConversa(iConversa, P) then
+   begin
+     Conversa := Default(TDadosConversa);
+@@ -69,7 +71,7 @@ begin
+     Conversas := Conversas + [Conversa];
+     P := @Conversa;
+   end;
+-  P.AdicionaMensagem(Mensagem);
++  P.AdicionaMensagem(Mensagem^);
+   if Mensagem.lado = TLado.Esquerdo then
+     P.FUltimaMensagem := Max(Mensagem.id, P.FUltimaMensagem);
+   UltimaMensagemNotificada := Max(Mensagem.id, UltimaMensagemNotificada);
+@@ -102,11 +104,11 @@ begin
+   Result := 0;
+   if ObtemConversa(iConversa, Conversa) then
+     for Mensagem in Conversa.Mensagens do
+-      if not Mensagem.visualizada then
++      if (Mensagem.Lado <> TLado.Direito) and not Mensagem.visualizada then
+         Inc(Result);
+ end;
+ 
+-function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TArray<TMensagem>;
++function TDadosApp.Mensagens(iConversa: Integer; iInicio: Integer): TPMensagems;
+ var
+   Conversa: TPDadosConversa;
+   Mensagem: TMensagem;
+@@ -115,7 +117,7 @@ begin
+   if not ObtemConversa(iConversa, Conversa) then Exit;
+   for Mensagem in Conversa.Mensagens do
+     if Mensagem.id >= iInicio then
+-      Result := Result + [Mensagem];
++      Result := Result + [@Mensagem];
+ end;
+ 
+ function TDadosApp.ExibirMensagem(iConversa: Integer; ApenasPendente: Boolean): TPMensagems;
+@@ -136,7 +138,38 @@ begin
+   end;
+ end;
+ 
++function TDadosApp.MensagensParaAtualizar(iConversa: Integer): String;
++var
++  Conversa: TPDadosConversa;
++  I: Integer;
++begin
++  Result := '';
++  if ObtemConversa(iConversa, Conversa) then
++  for I := Pred(Length(Conversa.Mensagens)) downto 0 do
++    if not Conversa.Mensagens[I].Visualizada or not Conversa.Mensagens[I].Recebida then
++      Result := Result + IfThen(not Result.Trim.IsEmpty, ',') + Conversa.Mensagens[I].ID.ToString;
++end;
++
++function TDadosApp.MensagensParaNotificar(iConversa: Integer): TPMensagems;
++var
++  Conversa: TPDadosConversa;
++  I: Integer;
++begin
++  if not ObtemConversa(iConversa, Conversa) then Exit;
++    Result := [];
++
++  for I := Pred(Length(Conversa.Mensagens)) downto 0 do
++  begin
++    if Conversa.Mensagens[I].Notificada then
++      Continue;
++
++    Conversa.Mensagens[I].Notificada := True;
++    Result := [@Conversa.Mensagens[I]] + Result;
++  end;
++end;
++
+ { TDadosConversa }
++
+ procedure TDadosConversa.AdicionaMensagem(Mensagem: TMensagem);
+ var
+   I: Integer;
+diff --git a/Conversa.Tela.Inicial.view.pas b/Conversa.Tela.Inicial.view.pas
+index 16161a7..8522952 100644
+--- a/Conversa.Tela.Inicial.view.pas
++++ b/Conversa.Tela.Inicial.view.pas
+@@ -180,7 +180,7 @@ begin
+     uFlags := NIF_MESSAGE or NIF_ICON or NIF_TIP;
+     uCallbackMessage := WM_ICONTRAY;
+     hIcon := GetClassLong(FmxHandleToHWND(self.Handle), GCL_HICONSM);
+-    StrPCopy(szTip, 'testapp');
++    StrPCopy(szTip, 'Conversa');
+   end;
+   Shell_NotifyIcon(NIM_ADD, @TrayIconData);
+ end;
+diff --git a/src/chat/Conversa.Chat.Listagem.pas b/src/chat/Conversa.Chat.Listagem.pas
+index 7dc51bc..38b96c2 100644
+--- a/src/chat/Conversa.Chat.Listagem.pas
++++ b/src/chat/Conversa.Chat.Listagem.pas
+@@ -9,6 +9,7 @@ uses
+   System.Classes,
+   System.Variants,
+   System.DateUtils,
++  System.StrUtils,
+   FMX.Types,
+   FMX.Graphics,
+   FMX.Controls,
+@@ -47,8 +48,8 @@ type
+   private
+     procedure AoReceberMensagem(Conversa: Integer);
+     procedure btnAbrirChat(Item: TConversasItemFrame);
+-    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
+-    procedure AtualizarChat(Mensagem: TMensagem);
++    procedure EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
++    procedure AtualizarChat(Mensagem: TPMensagem);
+   public
+     Chat: TChat;
+     class function New(AOwner: TFmxObject): TChatListagem; static;
+@@ -118,7 +119,7 @@ begin
+   end;
+ end;
+ 
+-procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TMensagem);
++procedure TChatListagem.EnviarMensagem(Conteudo: TChat; Mensagem: TPMensagem);
+ begin
+   Dados.EnviarMensagem(Mensagem);
+   Chat.AdicionarMensagens(Dados.ExibirMensagem(Conteudo.ID, True));
+@@ -143,11 +144,16 @@ procedure TChatListagem.AoReceberMensagem(Conversa: Integer);
+ var
+   bNovo: Boolean;
+   Item: TListBoxItem;
+-  Mensagens: TArray<TMensagem>;
++  Mensagens: TPMensagems;
++  Msg: TPMensagem;
+   I: Integer;
++  AConteudos: TArray<TMensagemNotificacao>;
+ begin
+-  Mensagens := Dados.Mensagens(Conversa, 0);
++  Mensagens := Dados.MensagensParaNotificar(Conversa);
++  if Length(Mensagens) = 0 then
++    Exit;
+   bNovo := True;
++
+   for I := 0 to Pred(lstConversas.Count) do
+   begin
+     if TListBoxItem(lstConversas.ListItems[I]).ContatoItem.ID = Conversa then
+@@ -178,16 +184,25 @@ begin
+     lstConversas.AddObject(Item);
+   end;
+ 
++  Msg := Mensagens[Pred(Length(Mensagens))];
+   if not Assigned(Chat) or (Chat.ID <> Conversa) or not Self.IsFormActive then
+   begin
+-    with Mensagens[Pred(Length(Mensagens))] do
+-      TNotificacaoManager.Apresentar(
+-        TNotificacao.New
+-          .ChatId(Conversa)
+-          .Nome(remetente)
+-          .Hora(Now)
+-          .Conteudo([TMensagemNotificacao.New.Mensagem(conteudos[Pred(Length(conteudos))].conteudo)])
+-      );
++    AConteudos := [];
++    if Length(Msg.Conteudos) > 0 then
++      AConteudos := [
++        TMensagemNotificacao.New
++          .ID(Msg.Conteudos[0].id)
++          //.Usuario(IfThen())
++          .Mensagem(IfThen(Msg.Conteudos[0].tipo = 1, Msg.Conteudos[0].conteudo, 'Imagem'))
++      ];
++
++    TNotificacaoManager.Apresentar(
++      TNotificacao.New
++        .ChatId(Conversa)
++        .Nome(Msg.remetente)
++        .Hora(Now)
++        .Conteudo(AConteudos)
++    );
+   end;
+ 
+   if Assigned(Chat) and (Chat.ID = Conversa) then
+@@ -195,10 +210,10 @@ begin
+ 
+   PlayResource('nova_mensagem');
+ 
+-  AtualizarChat(Mensagens[Pred(Length(Mensagens))]);
++  AtualizarChat(Msg);
+ end;
+ 
+-procedure TChatListagem.AtualizarChat(Mensagem: TMensagem);
++procedure TChatListagem.AtualizarChat(Mensagem: TPMensagem);
+ var
+   I: Integer;
+   Item: TListBoxItem;
+@@ -208,7 +223,11 @@ begin
+     Item := TListBoxItem(lstConversas.ListItems[I]);
+     if Item.ContatoItem.ID = Mensagem.ConversaId then
+     begin
+-      Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
++      if Mensagem.Lado = TLado.Direito then
++        Item.ContatoItem.Mensagem('Você: '+ Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo)
++      else
++        Item.ContatoItem.Mensagem(Mensagem.conteudos[Pred(Length(Mensagem.conteudos))].conteudo);
++
+       Item.ContatoItem.UltimaMensagem(Mensagem.inserida);
+       Break;
+     end;
+diff --git a/src/chat/Conversa.Chat.pas b/src/chat/Conversa.Chat.pas
+index 205d665..dc4c2bf 100644
+--- a/src/chat/Conversa.Chat.pas
++++ b/src/chat/Conversa.Chat.pas
+@@ -52,7 +52,7 @@ type
+     procedure SetDestinatarioID(const Value: Integer);
+   public
+     UltimaMensagem: Integer;
+-    AoEnviarMensagem: TProc<TChat, TMensagem>;
++    AoEnviarMensagem: TProc<TChat, TPMensagem>;
+     constructor Create(AOwner: TComponent); override;
+     destructor Destroy; override;
+     property ListagemItem: TConversasItemFrame read FListagemItem write FListagemItem;
+@@ -107,7 +107,7 @@ begin
+   Editor := TEditor.Create(Self);
+   Editor.ConfiguraAnexo(Anexo);
+   Editor.AdicionaMensagem(
+-    procedure(Mensagem: TMensagem)
++    procedure(Mensagem: TPMensagem)
+     begin
+       if FID = 0 then
+       begin
+@@ -119,6 +119,8 @@ begin
+       Mensagem.remetente := Usuario;
+       Mensagem.ConversaId := ID;
+       Mensagem.RemetenteId := FUsuarioID;
++//      Mensagem.Recebida := True;
++//      Mensagem.Visualizada := True;
+       if Assigned(AoEnviarMensagem) then
+         AoEnviarMensagem(Self, Mensagem);
+       Visualizador.PosicionarUltima;
+@@ -161,7 +163,7 @@ end;
+ 
+ procedure TChat.VisualizarTudo;
+ begin
+-  Visualizador.VisualizarTudo;
++//  Visualizador.VisualizarTudo;
+ end;
+ 
+ procedure TChat.PosicionarUltima;
+diff --git a/src/chat/mensagem/Mensagem.Editor.pas b/src/chat/mensagem/Mensagem.Editor.pas
+index 131cd01..527b436 100644
+--- a/src/chat/mensagem/Mensagem.Editor.pas
++++ b/src/chat/mensagem/Mensagem.Editor.pas
+@@ -8,6 +8,7 @@ uses
+   System.Classes,
+   System.Types,
+   System.Math,
++  System.IOUtils,
+   FMX.Memo,
+   FMX.Types,
+   FMX.Layouts,
+@@ -34,7 +35,7 @@ type
+     lytEnviar: TLayout;
+     pthEnviar: TPath;
+     OpenDialog: TOpenDialog;
+-    FAdicionar: TProc<TMensagem>;
++    FAdicionar: TProc<TPMensagem>;
+     FAnexo: TAnexo;
+     FAguardandoAnexo: Boolean;
+     procedure mmMensagemChangeTracking(Sender: TObject);
+@@ -44,17 +45,21 @@ type
+     procedure mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
+     procedure lytMensagemResized(Sender: TObject);
+     procedure SetVisible(const Value: Boolean);
++    procedure InternalSelecionarAnexos;
+   public
+     constructor Create(AOwner: TFmxObject);
+     procedure ConfiguraAnexo(Anexo: TAnexo);
+-    procedure AdicionaMensagem(Adicionar: TProc<TMensagem>);
++    procedure AdicionaMensagem(Adicionar: TProc<TPMensagem>);
+     property Visible: Boolean read FVisible write SetVisible;
+   end;
+ 
+ implementation
+ 
+ uses
+-  System.UITypes;
++  System.UITypes,
++  FMX.Surfaces,
++  FMX.Clipboard,
++  FMX.Platform;
+ 
+ { TPrevia }
+ 
+@@ -290,6 +295,11 @@ begin
+   if not Assigned(FAnexo) then
+     raise Exception.Create('Anexo não definido!');
+ 
++  InternalSelecionarAnexos;
++end;
++
++procedure TEditor.InternalSelecionarAnexos;
++begin
+   {TODO -oEduardo -cVisual : Escurecer fundo}
+ 
+   FAguardandoAnexo := True;
+@@ -301,7 +311,7 @@ begin
+     begin
+       Mensagem := Default(TMensagem);
+       Mensagem.Conteudos := Selecionados;
+-      FAdicionar(Mensagem);
++      FAdicionar(@Mensagem);
+     end
+   );
+ 
+@@ -333,7 +343,7 @@ begin
+   Conteudo.conteudo := sMensagem;
+   Mensagem.Conteudos := [Conteudo];
+   mmMensagem.Lines.Clear;
+-  FAdicionar(Mensagem);
++  FAdicionar(@Mensagem);
+ end;
+ 
+ procedure TEditor.lytMensagemResized(Sender: TObject);
+@@ -344,9 +354,10 @@ begin
+   if mmMensagem.Width < 50 then
+     Exit;
+ 
+-  TamanhoTexto := RectF(0, 0, mmMensagem.Width, 10000);
++  TamanhoTexto := RectF(0, 0, mmMensagem.ContentSize.Width, 10000);
+   mmMensagem.Canvas.MeasureText(TamanhoTexto, mmMensagem.Lines.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
+   cHeight := TamanhoTexto.Bottom + mmMensagem.Margins.Top + mmMensagem.Margins.Bottom;
++
+   if cHeight > 40 then
+     cHeight := cHeight + 5;
+   lytMensagem.Height := Min(212, Max(40, cHeight));
+@@ -360,16 +371,45 @@ begin
+ end;
+ 
+ procedure TEditor.mmMensagemKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char; Shift: TShiftState);
++var
++  svc: IFMXExtendedClipboardService;
++  sTemp: String;
+ begin
+   if (Key = vkReturn) and (Shift = []) then
+   begin
+     Key := 0;
+     KeyChar := #0;
+     lytEnviarClick(lytEnviar);
++  end
++  else
++  if (Shift = [ssCtrl]) and (Key = vkV) then
++  begin
++    if not Assigned(FAnexo) then
++      Exit;
++
++    if not TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
++      Exit;
++
++    if not svc.HasImage then
++      Exit;
++
++    sTemp := ExtractFilePath(ParamStr(0)) +'clipboard';
++
++    if not TDirectory.Exists(sTemp) then
++      TDirectory.CreateDirectory(sTemp);
++
++    sTemp := sTemp + PathDelim +'clipboard'+ Length(TDirectory.GetFiles(sTemp)).ToString +'.png';
++
++    if not TBitmapCodecManager.SaveToFile(sTemp, svc.GetImage, nil) then
++      raise EBitmapSavingFailed.Create('Erro ao converter a imagem do clipboard para png!');
++
++    InternalSelecionarAnexos;
++
++    FAnexo.AdicionarItem(sTemp);
+   end;
+ end;
+ 
+-procedure TEditor.AdicionaMensagem(Adicionar: TProc<TMensagem>);
++procedure TEditor.AdicionaMensagem(Adicionar: TProc<TPMensagem>);
+ begin
+   FAdicionar := Adicionar;
+ end;
+diff --git a/src/chat/mensagem/Mensagem.Tipos.pas b/src/chat/mensagem/Mensagem.Tipos.pas
+index 669608c..c42d4fb 100644
+--- a/src/chat/mensagem/Mensagem.Tipos.pas
++++ b/src/chat/mensagem/Mensagem.Tipos.pas
+@@ -4,6 +4,7 @@ unit Mensagem.Tipos;
+ interface
+ 
+ uses
++  System.SysUtils,
+   FMX.Graphics;
+ 
+ {$SCOPEDENUMS ON}
+@@ -18,6 +19,7 @@ type
+     conteudo: String
+   end;
+ 
++  TPMensagem = ^TMensagem;
+   TMensagem = record
+   private
+     Fid: Integer;
+@@ -28,11 +30,14 @@ type
+     Falterada: TDateTime;
+     Finserida: TDateTime;
+     Fexibida: Boolean;
++    Frecebida: Boolean;
+     Fvisualizada: Boolean;
++    Fnotificada: Boolean;
+     Fconteudos: TArray<TMensagemConteudo>;
++    FAoAtualizar: TArray<TProc<TPMensagem>>;
+   end;
++  TMensagens = TArray<TMensagem>;
+ 
+-  TPMensagem = ^TMensagem;
+   TMensagemH = record helper for TMensagem
+   private
+     function GetId: Integer;
+@@ -54,7 +59,12 @@ type
+     function GetConteudos: TArray<TMensagemConteudo>;
+     procedure SetConteudos(Value: TArray<TMensagemConteudo>);
+     function GetVisualizada: Boolean;
+-    procedure SetVisualizada(Value: Boolean);
++    procedure SetVisualizada(const Value: Boolean);
++    function GetNotificada: Boolean;
++    procedure SetNotificada(const Value: Boolean);
++    function GetRecebida: Boolean;
++    procedure SetRecebida(const Value: Boolean);
++    procedure DoAtualizar;
+   public
+     property Id: Integer read GetId write SetId;
+     property RemetenteId: Integer read GetRemetenteId write SetRemetenteId;
+@@ -65,14 +75,14 @@ type
+     property Inserida: TDateTime read GetInserida write SetInserida;
+     property Exibida: Boolean read GetExibida write SetExibida;
+     property Conteudos: TArray<TMensagemConteudo> read GetConteudos write SetConteudos;
+-    property Visualizada: Boolean read GetVisualizada write SetVisualizada;  // Nova propriedade
++    property Recebida: Boolean read GetRecebida write SetRecebida;
++    property Visualizada: Boolean read GetVisualizada write SetVisualizada;
++    property Notificada: Boolean read GetNotificada write SetNotificada;
++    procedure VisualizarMensagem;
++    procedure AoAtualizar(Value: TProc<TPMensagem>);
+   end;
+   TPMensagems = TArray<TPMensagem>;
+ 
+-//  TMensagemH = record Helper for TMensagem
+-//    class function New: TPMensagem; static;
+-//  end;
+-
+ implementation
+ 
+ uses
+@@ -170,15 +180,71 @@ begin
+   Self.Fconteudos := Value;
+ end;
+ 
++function TMensagemH.GetRecebida: Boolean;
++begin
++  Result := Self.FRecebida;
++end;
++
++procedure TMensagemH.SetRecebida(const Value: Boolean);
++begin
++  if Frecebida = Value then
++    Exit;
++
++  Self.Frecebida := Value;
++  DoAtualizar;
++end;
++
+ function TMensagemH.GetVisualizada: Boolean;
+ begin
+   Result := Self.Fvisualizada;
+ end;
+ 
+-procedure TMensagemH.SetVisualizada(Value: Boolean);
++procedure TMensagemH.SetVisualizada(const Value: Boolean);
+ begin
++  if Fvisualizada = Value then
++    Exit;
++
+   Self.Fvisualizada := Value;
++  DoAtualizar;
++end;
++
++function TMensagemH.GetNotificada: Boolean;
++begin
++  Result := Self.Fnotificada;
++end;
++
++procedure TMensagemH.SetNotificada(const Value: Boolean);
++begin
++  Self.Fnotificada := Value;
++end;
++
++procedure TMensagemH.VisualizarMensagem;
++begin
++  if Visualizada then
++    Exit;
++
++  Self.Visualizada := True;
+   Dados.AtualizarContador;
++  Dados.VisualizarMensagem(@Self);
++end;
++
++procedure TMensagemH.AoAtualizar(Value: TProc<TPMensagem>);
++begin
++  Self.FAoAtualizar := Self.FAoAtualizar + [Value];
++end;
++
++procedure TMensagemH.DoAtualizar;
++var
++  Proc: TProc<TPMensagem>;
++begin
++  try
++    if Length(FAoAtualizar) > 0 then
++      for Proc in FAoAtualizar do
++        if Assigned(Proc) then
++          Proc(@Self);
++  except
++    Sleep(0);
++  end;
+ end;
+ 
+ end.
+diff --git a/src/chat/mensagem/Mensagem.Visualizador.pas b/src/chat/mensagem/Mensagem.Visualizador.pas
+index 5e50ea9..bbcd240 100644
+--- a/src/chat/mensagem/Mensagem.Visualizador.pas
++++ b/src/chat/mensagem/Mensagem.Visualizador.pas
+@@ -4,11 +4,17 @@ unit Mensagem.Visualizador;
+ interface
+ 
+ uses
++  {$IFDEF MSWINDOWS}
++  Winapi.Windows,
++  Winapi.ShellAPI,
++  {$ENDIF MSWINDOWS}
+   System.Classes,
+   System.Types,
+   System.Math,
+   System.UITypes,
+   System.SysUtils,
++  System.RegularExpressions,
++  System.Generics.Collections,
+   FMX.Ani,
+   FMX.Types,
+   FMX.Controls,
+@@ -16,17 +22,35 @@ uses
+   FMX.Objects,
+   FMX.StdCtrls,
+   FMX.Graphics,
++  FMX.TextLayout,
++  FMX.Platform,
++  FMX.Clipboard,
+   PascalStyleScript,
+   Mensagem.Tipos;
+ 
+ type
+-
+   TItem = record
+     Dados: TPMensagem;
+     Mensagem: TLayout;
+     Hora: TText;
+   end;
+ 
++  TTextLink = record
++  public
++    Range: TTextRange;
++    Attribute: TTextAttribute;
++    constructor Create(ARange: TTextRange; AAttribute: TTextAttribute);
++  end;
++
++  TText = class(FMX.Objects.TText)
++  private
++    Links: TArray<TTextLink>;
++  protected
++    procedure Click; override;
++    procedure DblClick; override;
++    procedure MouseMove(Shift: TShiftState; X, Y: Single); override;
++  end;
++
+   TVisualizador = class
+   private
+     FOwner: TFmxObject;
+@@ -48,14 +72,13 @@ type
+     procedure lytConteudoMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
+     procedure rtgUltimaClick(Sender: TObject);
+     procedure SetVisible(const Value: Boolean);
+-//    function IsLayoutVisible(Layout: TLayout; ScrollBox: TVertScrollBox): Boolean;
++    procedure AoAtualizar(Mensagem: TPMensagem);
+   public
+     constructor Create(AOwner: TFmxObject);
+     procedure AdicionaMensagem(Mensagem: TPMensagem);
+     property Visible: Boolean read FVisible write SetVisible;
+     procedure PosicionarUltima;
+     procedure Limpar;
+-    procedure VisualizarTudo;
+     procedure ValidarVisualizacao;
+   end;
+ 
+@@ -66,7 +89,8 @@ uses
+ 
+ const
+   TamanhoMaximo = 700;
+-  { TVisualizador }
++
++{ TVisualizador }
+ 
+ constructor TVisualizador.Create(AOwner: TFmxObject);
+ begin
+@@ -248,6 +272,7 @@ begin
+   lytConteudoMensagem.Size.Width := 353;
+   lytConteudoMensagem.Size.Height := 218;
+   lytConteudoMensagem.Size.PlatformDefault := False;
++
+   lbHora := TText.Create(lytConteudo);
+   NomearComponente(lbHora);
+   lbHora.Align := TAlignLayout.Bottom;
+@@ -257,7 +282,21 @@ begin
+   lbHora.Size.Height := 22;
+   lbHora.Size.PlatformDefault := False;
+   lbHora.TextSettings.HorzAlign := TTextAlign.Trailing;
++  lbHora.Font.Size := 10;
++  lbHora.Opacity := 0.5;
+   lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida);
++
++  if Mensagem.Lado = TLado.Direito then
++  begin
++    if Mensagem.Visualizada then
++      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✅'
++    else
++    if Mensagem.Recebida then
++      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ☑'
++    else
++      lbHora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✔'
++  end;
++
+   TPascalStyleScript.Instance.RegisterObject(lbHora, 'Mensagem.DataHora');
+ 
+   for I := 0 to Pred(Length(Mensagem.Conteudos)) do
+@@ -274,6 +313,18 @@ begin
+         txtTexto.Text := Mensagem.Conteudos[I].conteudo;
+         txtTexto.TextSettings.HorzAlign := TTextAlign.Leading;
+         txtTexto.TextSettings.VertAlign := TTextAlign.Leading;
++
++        // Pinta hiperlink
++        var Matches := TRegEx.Matches(txtTexto.Text, '(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])');
++        for var J := 0 to Pred(Matches.Count) do
++        begin
++          var Fonte := TFont.Create;
++          Fonte.Assign(txtTexto.Font);
++          Fonte.Style := Fonte.Style + [TFontStyle.fsUnderline];
++          txtTexto.Links := txtTexto.Links + [TTextLink.Create(TTextRange.Create(Pred(Matches.Item[J].Index), Matches.Item[J].Length), TTextAttribute.Create(Fonte, TAlphaColorF.Create(0, 0, 238 / 255).ToAlphaColor))];
++          txtTexto.Layout.AddAttribute(txtTexto.Links[Pred(Length(txtTexto.Links))].Range, txtTexto.Links[Pred(Length(txtTexto.Links))].Attribute);
++        end;
++
+         lytConteudoMensagem.AddObject(txtTexto);
+         TPascalStyleScript.Instance.RegisterObject(txtTexto, 'Mensagem.Conteudo.Texto');
+       end;
+@@ -312,6 +363,12 @@ begin
+   Item.Hora := lbHora;
+   FItems := FItems + [Item];
+   Redimensionar(sbxCentro.Width, lytAltura);
++  Item.Dados.AoAtualizar(
++    procedure(Mensagem: TPMensagem)
++    begin
++      AoAtualizar(Mensagem)
++    end
++  );
+ end;
+ 
+ procedure TVisualizador.NomearComponente(Componente: TControl);
+@@ -337,7 +394,7 @@ begin
+   Fundo := Largura.Controls[0] as TRectangle;
+   Conteudo := Fundo.Controls[0] as TLayout;
+ 
+-  iMaximaLargura := 0;
++  iMaximaLargura := 30;
+   iSomaAltura := 0;
+   iMargem := Conteudo.Margins.Left + Conteudo.Margins.Right;
+ 
+@@ -349,7 +406,7 @@ begin
+     begin
+       Texto := Conteudo.Controls[I] as TText;
+       TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+-      Texto.Canvas.MeasureText(TamanhoTexto, Texto.Text, True, [], TTextAlign.Center, TTextAlign.Leading);
++      Texto.Canvas.MeasureText(TamanhoTexto, Texto.Text, False, [], TTextAlign.Center, TTextAlign.Leading);
+       iMaximaLargura := Max(iMaximaLargura, Min(TamanhoTexto.Width, CentroWidth));
+       Texto.Height := TamanhoTexto.Bottom;
+       iSomaAltura := iSomaAltura + TamanhoTexto.Bottom;
+@@ -368,25 +425,13 @@ begin
+   begin
+     if not Assigned(Fundo.Controls[I]) or not Fundo.Controls[I].Visible then
+       Continue;
+-//    if Fundo.Controls[I] is TLabel then
+-//    begin
+-//      iSomaAltura := iSomaAltura + TLabel(Fundo.Controls[I]).Height;
+-//      TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+-//      TLabel(Fundo.Controls[I]).BeginUpdate;
+-//      try
+-//        TLabel(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TLabel(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
+-//      finally
+-//        TLabel(Fundo.Controls[I]).EndUpdate;
+-//      end;
+-//      iMaximaLargura := Max(iMaximaLargura, TamanhoTexto.Height);
+-//    end;
+     if Fundo.Controls[I] is TText then
+     begin
+       iSomaAltura := iSomaAltura + TText(Fundo.Controls[I]).Height;
+       TamanhoTexto := RectF(0, 0, CentroWidth - iMargem, 10000);
+       TText(Fundo.Controls[I]).BeginUpdate;
+       try
+-        TText(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Fundo.Controls[I]).Text, True, [], TTextAlign.Trailing, TTextAlign.Center);
++        TText(Fundo.Controls[I]).Canvas.MeasureText(TamanhoTexto, TText(Fundo.Controls[I]).Text, False, [], TTextAlign.Trailing, TTextAlign.Center);
+       finally
+         TText(Fundo.Controls[I]).EndUpdate;
+       end;
+@@ -401,7 +446,6 @@ procedure TVisualizador.rtgUltimaClick(Sender: TObject);
+ begin
+   // Posiciona na última mensagem
+   TAnimator.AnimateFloat(scroll, 'Value', scroll.Max - scroll.ViewportSize, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+-  TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8 + 5, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
+ end;
+ 
+ procedure TVisualizador.sbxCentroViewportPositionChange(Sender: TObject; const OldViewportPosition, NewViewportPosition: TPointF; const ContentSizeChanged: Boolean);
+@@ -414,30 +458,47 @@ begin
+ end;
+ 
+ procedure TVisualizador.scrollChange(Sender: TObject);
++const
++  Borda = 8;
++var
++  bVisivel: Boolean;
+ begin
+   // Atualiza a visão
+   sbxCentro.ViewportPosition := TPointF.Create(0, scroll.Value);
+ 
++  bVisivel := rtgUltima.Visible;
++
+   // Define o posicionamento do botão de ir para última mensagem
+-  if not rtgUltima.Visible then
++  if not bVisivel then
+   begin
+     rtgUltima.Visible := True;
+-    rtgUltima.Position.X := lytConteudo.Width - rtgUltima.Width - scroll.Width - 8;
+-    rtgUltima.Position.Y := lytConteudo.Height - rtgUltima.Height - 8;
++    rtgUltima.Position.X := lytConteudo.Width - rtgUltima.Width - scroll.Width - Borda;
++    rtgUltima.Position.Y := lytConteudo.Height - rtgUltima.Height - Borda;
+   end;
+ 
+   // Exibe botão para ir até a última mensagem
+   if (scroll.Value < (scroll.Max - scroll.ViewportSize - 300)) then
+   begin
+     // Exibe
+-    if rtgUltima.Position.Y = (lytConteudo.Height + rtgUltima.Height + 8) then
+-      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height - rtgUltima.Height - 8, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
++    if rtgUltima.Position.Y = (lytConteudo.Height + rtgUltima.Height + Borda) then
++    begin
++      TAnimator.StopAnimation(rtgUltima, 'Position.Y');
++      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height - rtgUltima.Height - Borda, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
++    end;
+   end
+   else
+   begin
+     // Oculta
+-    if rtgUltima.Position.Y = (lytConteudo.Height - rtgUltima.Height - 8) then
+-      TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + 8, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
++    if not bVisivel then
++      rtgUltima.Position.Y := lytConteudo.Height + rtgUltima.Height + Borda
++    else
++    begin
++      if rtgUltima.Position.Y = (lytConteudo.Height - rtgUltima.Height - Borda) then
++      begin
++        TAnimator.StopAnimation(rtgUltima, 'Position.Y');
++        TAnimator.AnimateFloat(rtgUltima, 'Position.Y', lytConteudo.Height + rtgUltima.Height + Borda, 0.5, TAnimationType.InOut, TInterpolationType.Cubic);
++      end;
++    end;
+   end;
+ end;
+ 
+@@ -477,7 +538,8 @@ end;
+ 
+ procedure TVisualizador.PosicionarUltima;
+ begin
+-  rtgUltimaClick(rtgUltima);
++  scroll.Value := scroll.Max - scroll.ViewportSize;
++  rtgUltima.Visible := False;
+ end;
+ 
+ procedure TVisualizador.Limpar;
+@@ -497,34 +559,129 @@ begin
+     Exit;
+ 
+   for I := Pred(Length(FItems)) downto 0 do
++    if FItems[I].Dados.Lado <> TLado.Direito then
++      if not FItems[I].Dados.Visualizada then
++        if InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
++          FItems[I].Dados.VisualizarMensagem;
++end;
++
++procedure TVisualizador.AoAtualizar(Mensagem: TPMensagem);
++var
++  Item: TItem;
++begin
++  for Item in FItems do
+   begin
+-    if FItems[I].Dados.Visualizada then
++    if Mensagem.Lado <> TLado.Direito then
++      Continue;
++
++    if Item.Dados.Id <> Mensagem.Id then
+       Continue;
+ 
+-    if InRange(FItems[I].Mensagem.Position.Y, scroll.Value, scroll.Value + lytConteudo.Height) then
++    if Mensagem.Visualizada then
++      Item.Hora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ✅'
++    else
++    if Mensagem.Recebida then
++      Item.Hora.Text := FormatDateTime('hh:nn', Mensagem.inserida) +' ☑';
++  end;
++end;
++
++{ TText }
++
++procedure TText.Click;
++var
++  srv: IFMXMouseService;
++  P: TPointF;
++  CaretPos: Integer;
++  I: Integer;
++  sLink: String;
++begin
++  if Length(Links) = 0 then
++    Exit;
++
++  if not TPlatformServices.Current.SupportsPlatformService(IFMXMouseService, IInterface(srv)) then
++    Exit;
++
++  P := Self.ScreenToLocal(srv.GetMousePos);
++  CaretPos := Layout.PositionAtPoint(TPointF.Create(P.X, P.Y));
++
++  for I := 0 to Pred(Length(Links)) do
++  begin
++    if Links[I].Range.InRange(CaretPos) then
+     begin
+-      FItems[I].Dados.Visualizada := True;
+-      with TColorAnimation.Create(FItems[I].Hora) do
++      sLink := Copy(Text, Succ(Links[I].Range.Pos), Links[I].Range.Length);
++
++      Self.Canvas.BeginScene;
++      Self.Layout.BeginUpdate;
++      try
++        Links[I].Attribute.Color := TAlphaColorF.Create(85 / 255, 26 / 255, 139 / 255).ToAlphaColor;
++        Self.Layout.AddAttribute(Links[I].Range, Links[I].Attribute);
++      finally
++        Self.Layout.EndUpdate;
++        Self.Canvas.EndScene;
++      end;
++      Self.Repaint;
++
++      Break;
++    end;
++  end;
++
++  if not sLink.IsEmpty then
++  begin
++    {$IFDEF MSWINDOWS}
++    ShellExecute(0, 'OPEN', PChar(sLink), '', '', SW_SHOWNORMAL);
++    {$ENDIF MSWINDOWS}
++    {$IFDEF POSIX}
++    _system(PAnsiChar('open '+ AnsiString(sLink)));
++    {$ENDIF POSIX}
++  end;
++end;
++
++procedure TText.DblClick;
++var
++  svc: IFMXExtendedClipboardService;
++  Def: TAlphaColor;
++begin
++  if TPlatformServices.Current.SupportsPlatformService(IFMXExtendedClipboardService, svc) then
++  begin
++    svc.SetText(Text);
++    Def := Self.Color;
++    Color := TAlphaColors.Green;
++    TAnimator.AnimateColor(Self, 'Color', Def, 1, TAnimationType.InOut, TInterpolationType.Cubic);
++  end;
++end;
++
++procedure TText.MouseMove(Shift: TShiftState; X, Y: Single);
++var
++  CaretPos: Integer;
++  I: Integer;
++  cr: TCursor;
++begin
++  inherited;
++  cr := crDefault;
++  try
++    if Length(Links) = 0 then
++      Exit;
++    CaretPos := Layout.PositionAtPoint(TPointF.Create(X, Y));
++    for I := 0 to Pred(Length(Links)) do
++    begin
++      if Links[I].Range.InRange(CaretPos) then
+       begin
+-        TAnimator.StopPropertyAnimation(FItems[I].Hora, 'TextSettings.FontColor');
+-        Parent := FItems[I].Hora;
+-        AnimationType := TAnimationType.In;
+-        Interpolation := TInterpolationType.Linear;
+-        Duration := Duration;
+-        PropertyName := 'TextSettings.FontColor';
+-        StartFromCurrent := True;
+-        StopValue := TAlphaColors.Blue;
+-        Delay := 2;
+-        Start;
++        cr := crHandPoint;
++        Break;
+       end;
+     end;
++  finally
++    if Self.Cursor <> cr then
++      Self.Cursor := cr;
+   end;
+ end;
+ 
+-procedure TVisualizador.VisualizarTudo;
++{ TTextLink }
++
++constructor TTextLink.Create(ARange: TTextRange; AAttribute: TTextAttribute);
+ begin
+-  for var I := Pred(Length(FItems)) downto 0 do
+-    FItems[I].Dados.Visualizada := True;
++  Range := ARange;
++  Attribute := AAttribute;
+ end;
+ 
+ end.

@@ -8,8 +8,12 @@ Instruções para quem trabalha neste repositório, pessoas ou agentes de IA. Le
   - `../conversa`: servidor Bun + Elysia + Postgres + MinIO + MediaMTX + coturn;
   - `../conversa-web`: cliente web Vue, que é a **referência de comportamento**;
   - `../conversa-android-kotlin`: o app Android (nova base em Kotlin). **As cores do Android vêm deste app** (`docs/design/cores.md`).
-- **Situação (2026-10-08):** o app atual foi escrito para o servidor Delphi (parou em abril de 2026). A auditoria de outubro recomenda **recomeçar o núcleo numa nova base Delphi FMX Win64 e transplantar a interface** (`docs/adr/0001-nova-base.md`, status **proposto**, aguardando o responsável).
-- Enquanto o ADR 0001 não for aceito, o trabalho é **só de documentação** e da Etapa 0 do `TODO.md` (com autorização).
+- **Situação (2026-10-09):** o app atual foi escrito para o servidor Delphi (parou em abril de 2026). A auditoria de outubro decidiu **recomeçar o núcleo numa nova base Delphi FMX Win64 e transplantar a interface** (`docs/adr/0001-nova-base.md`, **aceito** em 2026-10-09). O trabalho segue o `TODO.md`, na branch `nova-base`; o app atual fica em `legado/` e na branch `legado/abril-2026`.
+- **Trabalho autônomo sem compilar:** o responsável pediu que o trabalho siga sozinho, como no Android, e ele compila no IDE depois ("build geral"). Como esta máquina não compila por linha de comando (ver Build), **todo código novo passa por revisão antes do commit**:
+  - cada identificador da RTL/FMX conferido no fonte do Delphi (`C:\Program Files (x86)\Embarcadero\Studio\23.0\source`), com a unit que o declara;
+  - `uses` conferidos por `node ferramentas/verificar-uses/verificar.mjs` (sem nada faltando, sem unit inexistente);
+  - estrutura conferida (cada `begin`/`try`/`case`/`record`/`class` fechado; `interface`/`implementation` coerentes com as declarações).
+  - Erros que o build revelar são corrigidos com registro no histórico (fluxo "Repositório e build").
 
 ## Onde está cada coisa
 
@@ -31,7 +35,7 @@ Instruções para quem trabalha neste repositório, pessoas ou agentes de IA. Le
 | Cores (este app é a fonte) | `docs/design/cores.md` |
 | Rodar contra o servidor de desenvolvimento, certificado, contas de teste, build | `docs/desenvolvimento/servidor-de-dev.md` |
 | Contrato publicado pelo servidor (OpenAPI) | `docs/contrato/openapi.json` |
-| Documentação antiga (não usar como referência; vai para `docs/legado/` na Etapa 0) | `docs/ALTERACOES_TCP_RECONEXAO.md`, `docs/waveform-spec.md`, `docs/todo.md`, `conversa-webrtc/whep-viewer-spec.md` |
+| Documentação antiga e *stashes* do app atual (não usar como referência) | `docs/legado/` (`LEIA.md` tem o mapa) |
 
 ## Regra obrigatória: histórico de alterações
 

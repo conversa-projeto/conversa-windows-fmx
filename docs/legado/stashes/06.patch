@@ -1,0 +1,424 @@
+diff --git a/Conversa.Tela.Inicial.view.fmx b/Conversa.Tela.Inicial.view.fmx
+index 20dc58e..3addfdc 100644
+--- a/Conversa.Tela.Inicial.view.fmx
++++ b/Conversa.Tela.Inicial.view.fmx
+@@ -32,7 +32,7 @@ object TelaInicial: TTelaInicial
+   end
+   object tmrShow: TTimer
+     Enabled = False
+-    Interval = 2000
++    Interval = 30
+     OnTimer = tmrShowTimer
+     Left = 184
+     Top = 65534
+diff --git a/Conversa.Tela.Inicial.view.pas b/Conversa.Tela.Inicial.view.pas
+index 95eb845..5f6d184 100644
+--- a/Conversa.Tela.Inicial.view.pas
++++ b/Conversa.Tela.Inicial.view.pas
+@@ -30,9 +30,9 @@ uses
+ 
+ type
+   TTelaInicial = class(TConversaFormulario)
+-    tmrShow: TTimer;
+     rctAvisoConexao: TRectangle;
+     txtAvisoConexao: TText;
++    tmrShow: TTimer;
+     procedure FormShow(Sender: TObject);
+     procedure tmrShowTimer(Sender: TObject);
+     procedure FormActivate(Sender: TObject);
+@@ -61,9 +61,8 @@ uses
+ 
+ constructor TTelaInicial.Create(AOwner: TComponent);
+ begin
+-  inherited Create(AOwner);
+-  TelaInicial := Self;
+-//  rctAvisoConexao.Visible := False;
++  inherited;
++  rctAvisoConexao.Visible := False;
+   TMessageManager.DefaultManager.SubscribeToMessage(TEventoStatusConexao, StatusConexao);
+ 
+   if (Configuracoes.Escala <> 0) and (Configuracoes.Escala <> lytClient.Scale.X) then
+@@ -128,7 +127,6 @@ end;
+ procedure TTelaInicial.tmrShowTimer(Sender: TObject);
+ begin
+   inherited;
+-  TelaInicial := Self;
+   tmrShow.Enabled := False;
+   Iniciar;
+ end;
+@@ -157,6 +155,7 @@ end;
+ 
+ procedure TTelaInicial.ExibirTelaPrincipal;
+ begin
++  TitleBar.Visible := True;
+   with TPrincipalView.New(lytClientForm) do
+   begin
+     lytTitleBarClient.Parent := Self.TitleBar.lytTitleBarClient;
+diff --git a/Conversa.deployproj b/Conversa.deployproj
+index 5ba25b0..8149bb6 100644
+--- a/Conversa.deployproj
++++ b/Conversa.deployproj
+@@ -4,8 +4,8 @@
+         <ProjectFileVersion>12</ProjectFileVersion>
+     </ProjectExtensions>
+     <PropertyGroup>
+-        <DeviceId Condition="'$(Platform)'=='Android'"/>
+-        <DeviceId Condition="'$(Platform)'=='Android64'"/>
++        <DeviceId Condition="'$(Platform)'=='Android'">RXCX7007ZQW</DeviceId>
++        <DeviceId Condition="'$(Platform)'=='Android64'">RXCX7007ZQW</DeviceId>
+     </PropertyGroup>
+     <ItemGroup Condition="'$(Platform)'=='Win32'">
+         <DeployFile Include="$(SKIADIR)\Binary\Shared\Win32\sk4d.dll" Condition="'$(Config)'=='Debug' And '$(SKIADIR)'!=''">
+diff --git a/Conversa.dpr b/Conversa.dpr
+index def10c9..e011339 100644
+--- a/Conversa.dpr
++++ b/Conversa.dpr
+@@ -13,18 +13,7 @@ uses
+   REST.API in 'REST.API.pas',
+   Conversa.Formulario.Base in 'src\base\Conversa.Formulario.Base.pas',
+   Conversa.Formulario.TitleBar in 'src\base\Conversa.Formulario.TitleBar.pas' {ConversaFormularioTitleBar: TFrame},
+-
+-  {$IFDEF MSWINDOWS}
+-  Conversa.Formulario.Windows in 'src\base\Conversa.Formulario.Windows.pas',
+-  {$ENDIF}
+-
+-  {$IFDEF ANDROID}
+-  Conversa.Formulario.Android in 'src\base\Conversa.Formulario.Android.pas',
+-  {$ENDIF}
+-
+   Conversa.Formulario in 'src\base\Conversa.Formulario.pas' {ConversaFormulario},
+-
+-
+   Conversa.Tela.Inicial.view in 'Conversa.Tela.Inicial.view.pas' {TelaInicial},
+   Conversa.Principal in 'src\principal\Conversa.Principal.pas' {PrincipalView: TFrame},
+   PascalStyleScript in 'src\pss\PascalStyleScript.pas',
+diff --git a/Conversa.dproj b/Conversa.dproj
+index 8c70a7e..61f4eee 100644
+--- a/Conversa.dproj
++++ b/Conversa.dproj
+@@ -100,7 +100,7 @@
+         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
+         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
+         <SanitizedProjectName>Conversa</SanitizedProjectName>
+-        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
++        <DCC_UnitSearchPath>.\lib\AES;.\lib\AES\Ciphers;.\lib\AES\Hashes;.\src\base;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+         <PreBuildEvent><![CDATA[taskkill /f /t /im Conversa.exe
+ $(PreBuildEvent)]]></PreBuildEvent>
+         <PreBuildEventCancelOnError>false</PreBuildEventCancelOnError>
+@@ -197,7 +197,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
+     </PropertyGroup>
+     <PropertyGroup Condition="'$(Cfg_1_Android64)'!=''">
+         <VerInfo_Build>1</VerInfo_Build>
+-        <Android_NotificationAccentColor>#000000</Android_NotificationAccentColor>
++        <Android_BackgroundColor>#FFFFFF</Android_BackgroundColor>
++        <Android_DarkBackgroundColor>#000000</Android_DarkBackgroundColor>
+     </PropertyGroup>
+     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+         <DCC_RemoteDebug>false</DCC_RemoteDebug>
+@@ -234,17 +235,11 @@ $(PreBuildEvent)]]></PreBuildEvent>
+             <DesignClass>TDataModule</DesignClass>
+         </DCCReference>
+         <DCCReference Include="REST.API.pas"/>
+-        <DCCReference Include="src\base\Conversa.Formulario.Base.pas">
+-            <Form>,
+-  Conversa.Formulario.TitleBar in &apos;src\base\Conversa.Formulario.TitleBar.pas&apos; {ConversaFormularioTitleBar</Form>
+-            <DesignClass>TFrame</DesignClass>
+-        </DCCReference>
++        <DCCReference Include="src\base\Conversa.Formulario.Base.pas"/>
+         <DCCReference Include="src\base\Conversa.Formulario.TitleBar.pas">
+             <Form>ConversaFormularioTitleBar</Form>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+-        <DCCReference Include="src\base\Conversa.Formulario.Windows.pas"/>
+-        <DCCReference Include="src\base\Conversa.Formulario.Android.pas"/>
+         <DCCReference Include="src\base\Conversa.Formulario.pas">
+             <Form>ConversaFormulario</Form>
+         </DCCReference>
+@@ -450,8 +445,8 @@ $(PreBuildEvent)]]></PreBuildEvent>
+                     <Source Name="MainSource">Conversa.dpr</Source>
+                 </Source>
+                 <Excluded_Packages>
+-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k280.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp280.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
++                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
++                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                 </Excluded_Packages>
+             </Delphi.Personality>
+             <Deployment Version="4">
+diff --git a/lib/AES/Conversa.AES.pas b/lib/AES/Conversa.AES.pas
+index 1d3d4aa..2adade1 100644
+--- a/lib/AES/Conversa.AES.pas
++++ b/lib/AES/Conversa.AES.pas
+@@ -23,7 +23,12 @@ function Encrypt(const Value: String): String;
+ var
+   Salt: String;
+   ValueBytes, Key: TBytes;
++  Teste: String;
+ begin
++  {$IFNDEF MSWINDOWS}
++  Exit(Value);
++  {$ENDIF}
++
+   if Value.Trim.IsEmpty then
+     Exit(Value);
+ 
+@@ -40,7 +45,9 @@ begin
+   Salt := TGUID.NewGuid.ToString.Trim(['{', '}', ' ', '-']);
+   Key  := TEncoding.UTF8.GetBytes(MotherBoardSerial + Salt);
+   ValueBytes := TEncoding.UTF8.GetBytes(Value);
+-  Result := TNetEncoding.Base64.Encode(Salt +':'+ TNetEncoding.Base64.EncodeBytesToString(TAES.Encrypt(ValueBytes, Key, 256, IV, cmCBC, pmPKCS7)));
++  ValueBytes := TAES.Encrypt(ValueBytes, Key, 256, IV, cmCBC, pmPKCS7);
++  Teste := TNetEncoding.Base64.EncodeBytesToString(ValueBytes);
++  Result := TNetEncoding.Base64.Encode(Salt +':'+ Teste);
+ end;
+ 
+ function Decrypt(const Value: String): String;
+@@ -49,6 +56,9 @@ var
+   Salt: String;
+   ValueBytes, Key: TBytes;
+ begin
++  {$IFNDEF MSWINDOWS}
++  Exit(Value);
++  {$ENDIF}
+   if Value.Trim.IsEmpty then
+     Exit(Value);
+ 
+diff --git a/src/base/Conversa.Formulario.Android.pas b/src/base/Conversa.Formulario.Android.pas
+index 38d9d8f..859b394 100644
+--- a/src/base/Conversa.Formulario.Android.pas
++++ b/src/base/Conversa.Formulario.Android.pas
+@@ -19,6 +19,9 @@ uses
+ 
+ type
+   TConversaFormularioAndroid = class(TConversaFormularioBase)
++  private
++    procedure FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
++    procedure FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
+   public
+     constructor Create(AOwner: TComponent); override;
+   end;
+@@ -30,7 +33,20 @@ implementation
+ constructor TConversaFormularioAndroid.Create(AOwner: TComponent);
+ begin
+   inherited;
+-  //
++  TitleBar.Visible := False;
++  OnVirtualKeyboardHidden := FormVirtualKeyboardHidden;
++  OnVirtualKeyboardShown := FormVirtualKeyboardShown;
++end;
++
++procedure TConversaFormularioAndroid.FormVirtualKeyboardShown(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
++begin
++  lytClient.Align := TAlignLayout.Top;
++  lytClient.Height := lytClient.Height - Bounds.Height;
++end;
++
++procedure TConversaFormularioAndroid.FormVirtualKeyboardHidden(Sender: TObject; KeyboardVisible: Boolean; const Bounds: TRect);
++begin
++  lytClient.Align := TAlignLayout.Client;
+ end;
+ 
+ end.
+diff --git a/src/base/Conversa.Formulario.Base.pas b/src/base/Conversa.Formulario.Base.pas
+index 9fcab0f..ac409b2 100644
+--- a/src/base/Conversa.Formulario.Base.pas
++++ b/src/base/Conversa.Formulario.Base.pas
+@@ -24,6 +24,7 @@ type
+     function GetPSSClassName: String;
+   protected
+     procedure CriarTitleBar;
++    procedure CriarFundo;
+   public
+     TitleBar: TConversaFormularioTitleBar;
+     rctFundo: TRectangle;
+@@ -44,25 +45,30 @@ implementation
+ constructor TConversaFormularioBase.Create(AOwner: TComponent);
+ begin
+   inherited;
+-  rctFundo := TRectangle.Create(Self);
+-  rctFundo.HitTest := False;
++  CriarFundo;
++  CriarTitleBar;
++  TPascalStyleScript.Instance.RegisterObject(Self, GetPSSClassName);
++end;
+ 
++procedure TConversaFormularioBase.CriarFundo;
++begin
++  rctFundo := TRectangle.Create(Self);
+   lytClient := TLayout.Create(rctFundo);
+-
+   lytClientForm := TLayout.Create(lytClient);
+ 
++  rctFundo.HitTest := False;
+   rctFundo.Parent := Self;
+   rctFundo.Align := TAlignLayout.Client;
+-  rctFundo.XRadius := 5;
+-  rctFundo.YRadius := 5;
++//  rctFundo.XRadius := 5;
++//  rctFundo.YRadius := 5;
+   rctFundo.Visible := True;
++  rctFundo.Stroke.Kind := TBrushKind.None;
+ 
+   lytClient.Parent := rctFundo;
+   lytClient.Align := TAlignLayout.Client;
+ 
+   lytClientForm.Parent := lytClient;
+   lytClientForm.Align := TAlignLayout.Client;
+-  TPascalStyleScript.Instance.RegisterObject(Self, GetPSSClassName);
+ end;
+ 
+ procedure TConversaFormularioBase.CriarTitleBar;
+diff --git a/src/base/Conversa.Formulario.TitleBar.fmx b/src/base/Conversa.Formulario.TitleBar.fmx
+index c457614..d7bb9d2 100644
+--- a/src/base/Conversa.Formulario.TitleBar.fmx
++++ b/src/base/Conversa.Formulario.TitleBar.fmx
+@@ -9,7 +9,6 @@ object ConversaFormularioTitleBar: TConversaFormularioTitleBar
+     Size.Height = 40.000000000000000000
+     Size.PlatformDefault = False
+     Stroke.Kind = None
+-    OnMouseDown = rctTitleBarMouseDown
+     object lytBotoesSistema: TLayout
+       Align = Right
+       Position.X = 185.000000000000000000
+@@ -153,7 +152,7 @@ object ConversaFormularioTitleBar: TConversaFormularioTitleBar
+       Padding.Top = 8.000000000000000000
+       Padding.Right = 8.000000000000000000
+       Padding.Bottom = 8.000000000000000000
+-      Size.Width = 40.000000000000000000
++      Size.Width = 140.000000000000000000
+       Size.Height = 40.000000000000000000
+       Size.PlatformDefault = False
+       TabOrder = 1
+@@ -499,15 +498,31 @@ object ConversaFormularioTitleBar: TConversaFormularioTitleBar
+               9234A1FE7F560488E83CE069940000000049454E44AE426082}
+             FileName = 'C:\Users\danie\Desktop\GIT\log-o.png'
+           end>
+-        Align = Center
++        Align = Left
++        Position.X = 8.000000000000000000
++        Position.Y = 8.000000000000000000
+         Size.Width = 20.000000000000000000
+-        Size.Height = 20.000000000000000000
++        Size.Height = 24.000000000000000000
+         Size.PlatformDefault = False
+       end
++      object txtTitulo: TText
++        Align = Left
++        AutoSize = True
++        Margins.Left = 10.000000000000000000
++        Position.X = 38.000000000000000000
++        Position.Y = 8.000000000000000000
++        Size.Width = 87.740882873535160000
++        Size.Height = 26.601562500000000000
++        Size.PlatformDefault = False
++        Text = 'Conversa'
++        TextSettings.Font.Size = 20.000000000000000000
++        TextSettings.WordWrap = False
++        TextSettings.HorzAlign = Leading
++      end
+     end
+     object lytTitleBarClient: TLayout
+       Align = Client
+-      Size.Width = 145.000000000000000000
++      Size.Width = 45.000000000000000000
+       Size.Height = 40.000000000000000000
+       Size.PlatformDefault = False
+       TabOrder = 2
+diff --git a/src/base/Conversa.Formulario.TitleBar.pas b/src/base/Conversa.Formulario.TitleBar.pas
+index 176e184..8d4d2b1 100644
+--- a/src/base/Conversa.Formulario.TitleBar.pas
++++ b/src/base/Conversa.Formulario.TitleBar.pas
+@@ -41,6 +41,7 @@ type
+     lytLogo: TLayout;
+     imgLogo: TImage;
+     lytTitleBarClient: TLayout;
++    txtTitulo: TText;
+     procedure lytMaximizeButtonClick(Sender: TObject);
+     procedure lytMinimizeButtonClick(Sender: TObject);
+     procedure lytCloseButtonClick(Sender: TObject);
+@@ -50,12 +51,12 @@ type
+     procedure lytMaximizeButtonMouseLeave(Sender: TObject);
+     procedure lytMinimizeButtonMouseEnter(Sender: TObject);
+     procedure lytMinimizeButtonMouseLeave(Sender: TObject);
+-    procedure rctTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+   private
+     { Private declarations }
+   public
+     { Public declarations }
+     Handle: TFunc<TWindowHandle>;
++    procedure AfterConstruction; override;
+     procedure DoConversaMinimize;
+     procedure DoConversaMaximize;
+     procedure DoConversaClose;
+@@ -115,17 +116,6 @@ begin
+   TAnimator.AnimateColor(rctMinimize, 'Fill.Color', TAlphaColorF.Create(255, 255, 255, 0).ToAlphaColor, 0.001);
+ end;
+ 
+-procedure TConversaFormularioTitleBar.rctTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+-begin
+-//  if Button = TMouseButton.mbLeft then
+-//  begin
+-//    if ssDouble in Shift then
+-//      SendMessage(FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd, WM_NCLBUTTONDBLCLK, HTCAPTION, 0)
+-//    else
+-//      SendMessage(FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+-//  end;
+-end;
+-
+ procedure TConversaFormularioTitleBar.DoConversaMinimize;
+ begin
+   //
+@@ -141,6 +131,12 @@ begin
+   //
+ end;
+ 
++procedure TConversaFormularioTitleBar.AfterConstruction;
++begin
++  inherited;
++  lytBotoesSistema.Visible := False;
++end;
++
+ procedure TConversaFormularioTitleBar.DoConversaClose;
+ begin
+   //
+diff --git a/src/base/Conversa.Formulario.Windows.pas b/src/base/Conversa.Formulario.Windows.pas
+index 4966624..e464d28 100644
+--- a/src/base/Conversa.Formulario.Windows.pas
++++ b/src/base/Conversa.Formulario.Windows.pas
+@@ -33,6 +33,7 @@ type
+     function SystemButton(pt: TPoint): Integer;
+     procedure RemoverTrayIcon;
+     procedure TrayWndProc(var Message: Winapi.Messages.TMessage);
++    procedure OnTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
+   protected
+     procedure CreateHandle; override;
+     procedure DestroyHandle; override;
+@@ -280,7 +281,9 @@ end;
+ constructor TConversaFormularioWindows.Create(AOwner: TComponent);
+ begin
+   inherited;
+-  CriarTitleBar;
++  TitleBar.lytBotoesSistema.Visible := True;
++  TitleBar.rctTitleBar.OnMouseDown := OnTitleBarMouseDown;
++  //
+ end;
+ 
+ destructor TConversaFormularioWindows.Destroy;
+@@ -424,4 +427,17 @@ begin
+   inherited;
+ end;
+ 
++
++procedure TConversaFormularioWindows.OnTitleBarMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Single);
++begin
++  if Button = TMouseButton.mbLeft then
++  begin
++    if ssDouble in Shift then
++      SendMessage(FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd, WM_NCLBUTTONDBLCLK, HTCAPTION, 0)
++    else
++      SendMessage(FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
++  end;
++end;
++
++
+ end.

@@ -43,11 +43,6 @@ __recovery/
 # Castalia statistics file (since XE7 Castalia is distributed with Delphi)
 *.stat
 
-# Proxy
-LOJAS/MD006/PROXY/DS\.Proxy\.pas
-MATRIZ/MD009/PROXY/DS\.Proxy\.pas
-MATRIZ/MD009/PROXY/LIB012\.pas
-
 # Visual Studio Code
 .vscode/
 *.delphilsp.json

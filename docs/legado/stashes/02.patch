@@ -1,0 +1,424 @@
+diff --git a/Conversa.dpr b/Conversa.dpr
+index 4b6427b..3dd7bf1 100644
+--- a/Conversa.dpr
++++ b/Conversa.dpr
+@@ -29,6 +29,7 @@ uses
+   Conversa.Memoria in 'Conversa.Memoria.pas',
+   Conversa.Audio in 'Conversa.Audio.pas',
+   Conversa.Notificacao.Item in 'src\notificacao\Conversa.Notificacao.Item.pas' {NotificacaoItem: TFrame},
++  Conversa.Notificacao.Chamada in 'src\notificacao\Conversa.Notificacao.Chamada.pas' {ChamadaNotificacaoChamada: TFrame},
+   Conversa.Notificacao in 'src\notificacao\Conversa.Notificacao.pas',
+   Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador},
+   Conversa.Log in 'Conversa.Log.Pas',
+@@ -64,7 +65,7 @@ begin
+     Application.Initialize;
+     try
+       Application.CreateForm(TTelaInicial, TelaInicial);
+-      Application.Run;
++  Application.Run;
+     finally
+       FreeAndNil(Dados);
+     end;
+diff --git a/Conversa.dproj b/Conversa.dproj
+index 3abc6d2..10f4a9f 100644
+--- a/Conversa.dproj
++++ b/Conversa.dproj
+@@ -5,7 +5,7 @@
+         <FrameworkType>FMX</FrameworkType>
+         <Base>True</Base>
+         <Config Condition="'$(Config)'==''">Debug</Config>
+-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
++        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+         <TargetedPlatforms>32787</TargetedPlatforms>
+         <AppType>Application</AppType>
+         <MainSource>Conversa.dpr</MainSource>
+@@ -285,7 +285,14 @@ $(PreBuildEvent)]]></PreBuildEvent>
+             <Form>NotificacaoItem</Form>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+-        <DCCReference Include="src\notificacao\Conversa.Notificacao.pas"/>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.Chamada.pas">
++            <Form>ChamadaNotificacaoChamada</Form>
++            <DesignClass>TFrame</DesignClass>
++        </DCCReference>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.pas">
++            <Form>NotificacaoItem</Form>
++            <DesignClass>TFrame</DesignClass>
++        </DCCReference>
+         <DCCReference Include="src\notificacao\Conversa.Notificacao.Visualizador.pas">
+             <Form>NotificacaoVisualizador</Form>
+         </DCCReference>
+@@ -315,33 +322,27 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         <DCCReference Include="src\Conversa.Serializer.pas"/>
+         <DCCReference Include="src\Conversa.Loading.Pontos.frame.pas">
+             <Form>ConversaLoadingPontosFrame</Form>
+-            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <DCCReference Include="src\chamada\Conversa.Chamada.BarraTitulo.pas">
+             <Form>ConversaChamadaBarraTitulo</Form>
+-            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <DCCReference Include="src\chamada\Conversa.Chamada.pas"/>
+         <DCCReference Include="src\chamada\Conversa.Chamada.view.pas">
+             <Form>ConversaChamadaView</Form>
+-            <FormType>fmx</FormType>
+         </DCCReference>
+         <DCCReference Include="src\chamada\Conversa.Chamada.Usuario.view.pas">
+             <Form>ConversaChamadaUsuarioView</Form>
+-            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <DCCReference Include="Conversa.Dados.pas"/>
+         <DCCReference Include="src\chamada\Conversa.Chamada.Usuarios.Listagem.pas">
+             <Form>ConversaChamadaUsuariosListagem</Form>
+-            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <DCCReference Include="src\chamada\Conversa.Chamada.Usuarios.Listagem.Item.pas">
+             <Form>ConversaChamadaUsuariosListItem</Form>
+-            <FormType>fmx</FormType>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+         <RcItem Include="res\nova_mensagem.wav">
+diff --git a/src/notificacao/Conversa.Notificacao.Chamada.fmx b/src/notificacao/Conversa.Notificacao.Chamada.fmx
+new file mode 100644
+index 0000000..3c28f81
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Chamada.fmx
+@@ -0,0 +1,156 @@
++object ConversaNotificacaoChamada: TConversaNotificacaoChamada
++  Margins.Bottom = 5.000000000000000000
++  Size.Width = 300.000000000000000000
++  Size.Height = 150.000000000000000000
++  Size.PlatformDefault = False
++  object rctFundo: TRectangle
++    Align = Client
++    Fill.Color = xFF007FFF
++    Padding.Left = 5.000000000000000000
++    Padding.Top = 5.000000000000000000
++    Padding.Right = 5.000000000000000000
++    Padding.Bottom = 5.000000000000000000
++    Size.Width = 300.000000000000000000
++    Size.Height = 150.000000000000000000
++    Size.PlatformDefault = False
++    Stroke.Kind = None
++    XRadius = 5.000000000000000000
++    YRadius = 5.000000000000000000
++    OnClick = rctFundoClick
++    object lytTopo: TLayout
++      Align = Top
++      Position.X = 5.000000000000000000
++      Position.Y = 5.000000000000000000
++      Size.Width = 290.000000000000000000
++      Size.Height = 20.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 1
++      object txtTitulo: TText
++        Align = Left
++        Size.Width = 100.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        Text = 'Conversa'
++        TextSettings.FontColor = claWhite
++        TextSettings.HorzAlign = Leading
++      end
++      object lytCloseButton: TLayout
++        Align = Right
++        Cursor = crHandPoint
++        HitTest = True
++        Position.X = 270.000000000000000000
++        Size.Width = 20.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 0
++        OnClick = lytCloseButtonClick
++        object rctClose: TRectangle
++          Align = Client
++          Fill.Color = claNull
++          HitTest = False
++          Size.Width = 20.000000000000000000
++          Size.Height = 20.000000000000000000
++          Size.PlatformDefault = False
++          Stroke.Kind = None
++          object lytClose: TLayout
++            Align = Center
++            Padding.Left = 1.000000000000000000
++            Padding.Top = 1.000000000000000000
++            Padding.Right = 1.000000000000000000
++            Padding.Bottom = 1.000000000000000000
++            Size.Width = 12.000000000000000000
++            Size.Height = 12.000000000000000000
++            Size.PlatformDefault = False
++            TabOrder = 0
++            object pthClose: TPath
++              Align = Client
++              Data.Path = {
++                0E0000000000000000008043A4B063C301000000A4B06343000080C301000000
++                52D8E1430000F0C301000000A4B06343000030C40100000000008043D71337C4
++                010000000000F043AE27FEC30100000000003044D71337C401000000D7133744
++                000030C401000000AE27FE430000F0C301000000D7133744000080C301000000
++                00003044A4B063C3010000000000F04352D8E1C30100000000008043A4B063C3
++                0300000000008043A4B063C3}
++              Fill.Color = claWhite
++              HitTest = False
++              Size.Width = 10.000000000000000000
++              Size.Height = 10.000000000000000000
++              Size.PlatformDefault = False
++              Stroke.Kind = None
++              WrapMode = Fit
++            end
++          end
++        end
++      end
++    end
++    object lytCentro: TLayout
++      Align = Scale
++      Position.X = 5.000000000000000000
++      Position.Y = 25.000000000000000000
++      Size.Width = 290.000000000000000000
++      Size.Height = 120.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 2
++      object crclParticipante: TCircle
++        Align = Top
++        Size.Width = 290.000000000000000000
++        Size.Height = 60.000000000000000000
++        Size.PlatformDefault = False
++        object pthContatos: TPath
++          Align = Contents
++          Data.Path = {
++            37000000000000000000F0430000F0C3020000000000DA430000F0C302000000
++            AB2AC74355D5F7C3020000000080B74300C003C40200000055D5A74355950BC4
++            020000000000A043000015C4020000000000A043000020C4020000000000A043
++            00002BC40200000055D5A743AB6A34C4020000000080B74300403CC402000000
++            AB2AC743551544C4020000000000DA43000048C4020000000000F043000048C4
++            0200000000000344000048C402000000AB6A0C44551544C40200000000401444
++            00403CC40200000055151C44AB6A34C4020000000000204400002BC402000000
++            00002044000020C40200000000002044000015C40200000055151C4455950BC4
++            020000000040144400C003C402000000AB6A0C4455D5F7C30200000000000344
++            0000F0C3020000000000F0430000F0C3030000000000F0430000F0C300000000
++            00002043000020C30100000000002043000088C30200000000002043555593C3
++            0200000055D5254300C09DC302000000008031430040A7C302000000AB2A3D43
++            00C0B0C302000000ABAA4C430000B8C302000000000060430000BDC302000000
++            ABAA84435555C7C302000000ABAA99435515CFC3020000000000AF430040D4C3
++            020000005555C443AB6AD9C3020000000000DA430000DCC3020000000000F043
++            0000DCC302000000000003440000DCC30200000055D50D44AB6AD9C302000000
++            008018440040D4C302000000AB2A23445515CFC302000000ABAA2D445555C7C3
++            02000000000038440000BDC30200000055D53C440000B8C30200000055B54044
++            00C0B0C30200000000A043440040A7C302000000AB8A464400C09DC302000000
++            00004844555593C30200000000004844000088C30100000000004844000020C3
++            0100000000002043000020C30300000000002043000020C3}
++          Fill.Color = claBlack
++          HitTest = False
++          Margins.Left = 10.000000000000000000
++          Margins.Top = 15.000000000000000000
++          Margins.Right = 10.000000000000000000
++          Margins.Bottom = 15.000000000000000000
++          Size.Width = 270.000000000000000000
++          Size.Height = 30.000000000000000000
++          Size.PlatformDefault = False
++          WrapMode = Fit
++        end
++        object txtNome: TText
++          Align = Bottom
++          Margins.Bottom = -20.000000000000000000
++          Position.Y = 62.708984375000000000
++          Size.Width = 290.000000000000000000
++          Size.Height = 17.291015625000000000
++          Size.PlatformDefault = False
++          Text = '[Usu'#225'rio]'
++          TextSettings.Font.Size = 13.000000000000000000
++          TextSettings.Font.StyleExt = {00070000000000000004000000}
++        end
++      end
++    end
++  end
++  object FloatAnimation: TFloatAnimation
++    Delay = 5.000000000000000000
++    Duration = 0.300000011920929000
++    OnFinish = FloatAnimationFinish
++    PropertyName = 'Opacity'
++    StartValue = 1.000000000000000000
++    StopValue = 0.000000000000000000
++  end
++end
+diff --git a/src/notificacao/Conversa.Notificacao.Chamada.pas b/src/notificacao/Conversa.Notificacao.Chamada.pas
+new file mode 100644
+index 0000000..e6521c2
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Chamada.pas
+@@ -0,0 +1,143 @@
++﻿unit Conversa.Notificacao.Chamada;
++
++interface
++
++uses
++  System.Classes,
++  System.Math,
++  System.StrUtils,
++  System.SysUtils,
++  System.Types,
++  System.UITypes,
++  System.Variants,
++  FMX.Controls,
++  FMX.Dialogs,
++  FMX.Effects,
++  FMX.Forms,
++  FMX.Graphics,
++  FMX.Layouts,
++  FMX.Objects,
++  FMX.StdCtrls,
++  FMX.TextLayout,
++  FMX.Types,
++  Conversa.Eventos,
++  Conversa.Notificacao, FMX.Ani;
++
++type
++  TConversaNotificacaoChamada = class(TFrame)
++    rctFundo: TRectangle;
++    lytTopo: TLayout;
++    lytCentro: TLayout;
++    txtTitulo: TText;
++    lytCloseButton: TLayout;
++    rctClose: TRectangle;
++    lytClose: TLayout;
++    pthClose: TPath;
++    FloatAnimation: TFloatAnimation;
++    crclParticipante: TCircle;
++    pthContatos: TPath;
++    txtNome: TText;
++    procedure lytCloseButtonClick(Sender: TObject);
++    procedure FloatAnimationFinish(Sender: TObject);
++    procedure rctFundoClick(Sender: TObject);
++  private
++    FChatId: Integer;
++    FConteudos: TArray<TMensagemNotificacao>;
++    procedure RegistrarEvento;
++    procedure StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
++  public
++    class function New(AOwner: TFmxObject): TConversaNotificacaoChamada;
++    destructor Destroy; override;
++    procedure AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
++    procedure AtualizarAltura(iTexto: Single);
++  end;
++
++implementation
++
++{$R *.fmx}
++
++uses
++  Conversa.Dados,
++  Conversa.Configuracoes,
++  Conversa.Chat.Listagem,
++  Conversa.Tela.Inicial.view,
++  Conversa.Windows.UserActivity;
++
++{ TNotificacao }
++
++class function TConversaNotificacaoChamada.New(AOwner: TFmxObject): TConversaNotificacaoChamada;
++begin
++  Sleep(1);
++  Result := TConversaNotificacaoChamada.Create(AOwner);
++  Result.Name := 'TConversaNotificacaoChamada_'+ FormatDateTime('yyyyymmddHHnnsszzzz', Now);
++  Result.Parent := AOwner;
++  Result.Align := TAlignLayout.Top;
++  Result.FloatAnimation.Delay := Configuracoes.Notificacoes.Timeout;
++  Result.FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++  Result.RegistrarEvento;
++  Result.Show;
++end;
++
++procedure TConversaNotificacaoChamada.AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
++begin
++  FloatAnimation.OnFinish := nil;
++  try
++    FloatAnimation.Enabled := False;
++    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++  finally
++    FloatAnimation.OnFinish := FloatAnimationFinish;
++  end;
++  FChatId := AChatId;
++  FConteudos := AConteudos;
++end;
++
++destructor TConversaNotificacaoChamada.Destroy;
++begin
++  TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++  inherited;
++end;
++
++procedure TConversaNotificacaoChamada.FloatAnimationFinish(Sender: TObject);
++begin
++  TNotificacaoManager.Fechar(FChatId);
++end;
++
++procedure TConversaNotificacaoChamada.lytCloseButtonClick(Sender: TObject);
++begin
++  TNotificacaoManager.Fechar(FChatId);
++end;
++
++procedure TConversaNotificacaoChamada.rctFundoClick(Sender: TObject);
++begin
++  TNotificacaoManager.Fechar(FChatId);
++  Chats.AbrirChat(Dados.FDadosApp.Conversas.GetOrAdd(FChatId));
++  TelaInicial.DoConversaRestore;
++end;
++
++procedure TConversaNotificacaoChamada.RegistrarEvento;
++begin
++  TMessageManager.DefaultManager.SubscribeToMessage(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++end;
++
++procedure TConversaNotificacaoChamada.StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
++begin
++  if not Assigned(Self) or (csDestroying in Self.ComponentState) then
++  begin
++    TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++    Exit;
++  end;
++
++  if not FloatAnimation.Enabled then
++    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++end;
++
++procedure TConversaNotificacaoChamada.AtualizarAltura(iTexto: Single);
++//var
++//  iNova: Single;
++begin
++//  iNova := Min(lytTopo.Height + txtNome.Height + txtHora.Height + iTexto, 200);
++//  if Self.Height <> iNova then
++//    Self.Height := iNova;
++end;
++
++end.
+diff --git a/src/notificacao/Conversa.Notificacao.pas b/src/notificacao/Conversa.Notificacao.pas
+index c5ac957..04846a4 100644
+--- a/src/notificacao/Conversa.Notificacao.pas
++++ b/src/notificacao/Conversa.Notificacao.pas
+@@ -23,8 +23,10 @@ type
+     function Mensagem(const Value: string): TMensagemNotificacao; overload;
+   end;
+ 
++  TTipoNotificacao = (Desconhecida, Mensagem, Chamada);
+   TNotificacao = record
+   private
++//    FTipo: TTipoNotificacao;
+     FView: TFmxObject;
+     FChatId: Integer;
+     FNome: string;
+@@ -57,10 +59,13 @@ type
+     function Count: Integer;
+     class procedure Finalizar;
+   end;
++
+ implementation
++
+ uses
+   Conversa.Notificacao.Visualizador,
+   Conversa.Notificacao.Item,
++  Conversa.Notificacao.Chamada,
+   FMX.Forms;
+ 
+ var

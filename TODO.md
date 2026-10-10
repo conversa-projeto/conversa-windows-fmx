@@ -13,69 +13,69 @@
 > - `Sn` = pendência do servidor (`08`); `Dn` = decisão do plano (`07` §1)
 >
 > **Ordem:** seguir as etapas na ordem. Dentro de cada etapa, a ordem das linhas é a sugerida.
-> **Estado em 2026-10-08:** auditoria concluída (docs 00–08, ADRs propostos). **Nada de código foi alterado.** As etapas 1 em diante dependem do ADR 0001 aceito e de conseguir compilar (0.1 e 0.4).
+> **Estado em 2026-10-09:** ADR 0001 **aceito**; Etapa 0 em andamento. O trabalho segue sozinho, sem compilar nesta máquina: o responsável compila no IDE ("build geral") e devolve os erros (decisão da 0.1). Itens que só se provam rodando o app ficam com ⛔ até o build.
 
 ---
 
 ## Etapa 0 — Decisões, preservação e preparação do repositório
 
 ### 0.1 Decisões do responsável (FC-001)
-- [ ] Ler `docs/auditoria-2026-10/00-LEIAME.md` (resumo e §5 "O que depende de você")
-- [ ] Decidir o ADR 0001 (recomeçar o núcleo, transplantar a interface); se aceito, mudar o status para "aceito" em `docs/adr/0001-nova-base.md`
-- [ ] Decidir a **senha** (D11): não guardar (recomendado) ou "Manter conectado" com DPAPI; registrar no ADR 0001
-- [ ] Decidir **desktop × celular** (D13): fechar o WebSocket ao bloquear/suspender/ocioso (recomendado, N = 10 min); registrar no ADR 0001
-- [ ] Decidir **como compilar e testar** (D16): licença com compilação por linha de comando (Professional ou superior) ou fluxo pelo IDE; registrar no histórico
-- [ ] Decidir o nome da branch da nova base (proposta: `nova-base`) e a estrutura (`legado/` + `app/`, `core/`, `ui/`, `midia/`, `testes/`, `build/`)
-- [ ] Registrar as decisões em `docs/historico/` (fluxo "Planejamento e documentação")
-- [ ] **Teste:** ADR 0001 com status "aceito" (ou "recusado", com o motivo e o novo rumo)
+- [x] Ler `docs/auditoria-2026-10/00-LEIAME.md` (resumo e §5 "O que depende de você") ✔ responsável, 2026-10-09 ("Pode iniciar… Prossiga sozinho")
+- [x] Decidir o ADR 0001 (recomeçar o núcleo, transplantar a interface); se aceito, mudar o status para "aceito" em `docs/adr/0001-nova-base.md` ✔ ETAPA0 (aceito)
+- [x] Decidir a **senha** (D11): não guardar (recomendado) ou "Manter conectado" com DPAPI; registrar no ADR 0001 ✔ ETAPA0 (não guardar)
+- [x] Decidir **desktop × celular** (D13): fechar o WebSocket ao bloquear/suspender/ocioso (recomendado, N = 10 min); registrar no ADR 0001 ✔ ETAPA0 (sim, 10 min)
+- [x] Decidir **como compilar e testar** (D16): licença com compilação por linha de comando (Professional ou superior) ou fluxo pelo IDE; registrar no histórico ✔ ETAPA0 (pelo IDE, pelo responsável; o `DelphiLSP` fora do IDE também exige licença)
+- [x] Decidir o nome da branch da nova base (proposta: `nova-base`) e a estrutura (`legado/` + `app/`, `core/`, `ui/`, `midia/`, `testes/`, `build/`) ✔ ETAPA0 (`nova-base`, estrutura do doc 07 §2)
+- [x] Registrar as decisões em `docs/historico/` (fluxo "Planejamento e documentação") ✔ ETAPA0 (2026-10-09-04)
+- [x] **Teste:** ADR 0001 com status "aceito" (ou "recusado", com o motivo e o novo rumo) ✔ ETAPA0
 
 ### 0.2 Salvar tudo o que existe (FC-002)
-- [ ] Conferir em que branch estou: `git branch --show-current` (deve ser `chamada`)
-- [ ] Ver o que está pendente: `git status` (esperado: *staged* em `Conversa.Dados.pas` e `src/chamada/Conversa.Chamada.WebRTC.pas`; não rastreados: DLLs em `bin/` e `docs/todo.md`; os docs da auditoria já foram commitados em `6d53c23`)
-- [ ] Commitar **só** as alterações *staged* num commit próprio: `git commit -m "Usa wss://host/ws/ no WebSocket (servidor atual) e atualiza o cabeçalho do WebRTC"` (elas compilaram no IDE em 2026-06-27; doc 04 §1.2)
-- [ ] Criar a branch de preservação nesse commit: `git branch legado/abril-2026 HEAD`
-- [ ] Criar a tag anotada: `git tag -a legado-v1-final legado/abril-2026 -m "Estado final do app FMX antes da nova base"`
-- [ ] Criar a pasta: `mkdir -p docs/legado/stashes`
-- [ ] Listar os *stashes*: `git stash list` (esperado: **27**)
-- [ ] Guardar cada *stash* sem perda numa tag: `git tag legado/stash-NN stash@{N}` (00…26)
-- [ ] Exportar cada *stash* como patch de texto, sem binários (`*.dll`, `*.exe`, `*.dcu`, `*.res`, imagens): `docs/legado/stashes/NN.patch`
-- [ ] Conferir os patches: sem senhas, tokens nem chaves (os *stashes* `{11}`/`{12}`/`{14}` têm logs e marcador do Syncthing — conferir)
-- [ ] Guardar o commit exclusivo da `alteracao-base` (`a8dcfe8`): `git tag legado/alteracao-base a8dcfe8`
-- [ ] **Teste:** 27 patches na pasta, 27 tags `legado/stash-*`, tag `legado/alteracao-base`, `git status` sem nada *staged*
+- [x] Conferir em que branch estou: `git branch --show-current` (deve ser `chamada`) ✔ `chamada`
+- [x] Ver o que está pendente: `git status` (esperado: *staged* em `Conversa.Dados.pas` e `src/chamada/Conversa.Chamada.WebRTC.pas`; não rastreados: DLLs em `bin/` e `docs/todo.md`; os docs da auditoria já foram commitados em `6d53c23`) ✔ como esperado
+- [x] Commitar **só** as alterações *staged* num commit próprio: `git commit -m "Usa wss://host/ws/ no WebSocket (servidor atual) e atualiza o cabeçalho do WebRTC"` (elas compilaram no IDE em 2026-06-27; doc 04 §1.2) ✔ 9678749
+- [x] Criar a branch de preservação nesse commit: `git branch legado/abril-2026 HEAD` ✔ 9678749
+- [x] Criar a tag anotada: `git tag -a legado-v1-final legado/abril-2026 -m "Estado final do app FMX antes da nova base"` ✔ 9678749
+- [x] Criar a pasta: `mkdir -p docs/legado/stashes` ✔ ETAPA0
+- [x] Listar os *stashes*: `git stash list` (esperado: **27**) ✔ 27
+- [x] Guardar cada *stash* sem perda numa tag: `git tag legado/stash-NN stash@{N}` (00…26) ✔ 27 tags
+- [x] Exportar cada *stash* como patch de texto, sem binários (`*.dll`, `*.exe`, `*.dcu`, `*.res`, imagens): `docs/legado/stashes/NN.patch` ✔ ETAPA0 (5,3 MB; fora só `bin/sk4d.dll` e `Conversa_Icon.ico`)
+- [x] Conferir os patches: sem senhas, tokens nem chaves (os *stashes* `{11}`/`{12}`/`{14}` têm logs e marcador do Syncthing — conferir) ✔ limpos (registro 2026-10-09-05)
+- [x] Guardar o commit exclusivo da `alteracao-base` (`a8dcfe8`): `git tag legado/alteracao-base a8dcfe8` ✔ a8dcfe8
+- [x] **Teste:** 27 patches na pasta, 27 tags `legado/stash-*`, tag `legado/alteracao-base`, `git status` sem nada *staged* ✔ ETAPA0
 
 ### 0.3 Publicar (FC-003)
-- [ ] Enviar `chamada` (o `4759ba5` já foi enviado em 2026-10-08; faltam os commits da auditoria a partir do `6d53c23` e o commit do *staged* da 0.2), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base` e as tags dos *stashes* ⛔ o push é feito pelo responsável:
+- [ ] Enviar `chamada` (o `4759ba5` já foi enviado em 2026-10-08; faltam os commits da auditoria a partir do `6d53c23`, o `9678749` do *staged* e os da Etapa 0), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base`, as tags dos *stashes* e, depois da Etapa 1.1, a `nova-base` ⛔ o push é feito pelo responsável:
   `git push origin chamada legado/abril-2026 legado-v1-final legado/alteracao-base` e `git push origin "refs/tags/legado/stash-*"`
 - [ ] Decidir se a `main` avança para a `chamada` (o branch padrão do GitHub está 14 meses atrás) ⛔ decisão do responsável
 - [ ] **Teste:** branch e tags aparecem no GitHub
 
 ### 0.4 Build (FC-001, D16, #16)
-- [ ] Registrar a edição do Delphi em uso (hoje: 12.1 Athens Community, sem linha de comando) e a decisão de 0.1
-- [ ] Se houver licença com linha de comando: rodar `msbuild Conversa.dproj /t:Build /p:Config=Debug /p:Platform=Win64` e conferir o exe e o log (o código de saída não basta)
-- [ ] Se não houver: testar `bds.exe -b` numa **cópia** do repositório (pode regravar o `.dproj`) e registrar se funciona ⛔ precisa de autorização para abrir o IDE
-- [ ] Montar a `bin/` do legado em Win64 (doc `desenvolvimento/servidor-de-dev.md` §5): `pion_whep.dll`, FFmpeg 8.x x64, `sk4d.dll` x64 de `Studio\23.0\bin64`, `bin/tema/default.pss`
-- [ ] Anotar a versão e o SHA-256 de cada DLL em `docs/desenvolvimento/servidor-de-dev.md`
+- [x] Registrar a edição do Delphi em uso (hoje: 12.1 Athens Community, sem linha de comando) e a decisão de 0.1 ✔ ETAPA0 (`servidor-de-dev.md` §6)
+- [ ] Se houver licença com linha de comando: rodar `msbuild Conversa.dproj /t:Build /p:Config=Debug /p:Platform=Win64` e conferir o exe e o log (o código de saída não basta) ⛔ não há licença (Community)
+- [ ] Se não houver: testar `bds.exe -b` numa **cópia** do repositório (pode regravar o `.dproj`) e registrar se funciona ⛔ desnecessário pela decisão de 0.1: o responsável compila no IDE
+- [ ] Montar a `bin/` do legado em Win64 (doc `desenvolvimento/servidor-de-dev.md` §5): `pion_whep.dll`, FFmpeg 8.x x64, `sk4d.dll` x64 de `Studio\23.0\bin64`, `bin/tema/default.pss` ⛔ app atual congelado (ADR 0001); só se alguém precisar rodá-lo
+- [x] Anotar a versão e o SHA-256 de cada DLL em `docs/desenvolvimento/servidor-de-dev.md` ✔ ETAPA0 (§5.1, 7 DLLs)
 - [ ] **Teste:** um exe Win64 do legado abre e faz login no servidor de desenvolvimento (`https://localhost/api/`) ⛔ teste de interface feito pelo responsável
 
 ### 0.5 `.gitignore` (FC-004)
-- [ ] Acrescentar `*.dll` (exceções explícitas só para o que for decidido versionar)
-- [ ] Acrescentar `bin/Conversa/`, `bin/clipboard/`, `bin/dcu/`, `bin/dcp/`
-- [ ] Acrescentar `Android64/`, `Win32/`, `Win64/`, `__astcache/`
-- [ ] Acrescentar `*.log`, `log.txt`, `.claude/`, `*.deployproj`, `Serializer/`
-- [ ] Liberar a documentação: `!docs/**/*.json` e `!docs/**/*.png` (hoje o `docs/contrato/openapi.json` está ignorado)
-- [ ] Limpar o `conversa-webrtc/.gitignore` (copiado de outro projeto: regras `LOJAS/MD006/…`)
-- [ ] **Teste:** `git status` mostra só o que deve ser versionado; `git check-ignore docs/contrato/openapi.json` não acusa nada
+- [x] Acrescentar `*.dll` (exceções explícitas só para o que for decidido versionar) ✔ ETAPA0 (o `bin/sk4d.dll` x86 já versionado continua)
+- [x] Acrescentar `bin/Conversa/`, `bin/clipboard/`, `bin/dcu/`, `bin/dcp/` ✔ ETAPA0 (+ `bin/Win32/`, `bin/Win64/`)
+- [x] Acrescentar `Android64/`, `Win32/`, `Win64/`, `__astcache/` ✔ ETAPA0
+- [x] Acrescentar `*.log`, `log.txt`, `.claude/`, `*.deployproj`, `Serializer/` ✔ ETAPA0 (+ `.vscode/`, `*.delphilsp.json`)
+- [x] Liberar a documentação: `!docs/**/*.json` e `!docs/**/*.png` (hoje o `docs/contrato/openapi.json` está ignorado) ✔ ETAPA0 (+ `testes/fixtures/`, `ui/recursos/`, `app/recursos/`, `ferramentas/`; `anexos` → `bin/**/anexos/`)
+- [x] Limpar o `conversa-webrtc/.gitignore` (copiado de outro projeto: regras `LOJAS/MD006/…`) ✔ ETAPA0
+- [x] **Teste:** `git status` mostra só o que deve ser versionado; `git check-ignore docs/contrato/openapi.json` não acusa nada ✔ ETAPA0
 
 ### 0.6 Documentação (FC-005, FC-006, FC-007)
-- [ ] Mover para `docs/legado/` (com `git mv`): `docs/ALTERACOES_TCP_RECONEXAO.md`, `docs/waveform-spec.md`, `src/notificacao/refatoracao_notificacao.md`, `conversa-webrtc/whep-viewer-spec.md`
-- [ ] Mover `docs/todo.md` (não versionado) para `docs/legado/revisao-docs-2026-06.md` e versionar
-- [ ] Criar `docs/legado/LEIA.md` (aviso de desatualizado + mapa dos *stashes* com data e branch de origem + onde está o código legado)
-- [ ] Reescrever o `README.md`: o que é o app, "em reescrita" (se o ADR for aceito), links para os docs, ecossistema (servidor, web, Android Kotlin)
-- [ ] README → "Como compilar" (Delphi 12, Win64, dependências, licença)
-- [ ] README → "Servidor de desenvolvimento" (`https://localhost`, mkcert, link para `docs/desenvolvimento/servidor-de-dev.md`)
+- [x] Mover para `docs/legado/` (com `git mv`): `docs/ALTERACOES_TCP_RECONEXAO.md`, `docs/waveform-spec.md`, `src/notificacao/refatoracao_notificacao.md`, `conversa-webrtc/whep-viewer-spec.md` ✔ ETAPA0
+- [x] Mover `docs/todo.md` (não versionado) para `docs/legado/revisao-docs-2026-06.md` e versionar ✔ ETAPA0
+- [x] Criar `docs/legado/LEIA.md` (aviso de desatualizado + mapa dos *stashes* com data e branch de origem + onde está o código legado) ✔ ETAPA0
+- [x] Reescrever o `README.md`: o que é o app, "em reescrita" (se o ADR for aceito), links para os docs, ecossistema (servidor, web, Android Kotlin) ✔ ETAPA0
+- [x] README → "Como compilar" (Delphi 12, Win64, dependências, licença) ✔ ETAPA0
+- [x] README → "Servidor de desenvolvimento" (`https://localhost`, mkcert, link para `docs/desenvolvimento/servidor-de-dev.md`) ✔ ETAPA0
 - [x] Commitar a auditoria: `docs: auditoria de 2026-10 (docs 00–08, apoio, ADRs, cores, contrato), histórico, CLAUDE.md e TODO` ✔ 6d53c23 (antecipado a pedido do responsável, antes da 0.2; o *staged* ficou intacto; `openapi.json` com `git add -f` até a 0.5)
 - [x] Preencher os hashes no histórico (commit seguinte) ✔ commit seguinte ao 6d53c23 (`docs: hash da auditoria no histórico e no TODO`)
-- [ ] **Teste:** nenhum doc antigo fora de `docs/legado/`; um clone limpo, seguindo o README, sabe como compilar
+- [ ] **Teste:** nenhum doc antigo fora de `docs/legado/` (✔ ETAPA0); um clone limpo, seguindo o README, sabe como compilar ⛔ depende da nova base (1.1) e do build no IDE
 
 ### 0.7 Protótipo de tempo real (doc 07 §10, D9)
 - [ ] Projeto descartável `ferramentas/prototipo-ws` (console Win64): WebSocket do WinHTTP (`WinHttpWebSocketCompleteUpgrade`)

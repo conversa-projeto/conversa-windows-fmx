@@ -1,0 +1,453 @@
+diff --git a/Conversa.Tela.Inicial.view.fmx b/Conversa.Tela.Inicial.view.fmx
+index 4cd7f6d..975d07b 100644
+--- a/Conversa.Tela.Inicial.view.fmx
++++ b/Conversa.Tela.Inicial.view.fmx
+@@ -13,6 +13,15 @@ inherited TelaInicial: TTelaInicial
+         ClipChildren = True
+         Size.Height = 430.000000000000000000
+       end
++      object btnTesteAudio: TButton
++        Align = Top
++        Position.Y = 70.000000000000000000
++        Size.Width = 500.000000000000000000
++        Size.Height = 30.000000000000000000
++        Size.PlatformDefault = False
++        Text = 'Teste '#193'udio'
++        OnClick = btnTesteAudioClick
++      end
+       inherited rctTitleBar: TRectangle
+         inherited lytLogo: TLayout
+           inherited imgLogo: TImage
+diff --git a/Conversa.Tela.Inicial.view.pas b/Conversa.Tela.Inicial.view.pas
+index b3f0e3a..c0fcc3c 100644
+--- a/Conversa.Tela.Inicial.view.pas
++++ b/Conversa.Tela.Inicial.view.pas
+@@ -31,25 +31,36 @@ uses
+   Conversa.Visualizador.Midia,
+   Conversa.Eventos,
+   Conversa.Chamada.view,
+-  PascalStyleScript;
++  PascalStyleScript,
++  AudioTypes,
++  AudioCapture,
++  AudioPlayer;
+ 
+ type
+   TTelaInicial = class(TFormularioBase)
+     tmrShow: TTimer;
+     rctAvisoConexao: TRectangle;
+     txtAvisoConexao: TText;
++    btnTesteAudio: TButton;
+     procedure FormShow(Sender: TObject);
+     procedure tmrShowTimer(Sender: TObject);
+     procedure FormActivate(Sender: TObject);
+     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; var Handled: Boolean);
++    procedure btnTesteAudioClick(Sender: TObject);
+   private
+     FOldHWND: HWND;
+     TrayWnd: HWND;
+     TrayIconData: TNotifyIconData;
+     TrayIconAdded: Boolean;
++    FTesteAudioBuffer: TAudioBuffer;
++    FTesteCapture: TAudioCaptureThread;
++    FTestePlayer: TAudioPlayerThread;
++    FTesteAudioAtivo: Boolean;
+     procedure TrayWndProc(var Message: Winapi.Messages.TMessage);
+     procedure Iniciar;
+     procedure ExibirTelaPrincipal;
++    procedure IniciarTesteAudio;
++    procedure PararTesteAudio;
+ 
+     procedure AdicionarTrayIcon;
+     procedure RemoverTrayIcon;
+@@ -103,6 +114,7 @@ end;
+ 
+ destructor TTelaInicial.Destroy;
+ begin
++  PararTesteAudio;
+   TConversaChamadas.Instance.FinalizarTodas;
+   SalvarPosicaoFormulario(Self);
+   RemoverTrayIcon;
+@@ -276,4 +288,53 @@ begin
+   rctAvisoConexao.Visible := TEventoStatusConexao(M).Value <> 1;
+ end;
+ 
++procedure TTelaInicial.btnTesteAudioClick(Sender: TObject);
++begin
++  if FTesteAudioAtivo then
++    PararTesteAudio
++  else
++    IniciarTesteAudio;
++end;
++
++procedure TTelaInicial.IniciarTesteAudio;
++begin
++  if FTesteAudioAtivo then
++    Exit;
++
++  FTesteAudioBuffer := TAudioBuffer.Create(1024 * 1024);
++  FTesteCapture := TAudioCaptureThread.Create(FTesteAudioBuffer);
++  FTestePlayer := TAudioPlayerThread.Create(FTesteAudioBuffer);
++
++  FTesteCapture.Start;
++  FTestePlayer.Start;
++
++  FTesteAudioAtivo := True;
++  btnTesteAudio.Text := 'Parar Teste';
++end;
++
++procedure TTelaInicial.PararTesteAudio;
++begin
++  if not FTesteAudioAtivo then
++    Exit;
++
++  if Assigned(FTesteCapture) then
++  begin
++    FTesteCapture.Finalizar;
++    FTesteCapture.WaitFor;
++    FreeAndNil(FTesteCapture);
++  end;
++
++  if Assigned(FTestePlayer) then
++  begin
++    FTestePlayer.Finalizar;
++    FTestePlayer.WaitFor;
++    FreeAndNil(FTestePlayer);
++  end;
++
++  FreeAndNil(FTesteAudioBuffer);
++
++  FTesteAudioAtivo := False;
++  btnTesteAudio.Text := 'Teste √Åudio';
++end;
++
+ end.
+diff --git a/lib/audio/AudioMixer.pas b/lib/audio/AudioMixer.pas
+index 9a5e694..5bdecdb 100644
+--- a/lib/audio/AudioMixer.pas
++++ b/lib/audio/AudioMixer.pas
+@@ -77,7 +77,8 @@ var
+   SleepTime: Integer;
+   ProcessInterval: Integer;
+ begin
+-  // Aumenta precis„o do timer para 1ms
++  OutputDebugString(PChar(Format('MIXER: FOutputBuffer = %p', [Pointer(FOutputBuffer)])));
++  // Aumenta precisao do timer para 1ms
+   timeBeginPeriod(1);
+   try
+     // Aguarda estar ativo
+@@ -88,7 +89,7 @@ begin
+       Sleep(10);
+     end;
+ 
+-    ChunkSize := 2048; // 23ms de ·udio a 44.1kHz
++    ChunkSize := 2048; // 23ms de ÔøΩudio a 44.1kHz
+     MaxBufferThreshold := ChunkSize * 10; // ~230ms
+     ProcessInterval := 23; // ms entre processamentos
+     NextProcessTime := GetTickCount64;
+@@ -97,14 +98,14 @@ begin
+     begin
+       CurrentTime := GetTickCount64;
+ 
+-      // SÛ processa se chegou a hora
++      // SÔøΩ processa se chegou a hora
+       if CurrentTime >= NextProcessTime then
+       begin
+         SetLength(MixedData, ChunkSize);
+         SetLength(ClientData, FClientStreams.Count);
+         ActiveClients := 0;
+ 
+-        // LÍ dados de clientes que tÍm dados SUFICIENTES
++        // LÔøΩ dados de clientes que tÔøΩm dados SUFICIENTES
+         for i := 0 to FClientStreams.Count - 1 do
+         begin
+           if FClientStreams[i].Buffer.Available >= ChunkSize then
+@@ -126,7 +127,7 @@ begin
+             SetLength(ClientData[i], 0);
+         end;
+ 
+-        // SÛ processa se houver pelo menos 1 cliente ativo
++        // SÔøΩ processa se houver pelo menos 1 cliente ativo
+         if ActiveClients > 0 then
+         begin
+           // Mixa os samples (16-bit PCM)
+@@ -156,36 +157,39 @@ begin
+             PSmallInt(@MixedData[j * 2])^ := SmallInt(MixedSample);
+           end;
+ 
+-          // Envia para o buffer de reproduÁ„o
++          // Envia para o buffer de reproduÔøΩÔøΩo
+           FOutputBuffer.Write(MixedData);
+ 
+-          // Agenda prÛximo processamento
++          // Agenda prÔøΩximo processamento
+           NextProcessTime := NextProcessTime + ProcessInterval;
+ 
+           // Se atrasou muito (>100ms), ressincroniza
+           if CurrentTime > NextProcessTime + 100 then
++          begin
++            OutputDebugString(PChar(Format('MIXER: Ressincronizando (atraso: %d ms)', [CurrentTime - NextProcessTime])));
+             NextProcessTime := CurrentTime + ProcessInterval;
++          end;
+         end
+         else
+-          // Sem dados - agenda prÛximo check
++          // Sem dados - agenda prÔøΩximo check
+           NextProcessTime := CurrentTime + 10;
+       end;
+ 
+-      // Calcula quanto tempo esperar atÈ prÛximo processamento
++      // Calcula quanto tempo esperar atÔøΩ prÔøΩximo processamento
+       CurrentTime := GetTickCount64;
+       SleepTime := Integer(NextProcessTime - CurrentTime);
+ 
+       if SleepTime > 0 then
+       begin
+         if SleepTime > 50 then
+-          SleepTime := 50; // Limita sleep m·ximo
++          SleepTime := 50; // Limita sleep mÔøΩximo
+         Sleep(SleepTime);
+       end
+       else
+-        Sleep(1); // Yield mÌnimo
++        Sleep(1); // Yield mÔøΩnimo
+     end;
+   finally
+-        // Restaura precis„o normal do timer
++        // Restaura precisÔøΩo normal do timer
+     timeEndPeriod(1);
+   end;
+ end;
+diff --git a/lib/audio/AudioPlayer.pas b/lib/audio/AudioPlayer.pas
+index fed8b76..43a6928 100644
+--- a/lib/audio/AudioPlayer.pas
++++ b/lib/audio/AudioPlayer.pas
+@@ -1,4 +1,4 @@
+-unit AudioPlayer;
++Ôªøunit AudioPlayer;
+ 
+ interface
+ 
+@@ -153,6 +153,7 @@ const
+   MIN_BUFFER_RUNNING = 4096;
+   PLAY_INTERVAL = 23;
+ begin
++  OutputDebugString(PChar(Format('PLAYER: FBuffer = %p', [Pointer(FBuffer)])));
+   timeBeginPeriod(1);
+   try
+     StartPlayback;
+diff --git a/lib/tcp.pas b/lib/tcp.pas
+index a1cbfa6..97582c7 100644
+--- a/lib/tcp.pas
++++ b/lib/tcp.pas
+@@ -54,7 +54,6 @@ type
+     FControle: Int64;
+     FState: TTCPClientState;
+     FRegistrationData: TBytes;
+-    FLastPongTime: TDateTime;
+     FReconnectAttempt: Integer;
+     FMaxReconnectTimeMs: Integer;
+     FOnClientReceive: TOnClientReceive;
+@@ -65,8 +64,6 @@ type
+     procedure SetState(const Value: TTCPClientState);
+     procedure DoReconnect;
+     function GetBackoffMs: Integer;
+-    procedure SendPing;
+-    procedure HandlePong;
+   public
+     constructor Create(const AHost: String; const APort: Word);
+     destructor Destroy; override;
+@@ -84,7 +81,6 @@ implementation
+ uses
+   System.Classes,
+   System.NetEncoding,
+-  System.DateUtils,
+   IdIOHandler,
+   IdGlobal;
+ 
+@@ -178,7 +174,6 @@ begin
+   FState := TTCPClientState.Disconnected;
+   FReconnectAttempt := 0;
+   FMaxReconnectTimeMs := 5000;
+-  FLastPongTime := Now;
+   FTask := TTask.Run(Execute);
+ end;
+ 
+@@ -203,7 +198,6 @@ begin
+     TTCPClientState.Connected:
+     begin
+       FReconnectAttempt := 0;
+-      FLastPongTime := Now;
+       if Assigned(FOnConnected) then
+         TThread.Queue(nil,
+           procedure
+@@ -272,41 +266,19 @@ begin
+   FRegistrationData := Copy(Data);
+ end;
+ 
+-procedure TTCPClient.SendPing;
+-begin
+-  if (FState = TTCPClientState.Connected) and Self.Connected then
+-  try
+-    WriteIOHandler(IOHandler, [2]);
+-  except
+-  end;
+-end;
+-
+-procedure TTCPClient.HandlePong;
+-begin
+-  FLastPongTime := Now;
+-end;
+-
+ procedure TTCPClient.Execute;
+ var
+   Data: TBytes;
+   DataCopy: TBytes;
+-  LastPingTime: TDateTime;
+-const
+-  PING_INTERVAL_SEC = 2;
+-  PONG_TIMEOUT_SEC = 3;
+ begin
+-  LastPingTime := Now;
+-
+   while TInterlocked.Read(FControle) = 0 do
+   try
+-    // Aguarda callback estar configurado
+     if not Assigned(OnClientReceive) then
+     begin
+       Sleep(100);
+       Continue;
+     end;
+ 
+-    // Tenta conectar se desconectado
+     if not Self.Connected then
+     begin
+       if FState = TTCPClientState.Connected then
+@@ -318,33 +290,8 @@ begin
+       Continue;
+     end;
+ 
+-    // Heartbeat: envia ping a cada 2s
+-    if SecondsBetween(Now, LastPingTime) >= PING_INTERVAL_SEC then
+-    begin
+-      SendPing;
+-      LastPingTime := Now;
+-    end;
+-
+-    // Verifica timeout do pong (3s sem resposta = reconecta)
+-    if SecondsBetween(Now, FLastPongTime) > PONG_TIMEOUT_SEC then
+-    begin
+-      try
+-        Self.Disconnect;
+-      except
+-      end;
+-      Continue;
+-    end;
+-
+-    // L√™ dados
+     if ReadIOHandler(Self.IOHandler, Data) then
+     begin
+-      // Pong recebido
+-      if (Length(Data) = 1) and (Data[0] = 3) then
+-      begin
+-        HandlePong;
+-        Continue;
+-      end;
+-
+       DataCopy := Copy(Data);
+       TThread.Queue(nil,
+         procedure
+diff --git a/src/chamada/Conversa.Chamada.pas b/src/chamada/Conversa.Chamada.pas
+index 9ad550c..c8bd482 100644
+--- a/src/chamada/Conversa.Chamada.pas
++++ b/src/chamada/Conversa.Chamada.pas
+@@ -585,13 +585,14 @@ begin
+   FClientStreams := TList<TClientAudioStream>.Create;
+   FCaptureAudioBuffer := TAudioBuffer.Create(1024 * 1024);
+   FPlayerAudioBuffer := TAudioBuffer.Create(1024 * 1024);
++  OutputDebugString(PChar(Format('CHAMADA: FPlayerAudioBuffer = %p', [Pointer(FPlayerAudioBuffer)])));
+ 
+   FMixerThread := TAudioMixerThread.Create(
+     FClientStreams,
+     FPlayerAudioBuffer,
+     function: Boolean
+     begin
+-      Result := FStatus = TChamadaStatus.EmAndamento;
++      Result := FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento;
+     end
+   );
+   FMixerThread.Start;
+@@ -601,10 +602,31 @@ begin
+ 
+   FCaptureThread.OnNewAudioData :=
+     procedure(Data: TBytes)
++    var
++      I: Integer;
+     begin
+-      if (FStatusLocal = TChamadaStatusLocal.ChamadaEmAndamento) then
+-        if Assigned(FTCPAudio) and (FTCPAudio.State = TTCPClientState.Connected) then
+-          FTCPAudio.Send([1] + IntToBytes(FID) + Data);
++      I := 0;
++      try
++        Inc(I);
++        if (FStatusLocal <> TChamadaStatusLocal.ChamadaEmAndamento) then
++          Exit;
++
++        Inc(I);
++        if not Assigned(FTCPAudio) then
++          Exit;
++
++        Inc(I);
++        if not (FTCPAudio.State = TTCPClientState.Connected) then
++          Exit;
++
++        Inc(I);
++
++        FTCPAudio.Send([1] + IntToBytes(FID) + Data);
++
++        Inc(I); // 5
++      finally
++        Sleep(0);
++      end;
+     end;
+ 
+   RegistrationData := [0] + IntToBytes(Dados.FDadosApp.Usuario.ID);
+@@ -620,10 +642,14 @@ end;
+ procedure TConversaChamada.TCPAudioConnected;
+ begin
+   if FAudioThreadsStarted then
++  begin
++    OutputDebugString(PChar('TCPAudioConnected - EXIT'));
+     Exit;
++  end;
+ 
++  OutputDebugString(PChar('TCPAudioConnected'));
+   FAudioThreadsStarted := True;
+-  if Assigned(FCaptureThread) then
++  if Assigned(FCaptureThread) and (Dados.FDadosApp.Usuario.ID = 2) then
+     FCaptureThread.Start;
+   if Assigned(FPlayerThread) then
+     FPlayerThread.Start;
+@@ -632,11 +658,13 @@ end;
+ procedure TConversaChamada.TCPAudioDisconnected;
+ begin
+   // Reconex√£o √© autom√°tica pelo TTCPClient
++  OutputDebugString(PChar('TCPAudioDisconnected'));
+ end;
+ 
+ procedure TConversaChamada.TCPAudioError(const sError: String);
+ begin
+   {TODO -oDaniel -cChamada: Melhorar exibi√ß√£o de erros}
++  OutputDebugString(PChar('erro: '+ sError));
+   raise Exception.Create(sError);
+ end;
+ 
+@@ -657,6 +685,8 @@ begin
+     iRemetente := BytesToInt(Copy(Data, 0, 4));
+     AudioData := Copy(Data, 8);
+ 
++    OutputDebugString(PChar('√Åudio Recebido de: '+ iRemetente.ToString.PadLeft(2, ' ')+ ' | L: '+ Length(AudioData).ToString));
++
+     // Procura ou cria buffer para este cliente
+     ClientStream := nil;
+     for var Stream in FClientStreams do

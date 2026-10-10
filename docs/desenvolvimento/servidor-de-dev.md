@@ -51,9 +51,27 @@ O app atual foi escrito para o servidor Delphi. Para rodá-lo hoje:
 4. **WebSocket:** com `https`, o Indy precisa de `libeay32.dll` e `ssleay32.dll` (OpenSSL 1.0.2 x64) ao lado do exe — **não estão na máquina**. Sem elas, o app abre e faz login, mas fica **sem tempo real**. Alternativa só para teste: o *proxy* sem TLS do Android (`node ../conversa-android-kotlin/ferramentas/proxy-dev.mjs`, porta 8081, repassa `/api/`, `/ws/`, `/storage/` e `/webrtc/`) e o "Host" `http://localhost:8081/api/` — aí o WebSocket vai em `ws://` e não precisa de OpenSSL.
 5. **Chamadas:** não funcionam contra o servidor atual (sem TURN; doc 04 #12) e **transmitem a tela inteira** (doc 04 #1). Não testar chamadas com o app atual em ambiente com dados reais.
 
+### 5.1 DLLs presentes nesta máquina (conferidas em 2026-10-09)
+
+Nenhuma é versionada, exceto o `bin/sk4d.dll` x86, que já estava no Git. Arquitetura lida do cabeçalho PE; nenhuma foi executada.
+
+| Arquivo | Onde | Arq. | Tamanho (bytes) | Versão | SHA-256 |
+|---|---|---|---|---|---|
+| `pion_whep.dll` | `bin/` (cópia de `conversa-webrtc/bin/`) | x64 | 19.480.956 | — | `195c9ce6de36965dde5b1342ba0e6523d68886575dc585267c0bf839c7c7ee6d` |
+| `avcodec-62.dll` | `bin/` | x64 | 97.576.448 | 62.29.101 | `33ba2e735252b5bfcd30e5c2da326cfde78ee86092fdc12d621814c24421c724` |
+| `avutil-60.dll` | `bin/` | x64 | 2.930.688 | 60.29.100 | `b3b174c399856c59ca7354292098bd77842f5fdb643ab0fcd19f2b97053b43ab` |
+| `swresample-6.dll` | `bin/` | x64 | 722.944 | 6.4.100 | `59ed65b2c16fcf2d4b6b851384b79a2c2c55fa0aa51fb723446c4c2a3cdcc882` |
+| `swscale-9.dll` | `bin/` | x64 | 12.537.344 | 9.7.100 | `9cc8a26e3951ba60859ad29455fa7abb3eb624293f369410a8e6a0be63c7b252` |
+| `sk4d.dll` | `bin/` (versionado) | **x86** | 18.961.920 | — | `6fec995537fb76b6da424229394a80bdf6e4d415b76121c372aa4ca4b6643fca` |
+| `sk4d.dll` | `Studio\23.0\bin64\` | x64 | 19.870.192 | — | `67f7a4e0bcae89dd9f6d8416281f85cc9ddd6a77de83d6cb7100e8ab4ee024e3` |
+
+A `bin/` do legado **não foi montada em Win64** na Etapa 0: o app atual fica congelado (ADR 0001), e o teste dele depende do build no IDE e de clicar na janela (§7).
+
 ## 6. Compilar
 
-- **Delphi 12.1 Athens, edição Community** nesta máquina: **compila só pelo IDE**. `msbuild`, `dcc32` e `dcc64` respondem "This version of the product does not support command line compiling" — e **o MSBuild sai com código 0** mesmo assim.
+- **Delphi 12.1 Athens, edição Community** nesta máquina (registro: `Edition = Starter`): **compila só pelo IDE**. `msbuild`, `dcc32` e `dcc64` respondem "This version of the product does not support command line compiling" — e **o MSBuild sai com código 0** mesmo assim. Os `dcc32.exe`/`dcc64.exe` da pasta `bin` são *stubs* de 23 KB.
+- O `DelphiLSP.exe` (diagnósticos do *Error Insight*) também não serve fora do IDE nesta edição: testado em 2026-10-09 com um cliente LSP mínimo, respondeu "A valid license was not found. Please contact Embarcadero Support." e não publicou diagnósticos.
+- **Decisão (ADR 0001, 2026-10-09):** o código é escrito e revisado sem compilar (APIs conferidas no fonte do Delphi; `uses` conferidos por `ferramentas/verificar-uses`), e o responsável compila no IDE ("build geral") e devolve os erros.
 - Com licença Professional ou superior:
   ```
   cmd /c "call ""C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\rsvars.bat"" && msbuild Conversa.dproj /t:Build /p:Config=Debug /p:Platform=Win64"

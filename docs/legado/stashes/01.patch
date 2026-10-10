@@ -1,0 +1,1727 @@
+diff --git a/Conversa.dpr b/Conversa.dpr
+index e2db405..261e9e1 100644
+--- a/Conversa.dpr
++++ b/Conversa.dpr
+@@ -28,8 +28,11 @@ uses
+   Conversa.Conexao.AvisoInicioSistema in 'src\conexao\Conversa.Conexao.AvisoInicioSistema.pas' {ConexaoFalhaInicio: TFrame},
+   Conversa.Memoria in 'Conversa.Memoria.pas',
+   Conversa.Audio in 'Conversa.Audio.pas',
+-  Conversa.Notificacao.Item in 'src\notificacao\Conversa.Notificacao.Item.pas' {NotificacaoItem: TFrame},
++  Conversa.Notificacao.Tipos in 'src\notificacao\Conversa.Notificacao.Tipos.pas',
+   Conversa.Notificacao in 'src\notificacao\Conversa.Notificacao.pas',
++  Conversa.Notificacao.Item.Base in 'src\notificacao\Conversa.Notificacao.Item.Base.pas' {NotificacaoItemBase: TFrame},
++  Conversa.Notificacao.Item.Mensagem in 'src\notificacao\Conversa.Notificacao.Item.Mensagem.pas' {NotificacaoItemMensagem: TFrame},
++  Conversa.Notificacao.Item.Chamada in 'src\notificacao\Conversa.Notificacao.Item.Chamada.pas' {NotificacaoItemChamada: TFrame},
+   Conversa.Notificacao.Visualizador in 'src\notificacao\Conversa.Notificacao.Visualizador.pas' {NotificacaoVisualizador},
+   Conversa.Log in 'Conversa.Log.Pas',
+   Conversa.Visualizador.Midia in 'src\visualizadormidia\Conversa.Visualizador.Midia.pas' {VisualizadorMidia: TFrame},
+diff --git a/Conversa.dproj b/Conversa.dproj
+index e5f3afe..c3c2082 100644
+--- a/Conversa.dproj
++++ b/Conversa.dproj
+@@ -287,11 +287,20 @@ $(PreBuildEvent)]]></PreBuildEvent>
+         </DCCReference>
+         <DCCReference Include="Conversa.Memoria.pas"/>
+         <DCCReference Include="Conversa.Audio.pas"/>
+-        <DCCReference Include="src\notificacao\Conversa.Notificacao.Item.pas">
+-            <Form>NotificacaoItem</Form>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.Tipos.pas"/>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.pas"/>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.Item.Base.pas">
++            <Form>NotificacaoItemBase</Form>
++            <DesignClass>TFrame</DesignClass>
++        </DCCReference>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.Item.Mensagem.pas">
++            <Form>NotificacaoItemMensagem</Form>
++            <DesignClass>TFrame</DesignClass>
++        </DCCReference>
++        <DCCReference Include="src\notificacao\Conversa.Notificacao.Item.Chamada.pas">
++            <Form>NotificacaoItemChamada</Form>
+             <DesignClass>TFrame</DesignClass>
+         </DCCReference>
+-        <DCCReference Include="src\notificacao\Conversa.Notificacao.pas"/>
+         <DCCReference Include="src\notificacao\Conversa.Notificacao.Visualizador.pas">
+             <Form>NotificacaoVisualizador</Form>
+         </DCCReference>
+diff --git a/docs/ALTERACOES_TCP_RECONEXAO.md b/docs/ALTERACOES_TCP_RECONEXAO.md
+new file mode 100644
+index 0000000..564850e
+--- /dev/null
++++ b/docs/ALTERACOES_TCP_RECONEXAO.md
+@@ -0,0 +1,191 @@
++# Alterações para Reconexão TCP e Remoção de Sleep
++
++## Objetivo
++Eliminar o `Sleep(3000)` no cliente e implementar reconexão automática com tolerância a quedas de conexão de até 5 segundos.
++
++---
++
++## 1. Alterações no Cliente TCP (lib/tcp.pas)
++
++### 1.1 Novos Estados de Conexão ✅
++Criar enum `TTCPClientState` com os estados:
++- **Disconnected**: Sem conexão ativa
++- **Connecting**: Tentando estabelecer conexão inicial
++- **Connected**: Conexão ativa e funcional
++- **Reconnecting**: Conexão perdida, tentando reconectar
++
++### 1.2 Novos Callbacks ✅
++- **OnConnected**: Disparado quando conexão é estabelecida (inicial ou reconexão)
++- **OnDisconnected**: Disparado quando conexão é perdida
++- **OnStateChanged**: Disparado quando o estado muda (opcional, para debug/UI)
++
++### 1.3 Novo Método de Conexão ✅
++Criar método `SetConnectionParams` ou `Connect` que recebe:
++- Host e Porta (já existentes)
++- Dados de registro (bytes a enviar automaticamente após conectar)
++- Callback de conexão estabelecida
++
++### 1.4 Lógica de Reconexão com Backoff ✅
++Quando a conexão cair:
++1. Mudar estado para `Reconnecting`
++2. Disparar `OnDisconnected`
++3. Tentar reconectar com backoff exponencial:
++   - 1ª tentativa: imediata
++   - 2ª tentativa: 500ms
++   - 3ª tentativa: 1000ms
++   - 4ª tentativa: 2000ms
++   - 5ª+ tentativas: 5000ms (máximo)
++4. Ao reconectar com sucesso:
++   - Reenviar dados de registro automaticamente
++   - Mudar estado para `Connected`
++   - Disparar `OnConnected`
++
++### 1.5 Heartbeat (Ping/Pong) ✅
++- Cliente envia ping a cada 2 segundos quando conectado
++- Se não receber pong em 3 segundos, considera conexão morta
++- Tipo de mensagem: `[2]` para ping, `[3]` para pong
++
++---
++
++## 2. Alterações no Servidor TCP (rest/src/tcp/tcp.pas)
++
++### 2.1 Heartbeat (Pong) ✅
++- Ao receber mensagem tipo `[2]` (ping), responder imediatamente com `[3]` (pong)
++- Nenhum processamento adicional necessário
++
++### 2.2 Detecção de Timeout ✅
++- Se não receber ping de um cliente em 10 segundos, considerar cliente desconectado
++- Disparar `OnClientDisconnect` e limpar recursos
++
++---
++
++## 3. Alterações no Servidor de Chamadas (rest/src/conversa/conversa.chamada.pas)
++
++### 3.1 Tratamento de Mensagens de Heartbeat ✅
++- Adicionar case para tipo `2` (ping) no `OnServerReceive`
++- Responder com pong através do servidor TCP
++- Ignorar no processamento de áudio
++
++### 3.2 Limpeza de Clientes Desconectados ✅
++- No `DisconnectClient`, além de remover da lista de chamadas:
++  - Remover do `MapaClientes`
++  - Notificar outros participantes via WebSocket (opcional)
++
++---
++
++## 4. Alterações na Chamada do Cliente (src/chamada/Conversa.Chamada.pas)
++
++### 4.1 Remoção do Sleep(3000) ✅
++Remover completamente a linha `Sleep(3000)` do método `ConectarTCPAudio`.
++
++### 4.2 Novo Fluxo de Conexão ✅
++O método `ConectarTCPAudio` passará a:
++1. Criar instância do `TTCPClient`
++2. Configurar dados de registro: `[0] + IntToBytes(Usuario.ID)`
++3. Configurar callback `OnConnected` que:
++   - Inicia as threads de captura e reprodução de áudio
++   - Atualiza estado da UI se necessário
++4. Configurar callback `OnDisconnected` que:
++   - Pausa temporariamente o envio de áudio
++   - Exibe indicador visual de reconexão (opcional)
++5. Chamar método de conexão
++
++### 4.3 Tratamento de Reconexão Durante Chamada ✅
++- Áudio capturado durante reconexão: descartar (não acumular)
++- Áudio recebido: buffer existente continua funcionando
++- Se reconexão demorar mais de 5s: considerar chamada perdida
++
++### 4.4 Ajuste no Início das Threads de Áudio ✅
++Mover o `FCaptureThread.Start` e `FPlayerThread.Start` para dentro do callback `OnConnected`, garantindo que só iniciam após conexão estabelecida.
++
++---
++
++## 5. Protocolo de Mensagens TCP (Atualizado)
++
++| Tipo | Direção | Descrição |
++|------|---------|-----------|
++| `0`  | Cliente → Servidor | Registro: `[0][ID_Usuario:4bytes]` |
++| `1`  | Cliente → Servidor | Áudio: `[1][ID_Chamada:4bytes][Dados]` |
++| `1`  | Servidor → Cliente | Áudio: `[ID_Remetente:4bytes][ID_Chamada:4bytes][Dados]` |
++| `2`  | Cliente → Servidor | Ping (heartbeat) |
++| `3`  | Servidor → Cliente | Pong (resposta heartbeat) |
++
++---
++
++## 6. Fluxo de Eventos - Conexão Normal
++
++```
++Cliente                          Servidor
++   |                                |
++   |------ TCP Connect ------------>|
++   |                                |
++   |------ [0][UserID] ------------>| (Registro)
++   |                                |
++   |<----- OnConnected -------------|
++   |                                |
++   |------ [2] -------------------->| (Ping)
++   |<----- [3] ---------------------| (Pong)
++   |                                |
++   |------ [1][ChamadaID][Audio] -->| (Áudio)
++   |<----- [RemetenteID][...]------| (Áudio de outros)
++```
++
++---
++
++## 7. Fluxo de Eventos - Reconexão
++
++```
++Cliente                          Servidor
++   |                                |
++   |~~~ Conexão Perdida ~~~~~~~~~~~|
++   |                                |
++   |<----- OnDisconnected ---------|
++   |                                |
++   | (backoff: 0ms)                 |
++   |------ TCP Connect ------------>| FALHA
++   |                                |
++   | (backoff: 500ms)               |
++   |------ TCP Connect ------------>| FALHA
++   |                                |
++   | (backoff: 1000ms)              |
++   |------ TCP Connect ------------>| OK
++   |                                |
++   |------ [0][UserID] ------------>| (Re-registro automático)
++   |                                |
++   |<----- OnConnected -------------|
++   |                                |
++   | (Continua normalmente)         |
++```
++
++---
++
++## 8. Arquivos Modificados
++
++### Cliente (conversa-windows-fmx)
++- `lib/tcp.pas` - Alterações principais no TTCPClient ✅
++- `src/chamada/Conversa.Chamada.pas` - Remoção do Sleep e novo fluxo ✅
++
++### Servidor (conversa/rest)
++- `src/tcp/tcp.pas` - Heartbeat e timeout de clientes ✅
++- `src/conversa/conversa.chamada.pas` - Tratamento de ping/pong ✅
++
++---
++
++## 9. Considerações de Implementação
++
++### Thread Safety
++- O callback `OnConnected` será chamado da thread do TCP, usar `TThread.Queue` ou `TThread.Synchronize` se precisar atualizar UI
++- Os dados de registro devem ser armazenados de forma thread-safe
++
++### Ordem de Operações
++1. Primeiro implementar alterações no servidor (heartbeat)
++2. Depois implementar alterações no cliente
++3. Testar com servidor antigo (cliente deve funcionar, apenas sem heartbeat)
++4. Testar cenários de queda de conexão
++
++### Testes Recomendados
++- Desconectar cabo de rede por 2s e reconectar
++- Desconectar cabo de rede por 4s e reconectar
++- Desconectar cabo de rede por 6s (deve falhar)
++- Matar processo do servidor e reiniciar em 3s
++- Iniciar cliente antes do servidor estar disponível
+diff --git a/src/chamada/Conversa.Chamada.pas b/src/chamada/Conversa.Chamada.pas
+index 9ad550c..224d527 100644
+--- a/src/chamada/Conversa.Chamada.pas
++++ b/src/chamada/Conversa.Chamada.pas
+@@ -116,7 +116,8 @@ implementation
+ uses
+   Conversa.Dados,
+   Conversa.Proxy,
+-  Conversa.Tela.Inicial.view;
++  Conversa.Tela.Inicial.view,
++  Conversa.Notificacao;
+ 
+ function IntToBytes(const Value: Integer): TBytes;
+ begin
+@@ -357,6 +358,7 @@ procedure TConversaChamada.OnChamadaRecebida;
+ begin
+   StatusLocal := TChamadaStatusLocal.RecebentoChamada;
+   AtualizarDados;
++  NotificarChamada;
+   ExibirChamada;
+ end;
+ 
+@@ -502,8 +504,43 @@ begin
+ end;
+ 
+ procedure TConversaChamada.NotificarChamada;
++var
++  DadosChamada: TNotificacaoChamadaDados;
++  Usuario: TChamadaDadosUsuario;
+ begin
+-  //
++
++  for Usuario in FUsuarios do
++  begin
++    if Usuario.usuario_id = Dados.FDadosApp.Usuario.ID then
++      Continue;
++
++    DadosChamada.Nome := Usuario.usuario_nome;
++    Break;
++  end;
++
++  if Length(FUsuarios) = 2 then
++    DadosChamada.TipoChamada := 'Chamada de Voz'
++  else
++    DadosChamada.TipoChamada := 'Chamada de Voz em Grupo';
++
++//  DadosChamada.Descricao := 'Teste - 2';
++  DadosChamada.OnAtender :=
++    procedure(AID: Integer)
++    begin
++      TConversaChamadas.FChamadas.Items[AID].Entrar;
++    end;
++  DadosChamada.OnRecusar :=
++    procedure(AID: Integer)
++    begin
++      TConversaChamadas.FChamadas.Items[AID].Recusar;
++    end;
++
++  TNotificacaoManager.Apresentar(
++    TNotificacao.New
++      .ChamadaId(FID)
++      .Tipo(TTipoNotificacao.Chamada)
++      .ChamadaDados(DadosChamada)
++  );
+ end;
+ 
+ procedure TConversaChamada.SetStatusLocal(const Value: TChamadaStatusLocal);
+diff --git a/src/chat/Conversa.Chat.Listagem.pas b/src/chat/Conversa.Chat.Listagem.pas
+index 2ac7d6e..01dd4bc 100644
+--- a/src/chat/Conversa.Chat.Listagem.pas
++++ b/src/chat/Conversa.Chat.Listagem.pas
+@@ -234,7 +234,7 @@ begin
+ 
+     Chat.FocoEditor;
+ 
+-    TNotificacaoManager.Fechar(Conversa.ID);
++    TNotificacaoManager.Fechar(TTipoNotificacao.Mensagem, Conversa.ID);
+   finally
+     // Posicionar na ultima mensagem
+     tmrUltima.Enabled := True;
+@@ -295,6 +295,7 @@ begin
+       end;
+       TNotificacaoManager.Apresentar(
+         TNotificacao.New
++          .Tipo(TTipoNotificacao.Mensagem)
+           .ChatId(Conversa.ID)
+           .Nome(Conversa.Descricao)
+           .Hora(Now)
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Base.fmx b/src/notificacao/Conversa.Notificacao.Item.Base.fmx
+new file mode 100644
+index 0000000..64bf9fb
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Base.fmx
+@@ -0,0 +1,6 @@
++object NotificacaoItemBase: TNotificacaoItemBase
++  Margins.Bottom = 5.000000000000000000
++  Size.Width = 300.000000000000000000
++  Size.Height = 150.000000000000000000
++  Size.PlatformDefault = False
++end
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Base.pas b/src/notificacao/Conversa.Notificacao.Item.Base.pas
+new file mode 100644
+index 0000000..2f37a93
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Base.pas
+@@ -0,0 +1,31 @@
++unit Conversa.Notificacao.Item.Base;
++
++interface
++
++uses
++  System.Classes,
++  System.SysUtils,
++  FMX.Types,
++  FMX.Controls,
++  FMX.Forms;
++
++type
++  TNotificacaoItemBase = class(TFrame)
++  protected
++    FId: Integer;
++  public
++    procedure Fechar; virtual; abstract;
++    function GetAltura: Single; virtual;
++    property Id: Integer read FId write FId;
++  end;
++
++implementation
++
++{$R *.fmx}
++
++function TNotificacaoItemBase.GetAltura: Single;
++begin
++  Result := Self.Height;
++end;
++
++end.
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Chamada.fmx b/src/notificacao/Conversa.Notificacao.Item.Chamada.fmx
+new file mode 100644
+index 0000000..79fa8a2
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Chamada.fmx
+@@ -0,0 +1,214 @@
++inherited NotificacaoItemChamada: TNotificacaoItemChamada
++  object rctFundo: TRectangle
++    Align = Client
++    Fill.Color = xFF2D2D2D
++    Padding.Left = 8.000000000000000000
++    Padding.Top = 8.000000000000000000
++    Padding.Right = 8.000000000000000000
++    Padding.Bottom = 8.000000000000000000
++    Size.Width = 300.000000000000000000
++    Size.Height = 150.000000000000000000
++    Size.PlatformDefault = False
++    Stroke.Kind = None
++    XRadius = 8.000000000000000000
++    YRadius = 8.000000000000000000
++    object lytTopo: TLayout
++      Align = Top
++      Position.X = 8.000000000000000000
++      Position.Y = 8.000000000000000000
++      Size.Width = 284.000000000000000000
++      Size.Height = 20.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 0
++      object txtTitulo: TText
++        Align = Left
++        Size.Width = 120.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        Text = 'Chamada recebida'
++        TextSettings.Font.Size = 11.000000000000000000
++        TextSettings.FontColor = claWhite
++        TextSettings.HorzAlign = Leading
++      end
++      object lytCloseButton: TLayout
++        Align = Right
++        Cursor = crHandPoint
++        HitTest = True
++        Position.X = 264.000000000000000000
++        Size.Width = 20.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 0
++        OnClick = lytCloseButtonClick
++        object rctClose: TRectangle
++          Align = Client
++          Fill.Color = claNull
++          HitTest = False
++          Size.Width = 20.000000000000000000
++          Size.Height = 20.000000000000000000
++          Size.PlatformDefault = False
++          Stroke.Kind = None
++          object lytClose: TLayout
++            Align = Center
++            Size.Width = 12.000000000000000000
++            Size.Height = 12.000000000000000000
++            Size.PlatformDefault = False
++            TabOrder = 0
++            object pthClose: TPath
++              Align = Client
++              Data.Path = {
++                0E0000000000000000008043A4B063C301000000A4B06343000080C301000000
++                52D8E1430000F0C301000000A4B06343000030C40100000000008043D71337C4
++                010000000000F043AE27FEC30100000000003044D71337C401000000D7133744
++                000030C401000000AE27FE430000F0C301000000D7133744000080C301000000
++                00003044A4B063C3010000000000F04352D8E1C30100000000008043A4B063C3
++                0300000000008043A4B063C3}
++              Fill.Color = claGray
++              HitTest = False
++              Size.Width = 12.000000000000000000
++              Size.Height = 12.000000000000000000
++              Size.PlatformDefault = False
++              Stroke.Kind = None
++              WrapMode = Fit
++            end
++          end
++        end
++      end
++    end
++    object lytCentro: TLayout
++      Align = Client
++      Margins.Top = 5.000000000000000000
++      Size.Width = 284.000000000000000000
++      Size.Height = 74.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 1
++      object lytFoto: TLayout
++        Align = Left
++        Size.Width = 44.000000000000000000
++        Size.Height = 74.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 0
++        object crclFoto: TCircle
++          Align = Top
++          Fill.Color = xFF4CAF50
++          HitTest = False
++          Size.Width = 44.000000000000000000
++          Size.Height = 44.000000000000000000
++          Size.PlatformDefault = False
++          Stroke.Kind = None
++          object txtUserLetra: TText
++            Align = Center
++            AutoSize = True
++            HitTest = False
++            Size.Width = 17.662759780883790000
++            Size.Height = 23.417968750000000000
++            Size.PlatformDefault = False
++            Text = 'D'
++            TextSettings.Font.Family = 'Consolas'
++            TextSettings.Font.Size = 20.000000000000000000
++            TextSettings.FontColor = claWhite
++            TextSettings.WordWrap = False
++          end
++        end
++      end
++      object lytConteudo: TLayout
++        Align = Client
++        Margins.Left = 8.000000000000000000
++        Size.Width = 232.000000000000000000
++        Size.Height = 74.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 1
++        object txtNome: TText
++          Align = Top
++          HitTest = False
++          Size.Width = 232.000000000000000000
++          Size.Height = 20.000000000000000000
++          Size.PlatformDefault = False
++          Text = '[nome]'
++          TextSettings.Font.Size = 14.000000000000000000
++          TextSettings.Font.StyleExt = {00070000000000000004000000}
++          TextSettings.FontColor = claWhite
++          TextSettings.HorzAlign = Leading
++        end
++        object txtTipoChamada: TText
++          Align = Top
++          HitTest = False
++          Position.Y = 20.000000000000000000
++          Size.Width = 232.000000000000000000
++          Size.Height = 16.000000000000000000
++          Size.PlatformDefault = False
++          Text = 'Chamada de voz'
++          TextSettings.Font.Size = 11.000000000000000000
++          TextSettings.FontColor = claLightgray
++          TextSettings.HorzAlign = Leading
++        end
++        object txtDescricao: TText
++          Align = Top
++          HitTest = False
++          Position.Y = 36.000000000000000000
++          Size.Width = 232.000000000000000000
++          Size.Height = 14.000000000000000000
++          Size.PlatformDefault = False
++          Text = 'Recebendo chamada...'
++          TextSettings.Font.Size = 10.000000000000000000
++          TextSettings.FontColor = claGray
++          TextSettings.HorzAlign = Leading
++        end
++      end
++    end
++    object lytBotoes: TLayout
++      Align = Bottom
++      Position.X = 8.000000000000000000
++      Position.Y = 107.000000000000000000
++      Size.Width = 284.000000000000000000
++      Size.Height = 35.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 2
++      object rctRecusar: TRectangle
++        Align = Left
++        Cursor = crHandPoint
++        Fill.Color = xFFE53935
++        Margins.Right = 4.000000000000000000
++        Size.Width = 113.000000000000000000
++        Size.Height = 35.000000000000000000
++        Size.PlatformDefault = False
++        Stroke.Kind = None
++        XRadius = 6.000000000000000000
++        YRadius = 6.000000000000000000
++        OnClick = rctRecusarClick
++        object txtRecusar: TText
++          Align = Client
++          HitTest = False
++          Size.Width = 113.000000000000000000
++          Size.Height = 35.000000000000000000
++          Size.PlatformDefault = False
++          Text = 'Recusar'
++          TextSettings.Font.StyleExt = {00070000000000000004000000}
++          TextSettings.FontColor = claWhite
++        end
++      end
++      object rctAtender: TRectangle
++        Align = Client
++        Cursor = crHandPoint
++        Fill.Color = xFF43A047
++        Size.Width = 167.000000000000000000
++        Size.Height = 35.000000000000000000
++        Size.PlatformDefault = False
++        Stroke.Kind = None
++        XRadius = 6.000000000000000000
++        YRadius = 6.000000000000000000
++        OnClick = rctAtenderClick
++        object txtAtender: TText
++          Align = Client
++          HitTest = False
++          Size.Width = 167.000000000000000000
++          Size.Height = 35.000000000000000000
++          Size.PlatformDefault = False
++          Text = 'Atender'
++          TextSettings.Font.StyleExt = {00070000000000000004000000}
++          TextSettings.FontColor = claWhite
++        end
++      end
++    end
++  end
++end
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Chamada.pas b/src/notificacao/Conversa.Notificacao.Item.Chamada.pas
+new file mode 100644
+index 0000000..b7e93df
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Chamada.pas
+@@ -0,0 +1,116 @@
++unit Conversa.Notificacao.Item.Chamada;
++
++interface
++
++uses
++  System.Classes,
++  System.SysUtils,
++  System.UITypes,
++  FMX.Controls,
++  FMX.Forms,
++  FMX.Graphics,
++  FMX.Layouts,
++  FMX.Objects,
++  FMX.StdCtrls,
++  FMX.Types,
++  Conversa.Notificacao.Item.Base;
++
++type
++  TNotificacaoItemChamada = class(TNotificacaoItemBase)
++    rctFundo: TRectangle;
++    lytTopo: TLayout;
++    txtTitulo: TText;
++    lytCloseButton: TLayout;
++    rctClose: TRectangle;
++    lytClose: TLayout;
++    pthClose: TPath;
++    lytCentro: TLayout;
++    lytFoto: TLayout;
++    crclFoto: TCircle;
++    txtUserLetra: TText;
++    lytConteudo: TLayout;
++    txtNome: TText;
++    txtTipoChamada: TText;
++    txtDescricao: TText;
++    lytBotoes: TLayout;
++    rctAtender: TRectangle;
++    txtAtender: TText;
++    rctRecusar: TRectangle;
++    txtRecusar: TText;
++    procedure lytCloseButtonClick(Sender: TObject);
++    procedure rctAtenderClick(Sender: TObject);
++    procedure rctRecusarClick(Sender: TObject);
++  private
++    FChamadaId: Integer;
++    FOnAtender: TProc<Integer>;
++    FOnRecusar: TProc<Integer>;
++  public
++    class function New(AOwner: TFmxObject): TNotificacaoItemChamada;
++    procedure Fechar; override;
++    procedure Configurar(AChamadaId: Integer; const ANome, ATipoChamada, ADescricao: String;
++      AOnAtender, AOnRecusar: TProc<Integer>);
++    property ChamadaId: Integer read FChamadaId;
++  end;
++
++implementation
++
++{$R *.fmx}
++
++uses
++  Conversa.Notificacao,
++  Conversa.Notificacao.Tipos;
++
++class function TNotificacaoItemChamada.New(AOwner: TFmxObject): TNotificacaoItemChamada;
++begin
++  Sleep(1);
++  Result := TNotificacaoItemChamada.Create(AOwner);
++  Result.Name := 'TNotificacaoItemChamada_'+ FormatDateTime('yyyymmddHHnnsszzzz', Now);
++  Result.Parent := AOwner;
++  Result.Align := TAlignLayout.Top;
++  Result.Show;
++end;
++
++procedure TNotificacaoItemChamada.Configurar(AChamadaId: Integer;
++  const ANome, ATipoChamada, ADescricao: String;
++  AOnAtender, AOnRecusar: TProc<Integer>);
++begin
++  FChamadaId := AChamadaId;
++  FId := AChamadaId;
++  FOnAtender := AOnAtender;
++  FOnRecusar := AOnRecusar;
++  txtNome.Text := ANome;
++  txtTipoChamada.Text := ATipoChamada;
++  txtDescricao.Text := ADescricao;
++  if ANome.Length > 0 then
++    txtUserLetra.Text := ANome.Substring(1, 1).ToUpper
++  else
++    txtUserLetra.Text := '?';
++end;
++
++procedure TNotificacaoItemChamada.Fechar;
++begin
++  TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, FChamadaId);
++end;
++
++procedure TNotificacaoItemChamada.lytCloseButtonClick(Sender: TObject);
++begin
++  if Assigned(FOnRecusar) then
++    FOnRecusar(FChamadaId);
++  Fechar;
++end;
++
++procedure TNotificacaoItemChamada.rctAtenderClick(Sender: TObject);
++begin
++  if Assigned(FOnAtender) then
++    FOnAtender(FChamadaId);
++  Fechar;
++end;
++
++procedure TNotificacaoItemChamada.rctRecusarClick(Sender: TObject);
++begin
++  if Assigned(FOnRecusar) then
++    FOnRecusar(FChamadaId);
++  Fechar;
++end;
++
++end.
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Mensagem.fmx b/src/notificacao/Conversa.Notificacao.Item.Mensagem.fmx
+new file mode 100644
+index 0000000..3f0c9a7
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Mensagem.fmx
+@@ -0,0 +1,165 @@
++inherited NotificacaoItemMensagem: TNotificacaoItemMensagem
++  object rctFundo: TRectangle
++    Align = Client
++    Fill.Color = xFF007FFF
++    Padding.Left = 5.000000000000000000
++    Padding.Top = 5.000000000000000000
++    Padding.Right = 5.000000000000000000
++    Padding.Bottom = 5.000000000000000000
++    Size.Width = 300.000000000000000000
++    Size.Height = 150.000000000000000000
++    Size.PlatformDefault = False
++    Stroke.Kind = None
++    XRadius = 5.000000000000000000
++    YRadius = 5.000000000000000000
++    OnClick = rctFundoClick
++    object lytTopo: TLayout
++      Align = Top
++      Position.X = 5.000000000000000000
++      Position.Y = 5.000000000000000000
++      Size.Width = 290.000000000000000000
++      Size.Height = 20.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 1
++      object txtTitulo: TText
++        Align = Left
++        Size.Width = 100.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        Text = 'Conversa'
++        TextSettings.FontColor = claWhite
++        TextSettings.HorzAlign = Leading
++      end
++      object lytCloseButton: TLayout
++        Align = Right
++        Cursor = crHandPoint
++        HitTest = True
++        Position.X = 270.000000000000000000
++        Size.Width = 20.000000000000000000
++        Size.Height = 20.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 0
++        OnClick = lytCloseButtonClick
++        object rctClose: TRectangle
++          Align = Client
++          Fill.Color = claNull
++          HitTest = False
++          Size.Width = 20.000000000000000000
++          Size.Height = 20.000000000000000000
++          Size.PlatformDefault = False
++          Stroke.Kind = None
++          object lytClose: TLayout
++            Align = Center
++            Padding.Left = 1.000000000000000000
++            Padding.Top = 1.000000000000000000
++            Padding.Right = 1.000000000000000000
++            Padding.Bottom = 1.000000000000000000
++            Size.Width = 12.000000000000000000
++            Size.Height = 12.000000000000000000
++            Size.PlatformDefault = False
++            TabOrder = 0
++            object pthClose: TPath
++              Align = Client
++              Data.Path = {
++                0E0000000000000000008043A4B063C301000000A4B06343000080C301000000
++                52D8E1430000F0C301000000A4B06343000030C40100000000008043D71337C4
++                010000000000F043AE27FEC30100000000003044D71337C401000000D7133744
++                000030C401000000AE27FE430000F0C301000000D7133744000080C301000000
++                00003044A4B063C3010000000000F04352D8E1C30100000000008043A4B063C3
++                0300000000008043A4B063C3}
++              Fill.Color = claWhite
++              HitTest = False
++              Size.Width = 10.000000000000000000
++              Size.Height = 10.000000000000000000
++              Size.PlatformDefault = False
++              Stroke.Kind = None
++              WrapMode = Fit
++            end
++          end
++        end
++      end
++    end
++    object lytCentro: TLayout
++      Align = Client
++      Size.Width = 290.000000000000000000
++      Size.Height = 120.000000000000000000
++      Size.PlatformDefault = False
++      TabOrder = 2
++      object lytFoto: TLayout
++        Align = Left
++        Size.Width = 50.000000000000000000
++        Size.Height = 120.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 0
++        object crclFoto: TCircle
++          Align = Client
++          Fill.Color = xFF1B8DFF
++          HitTest = False
++          Size.Width = 50.000000000000000000
++          Size.Height = 120.000000000000000000
++          Size.PlatformDefault = False
++          Stroke.Kind = None
++          object txtUserLetra: TText
++            Align = Center
++            AutoSize = True
++            HitTest = False
++            Size.Width = 26.494140625000000000
++            Size.Height = 35.126953125000000000
++            Size.PlatformDefault = False
++            Text = 'D'
++            TextSettings.Font.Family = 'Consolas'
++            TextSettings.Font.Size = 30.000000000000000000
++            TextSettings.FontColor = claWhite
++            TextSettings.WordWrap = False
++          end
++        end
++      end
++      object lytConteudo: TLayout
++        Align = Client
++        Margins.Left = 8.000000000000000000
++        Size.Width = 232.000000000000000000
++        Size.Height = 120.000000000000000000
++        Size.PlatformDefault = False
++        TabOrder = 1
++        object pbTexto: TPaintBox
++          Align = Client
++          HitTest = False
++          Size.Width = 232.000000000000000000
++          Size.Height = 88.078125000000000000
++          Size.PlatformDefault = False
++          OnPaint = pbTextoPaint
++        end
++        object txtNome: TText
++          Align = Top
++          AutoSize = True
++          HitTest = False
++          Size.Width = 41.675781250000000000
++          Size.Height = 15.960937500000000000
++          Size.PlatformDefault = False
++          Text = '[nome]'
++          TextSettings.FontColor = claWhite
++          TextSettings.HorzAlign = Leading
++        end
++        object txtHora: TText
++          Align = Bottom
++          HitTest = False
++          Position.Y = 104.039062500000000000
++          Size.Width = 232.000000000000000000
++          Size.Height = 15.960937500000000000
++          Size.PlatformDefault = False
++          Text = '00:00'
++          TextSettings.FontColor = claLightblue
++          TextSettings.HorzAlign = Trailing
++        end
++      end
++    end
++  end
++  object FloatAnimation: TFloatAnimation
++    Delay = 5.000000000000000000
++    Duration = 0.300000011920929000
++    OnFinish = FloatAnimationFinish
++    PropertyName = 'Opacity'
++    StartValue = 1.000000000000000000
++    StopValue = 0.000000000000000000
++  end
++end
+diff --git a/src/notificacao/Conversa.Notificacao.Item.Mensagem.pas b/src/notificacao/Conversa.Notificacao.Item.Mensagem.pas
+new file mode 100644
+index 0000000..08a684d
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Item.Mensagem.pas
+@@ -0,0 +1,245 @@
++unit Conversa.Notificacao.Item.Mensagem;
++
++interface
++
++uses
++  System.Classes,
++  System.Math,
++  System.StrUtils,
++  System.SysUtils,
++  System.Types,
++  System.UITypes,
++  System.Variants,
++  FMX.Controls,
++  FMX.Dialogs,
++  FMX.Effects,
++  FMX.Forms,
++  FMX.Graphics,
++  FMX.Layouts,
++  FMX.Objects,
++  FMX.StdCtrls,
++  FMX.TextLayout,
++  FMX.Types,
++  FMX.Ani,
++  Conversa.Eventos,
++  Conversa.Notificacao.Tipos,
++  Conversa.Notificacao.Item.Base;
++
++type
++  TNotificacaoItemMensagem = class(TNotificacaoItemBase)
++    rctFundo: TRectangle;
++    txtHora: TText;
++    lytTopo: TLayout;
++    lytCentro: TLayout;
++    lytFoto: TLayout;
++    crclFoto: TCircle;
++    txtTitulo: TText;
++    lytCloseButton: TLayout;
++    rctClose: TRectangle;
++    lytClose: TLayout;
++    pthClose: TPath;
++    lytConteudo: TLayout;
++    pbTexto: TPaintBox;
++    txtNome: TText;
++    txtUserLetra: TText;
++    FloatAnimation: TFloatAnimation;
++    procedure pbTextoPaint(Sender: TObject; Canvas: TCanvas);
++    procedure lytCloseButtonClick(Sender: TObject);
++    procedure FloatAnimationFinish(Sender: TObject);
++    procedure rctFundoClick(Sender: TObject);
++  private
++    FChatId: Integer;
++    FConteudos: TArray<TMensagemNotificacao>;
++    procedure RegistrarEvento;
++    procedure StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
++  public
++    class function New(AOwner: TFmxObject): TNotificacaoItemMensagem;
++    destructor Destroy; override;
++    procedure Fechar; override;
++    procedure AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
++    procedure AtualizarAltura(iTexto: Single);
++  end;
++
++implementation
++
++{$R *.fmx}
++
++uses
++  Conversa.Dados,
++  Conversa.Configuracoes,
++  Conversa.Chat.Listagem,
++  Conversa.Tela.Inicial.view,
++  Conversa.Windows.UserActivity,
++  Conversa.Notificacao;
++
++class function TNotificacaoItemMensagem.New(AOwner: TFmxObject): TNotificacaoItemMensagem;
++begin
++  Sleep(1);
++  Result := TNotificacaoItemMensagem.Create(AOwner);
++  Result.Name := 'TNotificacaoItemMensagem_'+ FormatDateTime('yyyymmddHHnnsszzzz', Now);
++  Result.Parent := AOwner;
++  Result.Align := TAlignLayout.Top;
++  Result.FloatAnimation.Delay := Configuracoes.Notificacoes.Timeout;
++  Result.FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++  Result.RegistrarEvento;
++  Result.Show;
++end;
++
++procedure TNotificacaoItemMensagem.pbTextoPaint(Sender: TObject; Canvas: TCanvas);
++const
++  QuantidadeMaximaExibida = 5;
++  QuantidadeMaximaObterArray = 4;
++  IndexArrayMaximo = 3;
++type
++  TConteudoNotify = record
++    Nome: String;
++    Mensagem: string;
++    InicioNome: Integer;
++  end;
++var
++  ANConteudos: TArray<TConteudoNotify>;
++  Layout: TTextLayout;
++  Text: string;
++  BoldFont: TFont;
++  bNome: Boolean;
++  I: Integer;
++  iLas: Integer;
++  iMax: Integer;
++begin
++  Text := EmptyStr;
++  bNome := False;
++  iMax := IfThen(Length(FConteudos) > QuantidadeMaximaExibida, IndexArrayMaximo, Pred(Length(FConteudos)));
++
++  for I := 0 to iMax do
++    bNome := bNome or not FConteudos[I].Usuario.Trim.IsEmpty;
++
++  iLas := 0;
++  SetLength(ANConteudos, Succ(iMax));
++  for I := 0 to iMax do
++  begin
++    if bNome then
++      ANConteudos[I].Nome := IfThen(FConteudos[I].Usuario.Trim.IsEmpty, 'desconhecido', FConteudos[I].Usuario) +': '
++    else
++      ANConteudos[I].Nome := EmptyStr;
++
++    ANConteudos[I].Mensagem := FConteudos[I].Mensagem;
++    ANConteudos[I].InicioNome := iLas;
++    iLas := iLas + ANConteudos[I].Nome.Length + String(sLineBreak).Length + ANConteudos[I].Mensagem.Length;
++  end;
++
++  for I := 0 to Pred(Length(ANConteudos)) do
++    Text := Text + IfThen(I > 0, sLineBreak) + ANConteudos[I].Nome + ANConteudos[I].Mensagem;
++
++  if Length(FConteudos) > QuantidadeMaximaExibida then
++    Text := Text + sLineBreak +'+'+ ((Length(FConteudos) - QuantidadeMaximaObterArray)).ToString;
++
++  Layout := TTextLayoutManager.DefaultTextLayout.Create;
++  try
++    Layout.MaxSize := TPointF.Create(pbTexto.Width, 500);
++    Layout.BeginUpdate;
++    try
++      Layout.Text := Text;
++      Layout.Color := TAlphaColors.White;
++      Layout.Opacity := Self.Opacity;
++      Layout.WordWrap := False;
++      BoldFont := TFont.Create;
++      try
++        BoldFont.Assign(Layout.Font);
++        BoldFont.Style := [TFontStyle.fsBold];
++        for I := 0 to Pred(Length(ANConteudos)) do
++          Layout.AddAttribute(
++            TTextAttributedRange.Create(
++              TTextRange.Create(ANConteudos[I].InicioNome, ANConteudos[I].Nome.Length),
++              TTextAttribute.Create(BoldFont, TAlphaColors.White)
++            )
++          );
++      finally
++        FreeAndNil(BoldFont);
++      end;
++      Layout.HorizontalAlign := TTextAlign.Leading;
++      Layout.VerticalAlign := TTextAlign.Leading;
++    finally
++      Layout.EndUpdate;
++      Layout.TextHeight
++    end;
++    pbTexto.Canvas.BeginScene;
++    try
++      Layout.RenderLayout(pbTexto.Canvas);
++    finally
++      pbTexto.Canvas.EndScene;
++    end;
++  finally
++    Layout.Free;
++  end;
++end;
++
++procedure TNotificacaoItemMensagem.AtualizarConteudo(AChatId: Integer; AConteudos: TArray<TMensagemNotificacao>);
++begin
++  FloatAnimation.OnFinish := nil;
++  try
++    FloatAnimation.Enabled := False;
++    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++  finally
++    FloatAnimation.OnFinish := FloatAnimationFinish;
++  end;
++  FChatId := AChatId;
++  FId := AChatId;
++  FConteudos := AConteudos;
++  pbTexto.Repaint;
++end;
++
++destructor TNotificacaoItemMensagem.Destroy;
++begin
++  TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++  inherited;
++end;
++
++procedure TNotificacaoItemMensagem.Fechar;
++begin
++  TNotificacaoManager.Fechar(TTipoNotificacao.Mensagem, FChatId);
++end;
++
++procedure TNotificacaoItemMensagem.FloatAnimationFinish(Sender: TObject);
++begin
++  Fechar;
++end;
++
++procedure TNotificacaoItemMensagem.lytCloseButtonClick(Sender: TObject);
++begin
++  Fechar;
++end;
++
++procedure TNotificacaoItemMensagem.rctFundoClick(Sender: TObject);
++begin
++  Fechar;
++  Chats.AbrirChat(Dados.FDadosApp.Conversas.GetOrAdd(FChatId));
++  TelaInicial.DoConversaRestore;
++end;
++
++procedure TNotificacaoItemMensagem.RegistrarEvento;
++begin
++  TMessageManager.DefaultManager.SubscribeToMessage(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++end;
++
++procedure TNotificacaoItemMensagem.StatusIniciarAnimacao(const Sender: TObject; const M: TMessage);
++begin
++  if not Assigned(Self) or (csDestroying in Self.ComponentState) then
++  begin
++    TMessageManager.DefaultManager.Unsubscribe(TEventoMudancaStatusUsuarioSO, StatusIniciarAnimacao);
++    Exit;
++  end;
++
++  if not FloatAnimation.Enabled then
++    FloatAnimation.Enabled := StatusUsuarioSO = TStatusUsuarioSO.Ativo;
++end;
++
++procedure TNotificacaoItemMensagem.AtualizarAltura(iTexto: Single);
++var
++  iNova: Single;
++begin
++  iNova := Min(lytTopo.Height + txtNome.Height + txtHora.Height + iTexto, 200);
++  if Self.Height <> iNova then
++    Self.Height := iNova;
++end;
++
++end.
+diff --git a/src/notificacao/Conversa.Notificacao.Tipos.pas b/src/notificacao/Conversa.Notificacao.Tipos.pas
+new file mode 100644
+index 0000000..488a93a
+--- /dev/null
++++ b/src/notificacao/Conversa.Notificacao.Tipos.pas
+@@ -0,0 +1,87 @@
++unit Conversa.Notificacao.Tipos;
++
++interface
++
++uses
++  System.SysUtils;
++
++{$SCOPEDENUMS ON}
++
++type
++  TTipoNotificacao = (Mensagem, Chamada);
++
++  TMensagemNotificacao = record
++  private
++    FID: Integer;
++    FUsuario: string;
++    FMensagem: string;
++  public
++    class function New: TMensagemNotificacao; static;
++    function ID: String; overload;
++    function ID(const Value: Integer): TMensagemNotificacao; overload;
++    function Usuario: String; overload;
++    function Usuario(const Value: string): TMensagemNotificacao; overload;
++    function Mensagem: String; overload;
++    function Mensagem(const Value: string): TMensagemNotificacao; overload;
++  end;
++
++  TNotificacaoChamadaDados = record
++    Nome: String;
++    TipoChamada: String;
++    Descricao: String;
++    OnAtender: TProc<Integer>;
++    OnRecusar: TProc<Integer>;
++  end;
++
++function GerarChaveNotificacao(ATipo: TTipoNotificacao; AId: Integer): String;
++
++implementation
++
++function GerarChaveNotificacao(ATipo: TTipoNotificacao; AId: Integer): String;
++const
++  Prefixos: array[TTipoNotificacao] of String = ('MSG_', 'CALL_');
++begin
++  Result := Prefixos[ATipo] + AId.ToString;
++end;
++
++{ TMensagemNotificacao }
++
++class function TMensagemNotificacao.New: TMensagemNotificacao;
++begin
++  Result := Default(TMensagemNotificacao);
++end;
++
++function TMensagemNotificacao.ID: String;
++begin
++  Result := Self.FUsuario;
++end;
++
++function TMensagemNotificacao.ID(const Value: Integer): TMensagemNotificacao;
++begin
++  Result := Self;
++  Result.FID := Value;
++end;
++
++function TMensagemNotificacao.Usuario: String;
++begin
++  Result := Self.FUsuario;
++end;
++
++function TMensagemNotificacao.Usuario(const Value: string): TMensagemNotificacao;
++begin
++  Result := Self;
++  Result.FUsuario := Value;
++end;
++
++function TMensagemNotificacao.Mensagem: String;
++begin
++  Result := Self.FMensagem;
++end;
++
++function TMensagemNotificacao.Mensagem(const Value: string): TMensagemNotificacao;
++begin
++  Result := Self;
++  Result.FMensagem := Value;
++end;
++
++end.
+diff --git a/src/notificacao/Conversa.Notificacao.pas b/src/notificacao/Conversa.Notificacao.pas
+index c5ac957..5d3237d 100644
+--- a/src/notificacao/Conversa.Notificacao.pas
++++ b/src/notificacao/Conversa.Notificacao.pas
+@@ -1,66 +1,72 @@
+-﻿unit Conversa.Notificacao;
++unit Conversa.Notificacao;
+ 
+ interface
+ 
+ uses
+   System.Generics.Collections,
+   System.SysUtils,
+-  FMX.Types;
++  FMX.Types,
++  Conversa.Notificacao.Tipos;
+ 
+ type
+-  TMensagemNotificacao = record
+-  private
+-    FID: Integer;
+-    FUsuario: string;
+-    FMensagem: string;
+-  public
+-    class function New: TMensagemNotificacao; static;
+-    function ID: String; overload;
+-    function ID(const Value: Integer): TMensagemNotificacao; overload;
+-    function Usuario: String; overload;
+-    function Usuario(const Value: string): TMensagemNotificacao; overload;
+-    function Mensagem: String; overload;
+-    function Mensagem(const Value: string): TMensagemNotificacao; overload;
+-  end;
++  TTipoNotificacao = Conversa.Notificacao.Tipos.TTipoNotificacao;
++  TMensagemNotificacao = Conversa.Notificacao.Tipos.TMensagemNotificacao;
++  TNotificacaoChamadaDados = Conversa.Notificacao.Tipos.TNotificacaoChamadaDados;
+ 
+   TNotificacao = record
+   private
+     FView: TFmxObject;
++    FTipo: TTipoNotificacao;
++    FChave: String;
+     FChatId: Integer;
++    FChamadaId: Integer;
+     FNome: string;
+     FHora: TDateTime;
+     FConteudo: TArray<TMensagemNotificacao>;
++    FChamadaDados: TNotificacaoChamadaDados;
++    function GerarChave: String;
+   public
+     class function New: TNotificacao; static;
++    function Tipo: TTipoNotificacao; overload;
++    function Tipo(const ATipo: TTipoNotificacao): TNotificacao; overload;
++    function Chave: String;
+     function ChatId: Integer; overload;
+     function ChatId(const AChatId: Integer): TNotificacao; overload;
++    function ChamadaId: Integer; overload;
++    function ChamadaId(const AChamadaId: Integer): TNotificacao; overload;
+     function Nome(const ANome: string): TNotificacao;
+     function Hora(const AHora: TDateTime): TNotificacao;
+     function Conteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao; overload;
+     function AddConteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao; overload;
+     function Conteudo(const Texto: string): TNotificacao; overload;
++    function ChamadaDados(const ADados: TNotificacaoChamadaDados): TNotificacao; overload;
++    function ChamadaDados: TNotificacaoChamadaDados; overload;
+   end;
+ 
+   TNotificacaoManager = class
+   private
+     FVisualizador: TFmxObject;
+-    FNotificacoes: TList<TNotificacao>;
++    FNotificacoes: TDictionary<String, TNotificacao>;
+     constructor Create;
+     procedure AtualizarVisualizador;
+     function InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
+-    function InternalFechar(ChatId: Integer): TNotificacaoManager;
++    function InternalFechar(const AChave: String): TNotificacaoManager;
+   public
+     destructor Destroy; override;
+     class function Instance: TNotificacaoManager;
+-    class function Apresentar(Value: TNotificacao): TNotificacaoManager; overload;
+-    class function Fechar(ChatId: Integer): TNotificacaoManager;
++    class function Apresentar(Value: TNotificacao): TNotificacaoManager;
++    class function Fechar(ATipo: TTipoNotificacao; AId: Integer): TNotificacaoManager;
+     function Count: Integer;
+     class procedure Finalizar;
+   end;
++
+ implementation
++
+ uses
+   Conversa.Notificacao.Visualizador,
+-  Conversa.Notificacao.Item,
++  Conversa.Notificacao.Item.Base,
++  Conversa.Notificacao.Item.Mensagem,
++  Conversa.Notificacao.Item.Chamada,
+   FMX.Forms;
+ 
+ var
+@@ -80,7 +86,7 @@ end;
+ 
+ constructor TNotificacaoManager.Create;
+ begin
+-  FNotificacoes := TList<TNotificacao>.Create;
++  FNotificacoes := TDictionary<String, TNotificacao>.Create;
+ end;
+ 
+ destructor TNotificacaoManager.Destroy;
+@@ -90,9 +96,9 @@ begin
+   inherited;
+ end;
+ 
+-class function TNotificacaoManager.Fechar(ChatId: Integer): TNotificacaoManager;
++class function TNotificacaoManager.Fechar(ATipo: TTipoNotificacao; AId: Integer): TNotificacaoManager;
+ begin
+-  Result := Instance.InternalFechar(ChatId);
++  Result := Instance.InternalFechar(GerarChaveNotificacao(ATipo, AId));
+ end;
+ 
+ class procedure TNotificacaoManager.Finalizar;
+@@ -116,139 +122,159 @@ end;
+ 
+ function TNotificacaoManager.InternalApresentar(ANotificacao: TNotificacao): TNotificacaoManager;
+ var
+-  I: Integer;
++  Chave: String;
++  NotifExistente: TNotificacao;
++  ItemMensagem: TNotificacaoItemMensagem;
++  ItemChamada: TNotificacaoItemChamada;
+ begin
+   Result := Self;
++  Chave := ANotificacao.GerarChave;
+ 
+-  for I := 0 to Pred(FNotificacoes.Count) do
++  if FNotificacoes.TryGetValue(Chave, NotifExistente) then
+   begin
+-    if FNotificacoes[I].ChatId = ANotificacao.ChatId then
++    if ANotificacao.Tipo = TTipoNotificacao.Mensagem then
+     begin
+-      FNotificacoes[I] := FNotificacoes[I].AddConteudo(ANotificacao.FConteudo);
+-      Exit;
++      NotifExistente := NotifExistente.AddConteudo(ANotificacao.FConteudo);
++      FNotificacoes[Chave] := NotifExistente;
++      if Assigned(NotifExistente.FView) and (NotifExistente.FView is TNotificacaoItemMensagem) then
++        TNotificacaoItemMensagem(NotifExistente.FView).AtualizarConteudo(
++          NotifExistente.FChatId, NotifExistente.FConteudo);
+     end;
++    Exit;
+   end;
+ 
+-  ANotificacao.FView := TNotificacaoItem.New(Visualizador);
+-  with TNotificacaoItem(ANotificacao.FView) do
+-  begin
+-    txtNome.Text := ANotificacao.FNome;
+-    txtHora.Text := TimeToStr(ANotificacao.FHora);
+-    AtualizarConteudo(ANotificacao.ChatId, ANotificacao.FConteudo);
++  case ANotificacao.Tipo of
++    TTipoNotificacao.Mensagem:
++    begin
++      ItemMensagem := TNotificacaoItemMensagem.New(Visualizador);
++      ItemMensagem.txtNome.Text := ANotificacao.FNome;
++      ItemMensagem.txtHora.Text := TimeToStr(ANotificacao.FHora);
++      ItemMensagem.AtualizarConteudo(ANotificacao.FChatId, ANotificacao.FConteudo);
++      ANotificacao.FView := ItemMensagem;
++    end;
++    TTipoNotificacao.Chamada:
++    begin
++      ItemChamada := TNotificacaoItemChamada.New(Visualizador);
++      ItemChamada.Configurar(
++        ANotificacao.FChamadaId,
++        ANotificacao.FChamadaDados.Nome,
++        ANotificacao.FChamadaDados.TipoChamada,
++        ANotificacao.FChamadaDados.Descricao,
++        ANotificacao.FChamadaDados.OnAtender,
++        ANotificacao.FChamadaDados.OnRecusar
++      );
++      ANotificacao.FView := ItemChamada;
++    end;
+   end;
+ 
+-  FNotificacoes.Add(ANotificacao);
+-
++  ANotificacao.FChave := Chave;
++  FNotificacoes.Add(Chave, ANotificacao);
+   AtualizarVisualizador;
+ end;
+ 
+-function TNotificacaoManager.InternalFechar(ChatId: Integer): TNotificacaoManager;
++function TNotificacaoManager.InternalFechar(const AChave: String): TNotificacaoManager;
+ var
+-  I: Integer;
++  Notif: TNotificacao;
+ begin
+   Result := Self;
+-  for I := 0 to Pred(FNotificacoes.Count) do
++  if FNotificacoes.TryGetValue(AChave, Notif) then
+   begin
+-    if FNotificacoes[I].ChatId = ChatId then
+-    begin
+-      FNotificacoes[I].FView.Free;
+-      FNotificacoes.Delete(I);
+-      Break;
+-    end;
++    if Assigned(Notif.FView) then
++      Notif.FView.Free;
++    FNotificacoes.Remove(AChave);
+   end;
+-
+   AtualizarVisualizador;
+ end;
+ 
+ procedure TNotificacaoManager.AtualizarVisualizador;
+ var
+-  I: Integer;
++  Notif: TNotificacao;
+   Altura: Single;
+ begin
+   Altura := 0;
+-  for I := 0 to Pred(FNotificacoes.Count) do
+-    if Assigned(FNotificacoes[I].FView) then
+-      Altura := Altura + TFrame(FNotificacoes[I].FView).Height;
++  for Notif in FNotificacoes.Values do
++    if Assigned(Notif.FView) then
++      Altura := Altura + TNotificacaoItemBase(Notif.FView).GetAltura;
+ 
+   Visualizador.Exibir(Altura);
+ end;
+ 
+-{ TConteudo }
+-
+-class function TMensagemNotificacao.New: TMensagemNotificacao;
+-begin
+-  Result := Default(TMensagemNotificacao);
+-end;
++{ TNotificacao }
+ 
+-function TMensagemNotificacao.ID: String;
++class function TNotificacao.New: TNotificacao;
+ begin
+-  Result := Self.FUsuario;
++  Result := Default(TNotificacao);
++  Result.FTipo := TTipoNotificacao.Mensagem;
+ end;
+ 
+-function TMensagemNotificacao.ID(const Value: Integer): TMensagemNotificacao;
++function TNotificacao.GerarChave: String;
+ begin
+-  Result := Self;
+-  Result.FID := Value;
++  case FTipo of
++    TTipoNotificacao.Mensagem: Result := GerarChaveNotificacao(FTipo, FChatId);
++    TTipoNotificacao.Chamada: Result := GerarChaveNotificacao(FTipo, FChamadaId);
++  end;
+ end;
+ 
+-function TMensagemNotificacao.Usuario: String;
++function TNotificacao.Tipo: TTipoNotificacao;
+ begin
+-  Result := Self.FUsuario;
++  Result := FTipo;
+ end;
+ 
+-function TMensagemNotificacao.Usuario(const Value: string): TMensagemNotificacao;
++function TNotificacao.Tipo(const ATipo: TTipoNotificacao): TNotificacao;
+ begin
+   Result := Self;
+-  Result.FUsuario := Value;
++  Result.FTipo := ATipo;
+ end;
+ 
+-function TMensagemNotificacao.Mensagem: String;
++function TNotificacao.Chave: String;
+ begin
+-  Result := Self.FMensagem;
++  Result := FChave;
+ end;
+ 
+-function TMensagemNotificacao.Mensagem(const Value: string): TMensagemNotificacao;
++function TNotificacao.ChatId(const AChatId: Integer): TNotificacao;
+ begin
+   Result := Self;
+-  Result.FMensagem := Value;
++  Result.FChatId := AChatId;
+ end;
+ 
+-{ TNotificacao }
+-
+-class function TNotificacao.New: TNotificacao;
++function TNotificacao.ChatId: Integer;
+ begin
+-  Result := Default(TNotificacao);
++  Result := FChatId;
+ end;
+ 
+-function TNotificacao.ChatId(const AChatId: Integer): TNotificacao;
++function TNotificacao.ChamadaId(const AChamadaId: Integer): TNotificacao;
+ begin
+   Result := Self;
+-  Result.FChatId := AChatId;
++  Result.FChamadaId := AChamadaId;
++end;
++
++function TNotificacao.ChamadaId: Integer;
++begin
++  Result := FChamadaId;
+ end;
+ 
+ function TNotificacao.Nome(const ANome: string): TNotificacao;
+ begin
+   Result := Self;
+   Result.FNome := ANome;
+-  if Assigned(FView) then
+-    TNotificacaoItem(FView).txtNome.Text := Result.FNome;
++  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
++    TNotificacaoItemMensagem(FView).txtNome.Text := Result.FNome;
+ end;
+ 
+ function TNotificacao.Hora(const AHora: TDateTime): TNotificacao;
+ begin
+   Result := Self;
+   Result.FHora := AHora;
+-  if Assigned(FView) then
+-    TNotificacaoItem(FView).txtHora.Text := TimeToStr(Result.FHora);
++  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
++    TNotificacaoItemMensagem(FView).txtHora.Text := TimeToStr(Result.FHora);
+ end;
+ 
+ function TNotificacao.Conteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao;
+ begin
+   Result := Self;
+   Result.FConteudo := AConteudo;
+-
+-  if Assigned(FView) then
+-    TNotificacaoItem(FView).AtualizarConteudo(Result.ChatId, Result.FConteudo);
++  if Assigned(FView) and (FView is TNotificacaoItemMensagem) then
++    TNotificacaoItemMensagem(FView).AtualizarConteudo(Result.ChatId, Result.FConteudo);
+ end;
+ 
+ function TNotificacao.AddConteudo(const AConteudo: TArray<TMensagemNotificacao>): TNotificacao;
+@@ -256,11 +282,6 @@ begin
+   Result := Self.Conteudo(Self.FConteudo + AConteudo);
+ end;
+ 
+-function TNotificacao.ChatId: Integer;
+-begin
+-  Result := FChatId;
+-end;
+-
+ function TNotificacao.Conteudo(const Texto: string): TNotificacao;
+ begin
+   Result := Self;
+@@ -268,6 +289,17 @@ begin
+   Result.FConteudo[High(Result.FConteudo)] := TMensagemNotificacao.New.Mensagem(Texto);
+ end;
+ 
++function TNotificacao.ChamadaDados(const ADados: TNotificacaoChamadaDados): TNotificacao;
++begin
++  Result := Self;
++  Result.FChamadaDados := ADados;
++end;
++
++function TNotificacao.ChamadaDados: TNotificacaoChamadaDados;
++begin
++  Result := FChamadaDados;
++end;
++
+ { TNotificacaoManagerH }
+ 
+ function TNotificacaoManagerH.Visualizador: TNotificacaoVisualizador;
+diff --git a/src/notificacao/refatoracao_notificacao.md b/src/notificacao/refatoracao_notificacao.md
+new file mode 100644
+index 0000000..7794c9d
+--- /dev/null
++++ b/src/notificacao/refatoracao_notificacao.md
+@@ -0,0 +1,117 @@
++# Refatoração do Sistema de Notificação
++
++## Objetivo
++Generalizar o sistema de notificação para suportar múltiplos tipos (Mensagem, Chamada).
++
++---
++
++## Tarefas
++
++### 1. Criar unit de tipos (NOVA)
++- [x] `Conversa.Notificacao.Tipos.pas`
++  - [x] `{$SCOPEDENUMS ON}`
++  - [x] `TTipoNotificacao = (Mensagem, Chamada)`
++  - [x] `TMensagemNotificacao` record
++  - [x] `TNotificacaoChamadaDados` record
++  - [x] `GerarChaveNotificacao()` function
++
++### 2. Criar classe base
++- [x] `Conversa.Notificacao.Item.Base.pas`
++  - [x] `TNotificacaoItemBase = class(TFrame)`
++  - [x] Método abstrato `procedure Fechar;`
++  - [x] Método virtual `function GetAltura: Single;`
++  - [x] Propriedade `Id: Integer`
++
++### 3. Renomear item de mensagem
++- [x] `Conversa.Notificacao.Item.pas` → `Conversa.Notificacao.Item.Mensagem.pas`
++- [x] `Conversa.Notificacao.Item.fmx` → `Conversa.Notificacao.Item.Mensagem.fmx`
++- [x] Renomear classe `TNotificacaoItem` → `TNotificacaoItemMensagem`
++- [x] Herdar de `TNotificacaoItemBase`
++- [x] Implementar `Fechar`
++
++### 4. Criar item de chamada
++- [x] `Conversa.Notificacao.Item.Chamada.pas`
++- [x] `Conversa.Notificacao.Item.Chamada.fmx`
++- [x] `TNotificacaoItemChamada = class(TNotificacaoItemBase)`
++  - [x] Campos: Nome, TipoChamada, Descricao
++  - [x] Botão Atender (verde)
++  - [x] Botão Recusar (vermelho)
++  - [x] Callbacks: `FOnAtender: TProc<Integer>`, `FOnRecusar: TProc<Integer>`
++  - [x] Sem auto-fechamento
++
++### 5. Modificar manager principal
++- [x] `Conversa.Notificacao.pas`
++  - [x] Usar `Conversa.Notificacao.Tipos`
++  - [x] Modificar `TNotificacao`:
++    - [x] `FTipo: TTipoNotificacao`
++    - [x] `FChave: String` (chave: `MSG_123`, `CALL_456`)
++    - [x] `FChamadaDados: TNotificacaoChamadaDados`
++    - [x] Métodos fluent: `Tipo()`, `Chave()`, `ChamadaDados()`
++  - [x] Modificar `TNotificacaoManager`:
++    - [x] `TDictionary<String, TNotificacao>` ao invés de `TList`
++    - [x] `InternalApresentar`: factory para criar view por tipo
++    - [x] `InternalFechar`: buscar por chave genérica
++    - [x] `Fechar(ATipo: TTipoNotificacao; AId: Integer)`
++
++### 6. Limpeza (PENDENTE)
++- [ ] Remover arquivos antigos após validação:
++  - [ ] `Conversa.Notificacao.Item.pas`
++  - [ ] `Conversa.Notificacao.Item.fmx`
++
++---
++
++## Estrutura Final
++
++```
++notificacao/
++├── Conversa.Notificacao.Tipos.pas              (tipos e constantes)
++├── Conversa.Notificacao.pas                    (manager + TNotificacao)
++├── Conversa.Notificacao.Visualizador.pas       (janela container)
++├── Conversa.Notificacao.Item.Base.pas          (classe base)
++├── Conversa.Notificacao.Item.Mensagem.pas      (item de mensagem)
++├── Conversa.Notificacao.Item.Mensagem.fmx
++├── Conversa.Notificacao.Item.Chamada.pas       (item de chamada)
++└── Conversa.Notificacao.Item.Chamada.fmx
++```
++
++---
++
++## Uso
++
++### Notificação de Mensagem
++```pascal
++TNotificacaoManager.Apresentar(
++  TNotificacao.New
++    .Tipo(TTipoNotificacao.Mensagem)
++    .ChatId(123)
++    .Nome('João')
++    .Hora(Now)
++    .Conteudo('Olá!')
++);
++
++// Fechar
++TNotificacaoManager.Fechar(TTipoNotificacao.Mensagem, 123);
++```
++
++### Notificação de Chamada
++```pascal
++var
++  Dados: TNotificacaoChamadaDados;
++begin
++  Dados.Nome := 'Maria';
++  Dados.TipoChamada := 'Chamada de vídeo';
++  Dados.Descricao := 'Recebendo chamada...';
++  Dados.OnAtender := procedure(Id: Integer) begin AtenderChamada(Id); end;
++  Dados.OnRecusar := procedure(Id: Integer) begin RecusarChamada(Id); end;
++
++  TNotificacaoManager.Apresentar(
++    TNotificacao.New
++      .Tipo(TTipoNotificacao.Chamada)
++      .ChamadaId(456)
++      .ChamadaDados(Dados)
++  );
++end;
++
++// Fechar
++TNotificacaoManager.Fechar(TTipoNotificacao.Chamada, 456);
++```

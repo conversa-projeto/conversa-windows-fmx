@@ -4,7 +4,7 @@
 - **Tipo:** documentação / repositório
 - **Itens:** `TODO.md` 0.6 (commit da auditoria e hashes), 0.2 e 0.3; FC-003; #93
 - **Branch:** `chamada`
-- **Commits:** `6d53c23` (auditoria), `4a762dc` (hashes), e o commit desta correção
+- **Commits:** `6d53c23` (auditoria), `4a762dc` (hashes), `65b1aa5` (esta correção)
 
 ## Contexto
 O responsável pediu o commit da documentação da auditoria **antes** da preservação da Etapa 0.2. Pelo `TODO.md`, o commit ficava na 0.6, depois do commit do *staged* e das tags dos *stashes*.
