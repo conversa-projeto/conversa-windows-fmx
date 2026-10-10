@@ -3,8 +3,8 @@
 - **Fluxo:** Planejamento e documentação
 - **Tipo:** documentação
 - **Itens:** `TODO.md` (raiz); FC-001…FC-955 (doc 06)
-- **Branch:** `chamada` (não commitado)
-- **Commits:** — (a commitar na Etapa 0.6)
+- **Branch:** `chamada`
+- **Commits:** `6d53c23` (junto com a auditoria)
 
 ## Contexto
 Continuação da auditoria de 2026-10-08: o passo a passo do trabalho, no mesmo formato do `TODO.md` do Android (cada linha uma ação pequena, linhas **Teste:** por seção, ⛔ para bloqueios, ✔ hash ao concluir).

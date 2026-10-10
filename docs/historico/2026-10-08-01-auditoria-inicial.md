@@ -3,8 +3,8 @@
 - **Fluxo:** Planejamento e documentação
 - **Tipo:** documentação (nenhum código alterado)
 - **Itens:** `docs/auditoria-2026-10/00` a `08`, `apoio/`; ADR 0001 e 0002 (propostos); FC-001…FC-955; #1–#103; Q1–Q14; S17–S24; WIN-01–WIN-33
-- **Branch:** `chamada` (arquivos não commitados; ver Pendências)
-- **Commits:** — (a commitar na Etapa 0.6 do `TODO.md`)
+- **Branch:** `chamada`
+- **Commits:** `6d53c23` (2026-10-09, junto com o `TODO.md`, o histórico e o `CLAUDE.md`)
 
 ## Contexto
 O cliente FMX parou em 2026-04-26, escrito para o servidor Delphi. Desde então:
@@ -61,5 +61,5 @@ O responsável pediu para o FMX o mesmo processo feito no Android em 2026-10-06 
 
 ## Pendências / próximos passos
 - Decisões do responsável (`00-LEIAME.md` §5): ADR 0001, build/licença, senha, desktop × celular, push, protótipo de mídia, *issues* no servidor e no web, histórico com o fonte da Embarcadero.
-- Commitar estes documentos na Etapa 0.6 do `TODO.md` (depois de preservar o *staged* e os *stashes* na 0.2), e preencher o hash aqui.
+- ~~Commitar estes documentos na Etapa 0.6 do `TODO.md`~~ Feito em `6d53c23`, a pedido do responsável, **antes** da preservação da 0.2: só os docs entraram no commit; o *staged* (`Conversa.Dados.pas`, `src/chamada/Conversa.Chamada.WebRTC.pas`) continua preparado, à espera da 0.2.
 - Copiar S17–S24 para o doc 08 do Android (outro repositório; com autorização).

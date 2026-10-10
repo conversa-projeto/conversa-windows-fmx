@@ -3,8 +3,8 @@
 - **Fluxo:** Planejamento e documentação
 - **Tipo:** documentação / decisão de processo
 - **Itens:** FC-007
-- **Branch:** `chamada` (não commitado)
-- **Commits:** — (a commitar na Etapa 0.6)
+- **Branch:** `chamada`
+- **Commits:** `6d53c23` (junto com a auditoria)
 
 ## Contexto
 Mesmo processo do Android: toda alteração no repositório passa a ter um registro no histórico, e quem trabalha no repositório (pessoas ou agentes de IA) segue um `CLAUDE.md` com as regras e o mapa da documentação.
@@ -22,4 +22,4 @@ Mesmo processo do Android: toda alteração no repositório passa a ter um regis
 - Regras do Android mantidas e adaptadas ao Delphi: proibido `FreeAndNil(Self)`; nenhuma E/S na thread da interface; validar identificadores do servidor antes de usá-los como caminho; vídeo e tela só por ação explícita; datas em pt-BR fixo.
 
 ## Pendências / próximos passos
-- Commitar junto com a auditoria (Etapa 0.6).
+- ~~Commitar junto com a auditoria (Etapa 0.6).~~ Feito em `6d53c23`.

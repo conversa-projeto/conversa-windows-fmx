@@ -31,7 +31,7 @@
 
 ### 0.2 Salvar tudo o que existe (FC-002)
 - [ ] Conferir em que branch estou: `git branch --show-current` (deve ser `chamada`)
-- [ ] Ver o que está pendente: `git status` (esperado: *staged* em `Conversa.Dados.pas` e `src/chamada/Conversa.Chamada.WebRTC.pas`; não rastreados: DLLs em `bin/`, `docs/todo.md`, os docs da auditoria)
+- [ ] Ver o que está pendente: `git status` (esperado: *staged* em `Conversa.Dados.pas` e `src/chamada/Conversa.Chamada.WebRTC.pas`; não rastreados: DLLs em `bin/` e `docs/todo.md`; os docs da auditoria já foram commitados em `6d53c23`)
 - [ ] Commitar **só** as alterações *staged* num commit próprio: `git commit -m "Usa wss://host/ws/ no WebSocket (servidor atual) e atualiza o cabeçalho do WebRTC"` (elas compilaram no IDE em 2026-06-27; doc 04 §1.2)
 - [ ] Criar a branch de preservação nesse commit: `git branch legado/abril-2026 HEAD`
 - [ ] Criar a tag anotada: `git tag -a legado-v1-final legado/abril-2026 -m "Estado final do app FMX antes da nova base"`
@@ -44,7 +44,7 @@
 - [ ] **Teste:** 27 patches na pasta, 27 tags `legado/stash-*`, tag `legado/alteracao-base`, `git status` sem nada *staged*
 
 ### 0.3 Publicar (FC-003)
-- [ ] Enviar `chamada` (inclui o `4759ba5`, +8.486 linhas, que **só existe nesta máquina**), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base` e as tags dos *stashes* ⛔ o push é feito pelo responsável:
+- [ ] Enviar `chamada` (inclui o `4759ba5`, +8.486 linhas, que **só existe nesta máquina**, e os commits da auditoria a partir do `6d53c23`), `legado/abril-2026`, `legado-v1-final`, `legado/alteracao-base` e as tags dos *stashes* ⛔ o push é feito pelo responsável:
   `git push origin chamada legado/abril-2026 legado-v1-final legado/alteracao-base` e `git push origin "refs/tags/legado/stash-*"`
 - [ ] Decidir se a `main` avança para a `chamada` (o branch padrão do GitHub está 14 meses atrás) ⛔ decisão do responsável
 - [ ] **Teste:** branch e tags aparecem no GitHub
@@ -73,8 +73,8 @@
 - [ ] Reescrever o `README.md`: o que é o app, "em reescrita" (se o ADR for aceito), links para os docs, ecossistema (servidor, web, Android Kotlin)
 - [ ] README → "Como compilar" (Delphi 12, Win64, dependências, licença)
 - [ ] README → "Servidor de desenvolvimento" (`https://localhost`, mkcert, link para `docs/desenvolvimento/servidor-de-dev.md`)
-- [ ] Commitar a auditoria: `docs: auditoria de 2026-10 (docs 00–08, apoio, ADRs, cores, contrato), histórico, CLAUDE.md e TODO`
-- [ ] Preencher os hashes no histórico (commit seguinte)
+- [x] Commitar a auditoria: `docs: auditoria de 2026-10 (docs 00–08, apoio, ADRs, cores, contrato), histórico, CLAUDE.md e TODO` ✔ 6d53c23 (antecipado a pedido do responsável, antes da 0.2; o *staged* ficou intacto; `openapi.json` com `git add -f` até a 0.5)
+- [x] Preencher os hashes no histórico (commit seguinte) ✔ commit seguinte ao 6d53c23 (`docs: hash da auditoria no histórico e no TODO`)
 - [ ] **Teste:** nenhum doc antigo fora de `docs/legado/`; um clone limpo, seguindo o README, sabe como compilar
 
 ### 0.7 Protótipo de tempo real (doc 07 §10, D9)
