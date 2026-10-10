@@ -18,7 +18,7 @@
 | D6 | Injeção | Interfaces + **composição manual** no *bootstrap* (registro de serviços), sem biblioteca de terceiros | Simples, sem dependência nova; *fakes* nos testes |
 | D7 | Serialização | DTOs explícitos (`System.JSON` + conversores próprios para datas ISO-8601 com `Z`, ids número/texto, campos ausentes), mapeadores DTO → domínio, **testes com *fixtures* JSON reais** | Contrato como fonte da verdade (doc 01); nunca deduzir do código legado |
 | D8 | HTTP | `THTTPClient` (`System.Net.HttpClient`, WinHTTP/SChannel): TLS, *proxy* e certificados do Windows; UTF-8 explícito; *query* codificada por parâmetro; *timeouts*; repetição só em requisições idempotentes; 401 → evento "sessão expirada"; HTML do nginx → "Servidor indisponível" | Corrige #39; mantém o que já estava certo (validação de TLS) |
-| D9 | Tempo real | **WebSocket do WinHTTP** (`WinHttpWebSocketCompleteUpgrade/Send/Receive/Close`) numa thread própria; máquina de estados com **geração** por conexão, *backoff* `min(30 s, 1 s × 2^n)` com *jitter*, *ping* periódico, ressincronização ao conectar, *polling* de 8 s com o socket fora | Corrige #2, #3, #5, #29 de uma vez; sem OpenSSL nem DLL extra. Alternativas: ICS (OpenSSL 3, gratuito) ou sgcWebSockets (comercial) |
+| D9 | Tempo real | **WebSocket do WinHTTP** (`WinHttpWebSocketCompleteUpgrade/Send/Receive/Close`) numa thread própria; máquina de estados com **geração** por conexão, *backoff* `min(30 s, 1 s × 2^n)` com *jitter*, *keepalive* do WinHTTP (30 s, no *handle* do WebSocket; o servidor não tem *ping* de aplicação — protótipo 0.7), ressincronização ao conectar, *polling* de 8 s com o socket fora | Corrige #2, #3, #5, #29 de uma vez; sem OpenSSL nem DLL extra. Alternativas: ICS (OpenSSL 3, gratuito) ou sgcWebSockets (comercial) |
 | D10 | Persistência | **SQLite via FireDAC** (cache de conversas, mensagens, usuários, cursores, fila de envio, rascunhos) em `%LOCALAPPDATA%\Conversa`; configuração mínima em `%APPDATA%\Conversa` (JSON gravado de forma atômica) | Abre com o histórico, envio otimista, cursor de sincronização; dados no lugar certo (#68, #92). Confirmar que a edição do Delphi em uso inclui o driver SQLite do FireDAC |
 | D11 | Sessão | **Só o token**, protegido com DPAPI (`CryptProtectData`, escopo do usuário); **nunca a senha** por padrão. Opção "Manter conectado" com a credencial em DPAPI **só se o responsável aprovar** (ADR 0001), enquanto o servidor não tiver *refresh token* (S13) | Corrige #6; o JWT de 12 h vence todo dia num app de bandeja (#4) |
 | D12 | Notificações | Mensagens: **toast nativo do Windows** (com o *AppUserModelID* e atalho no Menu Iniciar), uma por conversa, com "Responder" e "Marcar como lida" se a API permitir; chamada recebida: **janela própria no topo** (botões grandes, toque em loop), como a atual. Contador na barra de tarefas e na bandeja | Respeita "não perturbe" e a Central de Notificações (#76); chamada precisa de destaque. Decisão final depois do protótipo da etapa 5 |
@@ -42,7 +42,7 @@ conversa-windows-fmx/
 │   ├── contrato/        DTOs + mapeadores DTO→domínio + conversores (datas, ids tolerantes); fixtures nos testes
 │   ├── infra/
 │   │   ├── http/        IConversaApi + TConversaApi (THTTPClient), EApiErro tipado
-│   │   ├── tempo-real/  ITempoReal + TTempoRealWinHttp (thread própria, estados, geração, backoff, ping)
+│   │   ├── tempo-real/  ITempoReal + TTempoRealWinHttp (thread própria, estados, geração, backoff, keepalive)
 │   │   │                + TParserEventos (0–62 → eventos tipados)
 │   │   ├── banco/       SQLite (FireDAC): conversas, mensagens, usuários, cursores, fila de envio, rascunhos;
 │   │   │                migrações versionadas
@@ -89,7 +89,8 @@ estado: Desconectado → Conectando → Autenticando → Conectado → (queda) �
 - conecta com sessão válida (e, até S2/S18, só com o usuário ativo: D13)
 - ao abrir: {"tipo":1,"token":…} (número JSON); erro chega como tipo 0 → "sessão expirada"
 - cada conexão tem uma geração; eventos de gerações antigas são descartados
-- ping de protocolo a cada 30 s; sem resposta em 10 s = conexão morta
+- keepalive do WinHTTP a cada 30 s (WINHTTP_OPTION_WEB_SOCKET_KEEPALIVE_INTERVAL no handle do WebSocket); conexão
+  morta = erro no Receive (na hora, se a outra ponta fecha; pelo TCP, se a rede some) — protótipo 0.7, 2026-10-09
 - backoff min(30 s, 1 s × 2^n) + jitter; reconecta já ao voltar de suspensão/bloqueio/rede
 - ao entrar em Conectado: SyncManager.Ressincronizar()
 - com o socket fora por mais de 5 s: faixa "Conexão em tempo real indisponível — usando atualização periódica"
@@ -250,5 +251,5 @@ Tabela completa no doc 04 §8.3. Em resumo:
 ## 10. Protótipos recomendados (antes de tudo)
 
 1. **Build:** compilar um projeto Win64 vazio + um projeto DUnitX por linha de comando (ou registrar o fluxo pelo IDE). Sem isso, nada do resto pode ser verificado.
-2. **Tempo real:** um cliente WebSocket do WinHTTP em Delphi conectando em `wss://localhost/ws/` com o certificado do mkcert, mandando `{tipo:1}`, recebendo um WS 2 enviado pelo web e sobrevivendo a 5 minutos ocioso (*ping*) e a `docker restart api`.
+2. **Tempo real** (✅ 2026-10-09, `ferramentas/prototipo-ws/`, com as mesmas chamadas do WinHTTP em C#): um cliente WebSocket do WinHTTP conectando em `wss://localhost/ws/` com o certificado do mkcert, mandando `{tipo:1}`, recebendo um WS 2 enviado pelo web e sobrevivendo a 5 minutos ocioso (*ping*) e a `docker restart api`.
 3. **Mídia:** opção A (§6) com áudio nos dois sentidos entre o FMX e o web, via TURN, sem eco, e a gravação conferida.

@@ -6,7 +6,7 @@
 - **Branch:** `chamada`
 - **Commits:**
   - `9678749` — o *staged* do responsável, num commit próprio (base da preservação);
-  - o commit da Etapa 0 (este registro) — (preencher).
+  - `ccc8138` — o commit da Etapa 0 (este registro).
 
 ## Contexto
 Primeira etapa do `TODO.md`: guardar tudo o que existia antes de começar a nova base e preparar o repositório. Mesmo processo do Android (registro `2026-10-06-05` daquele repositório).

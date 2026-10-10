@@ -18,8 +18,9 @@ Como compilar o FMX e testá-lo de ponta a ponta contra o servidor local (`../co
 
 - O certificado do nginx de desenvolvimento é do **mkcert** (`conversa/bin/setup-cert.bat`), com os nomes `localhost`, `127.0.0.1` e o IP digitado no *script*.
 - **Nesta máquina a CA do mkcert já está instalada** no repositório "Autoridades de Certificação Raiz Confiáveis" do **usuário atual** (conferido com `certutil -user -store Root` em 2026-10-08).
-  - O `THTTPClient`/`TNetHTTPClient` (WinHTTP) usa esse repositório: o REST funciona com `https://localhost` sem nada extra.
-  - O `curl` do Git Bash **não** usa esse repositório (precisa de `-k` ou do `rootCA.pem`).
+  - O `THTTPClient`/`TNetHTTPClient` (WinHTTP) usa esse repositório: o REST funciona com `https://localhost` sem nada extra. O WinHTTP **não confere revogação** por padrão, e a RTL do Delphi não liga essa checagem (`System.Net.HttpClient.Win.pas` não usa `WINHTTP_ENABLE_SSL_REVOCATION`).
+  - O WebSocket do WinHTTP (nova base) também usa esse repositório: conferido com o protótipo `ferramentas/prototipo-ws/` em 2026-10-09.
+  - O `curl` do Git Bash usa o SChannel (o mesmo repositório), mas **confere revogação**, e o mkcert não publica lista de revogação. Por isso o `curl` falha com `CRYPT_E_NO_REVOCATION_CHECK (0x80092012)`. Use `curl --ssl-no-revoke https://localhost/...`, que continua validando a cadeia (nunca `-k`).
   - O Indy/OpenSSL (o WebSocket do app atual) também **não** usa: precisa das DLLs do OpenSSL e não valida o certificado (doc 04 #5).
 - Em outro PC: copiar o `rootCA.pem` (pasta de `mkcert -CAROOT` da máquina do servidor) e importar no repositório do usuário: `certutil -user -addstore Root rootCA.pem`. **Nunca** desligar a validação de certificado no código.
 
