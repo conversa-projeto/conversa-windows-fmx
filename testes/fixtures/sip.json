@@ -1,0 +1,13 @@
+{
+  "id": 3,
+  "usuario_id": 7,
+  "sip_user": "1001",
+  "auth_user": null,
+  "sip_password": "senha-de-teste",
+  "display_name": "Ana",
+  "domain": "pbx.test",
+  "ws_server": "wss://pbx.test:8089/ws",
+  "ativo": true,
+  "criado_em": "2026-10-01T00:00:00.000Z",
+  "criado_por": 7
+}

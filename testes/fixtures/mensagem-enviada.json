@@ -1,0 +1,14 @@
+{
+  "id": 106,
+  "usuario_id": 7,
+  "conversa_id": 42,
+  "inserida": "2026-10-06T12:30:00.000Z",
+  "alterada": null,
+  "visivel_em": null,
+  "excluida_em": null,
+  "excluida_por": null,
+  "mensagem_referencia": {
+    "tipo": 1,
+    "origem_mensagem_id": 99
+  }
+}

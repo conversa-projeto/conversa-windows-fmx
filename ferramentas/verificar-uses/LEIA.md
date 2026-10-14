@@ -31,6 +31,11 @@ Precisa do Node 18+ e do Delphi 12 instalado em `C:\Program Files (x86)\Embarcad
    - `{$R *.fmx}` sem o `.fmx`;
    - campo publicado sem objeto no `.fmx` ou com outra classe (erro);
    - objeto do `.fmx` sem campo publicado (aviso).
+6. **Codificação:** fonte com acento em UTF-8 **sem BOM** é erro. Sem BOM, o compilador lê o arquivo no code page ANSI da máquina (1252) e corrompe todo texto acentuado. Os testes não pegam isso, porque os dois lados da comparação ficam corrompidos do mesmo jeito.
+7. **Comentário `{ }` com `{` dentro** é erro: em Pascal ele não aninha, e o primeiro `}` fecha o comentário. Aconteceu na nova base com `{error}` dentro do cabeçalho de uma unit, e o resto do texto virou código.
+8. **Projetos (`.dpr`):**
+   - o `.dproj` ao lado tem os mesmos `DCCReference` que os `uses ... in` do `.dpr`;
+   - toda unit do projeto usada, direta ou indiretamente, está listada no `.dpr`. Sem caminho de busca, o compilador não acha uma unit que só outra unit usa ("File not found").
 
 O verificador avalia `{$IFDEF}`/`{$IF}`/`{$ELSE}` como num build **Win64 Debug** (`MSWINDOWS`, `WIN64`, `CPUX64`, `DEBUG`…), e o código das outras plataformas fica de fora.
 
@@ -39,6 +44,7 @@ O verificador avalia `{$IFDEF}`/`{$IF}`/`{$ELSE}` como num build **Win64 Debug**
 - **Não confere tipos:** assinaturas, número de parâmetros, compatibilidade de atribuições, sobrecargas. Isso continua dependendo de revisar contra o fonte do Delphi (`Studio\23.0\source`) e do build no IDE.
 - **Membros:** dentro de corpos de método e de blocos `with`, um nome solto que existe como membro de alguma classe (da RTL ou do projeto) é aceito sem conferir a herança.
   - Na nova base, **não usar `with`**.
+- **`{` dentro de comentário:** no legado aparece um caso inofensivo (cabeçalho de licença do DCPcrypt). Na nova base a regra é estrita.
 - **Falsos positivos** podem ser silenciados com um comentário na própria unit:
   ```pascal
   // verificar-uses: ignorar NomeDoIdentificador

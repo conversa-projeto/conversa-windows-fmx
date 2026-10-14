@@ -1,0 +1,20 @@
+object TelaPrincipal: TTelaPrincipal
+  Left = 0
+  Top = 0
+  Caption = 'Conversa'
+  ClientHeight = 700
+  ClientWidth = 1100
+  Position = ScreenCenter
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object lblVersao: TLabel
+    Align = Center
+    Size.Width = 500.000000000000000000
+    Size.Height = 30.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.HorzAlign = Center
+    Text = 'Conversa'
+  end
+end

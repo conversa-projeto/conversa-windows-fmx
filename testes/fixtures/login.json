@@ -1,0 +1,16 @@
+{
+  "id": 7,
+  "nome": "Ana Souza",
+  "email": "ana@exemplo.test",
+  "telefone": null,
+  "avatar_identificador": null,
+  "dispositivo": {
+    "id": 12,
+    "nome": "desconhecido",
+    "modelo": "desconhecido",
+    "versao_so": "desconhecido",
+    "plataforma": "desconhecido",
+    "ativo": true
+  },
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3IiwiaXNzIjoiY29udmVyc2EubG9naW4ifQ.YXNzaW5hdHVyYS1mYWxzYQ"
+}

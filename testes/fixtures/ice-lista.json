@@ -1,0 +1,13 @@
+{
+  "iceServers": [
+    {
+      "urls": [
+        "turns:conversa.test:8443?transport=tcp",
+        "turn:conversa.test:3478?transport=tcp"
+      ],
+      "username": "u",
+      "credential": "c"
+    }
+  ],
+  "iceTransportPolicy": "all"
+}

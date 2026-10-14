@@ -1,0 +1,47 @@
+[
+  {
+    "id": 42,
+    "descricao": "Bruno Lima",
+    "tipo": 1,
+    "inserida": "2026-10-01T10:00:00.000Z",
+    "nome": "Bruno Lima",
+    "destinatario_id": 8,
+    "mensagem_id": 105,
+    "ultima_mensagem": "2026-10-06T12:00:00.123Z",
+    "ultima_mensagem_texto": "oi @[Ana](7)",
+    "mensagens_sem_visualizar": 3,
+    "fixada_ordem": 1,
+    "arquivada_em": null,
+    "avatar_url": null
+  },
+  {
+    "id": 43,
+    "descricao": null,
+    "tipo": 2,
+    "inserida": "2026-10-02T10:00:00.000Z",
+    "nome": null,
+    "destinatario_id": null,
+    "mensagem_id": 0,
+    "ultima_mensagem": null,
+    "ultima_mensagem_texto": "",
+    "mensagens_sem_visualizar": 0,
+    "fixada_ordem": null,
+    "arquivada_em": "2026-10-05T08:00:00.000Z",
+    "avatar_url": null
+  },
+  {
+    "id": 44,
+    "descricao": "Projeto",
+    "tipo": 2,
+    "inserida": "2026-10-03T10:00:00.000Z",
+    "nome": null,
+    "destinatario_id": null,
+    "mensagem_id": 200,
+    "ultima_mensagem": "2026-10-06T13:00:00.000Z",
+    "ultima_mensagem_texto": "enquete",
+    "mensagens_sem_visualizar": 0,
+    "fixada_ordem": null,
+    "arquivada_em": null,
+    "avatar_url": null
+  }
+]

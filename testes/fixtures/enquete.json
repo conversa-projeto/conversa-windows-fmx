@@ -1,0 +1,34 @@
+{
+  "id": 42,
+  "conversa_id": 10,
+  "mensagem_id": 900,
+  "pergunta": "Onde vamos almoçar?",
+  "multipla": false,
+  "criado_por": 7,
+  "encerra_em": "2026-10-09T18:00:00.000Z",
+  "encerrada_em": null,
+  "encerrada": false,
+  "pode_encerrar": true,
+  "pode_alterar_prazo": true,
+  "opcoes": [
+    {
+      "id": 1,
+      "texto": "Centro",
+      "votantes": [
+        {
+          "id": 7,
+          "nome": "Ana Souza"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "texto": "Shopping",
+      "votantes": []
+    }
+  ],
+  "total_votantes": 1,
+  "meus_votos": [
+    1
+  ]
+}

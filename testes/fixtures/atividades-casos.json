@@ -1,0 +1,38 @@
+[
+  {
+    "id": 33,
+    "tipo": 1,
+    "criado_em": "2026-10-06T12:01:00.000Z",
+    "nova": true,
+    "autor_id": 8,
+    "autor_nome": "Bruno Lima",
+    "conversa_id": 42,
+    "conversa_tipo": 1,
+    "conversa_descricao": null,
+    "mensagem_id": 101,
+    "conteudo_tipo": 1,
+    "texto": "bom dia",
+    "chamada_id": null,
+    "chamada_tipo": null,
+    "emoji": "😂",
+    "autor_avatar_url": null
+  },
+  {
+    "id": 34,
+    "tipo": 4,
+    "criado_em": "2026-10-06T13:00:00.000Z",
+    "nova": false,
+    "autor_id": 8,
+    "autor_nome": "Bruno Lima",
+    "conversa_id": 42,
+    "conversa_tipo": 1,
+    "conversa_descricao": null,
+    "mensagem_id": null,
+    "conteudo_tipo": null,
+    "texto": null,
+    "chamada_id": 10,
+    "chamada_tipo": 2,
+    "emoji": null,
+    "autor_avatar_url": null
+  }
+]

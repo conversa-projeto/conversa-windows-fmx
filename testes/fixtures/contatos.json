@@ -1,0 +1,16 @@
+[
+  {
+    "id": 7,
+    "nome": "Ana Souza",
+    "login": "ana",
+    "email": "ana@exemplo.test",
+    "telefone": null
+  },
+  {
+    "id": 8,
+    "nome": "Bruno Lima",
+    "login": "bruno",
+    "email": "bruno@exemplo.test",
+    "telefone": "11 90000-0000"
+  }
+]

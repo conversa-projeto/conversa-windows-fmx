@@ -1,0 +1,18 @@
+[
+  {
+    "conversa_id": 42,
+    "mensagem_id": 101,
+    "recebida": true,
+    "visualizada": true,
+    "reproduzida": false,
+    "excluida_em": null
+  },
+  {
+    "conversa_id": 42,
+    "mensagem_id": 102,
+    "recebida": true,
+    "visualizada": false,
+    "reproduzida": false,
+    "excluida_em": "2026-10-06T12:06:00.000Z"
+  }
+]

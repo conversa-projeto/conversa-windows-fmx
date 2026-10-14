@@ -176,7 +176,7 @@ Tratador global: `src/app.ts:57-77`. **Todo erro é JSON `{ "error": "<mensagem 
 
 Validação (`src/esquemas.ts:1-14`):
 - Corpo e query são validados **antes** do handler. Campos extras no corpo são ignorados (não geram erro).
-  - Atenção: a documentação viva (`GET /api/docs/json`, conferida em `779c8ed`) declara **`additionalProperties: false`** no corpo de **17 rotas**: login, `PATCH /dispositivo`, digitando, gravando, `PUT /mensagem`, visualizar, reproduzir, chamada cancelar/entrar/sair/finalizar/chat/video e as 4 de enquete com corpo. Com o Elysia `^1.4.30` (`package.json:19`), o padrão (`normalize`) **remove** os campos extras em vez de recusar, pelo que se sabe do Elysia — **não confirmado** (seria preciso um POST). Regra para o cliente: **não enviar campos extras**.
+  - Atenção: a documentação viva (`GET /api/docs/json`, conferida em `779c8ed`) declara **`additionalProperties: false`** no corpo de **17 rotas**: login, `PATCH /dispositivo`, digitando, gravando, `PUT /mensagem`, visualizar, reproduzir, chamada cancelar/entrar/sair/finalizar/chat/video e as 4 de enquete com corpo. Com o Elysia `^1.4.30` (`package.json:19`), o padrão (`normalize`) **remove** os campos extras em vez de recusar, pelo que se sabe do Elysia — **não confirmado** (seria preciso um POST). Regra para o cliente: **não enviar campos extras**. 🔎 Em 2026-10-10, baixada de novo com o mesmo servidor, a documentação declarou isso só em 2 corpos (`POST /login` e `PUT /mensagem`): o gerador varia; vale a regra de não enviar campos extras (D13).
 - Query: números chegam como texto e são convertidos (`?conversa=5` → 5). Valores com `default` podem ser omitidos.
 - `ouNulo(x)` = campo opcional que aceita `null`; `opcional(x)` = opcional mas **não aceita `null`**.
 
@@ -1213,7 +1213,7 @@ Atraso máximo para uma agendada "sair": ~60 s após `visivel_em`.
 8. Booleanos JSON verdadeiros (`true/false`) nas respostas; parâmetro `turn_forcar_relay` vira bool na API mas é `'1'/'0'` no banco.
 
 ### Datas
-9. Datas da API saem como ISO-8601 **UTC com milissegundos e `Z`** (`2026-10-06T12:00:00.123Z`) — serialização de `Date` do JS. Converter com `ISO8601ToDate(valor, False)` (`System.DateUtils`) para ter UTC e só converter para hora local na tela; nunca `StrToDateTime`.
+9. Datas da API saem como ISO-8601 **UTC com milissegundos e `Z`** (`2026-10-06T12:00:00.123Z`) — serialização de `Date` do JS. 🔎 Converter para UTC com `ISO8601ToDate(valor, True)` (o padrão; com `False` a RTL devolve **hora local**, `System.DateUtils.pas`, `AdjustDateTime`) — ou com o conversor próprio da nova base (`Conversa.Contrato.Json`), que aceita também espaço no lugar do `T`, mais de 3 casas decimais e a falta do `Z`. Só converter para hora local na tela; nunca `StrToDateTime`.
 10. Exceção: JSON do resumo de chamada (conteúdo tipo 6) usa `YYYY-MM-DDTHH:MM:SS` **sem fuso e sem ms** (UTC).
 11. Entradas: `visivel_em` e `desde` em ISO-8601 (sem fuso = UTC; prefira mandar com `Z` ou offset). `de` do histórico é data/hora sem fuso (comparado em UTC) e `ate` é data `AAAA-MM-DD`.
 12. `visivel_em` é cortado no minuto e precisa estar ≥ agora+5 min (relógio do servidor).
@@ -1300,8 +1300,9 @@ Correções desta cópia (validação de 2026-10-08 contra `779c8ed`):
 | D10 | §13.2 | `versao` hoje é **36** (`src/migracoes.ts:29-37`) |
 | D11 | §16 | Migrações 000–036 |
 | D12 | §6.2, §6.5 | `tipo` precisa ser **número JSON** (comparação estrita); `tipo:1` recusado pode ser repetido na mesma conexão; `tipo:57` antes do login é descartado |
-| D13 | §3 | O OpenAPI vivo declara `additionalProperties:false` em 17 corpos (efeito real não confirmado): não enviar campos extras |
+| D13 | §3 | O OpenAPI vivo declara `additionalProperties:false` em 17 corpos (efeito real não confirmado): não enviar campos extras. 🔎 2026-10-10: baixado de novo, com o mesmo servidor (`779c8ed`, Elysia 1.4.30, `@elysiajs/openapi` 1.4.16), só **2** (`POST /login` e `PUT /mensagem`) — a documentação gerada varia; a regra continua |
 | D14 | §7.3 | `plataforma` é texto livre até 15 caracteres; o web usa `Web`, o desktop `Windows` |
 | D15 | §6.1 | Sem o nginx faltam `X-Forwarded-Proto` e o `Host` público, e as URLs de MinIO/TURN saem erradas: usar sempre o nginx |
+| D16 🔎 2026-10-10 | pegadinha 9 | `ISO8601ToDate(valor, False)` devolve **hora local**, não UTC (conferido no fonte da RTL do Delphi 12, `AdjustDateTime`): para UTC é `True`, o padrão |
 
 Também nesta cópia: referências a `SETUP.md` corrigidas (o arquivo tem 182 linhas; as antigas apontavam para trechos que não existem mais), `chamadas.ts:280` → `:279` (WS 40 a si mesmo), `tests/mensagensStatus.test.ts:304-312` → `:118-126`, linhas do `conversa-web` conferidas em `e8d82cb`; §1.3, §2.1, §2.4, §6.7, §7, §7.3, §9.10, §9.13, §10.6, §10.7, §15.1, §18 (itens 1–5 e 15) e pegadinhas 6, 7, 9, 29–32, 41, 44 e 45 reescritos para o desktop Windows; pegadinhas 51–54 novas.

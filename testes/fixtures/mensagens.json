@@ -1,0 +1,247 @@
+[
+  {
+    "id": 99,
+    "remetente_id": 8,
+    "remetente": "Bruno",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T11:59:00.000Z",
+    "alterada": null,
+    "visivel_em": null,
+    "excluida_em": null,
+    "recebida": true,
+    "visualizada": true,
+    "reproduzida": false,
+    "conteudos": [
+      {
+        "id": 550,
+        "ordem": 1,
+        "tipo": 1,
+        "conteudo": "Olá, tudo bem? 😀",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "remetente_id": 7,
+    "remetente": "Ana",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T12:00:00.123Z",
+    "alterada": null,
+    "visivel_em": null,
+    "excluida_em": null,
+    "mensagem_referencia": {
+      "tipo": 1,
+      "mensagem": {
+        "id": 99,
+        "conversa_id": 42,
+        "remetente": "Bruno",
+        "inserida": "2026-10-06T11:59:00.000Z",
+        "excluida_em": null,
+        "conteudos": [
+          {
+            "id": 550,
+            "ordem": 1,
+            "tipo": 1,
+            "conteudo": "Olá, tudo bem? 😀",
+            "nome": "",
+            "extensao": "",
+            "transcricao_status": 0,
+            "transcricao": ""
+          }
+        ],
+        "mensagem_referencia": {
+          "tipo": 2,
+          "mensagem": {
+            "id": 50,
+            "conversa_id": 9,
+            "remetente": "Carla",
+            "inserida": "2026-10-01T09:00:00.000Z",
+            "excluida_em": "2026-10-02T09:00:00.000Z",
+            "conteudos": [
+              {
+                "id": 500,
+                "ordem": 1,
+                "tipo": 1,
+                "conteudo": "original encaminhado",
+                "nome": "",
+                "extensao": "",
+                "transcricao_status": 0,
+                "transcricao": ""
+              }
+            ]
+          }
+        }
+      }
+    },
+    "recebida": true,
+    "visualizada": false,
+    "reproduzida": false,
+    "conteudos": [
+      {
+        "id": 555,
+        "ordem": 1,
+        "tipo": 1,
+        "conteudo": "oi @[Bruno](8)",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      },
+      {
+        "id": 556,
+        "ordem": 2,
+        "tipo": 2,
+        "conteudo": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "nome": "foto.jpg",
+        "extensao": "jpg",
+        "transcricao_status": 0,
+        "transcricao": ""
+      }
+    ],
+    "reacoes": [
+      {
+        "emoji": "👍",
+        "quantidade": 2,
+        "reagiu": true,
+        "usuarios": [
+          {
+            "usuario_id": 8,
+            "nome": "Bruno Lima",
+            "reagido_em": "2026-10-06T12:01:00.000Z",
+            "avatar_url": null
+          },
+          {
+            "usuario_id": 7,
+            "nome": "Ana Souza",
+            "reagido_em": "2026-10-06T12:02:00.000Z",
+            "avatar_url": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "remetente_id": 8,
+    "remetente": "Bruno",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T12:05:00.000Z",
+    "alterada": null,
+    "visivel_em": null,
+    "excluida_em": "2026-10-06T12:06:00.000Z",
+    "recebida": true,
+    "visualizada": true,
+    "reproduzida": false,
+    "conteudos": [
+      {
+        "id": 557,
+        "ordem": 1,
+        "tipo": 1,
+        "conteudo": "texto original de uma mensagem oculta",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "remetente_id": 7,
+    "remetente": "Ana",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T12:10:00.000Z",
+    "alterada": null,
+    "visivel_em": "2026-10-07T09:00:00.000Z",
+    "excluida_em": null,
+    "recebida": true,
+    "visualizada": true,
+    "reproduzida": true,
+    "conteudos": [
+      {
+        "id": 558,
+        "ordem": 1,
+        "tipo": 5,
+        "conteudo": "0f343b0931126a20f133d67c2b018a3b5f3bd3b1d9c0d0a3e0b1c2a3b4c5d6e7",
+        "nome": "audio-1696590000000.webm",
+        "extensao": "webm",
+        "transcricao_status": 2,
+        "transcricao": "bom dia a todos"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "remetente_id": 7,
+    "remetente": "Ana",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T12:15:00.000Z",
+    "alterada": null,
+    "visivel_em": null,
+    "excluida_em": null,
+    "recebida": false,
+    "visualizada": false,
+    "reproduzida": false,
+    "conteudos": [
+      {
+        "id": 559,
+        "ordem": 1,
+        "tipo": 6,
+        "conteudo": "{\"chamada_id\":10,\"tipo\":1,\"status\":4,\"iniciada\":\"2026-10-06T12:00:05\",\"finalizada\":\"2026-10-06T12:02:10\",\"duracao\":125,\"participantes\":[{\"usuario_id\":7,\"nome\":\"Ana Souza\",\"status\":3,\"duracao\":null},{\"usuario_id\":8,\"nome\":\"Bruno Lima\",\"status\":3,\"duracao\":120}]}",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "remetente_id": 8,
+    "remetente": "Bruno",
+    "conversa_id": 42,
+    "inserida": "2026-10-06T12:20:00.000Z",
+    "alterada": null,
+    "visivel_em": null,
+    "excluida_em": null,
+    "recebida": true,
+    "visualizada": false,
+    "reproduzida": false,
+    "conteudos": [
+      {
+        "id": 560,
+        "ordem": 1,
+        "tipo": 8,
+        "conteudo": "42",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      },
+      {
+        "id": 561,
+        "ordem": 2,
+        "tipo": 9,
+        "conteudo": "tipo que ainda não existe",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      },
+      {
+        "id": 562,
+        "ordem": 3,
+        "tipo": 7,
+        "conteudo": "basico/coracao",
+        "nome": "",
+        "extensao": "",
+        "transcricao_status": 0,
+        "transcricao": ""
+      }
+    ]
+  }
+]

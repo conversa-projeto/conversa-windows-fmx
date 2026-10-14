@@ -1,0 +1,705 @@
+[
+  {
+    "id": 41,
+    "tipo": 2,
+    "status": 6,
+    "criado_em": "2026-10-09T23:33:06.370Z",
+    "criado_por": 1,
+    "conversa_id": 5,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-09T23:32:13.031Z",
+    "criado_por": 1,
+    "conversa_id": 5,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-09T23:31:18.502Z",
+    "criado_por": 1,
+    "conversa_id": 5,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-09T23:01:54.168Z",
+    "criado_por": 1,
+    "conversa_id": 5,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-09T23:01:19.171Z",
+    "criado_por": 1,
+    "conversa_id": 5,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T05:02:47.247Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T05:02:54.118Z",
+    "finalizada": "2026-10-08T05:03:43.597Z",
+    "duracao": 49,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 50,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T04:47:18.874Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T04:47:32.112Z",
+    "finalizada": "2026-10-08T04:49:13.665Z",
+    "duracao": 102,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 102,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "tipo": 1,
+    "status": 2,
+    "criado_em": "2026-10-08T04:46:05.100Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T04:46:30.411Z",
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-08T04:15:55.567Z",
+    "criado_por": 1,
+    "conversa_id": 4,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-08T04:15:44.286Z",
+    "criado_por": 1,
+    "conversa_id": 4,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-08T04:15:33.187Z",
+    "criado_por": 1,
+    "conversa_id": 2,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T04:01:10.456Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T04:01:17.248Z",
+    "finalizada": "2026-10-08T04:01:33.628Z",
+    "duracao": 16,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 16,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:57:37.900Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:57:45.919Z",
+    "finalizada": "2026-10-08T03:58:29.274Z",
+    "duracao": 43,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 43,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:54:49.697Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:54:54.094Z",
+    "finalizada": "2026-10-08T03:57:24.466Z",
+    "duracao": 150,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 144,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 4,
+        "duracao": 150,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T03:46:22.036Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:46:29.652Z",
+    "finalizada": "2026-10-08T03:47:29.870Z",
+    "duracao": 60,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 60,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:36:26.171Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:36:33.308Z",
+    "finalizada": "2026-10-08T03:37:45.742Z",
+    "duracao": 72,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 73,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T03:32:45.179Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:32:52.723Z",
+    "finalizada": "2026-10-08T03:33:39.573Z",
+    "duracao": 47,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 47,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 4,
+        "duracao": 25,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:27:53.479Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:28:00.888Z",
+    "finalizada": "2026-10-08T03:28:13.385Z",
+    "duracao": 12,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 13,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:22:01.717Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:22:08.400Z",
+    "finalizada": "2026-10-08T03:22:31.400Z",
+    "duracao": 23,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 23,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T03:21:16.266Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:21:24.381Z",
+    "finalizada": "2026-10-08T03:21:57.580Z",
+    "duracao": 33,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 33,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:15:19.062Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:15:23.456Z",
+    "finalizada": "2026-10-08T03:16:34.027Z",
+    "duracao": 71,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 64,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 4,
+        "duracao": 71,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:13:24.246Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:13:28.693Z",
+    "finalizada": "2026-10-08T03:15:07.659Z",
+    "duracao": 99,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 93,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 4,
+        "duracao": 99,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "tipo": 2,
+    "status": 4,
+    "criado_em": "2026-10-08T03:10:10.537Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T03:10:15.183Z",
+    "finalizada": "2026-10-08T03:13:04.695Z",
+    "duracao": 170,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 163,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 35,
+        "nome": "Teste Android C",
+        "status": 4,
+        "duracao": 170,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "tipo": 1,
+    "status": 6,
+    "criado_em": "2026-10-08T03:03:17.856Z",
+    "criado_por": 1,
+    "conversa_id": null,
+    "iniciada": null,
+    "finalizada": null,
+    "duracao": null,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 3,
+        "duracao": null,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 1,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "tipo": 1,
+    "status": 4,
+    "criado_em": "2026-10-08T02:52:41.428Z",
+    "criado_por": 2,
+    "conversa_id": null,
+    "iniciada": "2026-10-08T02:52:48.476Z",
+    "finalizada": "2026-10-08T02:53:06.635Z",
+    "duracao": 18,
+    "participantes": [
+      {
+        "usuario_id": 1,
+        "nome": "Teste Android A",
+        "status": 4,
+        "duracao": 18,
+        "avatar_url": null
+      },
+      {
+        "usuario_id": 2,
+        "nome": "Teste Android B",
+        "status": 4,
+        "duracao": null,
+        "avatar_url": null
+      }
+    ]
+  }
+]

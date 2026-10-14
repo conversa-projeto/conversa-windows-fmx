@@ -14,6 +14,19 @@ Instruções para quem trabalha neste repositório, pessoas ou agentes de IA. Le
   - `uses` conferidos por `node ferramentas/verificar-uses/verificar.mjs` (sem nada faltando, sem unit inexistente);
   - estrutura conferida (cada `begin`/`try`/`case`/`record`/`class` fechado; `interface`/`implementation` coerentes com as declarações).
   - Erros que o build revelar são corrigidos com registro no histórico (fluxo "Repositório e build").
+  - Cada lote de código passa também por uma revisão independente, que confere as assinaturas no fonte da RTL antes do commit.
+- **Armadilhas já encontradas (não repetir):**
+  - `.pas`/`.dpr` sempre em **UTF-8 com BOM** e CRLF. Sem BOM, o compilador lê em ANSI (1252) e corrompe os acentos. O verificador acusa.
+  - Nunca `{` dentro de um comentário `{ }` (o primeiro `}` fecha o comentário). Use texto ou `//`.
+  - FMX: `Application.CreateForm` antes do `Run` só **registra** a classe. Para usar a janela antes do `Run`, chame `Application.RealCreateForms`.
+  - A janela principal só é destruída depois do fim do `.dpr`: ela solta os serviços (`Finalizar`) antes de a composição ser liberada.
+  - `TThreadedQueue<T>.PopItem` depois do `DoShutDown` devolve `wrSignaled` com o item vazio.
+  - DUnitX no Win64: `Assert.AreEqual(n, Integer(Length(x)))` (o `Length` é `NativeInt` e a sobrecarga fica ambígua).
+  - `TJSONNumber` herda de `TJSONString`: teste `is TJSONNumber` antes.
+  - `FormatDateTime` com separadores entre aspas (`'yyyy"-"mm"-"dd'`): sem aspas, `/` e `:` seguem a localidade do Windows.
+  - Não usar `with` (o verificador não confere membros dentro dele).
+  - Métodos genéricos declarados na `interface` não podem usar símbolos que só existem na `implementation` (E2506).
+  - `ISO8601ToDate(x, False)` devolve hora **local**; para UTC é `True` (ou `TDatas.TentarLerIso`).
 
 ## Onde está cada coisa
 
@@ -89,5 +102,7 @@ Instruções para quem trabalha neste repositório, pessoas ou agentes de IA. Le
 - **Threads:** nenhuma E/S de rede ou disco pesada na thread da interface; resultados voltam pelo barramento (`TThread.Queue`/`ForceQueue`); nenhum objeto se libera dentro do próprio evento (`FreeAndNil(Self)` é proibido).
 - **Textos de UI:** centralizados (`resourcestring`); quando existir no web, use o mesmo texto (doc 03 §6), acentuado.
 - **Cores:** só as de `docs/design/cores.md`, por tokens; nada de cor solta em `.fmx`/`.pas` na nova base.
-- **Testes:** parsers, mapeadores, regras de domínio e a máquina de estados de chamada sempre com teste DUnitX.
+- **Testes:** parsers, mapeadores, regras de domínio e a máquina de estados de chamada sempre com teste DUnitX. *Fixtures* JSON em `testes/fixtures/`: exemplos do doc 01 ou respostas do servidor de desenvolvimento com as contas de teste, **higienizadas** (sem token, assinatura de URL nem credencial).
+- **Nomes das units:** `Conversa.Dominio.*` (`core/dominio`), `Conversa.Contrato.*` (`core/contrato`), `Conversa.Infra.*` (`core/infra/...`), `Conversa.Aplicacao.*` (`core/aplicacao`), `Conversa.Eventos.*` (`core/eventos`), `Conversa.UI.*` (`ui`), `Conversa.App.*` (`app`), `Conversa.Testes.*` (`testes`). `dominio` e `aplicacao` não usam `FMX.*` nem `System.Net.*`.
+- **Projetos:** toda unit nova entra no `.dpr` (com `in '...'`) **e** no `.dproj` (`DCCReference`) dos projetos que a usam (app e testes). Não há caminho de busca.
 - **Datas:** o servidor manda ISO-8601 UTC com `Z`; converter para o fuso local só na tela; formatos pt-BR fixos (`TFormatSettings`), não os da localidade do Windows.

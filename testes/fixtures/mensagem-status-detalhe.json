@@ -1,0 +1,16 @@
+[
+  {
+    "usuario_id": 8,
+    "nome": "Bruno Lima",
+    "recebida": "2026-10-06T12:00:01.000Z",
+    "visualizada": "2026-10-06T12:03:00.000Z",
+    "reproduzida": null
+  },
+  {
+    "usuario_id": 9,
+    "nome": "Carla Dias",
+    "recebida": null,
+    "visualizada": null,
+    "reproduzida": null
+  }
+]

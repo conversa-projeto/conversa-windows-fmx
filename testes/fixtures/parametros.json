@@ -1,0 +1,10 @@
+{
+  "fcm_project_id": "conversa-dev",
+  "fcm_client_email": "firebase@conversa-dev.test",
+  "fcm_private_key_configurada": true,
+  "turn_forcar_relay": true,
+  "transcritor_url": "",
+  "transcritor_idioma": "pt",
+  "gravacao_dias": 90,
+  "s3_bucket": "chat"
+}

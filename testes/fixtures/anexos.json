@@ -1,0 +1,17 @@
+[
+  {
+    "anexo_id": 9,
+    "identificador": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nome": "relatório.pdf",
+    "extensao": "pdf",
+    "tamanho": 2048,
+    "criado_em": "2026-10-06T12:00:00.000Z",
+    "tipo": 3,
+    "mensagem_id": 101,
+    "conversa_id": 42,
+    "conversa_descricao": null,
+    "autor_id": 7,
+    "autor_nome": "Ana Souza",
+    "url": null
+  }
+]

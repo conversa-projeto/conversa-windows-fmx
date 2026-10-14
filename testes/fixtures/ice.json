@@ -1,0 +1,10 @@
+{
+  "iceServers": [
+    {
+      "urls": "turn:localhost:3478?transport=tcp",
+      "username": "1791610773:1",
+      "credential": "Y3JlZGVuY2lhbC1kZS10ZXN0ZQ=="
+    }
+  ],
+  "iceTransportPolicy": "relay"
+}

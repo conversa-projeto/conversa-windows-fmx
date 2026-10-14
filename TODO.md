@@ -128,36 +128,37 @@
 ### 1.1 Projeto (FC-100)
 - [x] Criar a branch `nova-base` a partir da `chamada` (depois da Etapa 0) ✔ a partir de 320d524
 - [x] Mover o app atual para `legado/` com `git mv` (fonte, `.fmx`, `lib/`, `src/`, `conversa-webrtc/`, `.dproj`/`.dpr`), fora do build ✔ LEGADO (261 arquivos + `bin/`, `res/`, `teste/`)
-- [ ] Criar `app/Conversa.dpr` + `app/Conversa.dproj`: FMX, **só Win64**, Windows 10 1809+
-- [ ] Manifesto próprio: PerMonitorV2, `asInvoker`, `supportedOS` do Windows 10/11, nome e descrição
-- [ ] Saída por `$(Platform)\$(Config)` (`bin\Win64\Debug`, `bin\Win64\Release`), `.dcu` em pasta própria
-- [ ] *PreBuild* sem `taskkill`
-- [ ] Versão automática (data/tag) e *locale* pt-BR (1046) no VersionInfo
-- [ ] **Teste:** compila e abre uma janela vazia; o exe mostra a versão certa
+- [x] Criar `app/Conversa.dpr` + `app/Conversa.dproj`: FMX, **só Win64**, Windows 10 1809+ ✔ FUND1
+- [x] Manifesto próprio: PerMonitorV2, `asInvoker`, `supportedOS` do Windows 10/11, nome e descrição ✔ FUND1 (`app/Conversa.manifest`; nome e descrição no VersionInfo)
+- [x] Saída por `$(Platform)\$(Config)` (`bin\Win64\Debug`, `bin\Win64\Release`), `.dcu` em pasta própria ✔ FUND1 (`bin\dcu\Win64\<config>\app` e `\testes`)
+- [x] *PreBuild* sem `taskkill` ✔ FUND1
+- [x] *Locale* pt-BR (1046) no VersionInfo (versão 0.1.0) ✔ FUND1
+- [ ] Versão automática (data/tag): junto com a assinatura de código (Etapa 9)
+- [ ] **Teste:** compila e abre uma janela vazia; o exe mostra a versão certa ⛔ depende do build no IDE (responsável)
 
 ### 1.2 Estrutura (FC-101)
-- [ ] Criar as pastas `core/dominio`, `core/contrato`, `core/infra/{http,tempo-real,banco,sessao,anexos,windows,log}`, `core/aplicacao`, `core/eventos`, `ui/`, `midia/`, `testes/`, `build/`
-- [ ] Convenção de nomes de units (`Conversa.Dominio.*`, `Conversa.Contrato.*`, `Conversa.Infra.*`, `Conversa.Aplicacao.*`, `Conversa.UI.*`)
-- [ ] **Teste:** nenhuma unit de `core/dominio` e `core/aplicacao` usa `FMX.*` nem `System.Net.*` (conferir os `uses`)
+- [x] Criar as pastas `core/dominio`, `core/contrato`, `core/infra/{http,tempo-real,banco,sessao,anexos,windows,log}`, `core/aplicacao`, `core/eventos`, `ui/`, `midia/`, `testes/`, `build/` ✔ FUND1 (criadas conforme as units chegam; o Git não guarda pasta vazia)
+- [x] Convenção de nomes de units (`Conversa.Dominio.*`, `Conversa.Contrato.*`, `Conversa.Infra.*`, `Conversa.Aplicacao.*`, `Conversa.UI.*`) ✔ FUND1 (no `CLAUDE.md`, com `Conversa.Eventos.*`, `Conversa.App.*` e `Conversa.Testes.*`)
+- [x] **Teste:** nenhuma unit de `core/dominio` e `core/aplicacao` usa `FMX.*` nem `System.Net.*` (conferir os `uses`) ✔ FUND1 (conferido com `grep`)
 
 ### 1.3 Build e testes (FC-102)
-- [ ] Projeto DUnitX em `testes/ConversaTestes.dproj` (Win64, console)
-- [ ] TestInsight no IDE (opcional)
-- [ ] `build/compilar.cmd`: `rsvars` + `msbuild` Win64 Debug/Release; confere a data do exe e procura `error`/`Fatal` no log (não confia no código de saída)
-- [ ] `build/testar.cmd`: compila e roda os testes, devolvendo erro se algum falhar
+- [x] Projeto DUnitX em `testes/ConversaTestes.dproj` (Win64, console) ✔ FUND1
+- [ ] TestInsight no IDE (opcional) ⛔ opcional; não instalado
+- [x] `build/compilar.cmd`: `rsvars` + `msbuild` Win64 Debug/Release; confere a data do exe e procura `error`/`Fatal` no log (não confia no código de saída) ✔ FUND1 (apaga o exe antes e confere se nasceu um novo; testado aqui: detecta a recusa da Community e sai com erro)
+- [x] `build/testar.cmd`: compila e roda os testes, devolvendo erro se algum falhar ✔ FUND1
 - [ ] **Teste:** os testes rodam (linha de comando ou IDE, conforme 0.4) ⛔ depende de 0.4
 
 ### 1.4 Barramento de eventos (FC-103)
-- [ ] `TBarramento`: assinar por tipo, publicar de qualquer thread, entregar na thread principal (fila)
-- [ ] Assinatura devolve `IInterface` (cancela ao liberar)
-- [ ] Exceção num assinante não impede os outros (vai para o *logger*)
-- [ ] "Último valor" para estados (quem assina depois recebe o atual)
-- [ ] **Teste:** testes de ordem, cancelamento, exceção e publicação de outra thread
+- [x] `TBarramento`: assinar por tipo, publicar de qualquer thread, entregar na thread principal (fila) ✔ FUND1 (sempre pela fila (`ForceQueue`), também quando publicado na thread principal)
+- [x] Assinatura devolve `IInterface` (cancela ao liberar) ✔ FUND1 (nada é entregue depois de cancelar, nem o que já estava na fila)
+- [x] Exceção num assinante não impede os outros (vai para o *logger*) ✔ FUND1
+- [x] "Último valor" para estados (quem assina depois recebe o atual) ✔ FUND1 (`PublicarEstado`/`TentarObterEstado`)
+- [ ] **Teste:** testes de ordem, cancelamento, exceção e publicação de outra thread ⛔ 13 testes escritos (`Conversa.Testes.Barramento`); rodar depende do build
 
 ### 1.5 Design (FC-104)
-- [ ] `ui/Conversa.Cores.pas` com os tokens de `docs/design/cores.md` §7 (claro; escuro como proposta, desligado)
-- [ ] `ui/Conversa.Textos.pas` (`resourcestring`): textos do web acentuados (doc 03 §6)
-- [ ] Componente `Avatar` (foto; senão a inicial pelo primeiro grafema; cor estável por id) (GER-07)
+- [x] `ui/Conversa.UI.Cores.pas` com os tokens de `docs/design/cores.md` §7 (claro; escuro como proposta, desligado) ✔ FUND1 (83 tokens, os dois temas conferidos por *script*)
+- [x] `ui/Conversa.UI.Textos.pas` (`resourcestring`): textos do web acentuados (doc 03 §6) ✔ FUND1 (criada; os textos entram com cada tela)
+- [ ] Componente `Avatar` (foto; senão a inicial pelo primeiro grafema; cores `AvatarFundo`/`AvatarLetra` — o web não usa cor por id) (GER-07)
 - [ ] `DialogoConfirmacao` (título, mensagem, Cancelar/OK; variante perigo com foco em Cancelar; Esc/Enter) (GER-03)
 - [ ] `FaixaAviso` não modal com "×" para erros (GER-01)
 - [ ] Estados `Carregando`, `Vazio`, `Erro` (com "Tentar de novo")
@@ -166,47 +167,47 @@
 - [ ] **Teste:** tela de exemplo com todos os componentes; nenhuma cor nem texto literal fora das units de tokens e textos
 
 ### 1.6 Endereço do servidor (FC-105)
-- [ ] `TEnderecoServidor`: a partir de `https://host[:porta]` derivar `api` (`/api/`), `ws` (`wss://…/ws/`) e `webrtc` (`/webrtc/`)
-- [ ] Testes: `https://x` → `wss://x/ws/`; `http://x:8080` → `ws://x:8080/ws/`; barra final sempre; sem `:443`; com e sem barra no fim da entrada
+- [x] `TEnderecoServidor`: a partir de `https://host[:porta]` derivar `api` (`/api/`), `ws` (`wss://…/ws/`) e `webrtc` (`/webrtc/`) ✔ FUND1 (`core/dominio/Conversa.Dominio.Endereco.pas`; aceita `/api` no fim, sem esquema, IPv6)
+- [x] Testes: `https://x` → `wss://x/ws/`; `http://x:8080` → `ws://x:8080/ws/`; barra final sempre; sem `:443`; com e sem barra no fim da entrada ✔ FUND1 (10 testes; rodar depende do build)
 - [ ] Guardar o endereço na configuração (`%APPDATA%\Conversa\configuracao.json`, gravação atômica)
 - [ ] Tela "Servidor": campo "Endereço do servidor", "Testar conexão", "Salvar"
-- [ ] "Testar conexão": rota protegida sem token deve dar 401 com `{error}`; mensagens para certificado não confiável, host inacessível, não é um Conversa, sem conexão
+- [x] "Testar conexão": rota protegida sem token deve dar 401 com `{error}`; mensagens para certificado não confiável, host inacessível, não é um Conversa, sem conexão ✔ FUND1 (lógica e mensagens em `TTesteDeServidor`; a tela vem com "Tela Servidor")
 - [ ] Assistente da primeira execução; trocar de servidor = sair da conta
 - [ ] **Teste:** trocar o endereço em tempo de execução muda HTTP, WebSocket e mídia sem reiniciar
 
 ### 1.7 TLS (FC-106)
-- [ ] Busca no código novo: nenhum `OnValidateServerCertificate` que aceite tudo, nenhum OpenSSL
+- [x] Busca no código novo: nenhum `OnValidateServerCertificate` que aceite tudo, nenhum OpenSSL ✔ FUND1 (conferido com `grep`; o WinHTTP valida pelo repositório do Windows)
 - [ ] **Teste:** conecta a `https://localhost` (CA do mkcert instalada); um certificado não confiável é recusado com mensagem clara
 
 ### 1.8 Cliente HTTP (FC-107)
-- [ ] `IConversaApi` + `TConversaApi` sobre `THTTPClient` (um por serviço, reaproveitado)
-- [ ] UTF-8 explícito em corpo e resposta; `Content-Type: application/json`
-- [ ] *Query* montada com `TNetEncoding.URL` por parâmetro
-- [ ] *Timeouts* explícitos (conexão e resposta)
-- [ ] Repetição com espera só em GET e em rotas idempotentes
-- [ ] `EApiErro` com status e a mensagem de `{error}`
-- [ ] 401 → evento "sessão expirada" (rotas públicas marcadas não disparam)
-- [ ] HTML do nginx (502/503/504/413) → "Servidor indisponível" / "Muitas tentativas. Aguarde um minuto e tente de novo." / "Arquivo grande demais"
-- [ ] O token só vai para `<base>/api/` (nunca para as URLs assinadas do MinIO)
-- [ ] **Teste:** servidor HTTP falso local: sucesso, 401, `{error}`, HTML 502, 503, *timeout*, JSON inválido, acentos e emoji de ida e volta
+- [x] `IConversaApi` + `TConversaApi` sobre `THTTPClient` (um por serviço, reaproveitado) ✔ FUND1 (transporte separado (`ITransporteHttp`) com um pequeno conjunto de clientes reaproveitados, seguro entre threads)
+- [x] UTF-8 explícito em corpo e resposta; `Content-Type: application/json` ✔ FUND1
+- [x] *Query* montada com `TNetEncoding.URL` por parâmetro ✔ FUND1
+- [x] *Timeouts* explícitos (conexão e resposta) ✔ FUND1 (10 s e 30 s)
+- [x] Repetição com espera só em GET e em rotas idempotentes ✔ FUND1 (só GET (`Obter`), 2 repetições, em falha de rede ou 502/503/504)
+- [x] `EApiErro` com status e a mensagem de `{error}` ✔ FUND1
+- [x] 401 → evento "sessão expirada" (rotas públicas marcadas não disparam) ✔ FUND1 (`EnviarPublico` para login e cadastro)
+- [x] HTML do nginx (502/503/504/413) → "Servidor indisponível" / "Muitas tentativas. Aguarde um minuto e tente de novo." / "Arquivo grande demais" ✔ FUND1 (também o 502 em texto puro do desenvolvimento (pegadinha 54))
+- [x] O token só vai para `<base>/api/` (nunca para as URLs assinadas do MinIO) ✔ FUND1
+- [ ] **Teste:** servidor HTTP falso local: sucesso, 401, `{error}`, HTML 502, 503, *timeout*, JSON inválido, acentos e emoji de ida e volta ⛔ 20 testes com transporte falso (`Conversa.Testes.Api`); rodar depende do build
 
 ### 1.9 Modelos do contrato (FC-108)
-- [ ] Atualizar `docs/contrato/openapi.json` (`GET https://localhost/api/docs/json`) e conferir as 69 operações
-- [ ] *Fixtures* JSON em `testes/fixtures/` a partir do doc 01 e de respostas reais do servidor de desenvolvimento (sem dados pessoais)
-- [ ] Conversor de data: ISO-8601 com `Z` → UTC; tolerante (sem `Z`, com espaço); hora local só na tela
-- [ ] Conversor de id tolerante (número ou texto → `Int64`)
-- [ ] DTO login: `{id, nome, email, telefone, avatar_identificador, dispositivo{…}, token}`
-- [ ] DTO conversa (§11.2: `fixada_ordem`, `arquivada_em`, `mensagens_sem_visualizar`…)
-- [ ] DTO mensagem (§10.2: `excluida_em`, `visivel_em`, `mensagem_referencia` recursiva e opcional, `reacoes` opcional, conteúdos 1–8 com `transcricao_*`)
-- [ ] DTO conteúdo de chamada (tipo 6, datas sem fuso, §9.8)
-- [ ] DTOs de status (`/mensagem/status` booleanos; `/mensagem/status/detalhe` datas)
-- [ ] DTOs de anexo (`PUT /anexo` nos dois formatos; `GET /anexo` → `{url}`; `/anexos`)
-- [ ] DTOs de chamada (dados; pendentes **sem `usuarios`**; histórico `ChamadaHistoricoItem`)
-- [ ] DTO ICE (camelCase: `iceServers`, `iceTransportPolicy`, `urls`, `username`, `credential`)
-- [ ] DTOs de atividade, permissões, parâmetros, SIP, contatos, membros
-- [ ] DTO `Enquete` (com `encerra_em`, `encerrada_em`, `encerrada`, `pode_encerrar`, `pode_alterar_prazo`)
-- [ ] Mapeadores DTO → domínio em `core/contrato`
-- [ ] **Teste:** um teste de desserialização por DTO com *fixture*
+- [x] Atualizar `docs/contrato/openapi.json` (`GET https://localhost/api/docs/json`) e conferir as 69 operações ✔ FUND1 (69 operações; o `additionalProperties:false` caiu de 17 para 2 corpos no mesmo servidor — doc 01 D13)
+- [x] *Fixtures* JSON em `testes/fixtures/` a partir do doc 01 e de respostas reais do servidor de desenvolvimento (sem dados pessoais) ✔ FUND1 (31 arquivos; capturas com as contas de teste, sem token nem credencial)
+- [x] Conversor de data: ISO-8601 com `Z` → UTC; tolerante (sem `Z`, com espaço); hora local só na tela ✔ FUND1 (`TDatas` próprio; o doc 01 dizia `ISO8601ToDate(x, False)` para UTC, que devolve hora local — corrigido (D16))
+- [x] Conversor de id tolerante (número ou texto → `Int64`) ✔ FUND1
+- [x] DTO login: `{id, nome, email, telefone, avatar_identificador, dispositivo{…}, token}` ✔ FUND1
+- [x] DTO conversa (§11.2: `fixada_ordem`, `arquivada_em`, `mensagens_sem_visualizar`…) ✔ FUND1
+- [x] DTO mensagem (§10.2: `excluida_em`, `visivel_em`, `mensagem_referencia` recursiva e opcional, `reacoes` opcional, conteúdos 1–8 com `transcricao_*`) ✔ FUND1 (a referência recursiva vira lista de níveis)
+- [x] DTO conteúdo de chamada (tipo 6, datas sem fuso, §9.8) ✔ FUND1
+- [x] DTOs de status (`/mensagem/status` booleanos; `/mensagem/status/detalhe` datas) ✔ FUND1
+- [x] DTOs de anexo (`PUT /anexo` nos dois formatos; `GET /anexo` → `{url}`; `/anexos`) ✔ FUND1
+- [x] DTOs de chamada (dados; pendentes **sem `usuarios`**; histórico `ChamadaHistoricoItem`) ✔ FUND1
+- [x] DTO ICE (camelCase: `iceServers`, `iceTransportPolicy`, `urls`, `username`, `credential`) ✔ FUND1 (`urls` em texto ou lista)
+- [x] DTOs de atividade, permissões, parâmetros, SIP, contatos, membros ✔ FUND1
+- [x] DTO `Enquete` (com `encerra_em`, `encerrada_em`, `encerrada`, `pode_encerrar`, `pode_alterar_prazo`) ✔ FUND1
+- [x] Mapeadores DTO → domínio em `core/contrato` ✔ FUND1 (records de domínio em `core/dominio`, lidos direto do JSON (sem camada de DTO intermediária))
+- [ ] **Teste:** um teste de desserialização por DTO com *fixture* ⛔ 21 testes de mapeador + 9 de JSON/datas (26 execuções com os casos) escritos; rodar depende do build
 
 ### 1.10 Banco local (FC-109)
 - [ ] Confirmar que a edição do Delphi tem o driver SQLite do FireDAC (senão, decidir a alternativa e registrar)
@@ -248,11 +249,11 @@
 - [ ] **Teste:** desligar a rede por 2 minutos, mandar mensagens pelo web, religar → tudo aparece, sem duplicar
 
 ### 1.14 *Logger* e diagnóstico (FC-113)
-- [ ] `TLogger` com fila e thread própria, níveis, rotação, em `%LOCALAPPDATA%\Conversa\logs`
-- [ ] Redação por padrão (token, senha, conteúdo de mensagem)
+- [x] `TLogger` com fila e thread própria, níveis, rotação, em `%LOCALAPPDATA%\Conversa\logs` ✔ FUND1 (`TLoggerArquivo`: arquivo por dia, 5 MB, 10 arquivos; nunca bloqueia quem chama)
+- [x] Redação por padrão (token, senha, conteúdo de mensagem) ✔ FUND1
 - [ ] Exceções não tratadas registradas com a pilha
-- [ ] `ReportMemoryLeaksOnShutdown` só em Debug
-- [ ] **Teste:** teste de redação
+- [x] `ReportMemoryLeaksOnShutdown` só em Debug ✔ FUND1
+- [ ] **Teste:** teste de redação ⛔ 9 testes escritos (`Conversa.Testes.Log`); rodar depende do build
 
 ### 1.15 Nada de E/S na interface (FC-114)
 - [ ] Serviços assíncronos com `TCancellationToken`; *ViewModels* recebem estado só pelo barramento

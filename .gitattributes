@@ -1,0 +1,21 @@
+# Fins de linha no checkout (o índice guarda LF).
+# O cmd do Windows pode errar rótulos (goto/call :x) em .cmd/.bat com LF; o IDE do Delphi trabalha em CRLF.
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+*.pas       text eol=crlf
+*.dpr       text eol=crlf
+*.dpk       text eol=crlf
+*.dproj     text eol=crlf
+*.groupproj text eol=crlf
+*.fmx       text eol=crlf
+*.manifest  text eol=crlf
+*.ps1       text eol=crlf
+
+# Binários
+*.ico   binary
+*.png   binary
+*.wav   binary
+*.mp3   binary
+*.res   binary
+*.dll   binary
+*.exe   binary

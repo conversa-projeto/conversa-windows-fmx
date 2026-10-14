@@ -100,6 +100,8 @@ function tokenizar(texto) {
     if (c === '{') {
       const fim = texto.indexOf('}', i + 1);
       const corpo = texto.slice(i, fim < 0 ? n : fim + 1);
+      // Comentário { } não aninha: o primeiro } fecha. Um { dentro dele quase sempre é texto que virou código.
+      if (!corpo.startsWith('{$') && corpo.slice(1).includes('{')) dirs.push({ comentarioAninhado: true, linha });
       if (corpo.startsWith('{$')) {
         const d = /^\{\$(\w+)\s*(.*?)\}?$/s.exec(corpo);
         const nome = d ? d[1].toUpperCase() : '';
@@ -838,6 +840,19 @@ function main() {
     const erros = [];
     const avisos = [];
     const ignorar = new Set(A.dirs.filter((d) => d.ignorar).flatMap((d) => d.ignorar.map((x) => x.toLowerCase())));
+    for (const d of A.dirs.filter((x) => x.comentarioAninhado))
+      erros.push({ l: d.linha, m: "'{' dentro de um comentário { }: o comentário termina no primeiro '}' e o resto vira código" });
+    // Codificação: sem BOM, o dcc lê o fonte no code page ANSI da máquina (1252) e corrompe os acentos.
+    {
+      const bruto = fs.readFileSync(arq);
+      const temBom = bruto[0] === 0xef && bruto[1] === 0xbb && bruto[2] === 0xbf;
+      const naoAscii = bruto.some((b) => b >= 0x80);
+      if (naoAscii && !temBom) {
+        let utf8 = true;
+        try { new TextDecoder('utf-8', { fatal: true }).decode(bruto); } catch { utf8 = false; }
+        if (utf8) erros.push({ l: 1, m: 'arquivo em UTF-8 sem BOM: o compilador o lê como ANSI (1252) e corrompe os acentos (salve com BOM)' });
+      }
+    }
 
     // nome da unit = nome do arquivo
     const cab = A.tokens[0];
@@ -992,6 +1007,42 @@ function main() {
     }
     totalErros += erros.length;
     totalAvisos += avisos.length;
+  }
+
+  // projetos (.dpr): .dproj em sincronia e toda unit do projeto alcançável listada no .dpr
+  for (const arq of arquivos.filter((a) => /\.dpr$/i.test(a))) {
+    const rel = path.relative(raiz, arq).replace(/\\/g, '/');
+    const A = analisar(arq);
+    const listadas = new Map(); // unit lower -> caminho relativo ao dpr
+    for (const u of A.usesImpl) if (u.arquivo) listadas.set(u.lv, u.arquivo.replace(/\//g, '\\').toLowerCase());
+    const problemas = [];
+    const dproj = arq.replace(/\.dpr$/i, '.dproj');
+    if (fs.existsSync(dproj)) {
+      const x = fs.readFileSync(dproj, 'utf8');
+      const refs = new Set([...x.matchAll(/<DCCReference\s+Include="([^"]+)"/g)].map((m) => m[1].replace(/\//g, '\\').toLowerCase()));
+      for (const [u, cam] of listadas) if (!refs.has(cam)) problemas.push(`'${u}' está no .dpr mas não no .dproj (${cam})`);
+      for (const cam of refs) if (![...listadas.values()].includes(cam)) problemas.push(`'${cam}' está no .dproj mas não no .dpr`);
+    } else problemas.push(`sem o .dproj ao lado (${path.basename(dproj)})`);
+    // fecho: units do projeto usadas (direta ou indiretamente) pelas listadas
+    const fila = [...listadas.keys()];
+    const vistas = new Set(fila);
+    while (fila.length) {
+      const u = fila.shift();
+      const cam = projeto.get(u);
+      if (!cam) continue;
+      const B = analisar(cam);
+      for (const v of [...B.usesInt, ...B.usesImpl]) {
+        if (!projeto.has(v.lv) || vistas.has(v.lv)) continue;
+        vistas.add(v.lv);
+        fila.push(v.lv);
+        if (!listadas.has(v.lv)) problemas.push(`'${v.nome}' é usada por ${B.unidade} mas não está no .dpr (o compilador não a acha sem caminho de busca)`);
+      }
+    }
+    if (problemas.length) {
+      console.log(`\n${rel} (projeto)`);
+      for (const p of problemas) console.log(`  ✖ ${p}`);
+      totalErros += problemas.length;
+    }
   }
 
   // ciclos entre seções interface
